@@ -1,29 +1,21 @@
 (function() {
     'use strict';
 
-    // --- Configuration ---
-
-    const CONFIG = {
-        animationDuration: 300,
-        mobileBreakpoint: 1024,
-        searchDebounce: 150
+    var CATEGORIES = {
+        'kardio': { name: 'Kardiologie', icon: 'fa-heart-pulse' },
+        'pulmo': { name: 'Pneumologie', icon: 'fa-lungs' },
+        'gi': { name: 'Gastroenterologie', icon: 'fa-utensils' },
+        'neuro': { name: 'Neurologie', icon: 'fa-brain' },
+        'nephro': { name: 'Nephrologie', icon: 'fa-droplet' },
+        'metab': { name: 'Metabolisch', icon: 'fa-flask' },
+        'haem': { name: 'Hämatologie', icon: 'fa-syringe' },
+        'infekt': { name: 'Infektiologie', icon: 'fa-virus' },
+        'tox': { name: 'Toxikologie', icon: 'fa-skull-crossbones' },
+        'leit': { name: 'Leitsymptom', icon: 'fa-stethoscope' },
+        'sonst': { name: 'Sonstige', icon: 'fa-circle-info' }
     };
 
-    const CATEGORIES = {
-        'kardio': { name: 'Kardiologie', icon: 'fa-heart-pulse', color: 'cat-kardio' },
-        'pulmo': { name: 'Pneumologie', icon: 'fa-lungs', color: 'cat-pulmo' },
-        'gi': { name: 'Gastroenterologie', icon: 'fa-utensils', color: 'cat-gi' },
-        'neuro': { name: 'Neurologie', icon: 'fa-brain', color: 'cat-neuro' },
-        'nephro': { name: 'Nephrologie', icon: 'fa-droplet', color: 'cat-nephro' },
-        'metab': { name: 'Metabolisch', icon: 'fa-flask', color: 'cat-metab' },
-        'haem': { name: 'Hämatologie', icon: 'fa-syringe', color: 'cat-haem' },
-        'infekt': { name: 'Infektiologie', icon: 'fa-virus', color: 'cat-infekt' },
-        'tox': { name: 'Toxikologie', icon: 'fa-skull-crossbones', color: 'cat-tox' },
-        'leit': { name: 'Leitsymptom', icon: 'fa-stethoscope', color: 'cat-leit' },
-        'sonst': { name: 'Sonstige', icon: 'fa-circle-info', color: 'cat-sonst' }
-    };
-
-    const SECTION_ICONS = {
+    var SECTION_ICONS = {
         'Definition': 'fa-book-open',
         'Ursachen': 'fa-magnifying-glass',
         'Symptome': 'fa-clipboard-list',
@@ -35,662 +27,678 @@
         'Quellen': 'fa-quote-right'
     };
 
-    // --- State ---
-
-    const state = {
+    var state = {
         data: [],
-        view: 'home', // 'home', 'sop', 'search'
+        activeTab: 'home',
         currentSopId: null,
-        activeCategory: 'all',
+        activeCatDesktop: 'all',
+        activeCatBrowse: 'all',
+        browseFilter: '',
         searchQuery: '',
-        sidebarOpen: false,
         theme: 'light',
-        isMobile: window.innerWidth < CONFIG.mobileBreakpoint
+        isMobile: window.innerWidth < 1024
     };
 
-    // --- DOM Cache ---
-
-    const el = {};
-    const elementIds = [
-        'app', 'sidebar', 'mobileMenuBtn', 'sidebarOverlay', 'navList',
-        'categoryFilters', 'themeToggle', 'searchInput', 'searchClear',
-        'mainContent', 'contentScroll', 'breadcrumb', 'printBtn',
-        'viewHome', 'viewSOP', 'viewSearch', 'searchResultsList', 'searchCount',
-        'fabAction', 'appLogo', 'mobileTitle', 'mobileSearchBtn'
-    ];
+    var el = {};
 
     function cacheElements() {
-        elementIds.forEach(id => {
-            el[id] = document.getElementById(id);
-        });
+        var ids = [
+            'app', 'mobileHeader', 'backBtn', 'mobileTitle',
+            'themeToggleMobile', 'themeToggleMobileIcon',
+            'sidebar', 'appLogo', 'searchInput', 'searchClear',
+            'categoryFilters', 'navList', 'themeToggle', 'themeToggleIcon', 'themeToggleLabel',
+            'mainContent', 'contentHeader', 'breadcrumb', 'printBtn',
+            'contentScroll', 'viewHome', 'viewBrowse', 'viewSearch', 'viewSOP',
+            'browseSearchInput', 'browseSearchClear', 'browseCategoryFilters', 'browseList',
+            'searchViewInput', 'searchViewClear', 'searchResultsArea',
+            'fabAction', 'bottomNav', 'metaThemeColor'
+        ];
+        for (var i = 0; i < ids.length; i++) {
+            el[ids[i]] = document.getElementById(ids[i]);
+        }
     }
-
-    // --- Initialization ---
 
     function init() {
         cacheElements();
         loadTheme();
-        
-        // Wait for data scripts to be executed
         if (window.SOP_DATA && Array.isArray(window.SOP_DATA)) {
-            state.data = window.SOP_DATA.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+            state.data = window.SOP_DATA.slice().sort(function(a, b) {
+                return a.title.localeCompare(b.title, 'de');
+            });
             startApp();
         } else {
-            // Retry once after short delay if scripts loaded async
-            setTimeout(() => {
-                if (window.SOP_DATA) {
-                    state.data = window.SOP_DATA.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+            setTimeout(function() {
+                if (window.SOP_DATA && Array.isArray(window.SOP_DATA)) {
+                    state.data = window.SOP_DATA.slice().sort(function(a, b) {
+                        return a.title.localeCompare(b.title, 'de');
+                    });
                     startApp();
-                } else {
-                    renderError('Daten konnten nicht geladen werden.');
                 }
-            }, 100);
+            }, 200);
         }
     }
 
     function startApp() {
-        renderCategoryFilters();
+        renderHomeView();
+        renderDesktopCategoryFilters();
+        renderBrowseCategoryFilters();
         renderNavList();
-        renderHomeGrid();
+        renderBrowseList();
         bindEvents();
-        handleRoute(); // Initial routing
-        
-        // Remove loading state if implemented
-        document.body.classList.remove('loading');
-    }
-
-    // --- Routing ---
-
-    function handleRoute() {
-        const hash = window.location.hash;
-        
-        if (hash.startsWith('#sop-')) {
-            const id = hash.substring(5);
-            const sop = state.data.find(s => s.id === id);
+        var hash = location.hash;
+        if (hash.indexOf('#sop-') === 0) {
+            var id = hash.substring(5);
+            var sop = findSOP(id);
             if (sop) {
-                state.view = 'sop';
+                history.replaceState(null, '', location.pathname + location.search);
                 state.currentSopId = id;
-                renderSOP(sop);
-                updateUIForView('sop');
-            } else {
-                window.location.hash = ''; // Reset if not found
+                history.pushState(null, '', '#sop-' + id);
+                showSOP(sop);
+                return;
             }
-        } else if (hash.startsWith('#search=')) {
-            const query = decodeURIComponent(hash.substring(8));
-            state.view = 'search';
-            state.searchQuery = query;
-            if (el.searchInput) el.searchInput.value = query;
-            performSearch(query);
-            updateUIForView('search');
-        } else {
-            state.view = 'home';
-            state.currentSopId = null;
-            updateUIForView('home');
         }
-        
-        updateBreadcrumb();
-        closeSidebar(); // Always close sidebar on route change on mobile
+        showTab('home');
     }
 
-    function navigateTo(hash) {
-        window.location.hash = hash;
-    }
-
-    // --- Rendering Logic ---
-
-    function updateUIForView(view) {
-        // Hide all views
-        el.viewHome.style.display = 'none';
-        el.viewSOP.style.display = 'none';
-        el.viewSearch.style.display = 'none';
-        
-        // Show active view
-        if (view === 'home') {
-            el.viewHome.style.display = 'block';
-            el.mobileTitle.textContent = 'SOP Notaufnahme';
-            el.fabAction.classList.remove('visible');
-        } else if (view === 'sop') {
-            el.viewSOP.style.display = 'block';
-            el.mobileTitle.textContent = 'Detailansicht';
-            // Scroll to top
-            el.contentScroll.scrollTop = 0;
-        } else if (view === 'search') {
-            el.viewSearch.style.display = 'block';
-            el.mobileTitle.textContent = 'Suche';
-            el.fabAction.classList.remove('visible');
+    function findSOP(id) {
+        for (var i = 0; i < state.data.length; i++) {
+            if (state.data[i].id === id) return state.data[i];
         }
-
-        // Update Nav Active State
-        const navItems = el.navList.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-            if (view === 'sop' && item.dataset.id === state.currentSopId) {
-                item.classList.add('active');
-                // Scroll nav item into view if sidebar is visible
-                if (!state.isMobile) {
-                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
-            } else {
-                item.classList.remove('active');
-            }
-        });
+        return null;
     }
-
-    function renderCategoryFilters() {
-        const cats = ['all', ...Object.keys(CATEGORIES)];
-        let html = '';
-        
-        cats.forEach(key => {
-            const label = key === 'all' ? 'Alle' : CATEGORIES[key].name;
-            const activeClass = key === state.activeCategory ? 'active' : '';
-            html += `<button class="cat-pill ${activeClass}" data-cat="${key}">${label}</button>`;
-        });
-        
-        el.categoryFilters.innerHTML = html;
-    }
-
-    function renderNavList() {
-        const filteredData = state.activeCategory === 'all' 
-            ? state.data 
-            : state.data.filter(s => s.catKey === state.activeCategory);
-            
-        let html = '';
-        
-        if (filteredData.length === 0) {
-            html = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary);">Keine SOPs gefunden</div>';
-        } else {
-            filteredData.forEach(sop => {
-                const cat = CATEGORIES[sop.catKey] || { name: 'Sonstige', color: 'cat-sonst' };
-                html += `
-                    <a href="#sop-${sop.id}" class="nav-item" data-id="${sop.id}">
-                        <span class="nav-item-dot ${cat.color}"></span>
-                        <div class="nav-item-content">
-                            <span class="nav-item-title">${escapeHtml(sop.title)}</span>
-                            <span class="nav-item-cat">${cat.name}</span>
-                        </div>
-                    </a>
-                `;
-            });
-        }
-        
-        el.navList.innerHTML = html;
-    }
-
-    function renderHomeGrid() {
-        let html = `
-            <div class="home-hero">
-                <div class="home-logo"><i class="fa-solid fa-heart-pulse"></i></div>
-                <h1 class="home-title">SOP Notaufnahme</h1>
-                <p class="home-subtitle">Standardisierte Handlungsanweisungen für die klinische Notfallmedizin. Schnell, offline verfügbar, evidenzbasiert.</p>
-            </div>
-            <div class="cat-grid">
-        `;
-        
-        // Calculate counts
-        const counts = {};
-        state.data.forEach(sop => {
-            counts[sop.catKey] = (counts[sop.catKey] || 0) + 1;
-        });
-        
-        Object.keys(CATEGORIES).forEach(key => {
-            const cat = CATEGORIES[key];
-            const count = counts[key] || 0;
-            if (count > 0) {
-                html += `
-                    <div class="cat-card ${cat.color}" data-cat="${key}">
-                        <div class="cat-card-icon"><i class="fa-solid ${cat.icon}"></i></div>
-                        <div class="cat-card-info">
-                            <div class="cat-card-title">${cat.name}</div>
-                            <div class="cat-card-count">${count} SOPs</div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--text-tertiary); font-size: 0.8rem;"></i>
-                    </div>
-                `;
-            }
-        });
-        
-        html += '</div>';
-        el.viewHome.innerHTML = html;
-        
-        // Bind Home Grid Clicks
-        el.viewHome.querySelectorAll('.cat-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const cat = card.dataset.cat;
-                setCategory(cat);
-                if (state.isMobile) {
-                    openSidebar();
-                } else {
-                    // On desktop, maybe focus list
-                    const firstItem = el.navList.querySelector('.nav-item');
-                    if (firstItem) firstItem.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    }
-
-    function renderSOP(sop) {
-        const cat = CATEGORIES[sop.catKey] || { name: 'Allgemein', icon: 'fa-file', color: 'cat-sonst' };
-        
-        let html = `
-            <div class="sop-header">
-                <div class="sop-meta-row">
-                    <span class="sop-badge ${cat.color}"><i class="fa-solid ${cat.icon}"></i> ${cat.name}</span>
-                    <span class="sop-date">Stand: ${sop.stand || 'Aktuell'}</span>
-                </div>
-                <h1 class="sop-title">${escapeHtml(sop.title)}</h1>
-            </div>
-            
-            <div class="sop-actions">
-                <button class="btn-ghost" id="expandAllBtn">
-                    <i class="fa-solid fa-angles-down"></i> Alle öffnen
-                </button>
-            </div>
-            
-            <div class="sop-body">
-        `;
-        
-        sop.sections.forEach((sec, index) => {
-            const icon = SECTION_ICONS[sec.title] || 'fa-circle-dot';
-            const isOpen = index === 0 ? 'open' : ''; // First section open by default
-            
-            html += `
-                <div class="sop-section ${cat.color} ${isOpen}">
-                    <div class="section-header">
-                        <div class="section-title">
-                            <div class="section-icon"><i class="fa-solid ${icon}"></i></div>
-                            <span>${escapeHtml(sec.title)}</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-down section-toggle-icon"></i>
-                    </div>
-                    <div class="section-content">
-                        ${processHtmlContent(sec.html)}
-                    </div>
-                </div>
-            `;
-        });
-        
-        if (sop.sources) {
-            html += `
-                <div class="sop-section ${cat.color}">
-                    <div class="section-header">
-                        <div class="section-title">
-                            <div class="section-icon"><i class="fa-solid fa-book"></i></div>
-                            <span>Quellen</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-down section-toggle-icon"></i>
-                    </div>
-                    <div class="section-content">
-                        <p style="font-size: 0.85rem; color: var(--text-tertiary);">${sop.sources}</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        html += '</div>'; // End sop-body
-        
-        el.viewSOP.innerHTML = html;
-        
-        // Bind Section Toggles
-        el.viewSOP.querySelectorAll('.section-header').forEach(header => {
-            header.addEventListener('click', function() {
-                const section = this.parentElement;
-                toggleSection(section);
-            });
-        });
-        
-        // Bind Expand All
-        const expandBtn = document.getElementById('expandAllBtn');
-        if (expandBtn) {
-            expandBtn.addEventListener('click', () => {
-                const allSections = el.viewSOP.querySelectorAll('.sop-section');
-                const anyClosed = Array.from(allSections).some(s => !s.classList.contains('open'));
-                
-                allSections.forEach(s => {
-                    if (anyClosed) s.classList.add('open');
-                    else s.classList.remove('open');
-                });
-                
-                expandBtn.innerHTML = anyClosed 
-                    ? '<i class="fa-solid fa-angles-up"></i> Alle schließen'
-                    : '<i class="fa-solid fa-angles-down"></i> Alle öffnen';
-            });
-        }
-    }
-
-    function toggleSection(section) {
-        section.classList.toggle('open');
-    }
-
-    // --- Search Logic ---
-
-    function performSearch(query) {
-        if (!query || query.length < 2) {
-            el.searchResultsList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary);">Bitte mindestens 2 Zeichen eingeben</div>';
-            el.searchCount.textContent = '0 Treffer';
-            return;
-        }
-        
-        const terms = query.toLowerCase().split(' ').filter(t => t.length > 0);
-        const results = [];
-        
-        state.data.forEach(sop => {
-            let score = 0;
-            const titleLower = sop.title.toLowerCase();
-            let context = '';
-            
-            // Title Match (High Priority)
-            if (titleLower.includes(query.toLowerCase())) {
-                score += 100;
-                context = 'Treffer im Titel';
-            } else {
-                // Partial Title Match
-                let matchCount = 0;
-                terms.forEach(term => {
-                    if (titleLower.includes(term)) matchCount++;
-                });
-                if (matchCount === terms.length) score += 50;
-            }
-            
-            // Content Match
-            sop.sections.forEach(sec => {
-                const text = stripHtml(sec.html).toLowerCase();
-                let termHits = 0;
-                terms.forEach(term => {
-                    if (text.includes(term)) termHits++;
-                });
-                
-                if (termHits > 0) {
-                    score += termHits * 10;
-                    if (!context) context = `Treffer in: ${sec.title}`;
-                }
-            });
-            
-            if (score > 0) {
-                results.push({ sop, score, context });
-            }
-        });
-        
-        results.sort((a, b) => b.score - a.score);
-        
-        renderSearchResults(results, query);
-    }
-
-    function renderSearchResults(results, query) {
-        el.searchCount.textContent = `${results.length} Treffer`;
-        
-        if (results.length === 0) {
-            el.searchResultsList.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: var(--text-tertiary);">
-                    <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
-                    Keine Ergebnisse für "${escapeHtml(query)}"
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        results.forEach(res => {
-            const cat = CATEGORIES[res.sop.catKey];
-            html += `
-                <div class="search-result-item" onclick="location.hash='#sop-${res.sop.id}'">
-                    <div class="search-result-title">${highlightText(res.sop.title, query)}</div>
-                    <div class="search-result-context">
-                        <span style="color: var(--${cat.color}-text); font-weight: 500; font-size: 0.8rem;">${cat.name}</span>
-                        • ${res.context}
-                    </div>
-                </div>
-            `;
-        });
-        
-        el.searchResultsList.innerHTML = html;
-    }
-
-    // --- UI Interactions ---
-
-    function setCategory(key) {
-        state.activeCategory = key;
-        
-        // Update Pills
-        const pills = el.categoryFilters.querySelectorAll('.cat-pill');
-        pills.forEach(p => {
-            if (p.dataset.cat === key) {
-                p.classList.add('active');
-                p.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            } else {
-                p.classList.remove('active');
-            }
-        });
-        
-        renderNavList();
-        
-        // If searching, clear search when switching category (optional UX choice)
-        // For now, we keep logic separate.
-    }
-
-    function openSidebar() {
-        state.sidebarOpen = true;
-        el.sidebar.classList.add('open');
-        el.sidebarOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent body scroll
-    }
-
-    function closeSidebar() {
-        state.sidebarOpen = false;
-        el.sidebar.classList.remove('open');
-        el.sidebarOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    function updateBreadcrumb() {
-        let html = '<a href="#" class="breadcrumb-link">Übersicht</a>';
-        
-        if (state.view === 'sop' && state.currentSopId) {
-            const sop = state.data.find(s => s.id === state.currentSopId);
-            if (sop) {
-                html += ` <i class="fa-solid fa-chevron-right breadcrumb-sep"></i> <span>${escapeHtml(sop.title)}</span>`;
-            }
-        } else if (state.view === 'search') {
-            html += ` <i class="fa-solid fa-chevron-right breadcrumb-sep"></i> <span>Suche</span>`;
-        }
-        
-        el.breadcrumb.innerHTML = html;
-    }
-
-    // --- Theme Management ---
 
     function loadTheme() {
-        const saved = localStorage.getItem('sop-theme');
-        if (saved) {
-            setTheme(saved);
+        var saved = localStorage.getItem('sop-theme');
+        if (saved === 'dark' || saved === 'light') {
+            state.theme = saved;
         } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setTheme('dark');
-        } else {
-            setTheme('light');
+            state.theme = 'dark';
         }
+        applyTheme(state.theme);
     }
 
-    function setTheme(theme) {
-        state.theme = theme;
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('sop-theme', theme);
-        
-        const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
-        const text = theme === 'dark' ? 'Helles Design' : 'Dunkles Design';
-        el.themeToggle.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${text}</span>`;
+    function applyTheme(t) {
+        state.theme = t;
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('sop-theme', t);
+        var dark = t === 'dark';
+        if (el.themeToggleIcon) el.themeToggleIcon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        if (el.themeToggleLabel) el.themeToggleLabel.textContent = dark ? 'Light Mode' : 'Dark Mode';
+        if (el.themeToggleMobileIcon) el.themeToggleMobileIcon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        if (el.metaThemeColor) el.metaThemeColor.setAttribute('content', dark ? '#0b0f14' : '#ffffff');
     }
 
     function toggleTheme() {
-        setTheme(state.theme === 'light' ? 'dark' : 'light');
+        applyTheme(state.theme === 'dark' ? 'light' : 'dark');
     }
 
-    // --- Utilities ---
+    function openSOP(id) {
+        var sop = findSOP(id);
+        if (!sop) return;
+        state.currentSopId = id;
+        history.pushState(null, '', '#sop-' + id);
+        showSOP(sop);
+    }
+
+    function goBack() {
+        state.currentSopId = null;
+        history.back();
+    }
+
+    function switchTab(tab) {
+        if (state.currentSopId) {
+            state.currentSopId = null;
+            if (location.hash.indexOf('#sop-') === 0) {
+                history.replaceState(null, '', location.pathname + location.search);
+            }
+        }
+        state.activeTab = tab;
+        showTab(tab);
+    }
+
+    function hideAllViews() {
+        var views = [el.viewHome, el.viewBrowse, el.viewSearch, el.viewSOP];
+        for (var i = 0; i < views.length; i++) {
+            if (views[i]) {
+                views[i].style.display = 'none';
+                views[i].classList.remove('view-animate-in');
+            }
+        }
+    }
+
+    function activateView(v) {
+        if (!v) return;
+        v.style.display = 'block';
+        void v.offsetWidth;
+        v.classList.add('view-animate-in');
+    }
+
+    function showTab(tab) {
+        state.activeTab = tab;
+        state.currentSopId = null;
+        hideAllViews();
+        if (tab === 'home') {
+            activateView(el.viewHome);
+        } else if (tab === 'browse') {
+            activateView(el.viewBrowse);
+        } else if (tab === 'search') {
+            activateView(el.viewSearch);
+            if (el.searchResultsArea && !el.searchResultsArea.innerHTML.trim()) {
+                performSearch('');
+            }
+        }
+        if (el.fabAction) el.fabAction.classList.remove('visible');
+        if (el.contentScroll) el.contentScroll.scrollTop = 0;
+        updateMobileHeader();
+        updateBottomNav();
+        updateBreadcrumb();
+        updateDesktopNavActive();
+        updatePrintButton();
+    }
+
+    function showSOP(sop) {
+        hideAllViews();
+        renderSOP(sop);
+        activateView(el.viewSOP);
+        if (el.contentScroll) el.contentScroll.scrollTop = 0;
+        if (el.fabAction) el.fabAction.classList.remove('visible');
+        updateMobileHeader();
+        updateBottomNav();
+        updateBreadcrumb();
+        updateDesktopNavActive();
+        updatePrintButton();
+    }
+
+    function updateMobileHeader() {
+        if (!el.backBtn || !el.mobileTitle) return;
+        if (state.currentSopId) {
+            el.backBtn.classList.remove('hidden');
+            var sop = findSOP(state.currentSopId);
+            el.mobileTitle.textContent = sop ? sop.title : 'SOP';
+        } else {
+            el.backBtn.classList.add('hidden');
+            if (state.activeTab === 'home') el.mobileTitle.textContent = 'SOP Notaufnahme';
+            else if (state.activeTab === 'browse') el.mobileTitle.textContent = 'Alle SOPs';
+            else if (state.activeTab === 'search') el.mobileTitle.textContent = 'Suche';
+        }
+    }
+
+    function updateBottomNav() {
+        if (!el.bottomNav) return;
+        var items = el.bottomNav.querySelectorAll('.bottom-nav-item');
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.toggle('active', items[i].getAttribute('data-tab') === state.activeTab);
+        }
+    }
+
+    function updateBreadcrumb() {
+        if (!el.breadcrumb) return;
+        if (state.currentSopId) {
+            var sop = findSOP(state.currentSopId);
+            el.breadcrumb.innerHTML = '<a class="breadcrumb-link" data-breadcrumb="home">Start</a>' +
+                '<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>' +
+                '<span>' + (sop ? escapeHtml(sop.title) : '') + '</span>';
+        } else if (state.activeTab === 'home') {
+            el.breadcrumb.innerHTML = '<span>Übersicht</span>';
+        } else if (state.activeTab === 'browse') {
+            el.breadcrumb.innerHTML = '<span>Alle SOPs</span>';
+        } else if (state.activeTab === 'search') {
+            el.breadcrumb.innerHTML = '<span>Suche</span>';
+        }
+    }
+
+    function updateDesktopNavActive() {
+        if (!el.navList) return;
+        var items = el.navList.querySelectorAll('.nav-item');
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.toggle('active', items[i].getAttribute('data-sop-id') === state.currentSopId);
+        }
+    }
+
+    function updatePrintButton() {
+        if (!el.printBtn) return;
+        el.printBtn.style.display = state.currentSopId ? '' : 'none';
+    }
 
     function escapeHtml(text) {
-        if (!text) return '';
-        return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        var d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
     }
 
-    function stripHtml(html) {
-        const tmp = document.createElement("DIV");
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || "";
+    function countByCategory(cat) {
+        if (cat === 'all') return state.data.length;
+        var c = 0;
+        for (var i = 0; i < state.data.length; i++) {
+            if (state.data[i].category === cat) c++;
+        }
+        return c;
     }
 
-    function processHtmlContent(html) {
-        // Here we could add auto-linking or other processing
-        // For now, just return (we trust the source data as it is internal)
+    function renderHomeView() {
+        if (!el.viewHome) return;
+        var totalSOPs = state.data.length;
+        var catKeys = Object.keys(CATEGORIES);
+        var usedCats = [];
+        for (var c = 0; c < catKeys.length; c++) {
+            if (countByCategory(catKeys[c]) > 0) usedCats.push(catKeys[c]);
+        }
+        var html = '<div class="home-hero">' +
+            '<div class="home-logo-icon"><i class="fa-solid fa-bolt"></i></div>' +
+            '<h1 class="home-title">SOP Notaufnahme</h1>' +
+            '<p class="home-subtitle">Standardarbeitsanweisungen für die Notaufnahme – Klinikum St. Georg Leipzig</p>' +
+            '<div class="home-stats">' +
+            '<div class="home-stat"><div class="home-stat-value">' + totalSOPs + '</div><div class="home-stat-label">SOPs</div></div>' +
+            '<div class="home-stat"><div class="home-stat-value">' + usedCats.length + '</div><div class="home-stat-label">Kategorien</div></div>' +
+            '</div></div>' +
+            '<h2 class="home-section-title">Kategorien</h2>' +
+            '<div class="cat-grid">';
+        for (var i = 0; i < usedCats.length; i++) {
+            var k = usedCats[i];
+            var cat = CATEGORIES[k];
+            var cnt = countByCategory(k);
+            html += '<div class="cat-card cat-' + k + '" data-category="' + k + '">' +
+                '<div class="cat-card-icon"><i class="fa-solid ' + cat.icon + '"></i></div>' +
+                '<div class="cat-card-info"><div class="cat-card-title">' + escapeHtml(cat.name) + '</div>' +
+                '<div class="cat-card-count">' + cnt + ' SOP' + (cnt !== 1 ? 's' : '') + '</div></div></div>';
+        }
+        html += '</div>';
+        el.viewHome.innerHTML = html;
+    }
+
+    function buildCatPills(activeVal) {
+        var html = '<button class="cat-pill' + (activeVal === 'all' ? ' active' : '') + '" data-cat="all">Alle</button>';
+        var catKeys = Object.keys(CATEGORIES);
+        for (var i = 0; i < catKeys.length; i++) {
+            var k = catKeys[i];
+            if (countByCategory(k) > 0) {
+                html += '<button class="cat-pill' + (activeVal === k ? ' active' : '') + '" data-cat="' + k + '">' + escapeHtml(CATEGORIES[k].name) + '</button>';
+            }
+        }
         return html;
+    }
+
+    function renderDesktopCategoryFilters() {
+        if (!el.categoryFilters) return;
+        el.categoryFilters.innerHTML = buildCatPills(state.activeCatDesktop);
+    }
+
+    function renderBrowseCategoryFilters() {
+        if (!el.browseCategoryFilters) return;
+        el.browseCategoryFilters.innerHTML = buildCatPills(state.activeCatBrowse);
+    }
+
+    function getFilteredData(catFilter, textFilter) {
+        var result = [];
+        var q = (textFilter || '').toLowerCase().trim();
+        for (var i = 0; i < state.data.length; i++) {
+            var s = state.data[i];
+            if (catFilter !== 'all' && s.category !== catFilter) continue;
+            if (q) {
+                var titleMatch = s.title.toLowerCase().indexOf(q) !== -1;
+                var catName = CATEGORIES[s.category] ? CATEGORIES[s.category].name.toLowerCase() : '';
+                var catMatch = catName.indexOf(q) !== -1;
+                if (!titleMatch && !catMatch) continue;
+            }
+            result.push(s);
+        }
+        return result;
+    }
+
+    function renderNavList() {
+        if (!el.navList) return;
+        var items = getFilteredData(state.activeCatDesktop, el.searchInput ? el.searchInput.value : '');
+        if (items.length === 0) {
+            el.navList.innerHTML = '<div class="no-results-message">Keine SOPs gefunden</div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+            var s = items[i];
+            var catName = CATEGORIES[s.category] ? CATEGORIES[s.category].name : '';
+            var isActive = s.id === state.currentSopId;
+            html += '<a class="nav-item' + (isActive ? ' active' : '') + '" data-sop-id="' + s.id + '">' +
+                '<div class="nav-item-dot cat-' + s.category + '"></div>' +
+                '<div class="nav-item-content"><div class="nav-item-title">' + escapeHtml(s.title) + '</div>' +
+                '<div class="nav-item-cat">' + escapeHtml(catName) + '</div></div></a>';
+        }
+        el.navList.innerHTML = html;
+    }
+
+    function renderBrowseList() {
+        if (!el.browseList) return;
+        var items = getFilteredData(state.activeCatBrowse, state.browseFilter);
+        if (items.length === 0) {
+            el.browseList.innerHTML = '<div class="browse-empty"><i class="fa-solid fa-folder-open"></i><p>Keine SOPs gefunden</p></div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+            var s = items[i];
+            var catName = CATEGORIES[s.category] ? CATEGORIES[s.category].name : '';
+            html += '<a class="browse-item" data-sop-id="' + s.id + '">' +
+                '<div class="browse-item-dot cat-' + s.category + '"></div>' +
+                '<div class="browse-item-content"><div class="browse-item-title">' + escapeHtml(s.title) + '</div>' +
+                '<div class="browse-item-cat">' + escapeHtml(catName) + '</div></div>' +
+                '<i class="fa-solid fa-chevron-right browse-item-arrow"></i></a>';
+        }
+        el.browseList.innerHTML = html;
+    }
+
+    function getSectionIcon(title) {
+        var keys = Object.keys(SECTION_ICONS);
+        for (var i = 0; i < keys.length; i++) {
+            if (title.indexOf(keys[i]) !== -1) return SECTION_ICONS[keys[i]];
+        }
+        return 'fa-file-lines';
+    }
+
+    function renderSOP(sop) {
+        if (!el.viewSOP) return;
+        var cat = sop.category || 'sonst';
+        var catInfo = CATEGORIES[cat] || CATEGORIES['sonst'];
+        var dateStr = sop.date || '';
+        var html = '<div class="sop-view-pad">' +
+            '<div class="sop-header">' +
+            '<div class="sop-meta-row">' +
+            '<span class="sop-badge cat-' + cat + '"><i class="fa-solid ' + catInfo.icon + '"></i> ' + escapeHtml(catInfo.name) + '</span>';
+        if (dateStr) {
+            html += '<span class="sop-date">Stand: ' + escapeHtml(dateStr) + '</span>';
+        }
+        html += '</div><h1 class="sop-title">' + escapeHtml(sop.title) + '</h1></div>';
+        html += '<div class="sop-actions mobile-only"><button class="btn-action" id="sopPrintBtn"><i class="fa-solid fa-print"></i> Drucken</button></div>';
+        html += '<div class="sop-body">';
+        if (sop.sections && sop.sections.length > 0) {
+            for (var i = 0; i < sop.sections.length; i++) {
+                var sec = sop.sections[i];
+                var icon = getSectionIcon(sec.title);
+                html += '<div class="sop-section cat-' + cat + ' open">' +
+                    '<div class="section-header" role="button" tabindex="0">' +
+                    '<div class="section-title"><div class="section-icon"><i class="fa-solid ' + icon + '"></i></div>' +
+                    '<span>' + escapeHtml(sec.title) + '</span></div>' +
+                    '<i class="fa-solid fa-chevron-down section-chevron"></i></div>' +
+                    '<div class="section-body"><div class="section-collapse">' +
+                    '<div class="section-content">' + sec.content + '</div>' +
+                    '</div></div></div>';
+            }
+        }
+        html += '</div></div>';
+        el.viewSOP.innerHTML = html;
+        var pb = document.getElementById('sopPrintBtn');
+        if (pb) pb.addEventListener('click', function() { window.print(); });
+    }
+
+    function stripHtml(h) {
+        var tmp = document.createElement('div');
+        tmp.innerHTML = h;
+        return tmp.textContent || tmp.innerText || '';
     }
 
     function highlightText(text, query) {
         if (!query) return escapeHtml(text);
-        const escapedText = escapeHtml(text);
-        const terms = query.split(' ').map(t => escapeHtml(t)).filter(t => t);
-        
-        let result = escapedText;
-        terms.forEach(term => {
-            const regex = new RegExp(`(${term})`, 'gi');
-            result = result.replace(regex, '<span class="highlight">$1</span>');
-        });
-        return result;
+        var escaped = escapeHtml(text);
+        var q = escapeHtml(query);
+        var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        return escaped.replace(re, '<mark class="highlight">$1</mark>');
     }
 
-    function renderError(msg) {
-        el.app.innerHTML = `<div style="padding: 40px; text-align: center;"><h2>Fehler</h2><p>${msg}</p></div>`;
+    function performSearch(query) {
+        if (!el.searchResultsArea) return;
+        var q = (query || '').trim();
+        if (!q) {
+            el.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass"></i><p>Suchbegriff eingeben, um in allen SOPs zu suchen</p></div>';
+            return;
+        }
+        var ql = q.toLowerCase();
+        var results = [];
+        for (var i = 0; i < state.data.length; i++) {
+            var sop = state.data[i];
+            var titleMatch = sop.title.toLowerCase().indexOf(ql) !== -1;
+            var contentMatches = [];
+            if (sop.sections) {
+                for (var j = 0; j < sop.sections.length; j++) {
+                    var sec = sop.sections[j];
+                    var plain = stripHtml(sec.content);
+                    var idx = plain.toLowerCase().indexOf(ql);
+                    if (idx !== -1) {
+                        var start = Math.max(0, idx - 40);
+                        var end = Math.min(plain.length, idx + q.length + 60);
+                        var snippet = (start > 0 ? '…' : '') + plain.substring(start, end) + (end < plain.length ? '…' : '');
+                        contentMatches.push({ section: sec.title, snippet: snippet });
+                    }
+                }
+            }
+            if (titleMatch || contentMatches.length > 0) {
+                results.push({ sop: sop, titleMatch: titleMatch, matches: contentMatches });
+            }
+        }
+        if (results.length === 0) {
+            el.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass"></i><p>Keine Ergebnisse für \u201E' + escapeHtml(q) + '\u201C</p></div>';
+            return;
+        }
+        var html = '<div class="search-results-header"><h2>Ergebnisse</h2><span class="search-count-badge">' + results.length + '</span></div><div class="search-results-list">';
+        for (var r = 0; r < results.length; r++) {
+            var res = results[r];
+            var title = highlightText(res.sop.title, q);
+            var context = '';
+            if (res.matches.length > 0) {
+                context = '<div class="search-result-context">' + escapeHtml(res.matches[0].section) + ': ' + highlightText(res.matches[0].snippet, q) + '</div>';
+            }
+            html += '<div class="search-result-item" data-sop-id="' + res.sop.id + '"><div class="search-result-title">' + title + '</div>' + context + '</div>';
+        }
+        html += '</div>';
+        el.searchResultsArea.innerHTML = html;
     }
 
-    // --- Event Binding ---
+    function debounce(fn, delay) {
+        var timer = null;
+        return function() {
+            var ctx = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function() { fn.apply(ctx, args); }, delay);
+        };
+    }
 
     function bindEvents() {
-        // Mobile Toggle
-        if (el.mobileMenuBtn) el.mobileMenuBtn.addEventListener('click', openSidebar);
-        if (el.sidebarOverlay) el.sidebarOverlay.addEventListener('click', closeSidebar);
-        
-        // Mobile Search Button (Header)
-        if (el.mobileSearchBtn) {
-            el.mobileSearchBtn.addEventListener('click', () => {
-                if (state.isMobile) {
-                    openSidebar();
-                    setTimeout(() => el.searchInput.focus(), 300);
-                } else {
-                    el.searchInput.focus();
-                }
-            });
-        }
-
-        // Category Pills
-        if (el.categoryFilters) {
-            el.categoryFilters.addEventListener('click', (e) => {
-                if (e.target.classList.contains('cat-pill')) {
-                    setCategory(e.target.dataset.cat);
-                }
-            });
-        }
-
-        // Theme Toggle
         if (el.themeToggle) el.themeToggle.addEventListener('click', toggleTheme);
+        if (el.themeToggleMobile) el.themeToggleMobile.addEventListener('click', toggleTheme);
+        if (el.printBtn) el.printBtn.addEventListener('click', function() { window.print(); });
+        if (el.backBtn) el.backBtn.addEventListener('click', goBack);
 
-        // Search Input
-        if (el.searchInput) {
-            let debounceTimer;
-            el.searchInput.addEventListener('input', (e) => {
-                const val = e.target.value;
-                if (val.length > 0) el.searchClear.style.opacity = '1';
-                else el.searchClear.style.opacity = '0';
-
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    if (val.length >= 2) {
-                        navigateTo(`#search=${encodeURIComponent(val)}`);
-                    } else if (val.length === 0 && state.view === 'search') {
-                        navigateTo('');
-                    }
-                }, CONFIG.searchDebounce);
-            });
-            
-            // Check for Enter key
-            el.searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.target.blur(); // Hide keyboard on mobile
-                }
-            });
-        }
-
-        // Search Clear
-        if (el.searchClear) {
-            el.searchClear.addEventListener('click', () => {
-                el.searchInput.value = '';
-                el.searchClear.style.opacity = '0';
-                if (state.view === 'search') {
-                    navigateTo('');
-                }
-                el.searchInput.focus();
-            });
-        }
-
-        // Logo Click
         if (el.appLogo) {
-            el.appLogo.addEventListener('click', () => {
-                navigateTo('');
-                if (state.isMobile) closeSidebar();
+            el.appLogo.addEventListener('click', function() {
+                state.currentSopId = null;
+                if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+                showTab('home');
             });
         }
 
-        // FAB (Scroll to top)
-        if (el.fabAction) {
-            el.fabAction.addEventListener('click', () => {
-                el.contentScroll.scrollTo({ top: 0, behavior: 'smooth' });
+        if (el.bottomNav) {
+            el.bottomNav.addEventListener('click', function(e) {
+                var btn = e.target.closest('.bottom-nav-item');
+                if (!btn) return;
+                var tab = btn.getAttribute('data-tab');
+                if (tab) switchTab(tab);
             });
         }
 
-        // Scroll Spy for FAB
+        if (el.viewHome) {
+            el.viewHome.addEventListener('click', function(e) {
+                var card = e.target.closest('.cat-card');
+                if (card) {
+                    var cat = card.getAttribute('data-category');
+                    if (cat) {
+                        state.activeCatBrowse = cat;
+                        renderBrowseCategoryFilters();
+                        renderBrowseList();
+                        switchTab('browse');
+                    }
+                }
+            });
+        }
+
+        if (el.searchInput) {
+            el.searchInput.addEventListener('input', debounce(function() {
+                var v = el.searchInput.value;
+                if (el.searchClear) el.searchClear.classList.toggle('visible', v.length > 0);
+                renderNavList();
+            }, 120));
+        }
+
+        if (el.searchClear) {
+            el.searchClear.addEventListener('click', function() {
+                if (el.searchInput) el.searchInput.value = '';
+                el.searchClear.classList.remove('visible');
+                renderNavList();
+            });
+        }
+
+        if (el.categoryFilters) {
+            el.categoryFilters.addEventListener('click', function(e) {
+                var pill = e.target.closest('.cat-pill');
+                if (!pill) return;
+                state.activeCatDesktop = pill.getAttribute('data-cat') || 'all';
+                renderDesktopCategoryFilters();
+                renderNavList();
+            });
+        }
+
+        if (el.navList) {
+            el.navList.addEventListener('click', function(e) {
+                var item = e.target.closest('.nav-item');
+                if (!item) return;
+                e.preventDefault();
+                var id = item.getAttribute('data-sop-id');
+                if (id) openSOP(id);
+            });
+        }
+
+        if (el.browseSearchInput) {
+            el.browseSearchInput.addEventListener('input', debounce(function() {
+                state.browseFilter = el.browseSearchInput.value;
+                if (el.browseSearchClear) el.browseSearchClear.classList.toggle('visible', state.browseFilter.length > 0);
+                renderBrowseList();
+            }, 120));
+        }
+
+        if (el.browseSearchClear) {
+            el.browseSearchClear.addEventListener('click', function() {
+                if (el.browseSearchInput) el.browseSearchInput.value = '';
+                state.browseFilter = '';
+                el.browseSearchClear.classList.remove('visible');
+                renderBrowseList();
+            });
+        }
+
+        if (el.browseCategoryFilters) {
+            el.browseCategoryFilters.addEventListener('click', function(e) {
+                var pill = e.target.closest('.cat-pill');
+                if (!pill) return;
+                state.activeCatBrowse = pill.getAttribute('data-cat') || 'all';
+                renderBrowseCategoryFilters();
+                renderBrowseList();
+            });
+        }
+
+        if (el.browseList) {
+            el.browseList.addEventListener('click', function(e) {
+                var item = e.target.closest('.browse-item');
+                if (!item) return;
+                e.preventDefault();
+                var id = item.getAttribute('data-sop-id');
+                if (id) openSOP(id);
+            });
+        }
+
+        if (el.searchViewInput) {
+            el.searchViewInput.addEventListener('input', debounce(function() {
+                state.searchQuery = el.searchViewInput.value;
+                if (el.searchViewClear) el.searchViewClear.classList.toggle('visible', state.searchQuery.length > 0);
+                performSearch(state.searchQuery);
+            }, 200));
+        }
+
+        if (el.searchViewClear) {
+            el.searchViewClear.addEventListener('click', function() {
+                if (el.searchViewInput) el.searchViewInput.value = '';
+                state.searchQuery = '';
+                el.searchViewClear.classList.remove('visible');
+                performSearch('');
+            });
+        }
+
+        if (el.searchResultsArea) {
+            el.searchResultsArea.addEventListener('click', function(e) {
+                var item = e.target.closest('.search-result-item');
+                if (!item) return;
+                var id = item.getAttribute('data-sop-id');
+                if (id) openSOP(id);
+            });
+        }
+
+        if (el.breadcrumb) {
+            el.breadcrumb.addEventListener('click', function(e) {
+                var link = e.target.closest('[data-breadcrumb]');
+                if (!link) return;
+                goBack();
+            });
+        }
+
         if (el.contentScroll) {
-            el.contentScroll.addEventListener('scroll', () => {
-                if (el.contentScroll.scrollTop > 300) {
+            el.contentScroll.addEventListener('scroll', function() {
+                if (!el.fabAction) return;
+                if (el.contentScroll.scrollTop > 400 && state.currentSopId) {
                     el.fabAction.classList.add('visible');
                 } else {
                     el.fabAction.classList.remove('visible');
                 }
+            }, { passive: true });
+        }
+
+        if (el.fabAction) {
+            el.fabAction.addEventListener('click', function() {
+                if (el.contentScroll) el.contentScroll.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
 
-        // Print
-        if (el.printBtn) {
-            el.printBtn.addEventListener('click', () => {
-                // Open all sections before printing
-                if (state.view === 'sop') {
-                    const sections = el.viewSOP.querySelectorAll('.sop-section');
-                    sections.forEach(s => s.classList.add('open'));
-                    setTimeout(() => window.print(), 300);
-                } else {
-                    window.print();
-                }
-            });
-        }
-
-        // Window Resize
-        window.addEventListener('resize', () => {
-            state.isMobile = window.innerWidth < CONFIG.mobileBreakpoint;
-            if (!state.isMobile && state.sidebarOpen) {
-                closeSidebar();
+        document.addEventListener('click', function(e) {
+            var header = e.target.closest('.section-header');
+            if (!header) return;
+            var section = header.parentElement;
+            if (section && section.classList.contains('sop-section')) {
+                section.classList.toggle('open');
             }
         });
 
-        // Hash Change
-        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('popstate', function() {
+            var hash = location.hash;
+            if (hash.indexOf('#sop-') === 0) {
+                var id = hash.substring(5);
+                var sop = findSOP(id);
+                if (sop) {
+                    state.currentSopId = id;
+                    showSOP(sop);
+                    return;
+                }
+            }
+            state.currentSopId = null;
+            showTab(state.activeTab);
+        });
+
+        window.addEventListener('resize', debounce(function() {
+            state.isMobile = window.innerWidth < 1024;
+        }, 200));
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && state.currentSopId) {
+                goBack();
+            }
+        });
     }
 
-    // --- Start ---
-    
-    // Check if DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
-
 })();

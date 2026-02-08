@@ -2,145 +2,142 @@
 <html lang="de" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="SOP Notaufnahme — Klinische Standards für die Notfallmedizin. Offline verfügbar.">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SOP Notaufnahme">
-    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff" id="metaThemeColor">
+    <meta name="description" content="SOP Notaufnahme – Klinikum St. Georg Leipzig">
+    <meta name="format-detection" content="telephone=no">
     <title>SOP Notaufnahme</title>
-    
-    <!-- Favicon SVG (Inline für Performance) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
-    
-    <!-- Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Main Styles -->
-    <link rel="stylesheet" href="styles.css?v=20260208-2">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%232563eb'/><text x='50' y='72' text-anchor='middle' font-size='55' fill='white'>⚡</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%232563eb'/><text x='50' y='72' text-anchor='middle' font-size='55' fill='white'>⚡</text></svg>">
 </head>
 <body>
-
     <div id="app" class="app-shell">
-        
-        <!-- Mobile Header (Sticky) -->
-        <header class="mobile-header">
-            <button class="icon-btn menu-trigger" id="mobileMenuBtn" aria-label="Menü öffnen">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <div class="mobile-title" id="mobileTitle">SOP Notaufnahme</div>
-            <div class="mobile-actions">
-                <button class="icon-btn search-trigger" id="mobileSearchBtn" aria-label="Suche öffnen">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Sidebar (Desktop: Permanent, Mobile: Drawer) -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="app-logo" id="appLogo">
-                    <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-                    <div class="logo-text">
-                        <span class="logo-main">SOP Notaufnahme</span>
-                        <span class="logo-sub">Klinische Standards</span>
-                    </div>
+        <header class="mobile-header" id="mobileHeader">
+            <div class="mobile-header-inner">
+                <div class="mobile-header-left">
+                    <button class="header-btn hidden" id="backBtn" aria-label="Zurück">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
                 </div>
-            </div>
-
-            <!-- Global Search Container -->
-            <div class="search-container" id="searchContainer">
-                <div class="search-input-wrapper">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="SOP suchen..." autocomplete="off" spellcheck="false">
-                    <button id="searchClear" class="search-clear" aria-label="Suche löschen">
-                        <i class="fa-solid fa-circle-xmark"></i>
+                <div class="mobile-header-center">
+                    <span class="mobile-title" id="mobileTitle">SOP Notaufnahme</span>
+                </div>
+                <div class="mobile-header-right">
+                    <button class="header-btn" id="themeToggleMobile" aria-label="Theme wechseln">
+                        <i class="fa-solid fa-moon" id="themeToggleMobileIcon"></i>
                     </button>
                 </div>
             </div>
-
-            <!-- Category Filter Pills -->
-            <div class="category-scroll-container">
-                <div class="category-filters" id="categoryFilters">
-                    <!-- Wird dynamisch gefüllt -->
+        </header>
+        <aside class="sidebar desktop-only" id="sidebar">
+            <div class="sidebar-header">
+                <div class="app-logo" id="appLogo">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">SOP Notaufnahme</span>
+                        <span class="logo-sub">Klinikum St. Georg</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Navigation List -->
-            <nav class="nav-list" id="navList">
-                <!-- Wird dynamisch gefüllt -->
-            </nav>
-
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Suche..." autocomplete="off" spellcheck="false">
+                    <button class="search-clear-btn" id="searchClear" aria-label="Suche löschen">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-category-wrap">
+                <div class="category-filters" id="categoryFilters"></div>
+            </div>
+            <nav class="nav-list" id="navList" aria-label="SOP-Verzeichnis"></nav>
             <div class="sidebar-footer">
-                <button class="theme-toggle" id="themeToggle" aria-label="Design wechseln">
-                    <i class="fa-solid fa-moon"></i> <span>Dunkles Design</span>
+                <button class="theme-toggle" id="themeToggle" aria-label="Theme wechseln">
+                    <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+                    <span id="themeToggleLabel">Dark Mode</span>
                 </button>
             </div>
         </aside>
-
-        <!-- Main Content Area -->
         <main class="main-content" id="mainContent">
+            <div class="content-header desktop-only" id="contentHeader">
+                <div class="breadcrumb" id="breadcrumb"></div>
+                <div class="header-tools">
+                    <button class="icon-btn" id="printBtn" title="Drucken" aria-label="SOP drucken">
+                        <i class="fa-solid fa-print"></i>
+                    </button>
+                </div>
+            </div>
             <div class="content-scroll" id="contentScroll">
-                
-                <!-- Breadcrumb & Header Actions (Desktop) -->
-                <div class="content-header desktop-only">
-                    <div class="breadcrumb" id="breadcrumb">Übersicht</div>
-                    <div class="header-tools">
-                        <button class="icon-btn" id="printBtn" title="Drucken">
-                            <i class="fa-solid fa-print"></i>
-                        </button>
+                <div id="viewHome" class="view-panel view-pad"></div>
+                <div id="viewBrowse" class="view-panel" style="display:none;">
+                    <div class="browse-search-wrap">
+                        <div class="browse-search-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="browseSearchInput" placeholder="SOP filtern..." autocomplete="off" spellcheck="false">
+                            <button class="search-clear-btn" id="browseSearchClear" aria-label="Filter löschen">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Views -->
-                <div id="viewHome" class="view-section active">
-                    <!-- Dynamischer Home Content -->
-                </div>
-
-                <div id="viewSOP" class="view-section" style="display: none;">
-                    <!-- Dynamischer SOP Content -->
-                </div>
-
-                <div id="viewSearch" class="view-section" style="display: none;">
-                    <div class="search-results-header">
-                        <h2>Suchergebnisse</h2>
-                        <span id="searchCount" class="badge">0 Treffer</span>
+                    <div class="browse-category-wrap">
+                        <div class="browse-category-filters" id="browseCategoryFilters"></div>
                     </div>
-                    <div id="searchResultsList" class="search-results-list"></div>
+                    <div class="browse-list" id="browseList"></div>
                 </div>
-
-                <!-- Spacer for scrolling -->
-                <div style="height: 60px;"></div>
+                <div id="viewSearch" class="view-panel" style="display:none;">
+                    <div class="search-view-wrap">
+                        <div class="search-view-input-wrapper">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchViewInput" placeholder="Volltextsuche in allen SOPs..." autocomplete="off" spellcheck="false">
+                            <button class="search-clear-btn" id="searchViewClear" aria-label="Suche löschen">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="searchResultsArea"></div>
+                </div>
+                <div id="viewSOP" class="view-panel" style="display:none;"></div>
             </div>
         </main>
-
-        <!-- Mobile Overlay -->
-        <div class="overlay" id="sidebarOverlay"></div>
-
-        <!-- Floating Action Button (Back to Top / Home) -->
-        <button class="fab" id="fabAction" aria-label="Nach oben">
-            <i class="fa-solid fa-chevron-up"></i>
+        <button class="fab" id="fabAction" aria-label="Nach oben scrollen">
+            <i class="fa-solid fa-arrow-up"></i>
         </button>
-
+        <nav class="bottom-nav" id="bottomNav" aria-label="Hauptnavigation">
+            <button class="bottom-nav-item active" data-tab="home" aria-label="Übersicht">
+                <i class="fa-solid fa-house"></i>
+                <span>Übersicht</span>
+            </button>
+            <button class="bottom-nav-item" data-tab="browse" aria-label="Alle SOPs durchsuchen">
+                <i class="fa-solid fa-list"></i>
+                <span>Alle SOPs</span>
+            </button>
+            <button class="bottom-nav-item" data-tab="search" aria-label="Volltextsuche">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Suche</span>
+            </button>
+        </nav>
     </div>
-
-    <!-- Data Scripts (Order is important!) -->
-    <script src="sop-data-1.js?v=2"></script>
-    <script src="sop-data-2.js?v=2"></script>
-    <script src="sop-data-3.js?v=2"></script>
-    <script src="sop-data-4.js?v=2"></script>
-    
-    <!-- App Logic -->
-    <script src="app.js?v=2"></script>
-
-    <!-- Service Worker Registration -->
+    <script src="sop-data-1.js"></script>
+    <script src="sop-data-2.js"></script>
+    <script src="sop-data-3.js"></script>
+    <script src="sop-data-4.js"></script>
+    <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registriert'))
-                    .catch(err => console.log('SW Fehler:', err));
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js');
             });
         }
     </script>

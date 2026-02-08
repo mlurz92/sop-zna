@@ -1,72 +1,59 @@
-const CACHE_NAME = 'sop-notaufnahme-v20260208';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './styles.css',
-  './app.js',
-  './sop-data-1.js',
-  './sop-data-2.js',
-  './sop-data-3.js',
-  './sop-data-4.js'
+var CACHE_NAME = 'sop-notaufnahme-v20260208b';
+
+var ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './styles.css',
+    './app.js',
+    './sop-data-1.js',
+    './sop-data-2.js',
+    './sop-data-3.js',
+    './sop-data-4.js'
 ];
 
-// Install Event: Cache core assets immediately
-self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force activation immediately
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-});
-
-// Activate Event: Clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+self.addEventListener('install', function(event) {
+    self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.addAll(ASSETS_TO_CACHE);
         })
-      );
-    }).then(() => self.clients.claim()) // Take control of all clients immediately
-  );
+    );
 });
 
-// Fetch Event: Stale-While-Revalidate Strategy
-// This serves content from cache for speed, but updates cache from network in background
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests and cross-origin requests (like FontAwesome for now, unless configured)
-  if (event.request.method !== 'GET') return;
+self.addEventListener('activate', function(event) {
+    event.waitUntil(
+        caches.keys().then(function(cacheNames) {
+            return Promise.all(
+                cacheNames.map(function(key) {
+                    if (key !== CACHE_NAME) {
+                        return caches.delete(key);
+                    }
+                })
+            );
+        }).then(function() {
+            return self.clients.claim();
+        })
+    );
+});
 
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cachedResponse) => {
-        
-        // Fetch from network to update the cache for next time
-        const networkFetch = fetch(event.request).then((networkResponse) => {
-          // Check if we received a valid response
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
+self.addEventListener('fetch', function(event) {
+    if (event.request.method !== 'GET') return;
 
-          // IMPORTANT: Clone the response. A response is a stream
-          // and because we want the browser to consume the response
-          // as well as the cache consuming the response, we need
-          // to clone it so we have two streams.
-          const responseToCache = networkResponse.clone();
-
-          cache.put(event.request, responseToCache);
-          return networkResponse;
-        }).catch(() => {
-          // Network failed, nothing to do here (we rely on cache)
-        });
-
-        // Return cached response if available, otherwise wait for network
-        return cachedResponse || networkFetch;
-      });
-    })
-  );
+    event.respondWith(
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.match(event.request).then(function(cachedResponse) {
+                var networkFetch = fetch(event.request).then(function(networkResponse) {
+                    if (networkResponse && networkResponse.status === 200) {
+                        if (networkResponse.type === 'basic') {
+                            cache.put(event.request, networkResponse.clone());
+                        }
+                    }
+                    return networkResponse;
+                }).catch(function() {
+                    return cachedResponse;
+                });
+                return cachedResponse || networkFetch;
+            });
+        })
+    );
 });
