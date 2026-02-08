@@ -1,888 +1,696 @@
 (function() {
-'use strict';
+    'use strict';
 
-/**
- * Konfiguration der Kategorien
- * Mappt interne Keys auf Anzeigenamen, Icons und Sortierreihenfolge.
- */
-var CATEGORIES = {
-  kardio: { name: 'Kardiologie', icon: 'fa-heart-pulse', order: 1 },
-  pulmo: { name: 'Pneumologie', icon: 'fa-lungs', order: 2 },
-  gi: { name: 'Gastroenterologie', icon: 'fa-utensils', order: 3 },
-  neuro: { name: 'Neurologie', icon: 'fa-brain', order: 4 },
-  nephro: { name: 'Nephrologie', icon: 'fa-droplet', order: 5 },
-  metab: { name: 'Metabolisch', icon: 'fa-flask-vial', order: 6 },
-  haem: { name: 'Hämatologie', icon: 'fa-syringe', order: 7 },
-  infekt: { name: 'Infektiologie', icon: 'fa-virus', order: 8 },
-  tox: { name: 'Toxikologie', icon: 'fa-skull-crossbones', order: 9 },
-  leit: { name: 'Leitsymptom', icon: 'fa-stethoscope', order: 10 },
-  sonst: { name: 'Sonstige', icon: 'fa-circle-info', order: 11 }
-};
+    // --- Configuration ---
 
-/**
- * Icons für spezifische SOP-Abschnitte
- */
-var SECTION_ICONS = {
-  'Definition': 'fa-book-open',
-  'Ursachen': 'fa-magnifying-glass',
-  'Symptome': 'fa-clipboard-list',
-  'Diagnostik': 'fa-vials',
-  'Therapie': 'fa-pills',
-  'Merke': 'fa-lightbulb',
-  'Disposition': 'fa-right-from-bracket',
-  'Komplikationen': 'fa-triangle-exclamation'
-};
+    const CONFIG = {
+        animationDuration: 300,
+        mobileBreakpoint: 1024,
+        searchDebounce: 150
+    };
 
-/**
- * Globaler State der Anwendung
- */
-var state = {
-  view: 'home',           // 'home' oder 'sop'
-  sopId: null,            // Aktuell angezeigte SOP ID
-  query: '',              // Suchbegriff
-  activeCategory: 'all',  // Aktiver Filter in der Sidebar
-  sidebarOpen: false,     // Mobile Sidebar Status
-  allExpanded: false,     // Status des "Alle aufklappen" Buttons
-  theme: 'light'          // 'light' oder 'dark'
-};
+    const CATEGORIES = {
+        'kardio': { name: 'Kardiologie', icon: 'fa-heart-pulse', color: 'cat-kardio' },
+        'pulmo': { name: 'Pneumologie', icon: 'fa-lungs', color: 'cat-pulmo' },
+        'gi': { name: 'Gastroenterologie', icon: 'fa-utensils', color: 'cat-gi' },
+        'neuro': { name: 'Neurologie', icon: 'fa-brain', color: 'cat-neuro' },
+        'nephro': { name: 'Nephrologie', icon: 'fa-droplet', color: 'cat-nephro' },
+        'metab': { name: 'Metabolisch', icon: 'fa-flask', color: 'cat-metab' },
+        'haem': { name: 'Hämatologie', icon: 'fa-syringe', color: 'cat-haem' },
+        'infekt': { name: 'Infektiologie', icon: 'fa-virus', color: 'cat-infekt' },
+        'tox': { name: 'Toxikologie', icon: 'fa-skull-crossbones', color: 'cat-tox' },
+        'leit': { name: 'Leitsymptom', icon: 'fa-stethoscope', color: 'cat-leit' },
+        'sonst': { name: 'Sonstige', icon: 'fa-circle-info', color: 'cat-sonst' }
+    };
 
-// Interne Variablen
-var suppressHashChange = false;
-var el = {}; // DOM Element Cache
-var sopData = []; // Lokale Referenz auf die Daten
+    const SECTION_ICONS = {
+        'Definition': 'fa-book-open',
+        'Ursachen': 'fa-magnifying-glass',
+        'Symptome': 'fa-clipboard-list',
+        'Diagnostik': 'fa-vials',
+        'Therapie': 'fa-pills',
+        'Merke': 'fa-lightbulb',
+        'Disposition': 'fa-right-from-bracket',
+        'Komplikationen': 'fa-triangle-exclamation',
+        'Quellen': 'fa-quote-right'
+    };
 
-/**
- * Initialisierung der Anwendung
- */
-function init() {
-  loadTheme();
-  cacheElements();
-  
-  // Daten laden (aus globalem Window-Objekt, da statisch eingebunden)
-  if (window.SOP_DATA && Array.isArray(window.SOP_DATA) && window.SOP_DATA.length > 0) {
-    sopData = window.SOP_DATA;
-    // Daten alphabetisch sortieren für konsistente Anzeige
-    sopData.sort(function(a, b) {
-      return a.title.localeCompare(b.title, 'de');
-    });
-  } else {
-    renderError('Keine SOP-Daten gefunden. Bitte prüfen Sie die Einbindung der JavaScript-Dateien.');
-    return;
-  }
+    // --- State ---
 
-  applyTheme(state.theme);
-  renderCategoryFilters();
-  buildSidebar();
-  renderHome();
-  bindEvents();
-  
-  // Initiales Routing basierend auf Hash
-  handleHashChange();
-  
-  // Entfernen des Loading-Status falls vorhanden
-  document.body.classList.remove('loading');
-}
+    const state = {
+        data: [],
+        view: 'home', // 'home', 'sop', 'search'
+        currentSopId: null,
+        activeCategory: 'all',
+        searchQuery: '',
+        sidebarOpen: false,
+        theme: 'light',
+        isMobile: window.innerWidth < CONFIG.mobileBreakpoint
+    };
 
-/**
- * DOM-Elemente cachen um Zugriffe zu minimieren
- */
-function cacheElements() {
-  var ids = [
-    'sidebar', 'sidebarNav', 'sidebarClose', 'sidebarLogo',
-    'searchInput', 'searchClear', 'searchResults', 'categoryFilters',
-    'overlay', 'menuToggle', 'breadcrumb',
-    'themeToggle', 'printBtn', 'contentWrapper',
-    'homeView', 'sopView', 'backToTop', 'keyboardHint'
-  ];
-  
-  for (var i = 0; i < ids.length; i++) {
-    el[ids[i]] = document.getElementById(ids[i]);
-  }
-}
+    // --- DOM Cache ---
 
-/**
- * Theme aus LocalStorage laden oder Systempräferenz nutzen
- */
-function loadTheme() {
-  try {
-    var saved = localStorage.getItem('sop-theme');
-    if (saved === 'dark' || saved === 'light') {
-      state.theme = saved;
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      state.theme = 'dark';
+    const el = {};
+    const elementIds = [
+        'app', 'sidebar', 'mobileMenuBtn', 'sidebarOverlay', 'navList',
+        'categoryFilters', 'themeToggle', 'searchInput', 'searchClear',
+        'mainContent', 'contentScroll', 'breadcrumb', 'printBtn',
+        'viewHome', 'viewSOP', 'viewSearch', 'searchResultsList', 'searchCount',
+        'fabAction', 'appLogo', 'mobileTitle', 'mobileSearchBtn'
+    ];
+
+    function cacheElements() {
+        elementIds.forEach(id => {
+            el[id] = document.getElementById(id);
+        });
     }
-  } catch (e) {
-    state.theme = 'light';
-  }
-}
 
-/**
- * Theme anwenden und speichern
- */
-function applyTheme(t) {
-  state.theme = t;
-  document.documentElement.setAttribute('data-theme', t);
-  try {
-    localStorage.setItem('sop-theme', t);
-  } catch (e) {}
-  
-  if (el.themeToggle) {
-    el.themeToggle.innerHTML = t === 'dark' 
-      ? '<i class="fa-solid fa-sun"></i>' 
-      : '<i class="fa-solid fa-moon"></i>';
-    el.themeToggle.title = t === 'dark' ? 'Helles Design' : 'Dunkles Design';
-  }
-}
+    // --- Initialization ---
 
-function toggleTheme() {
-  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
-}
-
-/**
- * Event Listener binden
- */
-function bindEvents() {
-  // Suche
-  if (el.searchInput) {
-    el.searchInput.addEventListener('input', onSearchInput);
-    el.searchInput.addEventListener('focus', function() {
-      if (state.query.length >= 2) handleSearch(state.query);
-    });
-  }
-  if (el.searchClear) el.searchClear.addEventListener('click', onSearchClear);
-
-  // Sidebar & Navigation
-  if (el.menuToggle) el.menuToggle.addEventListener('click', function() { toggleSidebar(true); });
-  if (el.sidebarClose) el.sidebarClose.addEventListener('click', function() { toggleSidebar(false); });
-  if (el.overlay) el.overlay.addEventListener('click', function() { toggleSidebar(false); });
-  if (el.sidebarLogo) el.sidebarLogo.addEventListener('click', function() { navigateTo('home'); toggleSidebar(false); });
-  if (el.sidebarNav) el.sidebarNav.addEventListener('click', onSidebarClick);
-  
-  // Header Actions
-  if (el.themeToggle) el.themeToggle.addEventListener('click', toggleTheme);
-  if (el.printBtn) el.printBtn.addEventListener('click', printSOP);
-  if (el.breadcrumb) el.breadcrumb.addEventListener('click', onBreadcrumbClick);
-
-  // Content Actions
-  if (el.homeView) el.homeView.addEventListener('click', onHomeClick);
-  if (el.searchResults) el.searchResults.addEventListener('click', onSearchResultClick);
-  if (el.sopView) el.sopView.addEventListener('click', onSopViewClick);
-  if (el.categoryFilters) el.categoryFilters.addEventListener('click', onCategoryFilterClick);
-
-  // Global
-  if (el.contentWrapper) el.contentWrapper.addEventListener('scroll', onScroll);
-  if (el.backToTop) el.backToTop.addEventListener('click', scrollToTop);
-  
-  window.addEventListener('hashchange', handleHashChange);
-  window.addEventListener('resize', function() {
-    if (window.innerWidth > 768 && state.sidebarOpen) toggleSidebar(false);
-  });
-  document.addEventListener('keydown', onKeyDown);
-}
-
-/**
- * Hilfsfunktion: SOP anhand ID finden
- */
-function findSOP(id) {
-  if (!id) return null;
-  for (var i = 0; i < sopData.length; i++) {
-    if (sopData[i].id === id) return sopData[i];
-  }
-  return null;
-}
-
-/**
- * Hilfsfunktion: Sortierte Keys der Kategorien
- */
-function sortedCatKeys() {
-  return Object.keys(CATEGORIES).sort(function(a, b) {
-    return CATEGORIES[a].order - CATEGORIES[b].order;
-  });
-}
-
-/**
- * HTML Escaping
- */
-function escHtml(s) {
-  if (typeof s !== 'string') return '';
-  return s.replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-}
-
-function stripHtml(html) {
-  var tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
-}
-
-/**
- * Suchbegriff highlighten
- */
-function highlight(text, query) {
-  if (!query || query.length < 2) return escHtml(text);
-  var escapedText = escHtml(text);
-  var escapedQuery = escHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  var re = new RegExp('(' + escapedQuery + ')', 'gi');
-  return escapedText.replace(re, '<span class="search-highlight">$1</span>');
-}
-
-/**
- * Routing Logik
- */
-function handleHashChange() {
-  if (suppressHashChange) return;
-  
-  var hash = window.location.hash.replace('#', '');
-  
-  if (hash.indexOf('sop-') === 0) {
-    var id = hash.substring(4);
-    var sop = findSOP(id);
-    if (sop) {
-      navigateTo('sop', id);
-    } else {
-      // Unbekannte ID -> Home
-      navigateTo('home');
-    }
-  } else {
-    navigateTo('home');
-  }
-}
-
-function updateHash(sopId) {
-  suppressHashChange = true;
-  if (sopId) {
-    window.location.hash = 'sop-' + sopId;
-  } else {
-    // Hash entfernen ohne History-Eintrag wenn möglich
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, null, window.location.pathname + window.location.search);
-    } else {
-      window.location.hash = '';
-    }
-  }
-  // Timeout um das Hashchange-Event zu ignorieren, das wir selbst ausgelöst haben
-  setTimeout(function() { suppressHashChange = false; }, 100);
-}
-
-function navigateTo(view, sopId) {
-  state.view = view;
-  state.sopId = sopId || null;
-  
-  // UI Updates
-  if (view === 'home') {
-    if (el.homeView) el.homeView.style.display = 'block';
-    if (el.sopView) el.sopView.style.display = 'none';
-    if (el.printBtn) el.printBtn.style.display = 'none';
-    updateBreadcrumb();
-    setActiveSidebarItem(null);
-    updateHash(null);
-    document.title = 'SOP Notaufnahme';
-  } else if (view === 'sop' && sopId) {
-    var sop = findSOP(sopId);
-    if (sop) {
-      renderSOP(sopId);
-      if (el.homeView) el.homeView.style.display = 'none';
-      if (el.sopView) el.sopView.style.display = 'block';
-      if (el.printBtn) el.printBtn.style.display = 'flex';
-      updateBreadcrumb();
-      setActiveSidebarItem(sopId);
-      updateHash(sopId);
-      document.title = sop.title + ' | SOP Notaufnahme';
-    } else {
-      navigateTo('home');
-    }
-  }
-  
-  // Scroll to top
-  if (el.contentWrapper) el.contentWrapper.scrollTop = 0;
-}
-
-/**
- * Sidebar Rendering
- */
-function renderCategoryFilters() {
-  if (!el.categoryFilters) return;
-  
-  var keys = sortedCatKeys();
-  var h = '<button class="cat-pill active" data-cat="all">Alle</button>';
-  
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    var cat = CATEGORIES[k];
-    h += '<button class="cat-pill" data-cat="' + k + '">' + escHtml(cat.name) + '</button>';
-  }
-  
-  el.categoryFilters.innerHTML = h;
-}
-
-function onCategoryFilterClick(e) {
-  if (e.target.classList.contains('cat-pill')) {
-    var cat = e.target.dataset.cat;
-    setCategoryFilter(cat);
-  }
-}
-
-function setCategoryFilter(cat) {
-  state.activeCategory = cat;
-  
-  // Pills aktualisieren
-  var pills = el.categoryFilters.querySelectorAll('.cat-pill');
-  for (var i = 0; i < pills.length; i++) {
-    if (pills[i].dataset.cat === cat) {
-      pills[i].classList.add('active');
-      pills[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    } else {
-      pills[i].classList.remove('active');
-    }
-  }
-  
-  buildSidebar();
-}
-
-function buildSidebar() {
-  if (!el.sidebarNav) return;
-  
-  var activeCat = state.activeCategory;
-  var items = [];
-  
-  // Filtern
-  if (activeCat === 'all') {
-    items = sopData;
-  } else {
-    items = sopData.filter(function(s) { return s.catKey === activeCat; });
-  }
-  
-  if (items.length === 0) {
-    el.sidebarNav.innerHTML = '<div class="sop-nav-empty"><i class="fa-solid fa-filter"></i><br>Keine SOPs in dieser Kategorie</div>';
-    return;
-  }
-  
-  var h = '';
-  for (var i = 0; i < items.length; i++) {
-    var s = items[i];
-    var isActive = (state.view === 'sop' && state.sopId === s.id) ? ' active' : '';
-    
-    h += '<a class="sop-item' + isActive + '" data-sop-id="' + s.id + '">';
-    h += '<span class="sop-item-dot dot-' + s.catKey + '"></span>';
-    h += '<div class="sop-item-text">';
-    h += '<div class="sop-item-title">' + escHtml(s.title) + '</div>';
-    if (activeCat === 'all') {
-      var catName = CATEGORIES[s.catKey] ? CATEGORIES[s.catKey].name : s.category;
-      h += '<div class="sop-item-cat">' + escHtml(catName) + '</div>';
-    }
-    h += '</div></a>';
-  }
-  
-  el.sidebarNav.innerHTML = h;
-}
-
-function setActiveSidebarItem(id) {
-  if (!el.sidebarNav) return;
-  
-  // Alle actives entfernen
-  var activeItems = el.sidebarNav.querySelectorAll('.sop-item.active');
-  for (var i = 0; i < activeItems.length; i++) {
-    activeItems[i].classList.remove('active');
-  }
-  
-  if (!id) return;
-  
-  // Wenn der Filter das Item versteckt, Filter zurücksetzen
-  var target = el.sidebarNav.querySelector('.sop-item[data-sop-id="' + id + '"]');
-  if (!target) {
-    // SOP ist in aktueller Liste nicht sichtbar -> Filter auf 'all' setzen und neu bauen
-    if (state.activeCategory !== 'all') {
-      setCategoryFilter('all');
-      target = el.sidebarNav.querySelector('.sop-item[data-sop-id="' + id + '"]');
-    }
-  }
-  
-  if (target) {
-    target.classList.add('active');
-    setTimeout(function() {
-      target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }, 100);
-  }
-}
-
-function toggleSidebar(open) {
-  state.sidebarOpen = open;
-  if (el.sidebar) el.sidebar.classList.toggle('open', open);
-  if (el.overlay) el.overlay.classList.toggle('visible', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-
-function onSidebarClick(e) {
-  var item = e.target.closest('.sop-item');
-  if (item) {
-    e.preventDefault();
-    var id = item.dataset.sopId;
-    navigateTo('sop', id);
-    if (window.innerWidth <= 768) {
-      toggleSidebar(false);
-    }
-  }
-}
-
-/**
- * Home View Rendering
- */
-function renderHome() {
-  if (!el.homeView) return;
-  
-  var h = '';
-  h += '<div class="home-hero">';
-  h += '<div class="home-hero-icon"><i class="fa-solid fa-book-medical"></i></div>';
-  h += '<h1>Standard Operating Procedures</h1>';
-  h += '<p>Evidenzbasierte Handlungsanweisungen für die klinische Notfallmedizin. Schnell, strukturiert und jederzeit verfügbar.</p>';
-  h += '</div>';
-  
-  // Stats berechnen
-  var stats = { total: sopData.length, cats: 0 };
-  var catCounts = {};
-  for (var i = 0; i < sopData.length; i++) {
-    var k = sopData[i].catKey;
-    if (!catCounts[k]) catCounts[k] = 0;
-    catCounts[k]++;
-  }
-  stats.cats = Object.keys(catCounts).length;
-  
-  h += '<div class="home-stats">';
-  h += '<div class="home-stat"><div class="home-stat-num">' + stats.total + '</div><div class="home-stat-label">SOPs</div></div>';
-  h += '<div class="home-stat"><div class="home-stat-num">' + stats.cats + '</div><div class="home-stat-label">Kategorien</div></div>';
-  h += '</div>';
-  
-  h += '<div class="home-section-title">Kategorien</div>';
-  h += '<div class="home-categories">';
-  
-  var keys = sortedCatKeys();
-  for (var j = 0; j < keys.length; j++) {
-    var key = keys[j];
-    var cat = CATEGORIES[key];
-    var count = catCounts[key] || 0;
-    
-    if (count > 0) {
-      h += '<div class="home-cat-card" data-cat="' + key + '">';
-      h += '<div class="home-cat-icon cat-' + key + '"><i class="fa-solid ' + cat.icon + '"></i></div>';
-      h += '<div class="home-cat-info">';
-      h += '<div class="home-cat-name">' + escHtml(cat.name) + '</div>';
-      h += '<div class="home-cat-count">' + count + ' SOPs</div>';
-      h += '</div></div>';
-    }
-  }
-  
-  h += '</div>';
-  el.homeView.innerHTML = h;
-}
-
-function onHomeClick(e) {
-  var card = e.target.closest('.home-cat-card');
-  if (card) {
-    var cat = card.dataset.cat;
-    setCategoryFilter(cat);
-    if (window.innerWidth <= 768) {
-      toggleSidebar(true);
-    } else {
-      // Auf Desktop Fokus auf Sidebar setzen oder zumindest sicherstellen, dass sie sichtbar ist
-      var firstItem = el.sidebarNav.querySelector('.sop-item');
-      if (firstItem) firstItem.scrollIntoView();
-    }
-  }
-}
-
-/**
- * SOP View Rendering
- */
-function renderSOP(id) {
-  if (!el.sopView) return;
-  
-  var sop = findSOP(id);
-  if (!sop) return;
-  
-  state.allExpanded = false;
-  var cat = CATEGORIES[sop.catKey] || { name: 'Allgemein', icon: 'fa-file' };
-  
-  var h = '<div class="sop-content">';
-  
-  // Header
-  h += '<div class="sop-title-bar">';
-  h += '<h1>' + escHtml(sop.title) + '</h1>';
-  h += '<div class="sop-meta">';
-  h += '<span class="cat-badge cat-' + sop.catKey + '"><i class="fa-solid ' + cat.icon + '"></i> ' + escHtml(cat.name) + '</span>';
-  if (sop.stand) h += '<span class="sop-stand">Stand: ' + escHtml(sop.stand) + '</span>';
-  h += '</div></div>';
-  
-  // Expand Button
-  h += '<div class="expand-all-bar">';
-  h += '<button class="expand-all-btn" id="expandAllBtn"><i class="fa-solid fa-angles-down"></i> Alle aufklappen</button>';
-  h += '</div>';
-  
-  // Sections
-  for (var i = 0; i < sop.sections.length; i++) {
-    var sec = sop.sections[i];
-    var icon = SECTION_ICONS[sec.title] || 'fa-circle-dot';
-    var isFirst = (i === 0);
-    
-    h += '<div class="sop-section' + (isFirst ? ' open' : '') + '">';
-    h += '<div class="sop-section-header">';
-    h += '<h2><i class="fa-solid ' + icon + ' callout-icon"></i> ' + escHtml(sec.title) + '</h2>';
-    h += '<div class="sop-section-chevron"><i class="fa-solid fa-chevron-down"></i></div>';
-    h += '</div>';
-    h += '<div class="sop-section-body" style="' + (isFirst ? 'max-height:none' : '') + '">';
-    h += '<div class="sop-section-inner">' + sec.html + '</div>'; // HTML aus Data ist "trusted"
-    h += '</div></div>';
-  }
-  
-  // Sources
-  if (sop.sources) {
-    h += '<div class="sop-sources">';
-    h += '<div class="sop-sources-toggle">';
-    h += '<i class="fa-solid fa-chevron-right"></i> Quellen anzeigen';
-    h += '</div>';
-    h += '<div class="sop-sources-content">';
-    h += '<p>' + sop.sources + '</p>';
-    h += '</div></div>';
-  }
-  
-  h += '</div>';
-  
-  el.sopView.innerHTML = h;
-}
-
-function onSopViewClick(e) {
-  // Section Toggle
-  var header = e.target.closest('.sop-section-header');
-  if (header) {
-    var section = header.parentElement;
-    toggleSection(section);
-    return;
-  }
-  
-  // Expand All
-  var expBtn = e.target.closest('#expandAllBtn');
-  if (expBtn) {
-    toggleAllSections();
-    return;
-  }
-  
-  // Sources Toggle
-  var srcToggle = e.target.closest('.sop-sources-toggle');
-  if (srcToggle) {
-    var container = srcToggle.parentElement;
-    var content = container.querySelector('.sop-sources-content');
-    var icon = srcToggle.querySelector('i');
-    
-    var isOpen = content.classList.contains('open');
-    if (isOpen) {
-      content.classList.remove('open');
-      srcToggle.classList.remove('open');
-      icon.style.transform = 'rotate(0deg)';
-    } else {
-      content.classList.add('open');
-      srcToggle.classList.add('open');
-      icon.style.transform = 'rotate(90deg)';
-    }
-  }
-}
-
-function toggleSection(section) {
-  var body = section.querySelector('.sop-section-body');
-  var isOpen = section.classList.contains('open');
-  
-  if (isOpen) {
-    section.classList.remove('open');
-    // Animation Hack: Set height explicitly before collapsing
-    body.style.maxHeight = body.scrollHeight + 'px';
-    setTimeout(function() { body.style.maxHeight = '0'; }, 10);
-  } else {
-    section.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 'px';
-    // Reset to none after transition to allow content resizing
-    setTimeout(function() { 
-      if (section.classList.contains('open')) body.style.maxHeight = 'none'; 
-    }, 400);
-  }
-}
-
-function toggleAllSections() {
-  state.allExpanded = !state.allExpanded;
-  var btn = el.sopView.querySelector('#expandAllBtn');
-  var sections = el.sopView.querySelectorAll('.sop-section');
-  
-  if (state.allExpanded) {
-    btn.innerHTML = '<i class="fa-solid fa-angles-up"></i> Alle zuklappen';
-    for (var i = 0; i < sections.length; i++) {
-      sections[i].classList.add('open');
-      var body = sections[i].querySelector('.sop-section-body');
-      body.style.maxHeight = 'none';
-    }
-  } else {
-    btn.innerHTML = '<i class="fa-solid fa-angles-down"></i> Alle aufklappen';
-    for (var j = 0; j < sections.length; j++) {
-      sections[j].classList.remove('open');
-      var b = sections[j].querySelector('.sop-section-body');
-      b.style.maxHeight = '0';
-    }
-  }
-}
-
-/**
- * Suche
- */
-function onSearchInput(e) {
-  var q = e.target.value.trim();
-  state.query = q;
-  
-  if (q.length > 0) {
-    el.searchClear.style.display = 'flex';
-    el.searchBox.classList.add('has-value');
-  } else {
-    el.searchClear.style.display = 'none';
-    el.searchBox.classList.remove('has-value');
-    clearSearch();
-    return;
-  }
-  
-  if (q.length >= 2) {
-    handleSearch(q);
-  } else {
-    clearSearch();
-  }
-}
-
-function onSearchClear() {
-  el.searchInput.value = '';
-  state.query = '';
-  el.searchClear.style.display = 'none';
-  el.searchBox.classList.remove('has-value');
-  clearSearch();
-  el.searchInput.focus();
-}
-
-function handleSearch(q) {
-  var terms = q.toLowerCase().split(' ');
-  var results = [];
-  
-  for (var i = 0; i < sopData.length; i++) {
-    var sop = sopData[i];
-    var score = 0;
-    var titleLower = sop.title.toLowerCase();
-    
-    // Scoring
-    // Voller Match im Titel
-    if (titleLower.indexOf(q.toLowerCase()) !== -1) score += 100;
-    
-    // Check alle Suchbegriffe
-    var allTermsFound = true;
-    for (var t = 0; t < terms.length; t++) {
-      var term = terms[t];
-      if (!term) continue;
-      
-      var termFound = false;
-      // Im Titel?
-      if (titleLower.indexOf(term) !== -1) {
-        score += 20;
-        termFound = true;
-      }
-      
-      // Im Inhalt?
-      if (!termFound) {
-        for (var s = 0; s < sop.sections.length; s++) {
-          if (stripHtml(sop.sections[s].html).toLowerCase().indexOf(term) !== -1) {
-            score += 5;
-            termFound = true;
-            break;
-          }
+    function init() {
+        cacheElements();
+        loadTheme();
+        
+        // Wait for data scripts to be executed
+        if (window.SOP_DATA && Array.isArray(window.SOP_DATA)) {
+            state.data = window.SOP_DATA.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+            startApp();
+        } else {
+            // Retry once after short delay if scripts loaded async
+            setTimeout(() => {
+                if (window.SOP_DATA) {
+                    state.data = window.SOP_DATA.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+                    startApp();
+                } else {
+                    renderError('Daten konnten nicht geladen werden.');
+                }
+            }, 100);
         }
-      }
-      
-      if (!termFound) {
-        allTermsFound = false;
-        break;
-      }
     }
+
+    function startApp() {
+        renderCategoryFilters();
+        renderNavList();
+        renderHomeGrid();
+        bindEvents();
+        handleRoute(); // Initial routing
+        
+        // Remove loading state if implemented
+        document.body.classList.remove('loading');
+    }
+
+    // --- Routing ---
+
+    function handleRoute() {
+        const hash = window.location.hash;
+        
+        if (hash.startsWith('#sop-')) {
+            const id = hash.substring(5);
+            const sop = state.data.find(s => s.id === id);
+            if (sop) {
+                state.view = 'sop';
+                state.currentSopId = id;
+                renderSOP(sop);
+                updateUIForView('sop');
+            } else {
+                window.location.hash = ''; // Reset if not found
+            }
+        } else if (hash.startsWith('#search=')) {
+            const query = decodeURIComponent(hash.substring(8));
+            state.view = 'search';
+            state.searchQuery = query;
+            if (el.searchInput) el.searchInput.value = query;
+            performSearch(query);
+            updateUIForView('search');
+        } else {
+            state.view = 'home';
+            state.currentSopId = null;
+            updateUIForView('home');
+        }
+        
+        updateBreadcrumb();
+        closeSidebar(); // Always close sidebar on route change on mobile
+    }
+
+    function navigateTo(hash) {
+        window.location.hash = hash;
+    }
+
+    // --- Rendering Logic ---
+
+    function updateUIForView(view) {
+        // Hide all views
+        el.viewHome.style.display = 'none';
+        el.viewSOP.style.display = 'none';
+        el.viewSearch.style.display = 'none';
+        
+        // Show active view
+        if (view === 'home') {
+            el.viewHome.style.display = 'block';
+            el.mobileTitle.textContent = 'SOP Notaufnahme';
+            el.fabAction.classList.remove('visible');
+        } else if (view === 'sop') {
+            el.viewSOP.style.display = 'block';
+            el.mobileTitle.textContent = 'Detailansicht';
+            // Scroll to top
+            el.contentScroll.scrollTop = 0;
+        } else if (view === 'search') {
+            el.viewSearch.style.display = 'block';
+            el.mobileTitle.textContent = 'Suche';
+            el.fabAction.classList.remove('visible');
+        }
+
+        // Update Nav Active State
+        const navItems = el.navList.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            if (view === 'sop' && item.dataset.id === state.currentSopId) {
+                item.classList.add('active');
+                // Scroll nav item into view if sidebar is visible
+                if (!state.isMobile) {
+                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    function renderCategoryFilters() {
+        const cats = ['all', ...Object.keys(CATEGORIES)];
+        let html = '';
+        
+        cats.forEach(key => {
+            const label = key === 'all' ? 'Alle' : CATEGORIES[key].name;
+            const activeClass = key === state.activeCategory ? 'active' : '';
+            html += `<button class="cat-pill ${activeClass}" data-cat="${key}">${label}</button>`;
+        });
+        
+        el.categoryFilters.innerHTML = html;
+    }
+
+    function renderNavList() {
+        const filteredData = state.activeCategory === 'all' 
+            ? state.data 
+            : state.data.filter(s => s.catKey === state.activeCategory);
+            
+        let html = '';
+        
+        if (filteredData.length === 0) {
+            html = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary);">Keine SOPs gefunden</div>';
+        } else {
+            filteredData.forEach(sop => {
+                const cat = CATEGORIES[sop.catKey] || { name: 'Sonstige', color: 'cat-sonst' };
+                html += `
+                    <a href="#sop-${sop.id}" class="nav-item" data-id="${sop.id}">
+                        <span class="nav-item-dot ${cat.color}"></span>
+                        <div class="nav-item-content">
+                            <span class="nav-item-title">${escapeHtml(sop.title)}</span>
+                            <span class="nav-item-cat">${cat.name}</span>
+                        </div>
+                    </a>
+                `;
+            });
+        }
+        
+        el.navList.innerHTML = html;
+    }
+
+    function renderHomeGrid() {
+        let html = `
+            <div class="home-hero">
+                <div class="home-logo"><i class="fa-solid fa-heart-pulse"></i></div>
+                <h1 class="home-title">SOP Notaufnahme</h1>
+                <p class="home-subtitle">Standardisierte Handlungsanweisungen für die klinische Notfallmedizin. Schnell, offline verfügbar, evidenzbasiert.</p>
+            </div>
+            <div class="cat-grid">
+        `;
+        
+        // Calculate counts
+        const counts = {};
+        state.data.forEach(sop => {
+            counts[sop.catKey] = (counts[sop.catKey] || 0) + 1;
+        });
+        
+        Object.keys(CATEGORIES).forEach(key => {
+            const cat = CATEGORIES[key];
+            const count = counts[key] || 0;
+            if (count > 0) {
+                html += `
+                    <div class="cat-card ${cat.color}" data-cat="${key}">
+                        <div class="cat-card-icon"><i class="fa-solid ${cat.icon}"></i></div>
+                        <div class="cat-card-info">
+                            <div class="cat-card-title">${cat.name}</div>
+                            <div class="cat-card-count">${count} SOPs</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-tertiary); font-size: 0.8rem;"></i>
+                    </div>
+                `;
+            }
+        });
+        
+        html += '</div>';
+        el.viewHome.innerHTML = html;
+        
+        // Bind Home Grid Clicks
+        el.viewHome.querySelectorAll('.cat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const cat = card.dataset.cat;
+                setCategory(cat);
+                if (state.isMobile) {
+                    openSidebar();
+                } else {
+                    // On desktop, maybe focus list
+                    const firstItem = el.navList.querySelector('.nav-item');
+                    if (firstItem) firstItem.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    }
+
+    function renderSOP(sop) {
+        const cat = CATEGORIES[sop.catKey] || { name: 'Allgemein', icon: 'fa-file', color: 'cat-sonst' };
+        
+        let html = `
+            <div class="sop-header">
+                <div class="sop-meta-row">
+                    <span class="sop-badge ${cat.color}"><i class="fa-solid ${cat.icon}"></i> ${cat.name}</span>
+                    <span class="sop-date">Stand: ${sop.stand || 'Aktuell'}</span>
+                </div>
+                <h1 class="sop-title">${escapeHtml(sop.title)}</h1>
+            </div>
+            
+            <div class="sop-actions">
+                <button class="btn-ghost" id="expandAllBtn">
+                    <i class="fa-solid fa-angles-down"></i> Alle öffnen
+                </button>
+            </div>
+            
+            <div class="sop-body">
+        `;
+        
+        sop.sections.forEach((sec, index) => {
+            const icon = SECTION_ICONS[sec.title] || 'fa-circle-dot';
+            const isOpen = index === 0 ? 'open' : ''; // First section open by default
+            
+            html += `
+                <div class="sop-section ${cat.color} ${isOpen}">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon"><i class="fa-solid ${icon}"></i></div>
+                            <span>${escapeHtml(sec.title)}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down section-toggle-icon"></i>
+                    </div>
+                    <div class="section-content">
+                        ${processHtmlContent(sec.html)}
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (sop.sources) {
+            html += `
+                <div class="sop-section ${cat.color}">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-book"></i></div>
+                            <span>Quellen</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down section-toggle-icon"></i>
+                    </div>
+                    <div class="section-content">
+                        <p style="font-size: 0.85rem; color: var(--text-tertiary);">${sop.sources}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += '</div>'; // End sop-body
+        
+        el.viewSOP.innerHTML = html;
+        
+        // Bind Section Toggles
+        el.viewSOP.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const section = this.parentElement;
+                toggleSection(section);
+            });
+        });
+        
+        // Bind Expand All
+        const expandBtn = document.getElementById('expandAllBtn');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', () => {
+                const allSections = el.viewSOP.querySelectorAll('.sop-section');
+                const anyClosed = Array.from(allSections).some(s => !s.classList.contains('open'));
+                
+                allSections.forEach(s => {
+                    if (anyClosed) s.classList.add('open');
+                    else s.classList.remove('open');
+                });
+                
+                expandBtn.innerHTML = anyClosed 
+                    ? '<i class="fa-solid fa-angles-up"></i> Alle schließen'
+                    : '<i class="fa-solid fa-angles-down"></i> Alle öffnen';
+            });
+        }
+    }
+
+    function toggleSection(section) {
+        section.classList.toggle('open');
+    }
+
+    // --- Search Logic ---
+
+    function performSearch(query) {
+        if (!query || query.length < 2) {
+            el.searchResultsList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-tertiary);">Bitte mindestens 2 Zeichen eingeben</div>';
+            el.searchCount.textContent = '0 Treffer';
+            return;
+        }
+        
+        const terms = query.toLowerCase().split(' ').filter(t => t.length > 0);
+        const results = [];
+        
+        state.data.forEach(sop => {
+            let score = 0;
+            const titleLower = sop.title.toLowerCase();
+            let context = '';
+            
+            // Title Match (High Priority)
+            if (titleLower.includes(query.toLowerCase())) {
+                score += 100;
+                context = 'Treffer im Titel';
+            } else {
+                // Partial Title Match
+                let matchCount = 0;
+                terms.forEach(term => {
+                    if (titleLower.includes(term)) matchCount++;
+                });
+                if (matchCount === terms.length) score += 50;
+            }
+            
+            // Content Match
+            sop.sections.forEach(sec => {
+                const text = stripHtml(sec.html).toLowerCase();
+                let termHits = 0;
+                terms.forEach(term => {
+                    if (text.includes(term)) termHits++;
+                });
+                
+                if (termHits > 0) {
+                    score += termHits * 10;
+                    if (!context) context = `Treffer in: ${sec.title}`;
+                }
+            });
+            
+            if (score > 0) {
+                results.push({ sop, score, context });
+            }
+        });
+        
+        results.sort((a, b) => b.score - a.score);
+        
+        renderSearchResults(results, query);
+    }
+
+    function renderSearchResults(results, query) {
+        el.searchCount.textContent = `${results.length} Treffer`;
+        
+        if (results.length === 0) {
+            el.searchResultsList.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text-tertiary);">
+                    <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                    Keine Ergebnisse für "${escapeHtml(query)}"
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        results.forEach(res => {
+            const cat = CATEGORIES[res.sop.catKey];
+            html += `
+                <div class="search-result-item" onclick="location.hash='#sop-${res.sop.id}'">
+                    <div class="search-result-title">${highlightText(res.sop.title, query)}</div>
+                    <div class="search-result-context">
+                        <span style="color: var(--${cat.color}-text); font-weight: 500; font-size: 0.8rem;">${cat.name}</span>
+                        • ${res.context}
+                    </div>
+                </div>
+            `;
+        });
+        
+        el.searchResultsList.innerHTML = html;
+    }
+
+    // --- UI Interactions ---
+
+    function setCategory(key) {
+        state.activeCategory = key;
+        
+        // Update Pills
+        const pills = el.categoryFilters.querySelectorAll('.cat-pill');
+        pills.forEach(p => {
+            if (p.dataset.cat === key) {
+                p.classList.add('active');
+                p.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
+                p.classList.remove('active');
+            }
+        });
+        
+        renderNavList();
+        
+        // If searching, clear search when switching category (optional UX choice)
+        // For now, we keep logic separate.
+    }
+
+    function openSidebar() {
+        state.sidebarOpen = true;
+        el.sidebar.classList.add('open');
+        el.sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent body scroll
+    }
+
+    function closeSidebar() {
+        state.sidebarOpen = false;
+        el.sidebar.classList.remove('open');
+        el.sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function updateBreadcrumb() {
+        let html = '<a href="#" class="breadcrumb-link">Übersicht</a>';
+        
+        if (state.view === 'sop' && state.currentSopId) {
+            const sop = state.data.find(s => s.id === state.currentSopId);
+            if (sop) {
+                html += ` <i class="fa-solid fa-chevron-right breadcrumb-sep"></i> <span>${escapeHtml(sop.title)}</span>`;
+            }
+        } else if (state.view === 'search') {
+            html += ` <i class="fa-solid fa-chevron-right breadcrumb-sep"></i> <span>Suche</span>`;
+        }
+        
+        el.breadcrumb.innerHTML = html;
+    }
+
+    // --- Theme Management ---
+
+    function loadTheme() {
+        const saved = localStorage.getItem('sop-theme');
+        if (saved) {
+            setTheme(saved);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+    }
+
+    function setTheme(theme) {
+        state.theme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('sop-theme', theme);
+        
+        const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
+        const text = theme === 'dark' ? 'Helles Design' : 'Dunkles Design';
+        el.themeToggle.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${text}</span>`;
+    }
+
+    function toggleTheme() {
+        setTheme(state.theme === 'light' ? 'dark' : 'light');
+    }
+
+    // --- Utilities ---
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function stripHtml(html) {
+        const tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
+    }
+
+    function processHtmlContent(html) {
+        // Here we could add auto-linking or other processing
+        // For now, just return (we trust the source data as it is internal)
+        return html;
+    }
+
+    function highlightText(text, query) {
+        if (!query) return escapeHtml(text);
+        const escapedText = escapeHtml(text);
+        const terms = query.split(' ').map(t => escapeHtml(t)).filter(t => t);
+        
+        let result = escapedText;
+        terms.forEach(term => {
+            const regex = new RegExp(`(${term})`, 'gi');
+            result = result.replace(regex, '<span class="highlight">$1</span>');
+        });
+        return result;
+    }
+
+    function renderError(msg) {
+        el.app.innerHTML = `<div style="padding: 40px; text-align: center;"><h2>Fehler</h2><p>${msg}</p></div>`;
+    }
+
+    // --- Event Binding ---
+
+    function bindEvents() {
+        // Mobile Toggle
+        if (el.mobileMenuBtn) el.mobileMenuBtn.addEventListener('click', openSidebar);
+        if (el.sidebarOverlay) el.sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Mobile Search Button (Header)
+        if (el.mobileSearchBtn) {
+            el.mobileSearchBtn.addEventListener('click', () => {
+                if (state.isMobile) {
+                    openSidebar();
+                    setTimeout(() => el.searchInput.focus(), 300);
+                } else {
+                    el.searchInput.focus();
+                }
+            });
+        }
+
+        // Category Pills
+        if (el.categoryFilters) {
+            el.categoryFilters.addEventListener('click', (e) => {
+                if (e.target.classList.contains('cat-pill')) {
+                    setCategory(e.target.dataset.cat);
+                }
+            });
+        }
+
+        // Theme Toggle
+        if (el.themeToggle) el.themeToggle.addEventListener('click', toggleTheme);
+
+        // Search Input
+        if (el.searchInput) {
+            let debounceTimer;
+            el.searchInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val.length > 0) el.searchClear.style.opacity = '1';
+                else el.searchClear.style.opacity = '0';
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (val.length >= 2) {
+                        navigateTo(`#search=${encodeURIComponent(val)}`);
+                    } else if (val.length === 0 && state.view === 'search') {
+                        navigateTo('');
+                    }
+                }, CONFIG.searchDebounce);
+            });
+            
+            // Check for Enter key
+            el.searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.target.blur(); // Hide keyboard on mobile
+                }
+            });
+        }
+
+        // Search Clear
+        if (el.searchClear) {
+            el.searchClear.addEventListener('click', () => {
+                el.searchInput.value = '';
+                el.searchClear.style.opacity = '0';
+                if (state.view === 'search') {
+                    navigateTo('');
+                }
+                el.searchInput.focus();
+            });
+        }
+
+        // Logo Click
+        if (el.appLogo) {
+            el.appLogo.addEventListener('click', () => {
+                navigateTo('');
+                if (state.isMobile) closeSidebar();
+            });
+        }
+
+        // FAB (Scroll to top)
+        if (el.fabAction) {
+            el.fabAction.addEventListener('click', () => {
+                el.contentScroll.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Scroll Spy for FAB
+        if (el.contentScroll) {
+            el.contentScroll.addEventListener('scroll', () => {
+                if (el.contentScroll.scrollTop > 300) {
+                    el.fabAction.classList.add('visible');
+                } else {
+                    el.fabAction.classList.remove('visible');
+                }
+            });
+        }
+
+        // Print
+        if (el.printBtn) {
+            el.printBtn.addEventListener('click', () => {
+                // Open all sections before printing
+                if (state.view === 'sop') {
+                    const sections = el.viewSOP.querySelectorAll('.sop-section');
+                    sections.forEach(s => s.classList.add('open'));
+                    setTimeout(() => window.print(), 300);
+                } else {
+                    window.print();
+                }
+            });
+        }
+
+        // Window Resize
+        window.addEventListener('resize', () => {
+            state.isMobile = window.innerWidth < CONFIG.mobileBreakpoint;
+            if (!state.isMobile && state.sidebarOpen) {
+                closeSidebar();
+            }
+        });
+
+        // Hash Change
+        window.addEventListener('hashchange', handleRoute);
+    }
+
+    // --- Start ---
     
-    if (allTermsFound && score > 0) {
-      results.push({ sop: sop, score: score });
+    // Check if DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
-  }
-  
-  results.sort(function(a, b) { return b.score - a.score; });
-  
-  renderSearchResults(results, q);
-}
-
-function renderSearchResults(results, q) {
-  if (!el.searchResults) return;
-  
-  if (results.length === 0) {
-    el.searchResults.innerHTML = '<div class="sop-nav-empty"><i class="fa-solid fa-magnifying-glass"></i><br>Keine Treffer</div>';
-    el.searchResults.style.display = 'block';
-    el.categoryFilters.style.display = 'none';
-    el.sidebarNav.style.display = 'none';
-    return;
-  }
-  
-  var h = '';
-  var limit = Math.min(results.length, 50); // Performance Limit
-  
-  for (var i = 0; i < limit; i++) {
-    var r = results[i];
-    var s = r.sop;
-    var cat = CATEGORIES[s.catKey];
-    
-    h += '<div class="sop-item" data-sop-id="' + s.id + '">';
-    h += '<span class="sop-item-dot dot-' + s.catKey + '"></span>';
-    h += '<div class="sop-item-text">';
-    h += '<div class="sop-item-title">' + highlight(s.title, q) + '</div>';
-    h += '<div class="sop-item-cat">' + escHtml(cat ? cat.name : '') + '</div>';
-    h += '</div></div>';
-  }
-  
-  el.searchResults.innerHTML = h;
-  el.searchResults.style.display = 'block';
-  el.categoryFilters.style.display = 'none';
-  el.sidebarNav.style.display = 'none';
-}
-
-function clearSearch() {
-  if (el.searchResults) {
-    el.searchResults.style.display = 'none';
-    el.searchResults.innerHTML = '';
-  }
-  if (el.categoryFilters) el.categoryFilters.style.display = 'flex';
-  if (el.sidebarNav) el.sidebarNav.style.display = 'block';
-}
-
-function onSearchResultClick(e) {
-  var item = e.target.closest('.sop-item');
-  if (item) {
-    var id = item.dataset.sopId;
-    navigateTo('sop', id);
-    if (window.innerWidth <= 768) {
-      toggleSidebar(false);
-    }
-    // Suche zurücksetzen nach Klick
-    state.query = '';
-    if (el.searchInput) el.searchInput.value = '';
-    onSearchClear();
-  }
-}
-
-/**
- * Breadcrumb
- */
-function updateBreadcrumb() {
-  if (!el.breadcrumb) return;
-  
-  var h = '';
-  if (state.view === 'home') {
-    h = '<span class="breadcrumb-current">Übersicht</span>';
-  } else if (state.view === 'sop' && state.sopId) {
-    var sop = findSOP(state.sopId);
-    if (sop) {
-      h += '<a href="#" class="breadcrumb-link" onclick="app.navigateTo(\'home\'); return false;">Übersicht</a>';
-      h += '<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>';
-      h += '<span class="breadcrumb-current">' + escHtml(sop.title) + '</span>';
-    }
-  }
-  el.breadcrumb.innerHTML = h;
-}
-
-function onBreadcrumbClick(e) {
-  if (e.target.tagName === 'A') {
-    e.preventDefault();
-    navigateTo('home');
-  }
-}
-
-/**
- * Hilfsfunktionen (Scroll, Print, Error)
- */
-function onScroll() {
-  if (!el.contentWrapper || !el.backToTop) return;
-  if (el.contentWrapper.scrollTop > 300) {
-    el.backToTop.classList.add('visible');
-  } else {
-    el.backToTop.classList.remove('visible');
-  }
-}
-
-function scrollToTop() {
-  if (el.contentWrapper) {
-    el.contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
-function printSOP() {
-  if (state.view !== 'sop') return;
-  
-  // Vor dem Drucken alle Sektionen öffnen
-  var sections = el.sopView.querySelectorAll('.sop-section');
-  for (var i = 0; i < sections.length; i++) {
-    sections[i].classList.add('open');
-    var b = sections[i].querySelector('.sop-section-body');
-    b.style.maxHeight = 'none';
-  }
-  
-  // Sources öffnen
-  var srcContent = el.sopView.querySelector('.sop-sources-content');
-  if (srcContent) srcContent.classList.add('open');
-  
-  setTimeout(function() {
-    window.print();
-  }, 300);
-}
-
-function renderError(msg) {
-  var root = document.getElementById('app');
-  if (root) {
-    root.innerHTML = '<div style="padding:40px;text-align:center;color:#e74c3c;">' +
-      '<h2>Fehler beim Laden</h2><p>' + msg + '</p></div>';
-  }
-}
-
-/**
- * Keyboard Shortcuts
- */
-function onKeyDown(e) {
-  // Suche fokussieren: /
-  if (e.key === '/' && document.activeElement !== el.searchInput) {
-    e.preventDefault();
-    if (el.searchInput) {
-      el.searchInput.focus();
-      el.searchInput.select();
-      if (window.innerWidth <= 768 && !state.sidebarOpen) {
-        toggleSidebar(true);
-      }
-    }
-  }
-  
-  // Sidebar schließen / Suche clearen: Escape
-  if (e.key === 'Escape') {
-    if (state.query.length > 0) {
-      onSearchClear();
-    } else if (state.sidebarOpen) {
-      toggleSidebar(false);
-    } else if (state.view === 'sop') {
-      navigateTo('home');
-    }
-  }
-}
-
-// Public API für Event-Handler im HTML String (falls nötig)
-window.app = {
-  navigateTo: navigateTo
-};
-
-// Start
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
 
 })();
