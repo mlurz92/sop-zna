@@ -217,7 +217,6 @@
 *::-webkit-scrollbar-thumb {
     background: transparent;
     border-radius: 99px;
-    transition: background 0.4s;
 }
 
 *:hover::-webkit-scrollbar-thumb {
@@ -1248,15 +1247,14 @@ a {
 .sop-body {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .sop-section {
     background: var(--bg-surface);
     border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: var(--shadow-xs);
-    border-left: 4px solid var(--text-tertiary);
+    border: 1px solid var(--border);
 }
 
 .section-header {
@@ -1279,7 +1277,7 @@ a {
 .section-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex: 1;
     min-width: 0;
 }
@@ -1292,13 +1290,13 @@ a {
 }
 
 .section-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-xs);
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 15px;
     flex-shrink: 0;
     background: var(--bg-input);
 }
@@ -1468,67 +1466,56 @@ tbody tr {
 }
 
 .cat-kardio .section-icon { background: var(--cat-kardio-bg); color: var(--cat-kardio-text); }
-.sop-section.cat-kardio { border-left-color: var(--cat-kardio-dot); }
 .sop-badge.cat-kardio { background: var(--cat-kardio-bg); color: var(--cat-kardio-text); }
 .nav-item-dot.cat-kardio, .browse-item-dot.cat-kardio { background: var(--cat-kardio-dot); }
 .cat-card.cat-kardio .cat-card-icon { background: var(--cat-kardio-bg); color: var(--cat-kardio-text); }
 
 .cat-pulmo .section-icon { background: var(--cat-pulmo-bg); color: var(--cat-pulmo-text); }
-.sop-section.cat-pulmo { border-left-color: var(--cat-pulmo-dot); }
 .sop-badge.cat-pulmo { background: var(--cat-pulmo-bg); color: var(--cat-pulmo-text); }
 .nav-item-dot.cat-pulmo, .browse-item-dot.cat-pulmo { background: var(--cat-pulmo-dot); }
 .cat-card.cat-pulmo .cat-card-icon { background: var(--cat-pulmo-bg); color: var(--cat-pulmo-text); }
 
 .cat-gi .section-icon { background: var(--cat-gi-bg); color: var(--cat-gi-text); }
-.sop-section.cat-gi { border-left-color: var(--cat-gi-dot); }
 .sop-badge.cat-gi { background: var(--cat-gi-bg); color: var(--cat-gi-text); }
 .nav-item-dot.cat-gi, .browse-item-dot.cat-gi { background: var(--cat-gi-dot); }
 .cat-card.cat-gi .cat-card-icon { background: var(--cat-gi-bg); color: var(--cat-gi-text); }
 
 .cat-neuro .section-icon { background: var(--cat-neuro-bg); color: var(--cat-neuro-text); }
-.sop-section.cat-neuro { border-left-color: var(--cat-neuro-dot); }
 .sop-badge.cat-neuro { background: var(--cat-neuro-bg); color: var(--cat-neuro-text); }
 .nav-item-dot.cat-neuro, .browse-item-dot.cat-neuro { background: var(--cat-neuro-dot); }
 .cat-card.cat-neuro .cat-card-icon { background: var(--cat-neuro-bg); color: var(--cat-neuro-text); }
 
 .cat-nephro .section-icon { background: var(--cat-nephro-bg); color: var(--cat-nephro-text); }
-.sop-section.cat-nephro { border-left-color: var(--cat-nephro-dot); }
 .sop-badge.cat-nephro { background: var(--cat-nephro-bg); color: var(--cat-nephro-text); }
 .nav-item-dot.cat-nephro, .browse-item-dot.cat-nephro { background: var(--cat-nephro-dot); }
 .cat-card.cat-nephro .cat-card-icon { background: var(--cat-nephro-bg); color: var(--cat-nephro-text); }
 
 .cat-metab .section-icon { background: var(--cat-metab-bg); color: var(--cat-metab-text); }
-.sop-section.cat-metab { border-left-color: var(--cat-metab-dot); }
 .sop-badge.cat-metab { background: var(--cat-metab-bg); color: var(--cat-metab-text); }
 .nav-item-dot.cat-metab, .browse-item-dot.cat-metab { background: var(--cat-metab-dot); }
 .cat-card.cat-metab .cat-card-icon { background: var(--cat-metab-bg); color: var(--cat-metab-text); }
 
 .cat-haem .section-icon { background: var(--cat-haem-bg); color: var(--cat-haem-text); }
-.sop-section.cat-haem { border-left-color: var(--cat-haem-dot); }
 .sop-badge.cat-haem { background: var(--cat-haem-bg); color: var(--cat-haem-text); }
 .nav-item-dot.cat-haem, .browse-item-dot.cat-haem { background: var(--cat-haem-dot); }
 .cat-card.cat-haem .cat-card-icon { background: var(--cat-haem-bg); color: var(--cat-haem-text); }
 
 .cat-infekt .section-icon { background: var(--cat-infekt-bg); color: var(--cat-infekt-text); }
-.sop-section.cat-infekt { border-left-color: var(--cat-infekt-dot); }
 .sop-badge.cat-infekt { background: var(--cat-infekt-bg); color: var(--cat-infekt-text); }
 .nav-item-dot.cat-infekt, .browse-item-dot.cat-infekt { background: var(--cat-infekt-dot); }
 .cat-card.cat-infekt .cat-card-icon { background: var(--cat-infekt-bg); color: var(--cat-infekt-text); }
 
 .cat-tox .section-icon { background: var(--cat-tox-bg); color: var(--cat-tox-text); }
-.sop-section.cat-tox { border-left-color: var(--cat-tox-dot); }
 .sop-badge.cat-tox { background: var(--cat-tox-bg); color: var(--cat-tox-text); }
 .nav-item-dot.cat-tox, .browse-item-dot.cat-tox { background: var(--cat-tox-dot); }
 .cat-card.cat-tox .cat-card-icon { background: var(--cat-tox-bg); color: var(--cat-tox-text); }
 
 .cat-leit .section-icon { background: var(--cat-leit-bg); color: var(--cat-leit-text); }
-.sop-section.cat-leit { border-left-color: var(--cat-leit-dot); }
 .sop-badge.cat-leit { background: var(--cat-leit-bg); color: var(--cat-leit-text); }
 .nav-item-dot.cat-leit, .browse-item-dot.cat-leit { background: var(--cat-leit-dot); }
 .cat-card.cat-leit .cat-card-icon { background: var(--cat-leit-bg); color: var(--cat-leit-text); }
 
 .cat-sonst .section-icon { background: var(--cat-sonst-bg); color: var(--cat-sonst-text); }
-.sop-section.cat-sonst { border-left-color: var(--cat-sonst-dot); }
 .sop-badge.cat-sonst { background: var(--cat-sonst-bg); color: var(--cat-sonst-text); }
 .nav-item-dot.cat-sonst, .browse-item-dot.cat-sonst { background: var(--cat-sonst-dot); }
 .cat-card.cat-sonst .cat-card-icon { background: var(--cat-sonst-bg); color: var(--cat-sonst-text); }
@@ -1644,6 +1631,10 @@ tbody tr {
     .cat-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
+    }
+
+    .sop-section:hover {
+        box-shadow: var(--shadow-sm);
     }
 }
 
