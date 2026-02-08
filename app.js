@@ -15,6 +15,14 @@
         'sonst': { name: 'Sonstige', icon: 'fa-circle-info' }
     };
 
+    var CATEGORY_NAME_MAP = {};
+    (function() {
+        var keys = Object.keys(CATEGORIES);
+        for (var i = 0; i < keys.length; i++) {
+            CATEGORY_NAME_MAP[CATEGORIES[keys[i]].name.toLowerCase()] = keys[i];
+        }
+    })();
+
     var SECTION_ICONS = {
         'Definition': 'fa-book-open',
         'Ursachen': 'fa-magnifying-glass',
@@ -58,23 +66,143 @@
         }
     }
 
+    function resolveCategory(val) {
+        if (!val) return 'sonst';
+        var v = String(val).trim();
+        if (CATEGORIES[v]) return v;
+        var low = v.toLowerCase();
+        if (CATEGORY_NAME_MAP[low]) return CATEGORY_NAME_MAP[low];
+        var keys = Object.keys(CATEGORIES);
+        for (var i = 0; i < keys.length; i++) {
+            if (low.indexOf(keys[i]) !== -1 || keys[i].indexOf(low) !== -1) return keys[i];
+        }
+        return 'sonst';
+    }
+
+    function safeStr(val) {
+        if (val === undefined || val === null) return '';
+        return String(val);
+    }
+
+    function getSectionTitle(sec) {
+        if (!sec) return '';
+        if (typeof sec === 'string') return '';
+        return safeStr(sec.title || sec.name || sec.heading || sec.label || sec.sectionTitle || '');
+    }
+
+    function getSectionContent(sec) {
+        if (!sec) return '';
+        if (typeof sec === 'string') return sec;
+        return safeStr(sec.content || sec.html || sec.body || sec.text || sec.value || sec.sectionContent || '');
+    }
+
+    function normalizeItem(raw) {
+        if (!raw || typeof raw !== 'object') return null;
+        var title = safeStr(raw.title || raw.name || raw.heading || raw.label || '');
+        var id = safeStr(raw.id || raw.sopId || raw.key || title.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-|-$/g, ''));
+        var cat = resolveCategory(raw.category || raw.cat || raw.kategorie || raw.fach || '');
+        var date = safeStr(raw.date || raw.datum || raw.lastUpdate || raw.stand || raw.version || '');
+        var rawSections = raw.sections || raw.content || raw.abschnitte || raw.data || [];
+        var sections = [];
+        if (Array.isArray(rawSections)) {
+            for (var i = 0; i < rawSections.length; i++) {
+                var sec = rawSections[i];
+                var st = getSectionTitle(sec);
+                var sc = getSectionContent(sec);
+                if (st || sc) {
+                    sections.push({ title: st, content: sc });
+                }
+            }
+        } else if (typeof rawSections === 'object' && rawSections !== null) {
+            var secKeys = Object.keys(rawSections);
+            for (var j = 0; j < secKeys.length; j++) {
+                var val = rawSections[secKeys[j]];
+                sections.push({
+                    title: secKeys[j],
+                    content: typeof val === 'string' ? val : (val && typeof val === 'object' ? safeStr(val.content || val.html || val.body || val.text || '') : safeStr(val))
+                });
+            }
+        }
+        if (!title && !id) return null;
+        return {
+            id: id,
+            title: title,
+            category: cat,
+            date: date,
+            sections: sections
+        };
+    }
+
+    function loadData() {
+        var raw = window.SOP_DATA;
+        if (!raw) return [];
+        if (!Array.isArray(raw)) {
+            if (typeof raw === 'object') {
+                var keys = Object.keys(raw);
+                var arr = [];
+                for (var k = 0; k < keys.length; k++) {
+                    var item = raw[keys[k]];
+                    if (item && typeof item === 'object') {
+                        if (!item.id) item.id = keys[k];
+                        arr.push(item);
+                    }
+                }
+                raw = arr;
+            } else {
+                return [];
+            }
+        }
+        var result = [];
+        for (var i = 0; i < raw.length; i++) {
+            var normalized = normalizeItem(raw[i]);
+            if (normalized) result.push(normalized);
+        }
+        result.sort(function(a, b) {
+            return a.title.localeCompare(b.title, 'de');
+        });
+        return result;
+    }
+
     function init() {
         cacheElements();
         loadTheme();
-        if (window.SOP_DATA && Array.isArray(window.SOP_DATA)) {
-            state.data = window.SOP_DATA.slice().sort(function(a, b) {
-                return a.title.localeCompare(b.title, 'de');
-            });
+        clearStaleCaches();
+        state.data = loadData();
+        if (state.data.length > 0) {
+            console.info('[SOP] ' + state.data.length + ' SOPs geladen');
             startApp();
         } else {
             setTimeout(function() {
-                if (window.SOP_DATA && Array.isArray(window.SOP_DATA)) {
-                    state.data = window.SOP_DATA.slice().sort(function(a, b) {
-                        return a.title.localeCompare(b.title, 'de');
-                    });
+                state.data = loadData();
+                if (state.data.length > 0) {
+                    console.info('[SOP] ' + state.data.length + ' SOPs geladen (verzögert)');
+                    startApp();
+                } else {
+                    console.warn('[SOP] Keine Daten gefunden. window.SOP_DATA =', typeof window.SOP_DATA, window.SOP_DATA ? '(Länge: ' + (window.SOP_DATA.length || Object.keys(window.SOP_DATA).length) + ')' : '(leer)');
+                    if (window.SOP_DATA && !Array.isArray(window.SOP_DATA)) {
+                        console.warn('[SOP] SOP_DATA ist kein Array. Typ:', typeof window.SOP_DATA);
+                        console.warn('[SOP] Keys:', Object.keys(window.SOP_DATA).slice(0, 5));
+                    }
+                    if (Array.isArray(window.SOP_DATA) && window.SOP_DATA.length > 0) {
+                        console.warn('[SOP] Erstes Element:', JSON.stringify(window.SOP_DATA[0]).substring(0, 500));
+                    }
                     startApp();
                 }
-            }, 200);
+            }, 500);
+        }
+    }
+
+    function clearStaleCaches() {
+        if ('caches' in window) {
+            try {
+                caches.keys().then(function(names) {
+                    for (var i = 0; i < names.length; i++) {
+                        if (names[i].indexOf('sop-notaufnahme') === 0) {
+                            caches.delete(names[i]);
+                        }
+                    }
+                });
+            } catch (e) {}
         }
     }
 
@@ -239,7 +367,7 @@
                 '<i class="fa-solid fa-chevron-right breadcrumb-sep"></i>' +
                 '<span>' + (sop ? escapeHtml(sop.title) : '') + '</span>';
         } else if (state.activeTab === 'home') {
-            el.breadcrumb.innerHTML = '<span>Übersicht</span>';
+            el.breadcrumb.innerHTML = '<span>\u00dcbersicht</span>';
         } else if (state.activeTab === 'browse') {
             el.breadcrumb.innerHTML = '<span>Alle SOPs</span>';
         } else if (state.activeTab === 'search') {
@@ -262,7 +390,7 @@
 
     function escapeHtml(text) {
         var d = document.createElement('div');
-        d.textContent = text;
+        d.textContent = safeStr(text);
         return d.innerHTML;
     }
 
@@ -286,7 +414,7 @@
         var html = '<div class="home-hero">' +
             '<div class="home-logo-icon"><i class="fa-solid fa-bolt"></i></div>' +
             '<h1 class="home-title">SOP Notaufnahme</h1>' +
-            '<p class="home-subtitle">Standardarbeitsanweisungen für die Notaufnahme – Klinikum St. Georg Leipzig</p>' +
+            '<p class="home-subtitle">Standardarbeitsanweisungen f\u00fcr die Notaufnahme \u2013 Klinikum St. Georg Leipzig</p>' +
             '<div class="home-stats">' +
             '<div class="home-stat"><div class="home-stat-value">' + totalSOPs + '</div><div class="home-stat-label">SOPs</div></div>' +
             '<div class="home-stat"><div class="home-stat-value">' + usedCats.length + '</div><div class="home-stat-label">Kategorien</div></div>' +
@@ -301,6 +429,9 @@
                 '<div class="cat-card-icon"><i class="fa-solid ' + cat.icon + '"></i></div>' +
                 '<div class="cat-card-info"><div class="cat-card-title">' + escapeHtml(cat.name) + '</div>' +
                 '<div class="cat-card-count">' + cnt + ' SOP' + (cnt !== 1 ? 's' : '') + '</div></div></div>';
+        }
+        if (usedCats.length === 0 && totalSOPs === 0) {
+            html += '<div class="browse-empty"><i class="fa-solid fa-database"></i><p>Keine SOP-Daten geladen. Bitte Seite neu laden (Strg+Shift+R).</p></div>';
         }
         html += '</div>';
         el.viewHome.innerHTML = html;
@@ -386,6 +517,7 @@
     }
 
     function getSectionIcon(title) {
+        if (!title) return 'fa-file-lines';
         var keys = Object.keys(SECTION_ICONS);
         for (var i = 0; i < keys.length; i++) {
             if (title.indexOf(keys[i]) !== -1) return SECTION_ICONS[keys[i]];
@@ -411,16 +543,20 @@
         if (sop.sections && sop.sections.length > 0) {
             for (var i = 0; i < sop.sections.length; i++) {
                 var sec = sop.sections[i];
-                var icon = getSectionIcon(sec.title);
+                var secTitle = sec.title || '';
+                var secContent = sec.content || '';
+                var icon = getSectionIcon(secTitle);
                 html += '<div class="sop-section cat-' + cat + ' open">' +
                     '<div class="section-header" role="button" tabindex="0">' +
                     '<div class="section-title"><div class="section-icon"><i class="fa-solid ' + icon + '"></i></div>' +
-                    '<span>' + escapeHtml(sec.title) + '</span></div>' +
+                    '<span>' + escapeHtml(secTitle) + '</span></div>' +
                     '<i class="fa-solid fa-chevron-down section-chevron"></i></div>' +
                     '<div class="section-body"><div class="section-collapse">' +
-                    '<div class="section-content">' + sec.content + '</div>' +
+                    '<div class="section-content">' + secContent + '</div>' +
                     '</div></div></div>';
             }
+        } else {
+            html += '<div class="browse-empty"><p>Keine Abschnitte verf\u00fcgbar</p></div>';
         }
         html += '</div></div>';
         el.viewSOP.innerHTML = html;
@@ -430,7 +566,7 @@
 
     function stripHtml(h) {
         var tmp = document.createElement('div');
-        tmp.innerHTML = h;
+        tmp.innerHTML = safeStr(h);
         return tmp.textContent || tmp.innerText || '';
     }
 
@@ -463,8 +599,8 @@
                     if (idx !== -1) {
                         var start = Math.max(0, idx - 40);
                         var end = Math.min(plain.length, idx + q.length + 60);
-                        var snippet = (start > 0 ? '…' : '') + plain.substring(start, end) + (end < plain.length ? '…' : '');
-                        contentMatches.push({ section: sec.title, snippet: snippet });
+                        var snippet = (start > 0 ? '\u2026' : '') + plain.substring(start, end) + (end < plain.length ? '\u2026' : '');
+                        contentMatches.push({ section: sec.title || '', snippet: snippet });
                     }
                 }
             }
@@ -473,7 +609,7 @@
             }
         }
         if (results.length === 0) {
-            el.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass"></i><p>Keine Ergebnisse für \u201E' + escapeHtml(q) + '\u201C</p></div>';
+            el.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass"></i><p>Keine Ergebnisse f\u00fcr \u201E' + escapeHtml(q) + '\u201C</p></div>';
             return;
         }
         var html = '<div class="search-results-header"><h2>Ergebnisse</h2><span class="search-count-badge">' + results.length + '</span></div><div class="search-results-list">';

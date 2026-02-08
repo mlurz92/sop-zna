@@ -64,6 +64,10 @@
     --duration-normal: 250ms;
     --duration-slow: 350ms;
 
+    --scrollbar-thumb: rgba(0, 0, 0, 0);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.18);
+    --scrollbar-thumb-active: rgba(0, 0, 0, 0.28);
+
     --cat-kardio-bg: #fef2f2;
     --cat-kardio-text: #dc2626;
     --cat-kardio-dot: #ef4444;
@@ -142,6 +146,10 @@
     --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
     --shadow-bottom-nav: 0 -1px 3px rgba(0, 0, 0, 0.3);
 
+    --scrollbar-thumb: rgba(255, 255, 255, 0);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.15);
+    --scrollbar-thumb-active: rgba(255, 255, 255, 0.25);
+
     --cat-kardio-bg: rgba(239, 68, 68, 0.1);
     --cat-kardio-text: #fca5a5;
     --cat-kardio-dot: #ef4444;
@@ -185,6 +193,43 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+*:hover {
+    scrollbar-color: var(--scrollbar-thumb-hover) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background: transparent;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 99px;
+    transition: background 0.4s;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-hover);
+}
+
+*:hover::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-active);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 html {
@@ -677,6 +722,7 @@ a {
     color: var(--text-tertiary);
     text-decoration: none;
     transition: color var(--duration-fast);
+    cursor: pointer;
 }
 
 .breadcrumb-link:hover {
