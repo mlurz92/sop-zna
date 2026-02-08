@@ -8,7 +8,7 @@
         'neuro': { name: 'Neurologie', icon: 'fa-brain' },
         'nephro': { name: 'Nephrologie', icon: 'fa-droplet' },
         'metab': { name: 'Metabolisch', icon: 'fa-flask' },
-        'haem': { name: 'Hämatologie', icon: 'fa-syringe' },
+        'haem': { name: 'H\u00e4matologie', icon: 'fa-syringe' },
         'infekt': { name: 'Infektiologie', icon: 'fa-virus' },
         'tox': { name: 'Toxikologie', icon: 'fa-skull-crossbones' },
         'leit': { name: 'Leitsymptom', icon: 'fa-stethoscope' },
@@ -55,15 +55,22 @@
             'themeToggleMobile', 'themeToggleMobileIcon',
             'sidebar', 'appLogo', 'searchInput', 'searchClear',
             'categoryFilters', 'navList', 'themeToggle', 'themeToggleIcon', 'themeToggleLabel',
-            'mainContent', 'contentHeader', 'breadcrumb', 'printBtn',
+            'mainContent', 'contentHeader', 'breadcrumb', 'desktopTocBtn',
             'contentScroll', 'viewHome', 'viewBrowse', 'viewSearch', 'viewSOP',
             'browseSearchInput', 'browseSearchClear', 'browseCategoryFilters', 'browseList',
             'searchViewInput', 'searchViewClear', 'searchResultsArea',
-            'fabAction', 'bottomNav', 'metaThemeColor'
+            'fabAction', 'bottomNav', 'metaThemeColor',
+            'sectionPickerOverlay', 'sectionPickerBackdrop', 'sectionPickerClose',
+            'sectionPickerList', 'sectionPickerPrint'
         ];
         for (var i = 0; i < ids.length; i++) {
             el[ids[i]] = document.getElementById(ids[i]);
         }
+    }
+
+    function safeStr(val) {
+        if (val === undefined || val === null) return '';
+        return String(val);
     }
 
     function resolveCategory(val) {
@@ -77,11 +84,6 @@
             if (low.indexOf(keys[i]) !== -1 || keys[i].indexOf(low) !== -1) return keys[i];
         }
         return 'sonst';
-    }
-
-    function safeStr(val) {
-        if (val === undefined || val === null) return '';
-        return String(val);
     }
 
     function getSectionTitle(sec) {
@@ -99,7 +101,7 @@
     function normalizeItem(raw) {
         if (!raw || typeof raw !== 'object') return null;
         var title = safeStr(raw.title || raw.name || raw.heading || raw.label || '');
-        var id = safeStr(raw.id || raw.sopId || raw.key || title.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-').replace(/^-|-$/g, ''));
+        var id = safeStr(raw.id || raw.sopId || raw.key || title.toLowerCase().replace(/[^a-z0-9\u00e4\u00f6\u00fc\u00df]+/g, '-').replace(/^-|-$/g, ''));
         var cat = resolveCategory(raw.category || raw.cat || raw.kategorie || raw.fach || '');
         var date = safeStr(raw.date || raw.datum || raw.lastUpdate || raw.stand || raw.version || '');
         var rawSections = raw.sections || raw.content || raw.abschnitte || raw.data || [];
@@ -124,13 +126,7 @@
             }
         }
         if (!title && !id) return null;
-        return {
-            id: id,
-            title: title,
-            category: cat,
-            date: date,
-            sections: sections
-        };
+        return { id: id, title: title, category: cat, date: date, sections: sections };
     }
 
     function loadData() {
@@ -163,35 +159,6 @@
         return result;
     }
 
-    function init() {
-        cacheElements();
-        loadTheme();
-        clearStaleCaches();
-        state.data = loadData();
-        if (state.data.length > 0) {
-            console.info('[SOP] ' + state.data.length + ' SOPs geladen');
-            startApp();
-        } else {
-            setTimeout(function() {
-                state.data = loadData();
-                if (state.data.length > 0) {
-                    console.info('[SOP] ' + state.data.length + ' SOPs geladen (verzögert)');
-                    startApp();
-                } else {
-                    console.warn('[SOP] Keine Daten gefunden. window.SOP_DATA =', typeof window.SOP_DATA, window.SOP_DATA ? '(Länge: ' + (window.SOP_DATA.length || Object.keys(window.SOP_DATA).length) + ')' : '(leer)');
-                    if (window.SOP_DATA && !Array.isArray(window.SOP_DATA)) {
-                        console.warn('[SOP] SOP_DATA ist kein Array. Typ:', typeof window.SOP_DATA);
-                        console.warn('[SOP] Keys:', Object.keys(window.SOP_DATA).slice(0, 5));
-                    }
-                    if (Array.isArray(window.SOP_DATA) && window.SOP_DATA.length > 0) {
-                        console.warn('[SOP] Erstes Element:', JSON.stringify(window.SOP_DATA[0]).substring(0, 500));
-                    }
-                    startApp();
-                }
-            }, 500);
-        }
-    }
-
     function clearStaleCaches() {
         if ('caches' in window) {
             try {
@@ -203,6 +170,21 @@
                     }
                 });
             } catch (e) {}
+        }
+    }
+
+    function init() {
+        cacheElements();
+        loadTheme();
+        clearStaleCaches();
+        state.data = loadData();
+        if (state.data.length > 0) {
+            startApp();
+        } else {
+            setTimeout(function() {
+                state.data = loadData();
+                startApp();
+            }, 500);
         }
     }
 
@@ -270,6 +252,7 @@
 
     function goBack() {
         state.currentSopId = null;
+        closeSectionPicker();
         history.back();
     }
 
@@ -304,6 +287,7 @@
     function showTab(tab) {
         state.activeTab = tab;
         state.currentSopId = null;
+        closeSectionPicker();
         hideAllViews();
         if (tab === 'home') {
             activateView(el.viewHome);
@@ -321,20 +305,21 @@
         updateBottomNav();
         updateBreadcrumb();
         updateDesktopNavActive();
-        updatePrintButton();
+        updateDesktopTocBtn();
     }
 
     function showSOP(sop) {
+        closeSectionPicker();
         hideAllViews();
         renderSOP(sop);
         activateView(el.viewSOP);
         if (el.contentScroll) el.contentScroll.scrollTop = 0;
-        if (el.fabAction) el.fabAction.classList.remove('visible');
+        if (el.fabAction) el.fabAction.classList.add('visible');
         updateMobileHeader();
         updateBottomNav();
         updateBreadcrumb();
         updateDesktopNavActive();
-        updatePrintButton();
+        updateDesktopTocBtn();
     }
 
     function updateMobileHeader() {
@@ -383,9 +368,9 @@
         }
     }
 
-    function updatePrintButton() {
-        if (!el.printBtn) return;
-        el.printBtn.style.display = state.currentSopId ? '' : 'none';
+    function updateDesktopTocBtn() {
+        if (!el.desktopTocBtn) return;
+        el.desktopTocBtn.style.display = state.currentSopId ? '' : 'none';
     }
 
     function escapeHtml(text) {
@@ -431,7 +416,7 @@
                 '<div class="cat-card-count">' + cnt + ' SOP' + (cnt !== 1 ? 's' : '') + '</div></div></div>';
         }
         if (usedCats.length === 0 && totalSOPs === 0) {
-            html += '<div class="browse-empty"><i class="fa-solid fa-database"></i><p>Keine SOP-Daten geladen. Bitte Seite neu laden (Strg+Shift+R).</p></div>';
+            html += '<div class="browse-empty"><i class="fa-solid fa-database"></i><p>Keine SOP-Daten geladen.</p></div>';
         }
         html += '</div>';
         el.viewHome.innerHTML = html;
@@ -538,7 +523,6 @@
             html += '<span class="sop-date">Stand: ' + escapeHtml(dateStr) + '</span>';
         }
         html += '</div><h1 class="sop-title">' + escapeHtml(sop.title) + '</h1></div>';
-        html += '<div class="sop-actions mobile-only"><button class="btn-action" id="sopPrintBtn"><i class="fa-solid fa-print"></i> Drucken</button></div>';
         html += '<div class="sop-body">';
         if (sop.sections && sop.sections.length > 0) {
             for (var i = 0; i < sop.sections.length; i++) {
@@ -546,7 +530,7 @@
                 var secTitle = sec.title || '';
                 var secContent = sec.content || '';
                 var icon = getSectionIcon(secTitle);
-                html += '<div class="sop-section cat-' + cat + ' open">' +
+                html += '<div class="sop-section cat-' + cat + '">' +
                     '<div class="section-header" role="button" tabindex="0">' +
                     '<div class="section-title"><div class="section-icon"><i class="fa-solid ' + icon + '"></i></div>' +
                     '<span>' + escapeHtml(secTitle) + '</span></div>' +
@@ -560,8 +544,6 @@
         }
         html += '</div></div>';
         el.viewSOP.innerHTML = html;
-        var pb = document.getElementById('sopPrintBtn');
-        if (pb) pb.addEventListener('click', function() { window.print(); });
     }
 
     function stripHtml(h) {
@@ -626,6 +608,59 @@
         el.searchResultsArea.innerHTML = html;
     }
 
+    function openSectionPicker() {
+        if (!state.currentSopId) return;
+        renderSectionPicker();
+        if (el.sectionPickerOverlay) el.sectionPickerOverlay.classList.add('open');
+    }
+
+    function closeSectionPicker() {
+        if (el.sectionPickerOverlay) el.sectionPickerOverlay.classList.remove('open');
+    }
+
+    function isPickerOpen() {
+        return el.sectionPickerOverlay && el.sectionPickerOverlay.classList.contains('open');
+    }
+
+    function renderSectionPicker() {
+        if (!el.sectionPickerList) return;
+        var sop = findSOP(state.currentSopId);
+        if (!sop || !sop.sections || sop.sections.length === 0) {
+            el.sectionPickerList.innerHTML = '';
+            return;
+        }
+        var cat = sop.category || 'sonst';
+        var html = '';
+        for (var i = 0; i < sop.sections.length; i++) {
+            var sec = sop.sections[i];
+            var secTitle = sec.title || '';
+            var icon = getSectionIcon(secTitle);
+            html += '<div class="section-picker-item" data-section-idx="' + i + '">' +
+                '<div class="section-picker-item-icon cat-' + cat + '"><i class="fa-solid ' + icon + '"></i></div>' +
+                '<div class="section-picker-item-title">' + escapeHtml(secTitle) + '</div></div>';
+        }
+        el.sectionPickerList.innerHTML = html;
+    }
+
+    function jumpToSection(idx) {
+        closeSectionPicker();
+        setTimeout(function() {
+            if (!el.viewSOP || !el.contentScroll) return;
+            var sections = el.viewSOP.querySelectorAll('.sop-section');
+            if (idx < 0 || idx >= sections.length) return;
+            var target = sections[idx];
+            if (!target.classList.contains('open')) {
+                target.classList.add('open');
+            }
+            setTimeout(function() {
+                var containerRect = el.contentScroll.getBoundingClientRect();
+                var targetRect = target.getBoundingClientRect();
+                var scrollTop = targetRect.top - containerRect.top + el.contentScroll.scrollTop - 12;
+                el.contentScroll.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' });
+            }, 80);
+        }, 180);
+    }
+
     function debounce(fn, delay) {
         var timer = null;
         return function() {
@@ -638,7 +673,6 @@
     function bindEvents() {
         if (el.themeToggle) el.themeToggle.addEventListener('click', toggleTheme);
         if (el.themeToggleMobile) el.themeToggleMobile.addEventListener('click', toggleTheme);
-        if (el.printBtn) el.printBtn.addEventListener('click', function() { window.print(); });
         if (el.backBtn) el.backBtn.addEventListener('click', goBack);
 
         if (el.appLogo) {
@@ -780,20 +814,35 @@
             });
         }
 
-        if (el.contentScroll) {
-            el.contentScroll.addEventListener('scroll', function() {
-                if (!el.fabAction) return;
-                if (el.contentScroll.scrollTop > 400 && state.currentSopId) {
-                    el.fabAction.classList.add('visible');
-                } else {
-                    el.fabAction.classList.remove('visible');
-                }
-            }, { passive: true });
+        if (el.fabAction) {
+            el.fabAction.addEventListener('click', openSectionPicker);
         }
 
-        if (el.fabAction) {
-            el.fabAction.addEventListener('click', function() {
-                if (el.contentScroll) el.contentScroll.scrollTo({ top: 0, behavior: 'smooth' });
+        if (el.desktopTocBtn) {
+            el.desktopTocBtn.addEventListener('click', openSectionPicker);
+        }
+
+        if (el.sectionPickerBackdrop) {
+            el.sectionPickerBackdrop.addEventListener('click', closeSectionPicker);
+        }
+
+        if (el.sectionPickerClose) {
+            el.sectionPickerClose.addEventListener('click', closeSectionPicker);
+        }
+
+        if (el.sectionPickerList) {
+            el.sectionPickerList.addEventListener('click', function(e) {
+                var item = e.target.closest('.section-picker-item');
+                if (!item) return;
+                var idx = parseInt(item.getAttribute('data-section-idx'), 10);
+                if (!isNaN(idx)) jumpToSection(idx);
+            });
+        }
+
+        if (el.sectionPickerPrint) {
+            el.sectionPickerPrint.addEventListener('click', function() {
+                closeSectionPicker();
+                setTimeout(function() { window.print(); }, 250);
             });
         }
 
@@ -807,6 +856,7 @@
         });
 
         window.addEventListener('popstate', function() {
+            closeSectionPicker();
             var hash = location.hash;
             if (hash.indexOf('#sop-') === 0) {
                 var id = hash.substring(5);
@@ -826,8 +876,12 @@
         }, 200));
 
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && state.currentSopId) {
-                goBack();
+            if (e.key === 'Escape') {
+                if (isPickerOpen()) {
+                    closeSectionPicker();
+                } else if (state.currentSopId) {
+                    goBack();
+                }
             }
         });
     }

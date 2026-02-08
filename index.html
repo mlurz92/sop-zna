@@ -74,8 +74,8 @@
             <div class="content-header desktop-only" id="contentHeader">
                 <div class="breadcrumb" id="breadcrumb"></div>
                 <div class="header-tools">
-                    <button class="icon-btn" id="printBtn" title="Drucken" aria-label="SOP drucken">
-                        <i class="fa-solid fa-print"></i>
+                    <button class="icon-btn" id="desktopTocBtn" title="Inhaltsverzeichnis" aria-label="Inhaltsverzeichnis" style="display:none;">
+                        <i class="fa-solid fa-list-ul"></i>
                     </button>
                 </div>
             </div>
@@ -111,9 +111,26 @@
                 <div id="viewSOP" class="view-panel" style="display:none;"></div>
             </div>
         </main>
-        <button class="fab" id="fabAction" aria-label="Nach oben scrollen">
-            <i class="fa-solid fa-arrow-up"></i>
+        <button class="fab" id="fabAction" aria-label="Inhaltsverzeichnis">
+            <i class="fa-solid fa-list-ul"></i>
         </button>
+        <div class="section-picker-overlay" id="sectionPickerOverlay">
+            <div class="section-picker-backdrop" id="sectionPickerBackdrop"></div>
+            <div class="section-picker" id="sectionPicker">
+                <div class="section-picker-handle"></div>
+                <div class="section-picker-header">
+                    <span class="section-picker-title">Inhaltsverzeichnis</span>
+                    <button class="section-picker-close" id="sectionPickerClose" aria-label="Schließen">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="section-picker-list" id="sectionPickerList"></div>
+                <div class="section-picker-action" id="sectionPickerPrint">
+                    <i class="fa-solid fa-print"></i>
+                    <span>SOP drucken</span>
+                </div>
+            </div>
+        </div>
         <nav class="bottom-nav" id="bottomNav" aria-label="Hauptnavigation">
             <button class="bottom-nav-item active" data-tab="home" aria-label="Übersicht">
                 <i class="fa-solid fa-house"></i>
