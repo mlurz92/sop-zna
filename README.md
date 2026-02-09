@@ -1,133 +1,140 @@
-# SOP Notaufnahme — Klinische Standards
+# SOP Notaufnahme — Klinische Pfade & Standards
 
 ![Status](https://img.shields.io/badge/Status-Stable-success)
 ![Platform](https://img.shields.io/badge/Platform-PWA%20%7C%20Web-blue)
-![Content](https://img.shields.io/badge/SOPs-73-orange)
+![Tech](https://img.shields.io/badge/Tech-Vanilla%20JS%20%7C%20No%20Build-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Eine **Progressive Web App (PWA)** für die klinische Notfallmedizin. Diese Anwendung stellt 73 evidenzbasierte Standard Operating Procedures (SOPs) für die Notaufnahme bereit – offline verfügbar, blitzschnell durchsuchbar und für die mobile Nutzung optimiert.
+Eine **Progressive Web App (PWA)** für die klinische Notfallmedizin.
+Diese Anwendung stellt über **70 evidenzbasierte Standard Operating Procedures (SOPs)** für die Notaufnahme bereit. Sie ist für den **Offline-Einsatz** in Kliniken optimiert, bietet eine **Volltextsuche** und passt sich nahtlos an mobile Endgeräte sowie Desktop-Monitore an.
 
 ---
 
 ## 📋 Inhaltsverzeichnis
 
-1. [Über das Projekt](#-über-das-projekt)
-2. [Funktionen & Highlights](#-funktionen--highlights)
-3. [Medizinische Inhalte](#-medizinische-inhalte)
-4. [Technischer Aufbau](#-technischer-aufbau)
-5. [Installation & Nutzung](#-installation--nutzung)
-6. [Projektstruktur](#-projektstruktur)
-7. [Browser-Support](#-browser-support)
-8. [Disclaimer](#-medizinischer-haftungsausschluss)
-
----
-
-## 🏥 Über das Projekt
-
-In der Notaufnahme zählt jede Sekunde. "SOP Notaufnahme" wurde entwickelt, um Ärzten und pflegerischem Personal schnellen Zugriff auf strukturierte Handlungsanweisungen zu geben.
-
-Die Anwendung basiert auf ursprünglich 73 Markdown-Dateien, die in eine leistungsfähige Single-Page-Application (SPA) transformiert wurden. Der Fokus liegt auf maximaler Performanz, Offline-Verfügbarkeit (für Funklöcher in Kliniken) und einer klaren visuellen Hierarchie der medizinischen Informationen.
+1.  [Funktionen & Highlights](#-funktionen--highlights)
+2.  [Medizinische Fachbereiche](#-medizinische-fachbereiche)
+3.  [Technischer Aufbau & Architektur](#-technischer-aufbau--architektur)
+4.  [Installation & Nutzung](#-installation--nutzung)
+5.  [Projektstruktur](#-projektstruktur)
+6.  [Browser-Kompatibilität](#-browser-kompatibilität)
+7.  [Haftungsausschluss](#-haftungsausschluss)
 
 ---
 
 ## ✨ Funktionen & Highlights
 
-### 📱 User Interface & UX
-*   **Mobile-First Design:** Optimiert für die Einhand-Bedienung auf Smartphones, skaliert jedoch nahtlos auf Tablets und Desktop-PCs.
-*   **Dark Mode:** Automatische Erkennung der Systemeinstellung sowie manueller Umschalter (Augenschonend bei Nachtschichten).
-*   **Intuitive Navigation:** Sidebar-Menü mit Kategorienfilter und visuellen Indikatoren für Fachbereiche.
+### 🚀 Performance & Offline-Fähigkeit
+* **Offline-First:** Dank des Service Workers (`sw.js`) ist die gesamte Anwendung nach dem ersten Laden **vollständig ohne Internetverbindung** nutzbar – ideal für Bereiche mit schlechter Netzabdeckung.
+* **Keine Ladezeiten:** Inhalte liegen lokal im Cache; Navigation zwischen SOPs erfolgt verzögerungsfrei.
+* **Installierbar:** Kann als **PWA** auf iOS (via "Zum Home-Bildschirm") und Android installiert werden und verhält sich wie eine native App.
 
-### 🚀 Performance & Technik
-*   **Offline-Ready (PWA):** Dank Service Worker (`sw.js`) ist die App nach dem ersten Laden vollständig ohne Internetverbindung nutzbar.
-*   **Zero-Dependencies:** Geschrieben in reinem Vanilla JavaScript, HTML5 und CSS3 – keine Frameworks, keine Build-Tools, extrem geringer Speicherbedarf.
-*   **Installierbar:** Kann über "Zum Startbildschirm hinzufügen" wie eine native App auf iOS und Android installiert werden.
+### 📱 User Interface (UI) & UX
+* **Responsive Design:** "Mobile-First"-Ansatz, der sich automatisch an Smartphones, Tablets und Desktops anpasst.
+* **Dark Mode:** Integrierter Dunkelmodus (automatisch per Systemeinstellung oder manuell umschaltbar) für augenschonendes Arbeiten in Nachtdiensten.
+* **Intuitive Navigation:**
+    * **Sidebar** (Desktop) / **Bottom-Nav** (Mobile) für schnellen Zugriff.
+    * **Kategorie-Filter:** Farbcodierte "Pills" zum schnellen Filtern nach Fachrichtung.
+    * **Inhaltsverzeichnis:** Automatisch generiertes "Table of Contents" für jede SOP zum schnellen Springen zu Abschnitten (Diagnostik, Therapie, etc.).
 
-### 🔍 Suche & Struktur
-*   **Echtzeit-Suche:** Filtert SOPs über Titel und Volltextinhalte.
-*   **Strukturierte Inhalte:** Jede SOP ist in logische Abschnitte unterteilt (Definition, Ursachen, Symptome, Diagnostik, Therapie, Merke, Disposition).
-*   **Interaktive Elemente:** Abschnitte sind ein-/ausklappbar, um den Fokus auf relevante Informationen zu lenken.
+### 🔍 Mächtige Suche
+* **Echtzeit-Filterung:** Ergebnisse erscheinen sofort während der Eingabe.
+* **Tiefensuche:** Durchsucht nicht nur Titel, sondern den **kompletten Inhalt** aller SOPs.
+* **Highlighting:** Suchbegriffe werden im Text farblich hervorgehoben.
 
----
-
-## 📚 Medizinische Inhalte
-
-Die Anwendung umfasst **73 SOPs**, die nach Leitsymptomen und Fachdisziplinen organisiert sind.
-
-### Fachbereiche (Kategorien)
-Die SOPs sind farblich kodiert und folgenden Kategorien zugeordnet:
-*   ❤️ **Kardiologie** (z.B. ACS, Herzinsuffizienz, HRST)
-*   🫁 **Pneumologie** (z.B. AECOPD, Pneumonie, LE)
-*   🧠 **Neurologie** (z.B. Stroke, Status epilepticus, Kopfschmerz)
-*   🍽️ **Gastroenterologie** (z.B. GI-Blutung, Pankreatitis)
-*   🦠 **Infektiologie** (z.B. Sepsis, Meningitis)
-*   🧪 **Metabolisch** (z.B. DKA, Elektrolytstörungen)
-*   🩸 **Hämatologie** (z.B. TVT, Anämie)
-*   ☠️ **Toxikologie** (z.B. Intoxikationen, Stromunfall)
-*   🩺 **Leitsymptome** (z.B. Dyspnoe, Thoraxschmerz, Schock)
-*   💧 **Nephrologie** (z.B. Nierenkolik, ANV)
-*   ℹ️ **Sonstige**
-
-### Enthaltene SOPs (Auszug)
-Eine vollständige Liste aller 73 SOPs ist in der Anwendung über die Sidebar oder die Suche einsehbar. Beispiele:
-*   *Reanimation (ALS)*
-*   *Polytrauma-Management (implizit in Schock/Trauma SOPs)*
-*   *Sepsis (Hour-1-Bundle)*
-*   *Stroke Management*
+### 🖨️ Druck-Optimierung
+* Spezielles **Print-Stylesheet** entfernt störende UI-Elemente (Navigation, Buttons) und formatiert die SOP für den sauberen Papierausdruck (DIN A4).
 
 ---
 
-## 🛠 Technischer Aufbau
+## 📚 Medizinische Fachbereiche
 
-Die Architektur folgt dem **Separation of Concerns** Prinzip, jedoch ohne Build-Step, um das Hosting so einfach wie möglich zu halten (einfaches Kopieren der Dateien reicht).
+Die SOPs sind in logische Kategorien unterteilt, die farblich und durch Icons (FontAwesome) kodiert sind:
 
-### Datenhaltung
-Die Inhalte liegen nicht in einer Datenbank, sondern in statischen JavaScript-Dateien (`sop-data-*.js`). Dies ermöglicht:
-1.  Extrem schnelle Ladezeiten (kein Backend-Call).
-2.  Vollständige Offline-Speicherung im Browser-Cache.
-3.  Einfache Versionierung über Git.
+* ❤️ **Kardiologie** (`kardio`): z.B. ACS, Herzinsuffizienz, Tachykarde/Bradykarde HRST, Lungenembolie.
+* 🫁 **Pneumologie** (`pulmo`): z.B. COPD-Exazerbation, Pneumonie, Asthma, Pleuraerguss.
+* 🧠 **Neurologie** (`neuro`): z.B. Status epilepticus, Delir, Zerebrale Blutungen.
+* 🍽️ **Gastroenterologie** (`gi`): z.B. GI-Blutung, Pankreatitis, Mesenterialischämie, Leberversagen.
+* 🦠 **Infektiologie** (`infekt`): z.B. Sepsis, Meningitis, Fieber in Neutropenie.
+* 🧪 **Metabolisch** (`metab`): z.B. Diabetische Ketoazidose (DKA), Hyper-/Hyponatriämie, Hyper-/Hypokaliämie.
+* 🩸 **Hämatologie** (`haem`): z.B. Thrombozytopenie, Tiefe Venenthrombose (TVT), Anämie.
+* ☠️ **Toxikologie** (`tox`): z.B. Intoxikationen (Alkohol, Medikamente), Stromunfall.
+* 💧 **Nephrologie** (`nephro`): z.B. Akute Nierenschädigung (AKI), Nierenkolik.
+* 🩺 **Leitsymptome** (`leit`): z.B. Dyspnoe, Thoraxschmerz, Schock, Synkope, Kopfschmerzen.
+* ℹ️ **Sonstige** (`sonst`): z.B. Palliativmedizin, Anaphylaxie.
 
-Das Datenformat ist ein Array von Objekten:
+---
+
+## 🛠 Technischer Aufbau & Architektur
+
+Das Projekt folgt dem **KISS-Prinzip** (Keep It Simple, Stupid) und verzichtet bewusst auf komplexe Frameworks oder Build-Tools.
+
+### Technologie-Stack
+* **HTML5:** Semantische Struktur.
+* **CSS3:** Nutzung von **CSS Custom Properties (Variables)** für Theming (Light/Dark Mode) und konsistentes Design. Responsive Layouts mittels **Flexbox** und **Grid**.
+* **JavaScript (Vanilla ES6):** Keine Frameworks (kein React/Vue/Angular).
+    * `app.js`: Enthält die gesamte Business-Logik (Routing, Rendering, Suche, State Management).
+    * `sw.js`: Service Worker für Caching und Offline-Funktionalität.
+
+### Datenstruktur
+Die medizinischen Inhalte sind **nicht** in einer Datenbank gespeichert, sondern liegen als statische JavaScript-Dateien im Ordner `sops/`.
+Jede SOP wird über `window.SOP_DATA.push({...})` in ein globales Array geladen. Dies ermöglicht:
+1.  Einfache Wartung und Versionierung via Git.
+2.  Kein Backend-Server notwendig.
+3.  Maximale Performance.
+
+**Beispiel-Datenstruktur einer SOP:**
 ```javascript
 {
-  id: "sop-id",
-  title: "Titel der SOP",
-  category: "Fachbereich",
-  catKey: "interner_key",
-  sections: [
-    { title: "Diagnostik", html: "<ul><li>Inhalt...</li></ul>" },
-    // ...
-  ]
+    id: "akute-herzinsuffizienz",
+    title: "Akute Herzinsuffizienz",
+    category: "Kardiologie",
+    catKey: "kardio",
+    sections: [
+        { title: "Definition", html: "<ul>...</ul>" },
+        { title: "Diagnostik", html: "..." },
+        { title: "Therapie", html: "..." }
+    ],
+    stand: "12/24",
+    sources: "Literaturangaben..."
 }
-```
 
-### Caching Strategie (Service Worker)
-Der Service Worker (`sw.js`) nutzt eine **Stale-While-Revalidate** Strategie:
-1.  Inhalte werden sofort aus dem Cache geladen (maximale Geschwindigkeit).
-2.  Im Hintergrund wird geprüft, ob eine neuere Version auf dem Server liegt.
-3.  Bei Updates wird der Cache für den nächsten Start aktualisiert.
+```
 
 ---
 
 ## 💻 Installation & Nutzung
 
-### Hosting (Server)
-Da es sich um eine statische Seite handelt, kann sie überall gehostet werden:
-*   GitHub Pages
-*   Netlify / Vercel
-*   Apache / Nginx
-*   Lokaler Webserver (z.B. Python SimpleHTTPServer)
+### 1. Online Hosting (Empfohlen)
 
-### Lokale Entwicklung
-1.  Repository klonen.
-2.  Ordner auf einem lokalen Webserver öffnen (Service Worker benötigen `localhost` oder `https`, sie funktionieren nicht über das `file://` Protokoll).
-    *   Beispiel mit Python: `python3 -m http.server 8000`
-    *   Beispiel mit VS Code: "Live Server" Extension nutzen.
-3.  Browser öffnen: `http://localhost:8000`
+Laden Sie den gesamten Ordner auf einen beliebigen statischen Webserver hoch (z.B. GitHub Pages, Vercel, Netlify oder Klinik-Intranet).
 
-### Installation auf dem Endgerät
-*   **iOS (Safari):** Teilen-Button → "Zum Home-Bildschirm".
-*   **Android (Chrome):** Menü → "App installieren".
-*   **Desktop (Chrome/Edge):** Symbol in der Adressleiste → "Installieren".
+* **Voraussetzung:** Der Server muss **HTTPS** unterstützen (oder `localhost` sein), damit der Service Worker funktioniert.
+
+### 2. Lokale Entwicklung / Testen
+
+Da moderne Browser Sicherheitsrichtlinien (CORS) für lokale Dateien (`file://`) durchsetzen und Service Worker eine sichere Umgebung benötigen, können Sie die `index.html` nicht einfach per Doppelklick öffnen.
+
+**Option A: Python (vorinstalliert auf macOS/Linux)**
+Öffnen Sie das Terminal im Projektordner und starten Sie einen einfachen HTTP-Server:
+
+```bash
+python3 -m http.server 8000
+
+```
+
+Öffnen Sie dann `http://localhost:8000` im Browser.
+
+**Option B: VS Code Live Server**
+Installieren Sie die Erweiterung "Live Server" in Visual Studio Code und klicken Sie unten rechts auf "Go Live".
+
+### 3. Updates einspielen
+
+Um neue Inhalte zu veröffentlichen:
+
+1. Änderungen an den Dateien vornehmen.
+2. In der `sw.js` die Konstante `CACHE_NAME` aktualisieren (z.B. von `v1` auf `v2`).
+3. Dateien auf den Server laden. Die Browser der Nutzer aktualisieren den Cache beim nächsten Besuch automatisch.
 
 ---
 
@@ -135,38 +142,40 @@ Da es sich um eine statische Seite handelt, kann sie überall gehostet werden:
 
 ```text
 SOP/
-├── index.html          # Haupt-Einstiegspunkt, Layout-Gerüst
-├── styles.css          # Alle Styles, CSS-Variablen, Responsive Design
-├── app.js              # Kernlogik: Routing, Suche, DOM-Manipulation
-├── sw.js               # Service Worker für Offline-Funktionalität
-├── sop-data-1.js       # SOP Daten (A - Akute N)
-├── sop-data-2.js       # SOP Daten (Akute P - Hypertensiver)
-├── sop-data-3.js       # SOP Daten (Hypo - Sepsis)
-└── sop-data-4.js       # SOP Daten (Spontan - Z)
+├── sops/                       # Ordner mit medizinischen Inhalten
+│   ├── abdominelle-schmerzen.js
+│   ├── aecopd.js
+│   ├── akute-herzinsuffizienz.js
+│   └── ... (weitere .js Dateien)
+├── app.js                      # Hauptanwendungslogik (Router, UI, Suche)
+├── styles.css                  # Zentrales Stylesheet (Theming, Layout)
+├── index.html                  # Haupteinstiegspunkt (lädt alle Skripte)
+├── sw.js                       # Service Worker (Offline-Cache Konfiguration)
+├── Basislogo_farbig.png        # Anwendungs-Icon/Logo
+└── README.md                   # Projektdokumentation
+
 ```
 
 ---
 
-## 🌐 Browser-Support
+## 🌐 Browser-Kompatibilität
 
-Die Anwendung nutzt moderne Web-Standards (ES6, CSS Grid/Flexbox, CSS Variables).
-
-| Browser | Support |
-| :--- | :--- |
-| Chrome / Edge | ✅ Vollständig (inkl. PWA) |
-| Safari (iOS/macOS) | ✅ Vollständig (inkl. PWA) |
-| Firefox | ✅ Vollständig (PWA eingeschränkt unter iOS) |
-| Internet Explorer | ❌ Nicht unterstützt |
-
----
-
-## ⚖️ Medizinischer Haftungsausschluss
-
-**WICHTIG:**
-Diese Anwendung dient ausschließlich als **Nachschlagewerk und Gedächtnisstütze** für medizinisches Fachpersonal.
-
-1.  **Keine Diagnose:** Die Inhalte ersetzen keine professionelle ärztliche Diagnose, Beratung oder Behandlung.
-2.  **Aktualität:** Trotz sorgfältiger Prüfung können sich Leitlinien und Dosierungsempfehlungen ändern. Der Nutzer ist verpflichtet, Dosierungen (insbesondere bei Medikamenten) eigenverantwortlich anhand der aktuellen Fachinformationen zu überprüfen.
-3.  **Haftung:** Die Entwickler übernehmen keine Haftung für Schäden, die aus der Nutzung der bereitgestellten Informationen entstehen.
+| Browser | Unterstützung | Anmerkung |
+| --- | --- | --- |
+| **Google Chrome** | ✅ Vollständig | Beste PWA-Unterstützung (Android/Desktop) |
+| **Safari (iOS)** | ✅ Vollständig | PWA-Installation über "Teilen"-Menü |
+| **Microsoft Edge** | ✅ Vollständig | Basiert auf Chromium |
+| **Firefox** | ✅ Gut | PWA-Installation auf Desktop eingeschränkt |
+| **Internet Explorer** | ❌ Nein | Nutzung von ES6 und CSS-Variablen nicht unterstützt |
 
 ---
+
+## ⚖️ Haftungsausschluss
+
+**Nur für medizinisches Fachpersonal.**
+
+Die Inhalte dieser Anwendung wurden mit größter Sorgfalt erstellt und basieren auf aktuellen Leitlinien (Stand siehe jeweilige SOP). Dennoch übernehmen die Autoren und Entwickler **keine Gewähr** für die Aktualität, Korrektheit, Vollständigkeit oder Qualität der bereitgestellten Informationen.
+
+1. **Keine Diagnose:** Diese App dient als Gedächtnisstütze und ersetzt keine klinische Einschätzung.
+2. **Dosierungen:** Medikamentendosierungen sind vom Anwender eigenverantwortlich anhand der Fachinformationen zu überprüfen.
+3. **Haftung:** Haftungsansprüche gegen die Autoren, die sich auf Schäden materieller oder ideeller Art beziehen, die durch die Nutzung der dargebotenen Informationen verursacht wurden, sind grundsätzlich ausgeschlossen.
