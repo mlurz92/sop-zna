@@ -57,7 +57,10 @@ Die Anwendung verwendet das **Patientenpfade-Logo** ([`img/Patientenpfade.png`](
 
 | Funktion | Beschreibung |
 |----------|--------------|
-| **Offline-Ready (PWA)** | Dank Service Worker ist die App nach dem ersten Laden vollständig ohne Internetverbindung nutzbar |
+| **Sofortige Updates** | Änderungen werden beim nächsten Seitenaufruf sofort geladen – kein manuelles Cache-Löschen mehr nötig |
+| **Network-First Strategie** | Inhalte werden immer zuerst vom Server geladen; Offline-Fallback nur bei fehlender Internetverbindung |
+| **Bilder niemals cachen** | Bilder und Medien werden immer frisch vom Server geladen |
+| **Offline-Ready (PWA)** | Bei fehlender Internetverbindung fällt die App automatisch auf gecachte Inhalte zurück |
 | **Zero-Dependencies** | Geschrieben in reinem Vanilla JavaScript, HTML5 und CSS3 – keine Frameworks, keine Build-Tools |
 | **Installierbar** | Kann über "Zum Startbildschirm hinzufügen" wie eine native App installiert werden |
 | **Schnelle Ladezeiten** | Statische Dateien ohne Backend-Calls ermöglichen extrem schnelle Ladezeiten |
@@ -195,7 +198,7 @@ Die SOPs sind farblich kodiert und folgenden Kategorien zugeordnet:
 - **Zero-Dependencies**: Keine externen Bibliotheken oder Frameworks
 - **No-Build**: Kein Build-Prozess erforderlich – direkte Nutzung der Quelldateien
 - **Modular**: Jede SOP ist eine eigenständige Datei
-- **Offline-First**: Vollständige Funktionalität ohne Internetverbindung
+- **Update-First**: Sofortige Updates haben Priorität vor Offline-Funktionalität
 - **Mobile-First**: Responsive Design mit Fokus auf Touch-Interaktion
 - **Performance-Optimiert**: GPU-Beschleunigung, CSS Containment, passive Event-Listener
 
@@ -337,21 +340,24 @@ Nach der Installation erscheint die App mit dem **Patientenpfade-Logo** auf dem 
 1. Neue Datei im Ordner `/sops/` erstellen: `{sop-id}.js`
 2. Das Standard-Format verwenden (siehe oben)
 3. Script-Tag in [`index.html`](index.html) hinzufügen
-4. Pfad in [`sw.js`](sw.js) zur `ASSETS_TO_CACHE` Liste hinzufügen
-5. Cache-Version in `sw.js` aktualisieren
+4. Fertig! Beim nächsten Seitenaufruf wird die neue SOP automatisch geladen
 
 ### SOP bearbeiten
 
 Die entsprechende Datei im `/sops/` Ordner öffnen und bearbeiten. Die Änderungen sind nach dem Speichern und Aktualisieren des Browsers sofort wirksam.
 
-### Cache aktualisieren
+### Update-Verhalten
 
-Nach Änderungen an SOPs muss die Cache-Version im Service Worker aktualisiert werden:
+**Updates werden automatisch beim Seitenaufruf geladen:**
 
-```javascript
-// sw.js
-var CACHE_NAME = 'sop-notaufnahme-v20260209c'; // Neue Version
-```
+- **Network-First Strategie:** Alle Inhalte werden immer zuerst vom Server geladen
+- **Bilder niemals cachen:** Bilder werden bei jedem Aufruf frisch geladen
+- **Automatischer Service-Worker-Update:** Bei jedem Seitenaufruf wird geprüft, ob eine neue Version verfügbar ist
+- **Kein manuelles Cache-Löschen nötig:** Alte Caches werden automatisch gelöscht
+
+**Bei Offline-Nutzung:**
+- Die App greift automatisch auf gecachte Inhalte zurück
+- Sobald wieder eine Internetverbindung besteht, werden Updates geladen
 
 ---
 
@@ -388,4 +394,4 @@ Dieses Projekt steht unter der MIT-Lizenz.
 
 ---
 
-*Zuletzt aktualisiert: Februar 2026 (Mobile UX/UI Optimierung)*
+*Zuletzt aktualisiert: Februar 2026 (Service Worker für sofortige Updates optimiert)*

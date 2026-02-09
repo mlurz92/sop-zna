@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1">
     
+    <!-- Cache-Control: Sofortige Updates erzwingen -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- PWA Meta-Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -241,11 +246,63 @@
     <!-- App -->
     <script src="app.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
+        (function() {
+            if (!('serviceWorker' in navigator)) return;
+
+            var swRegistration = null;
+            var isReloading = false;
+
+            // Service Worker registrieren
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js');
+                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+                    .then(function(reg) {
+                        swRegistration = reg;
+                        console.log('[SW] Registriert:', reg.scope);
+
+                        // Prüfen ob ein neuer SW wartet
+                        if (reg.waiting) {
+                            console.log('[SW] Wartender SW gefunden - aktiviere');
+                            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+
+                        // Auf Updates prüfen
+                        reg.update().catch(function() {});
+                    })
+                    .catch(function(err) {
+                        console.log('[SW] Registrierung fehlgeschlagen:', err);
+                    });
             });
-        }
+
+            // Bei jedem Seitenaufruf auf Updates prüfen
+            window.addEventListener('pageshow', function(event) {
+                if (swRegistration && !event.persisted) {
+                    swRegistration.update().catch(function() {});
+                }
+            });
+
+            // Wenn ein neuer SW bereit ist, Seite neu laden
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                if (!isReloading) {
+                    isReloading = true;
+                    console.log('[SW] Controller geändert - lade Seite neu');
+                    window.location.reload();
+                }
+            });
+
+            // Nachrichten vom Service Worker empfangen
+            navigator.serviceWorker.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'SW_ACTIVATED') {
+                    console.log('[SW] Neuer SW aktiviert:', event.data.cacheVersion);
+                }
+            });
+
+            // Bei Fokus auf Fenster: Update prüfen
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible' && swRegistration) {
+                    swRegistration.update().catch(function() {});
+                }
+            });
+        })();
     </script>
 </body>
 </html>

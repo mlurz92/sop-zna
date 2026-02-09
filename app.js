@@ -163,14 +163,46 @@
         if ('caches' in window) {
             try {
                 caches.keys().then(function(names) {
+                    var currentCache = 'sop-notaufnahme-v20260209f';
                     for (var i = 0; i < names.length; i++) {
-                        if (names[i].indexOf('sop-notaufnahme') === 0) {
+                        // Alle Caches löschen die nicht der aktuellen Version entsprechen
+                        if (names[i].indexOf('sop-notaufnahme') !== -1 && names[i] !== currentCache) {
+                            console.log('[App] Lösche veralteten Cache:', names[i]);
                             caches.delete(names[i]);
                         }
                     }
                 });
-            } catch (e) {}
+            } catch (e) {
+                console.log('[App] Cache-Bereinigung fehlgeschlagen:', e);
+            }
         }
+    }
+
+    // Service Worker Update-Check
+    function checkForServiceWorkerUpdate() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                // Auf Updates prüfen
+                registration.update().catch(function() {
+                    // Ignorieren wenn offline
+                });
+            });
+        }
+    }
+
+    // Bei Seitenladung: Sofort auf SW-Updates prüfen
+    if ('serviceWorker' in navigator) {
+        // Nach dem Laden auf Updates prüfen
+        window.addEventListener('load', function() {
+            setTimeout(checkForServiceWorkerUpdate, 1000);
+        });
+
+        // Bei Fokus auf Fenster: Update prüfen
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                checkForServiceWorkerUpdate();
+            }
+        });
     }
 
     function init() {
