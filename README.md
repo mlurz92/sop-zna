@@ -61,6 +61,19 @@ Die Anwendung verwendet das **Patientenpfade-Logo** ([`img/Patientenpfade.png`](
 | **Zero-Dependencies** | Geschrieben in reinem Vanilla JavaScript, HTML5 und CSS3 – keine Frameworks, keine Build-Tools |
 | **Installierbar** | Kann über "Zum Startbildschirm hinzufügen" wie eine native App installiert werden |
 | **Schnelle Ladezeiten** | Statische Dateien ohne Backend-Calls ermöglichen extrem schnelle Ladezeiten |
+| **GPU-Beschleunigung** | Alle Animationen nutzen `transform: translateZ(0)` und `will-change` für flüssige 60fps auf Mobile |
+| **Optimierte Touch-Events** | Passive Event-Listener und `touch-action` Manipulation für verzögerungsfreie Interaktionen |
+
+### 🎨 Animationen & UX-Details
+
+| Funktion | Beschreibung |
+|----------|--------------|
+| **Flüssige Übergänge** | Natural Motion Animationen mit `cubic-bezier()` Timing-Funktionen (200-300ms) |
+| **Ripple-Effekte** | Material Design-inspirierte Touch-Feedback-Animationen auf allen interaktiven Elementen |
+| **Smooth Scrolling** | Natives `scroll-behavior: smooth` und JavaScript-gestütztes Smooth-Scroll zu SOPs |
+| **Loading-States** | Animierte Skeleton-Screens mit Shimmer-Effekt während des Ladens |
+| **Sidebar-Animation** | Sanftes Ein-/Ausblenden der Navigation mit GPU-beschleunigtem Slide-Effekt |
+| **Reduced Motion** | Vollständige Unterstützung für `prefers-reduced-motion` Accessibility-Einstellung |
 
 ### 🔍 Suche & Struktur
 
@@ -172,7 +185,7 @@ Die SOPs sind farblich kodiert und folgenden Kategorien zugeordnet:
 | Komponente | Technologie |
 |------------|-------------|
 | **Frontend** | Vanilla JavaScript (ES6+) |
-| **Styling** | CSS3 mit CSS-Variablen |
+| **Styling** | CSS3 mit CSS-Variablen, GPU-beschleunigten Animationen |
 | **Offline** | Service Worker API |
 | **Architektur** | Single Page Application (SPA) |
 | **Build-Tools** | Keine erforderlich |
@@ -183,6 +196,20 @@ Die SOPs sind farblich kodiert und folgenden Kategorien zugeordnet:
 - **No-Build**: Kein Build-Prozess erforderlich – direkte Nutzung der Quelldateien
 - **Modular**: Jede SOP ist eine eigenständige Datei
 - **Offline-First**: Vollständige Funktionalität ohne Internetverbindung
+- **Mobile-First**: Responsive Design mit Fokus auf Touch-Interaktion
+- **Performance-Optimiert**: GPU-Beschleunigung, CSS Containment, passive Event-Listener
+
+### Performance-Features
+
+| Feature | Implementierung |
+|---------|-----------------|
+| **GPU-Beschleunigung** | `transform: translateZ(0)`, `backface-visibility: hidden`, `will-change` |
+| **CSS Containment** | `contain: layout style paint` für isolierte Render-Bereiche |
+| **Passive Events** | `{ passive: true }` für Touch- und Scroll-Events |
+| **requestAnimationFrame** | Alle Animationen nutzen RAF für 60fps |
+| **Throttling/Debouncing** | Scroll- und Input-Events werden optimiert verarbeitet |
+| **Lazy Loading** | SOP-Inhalte werden bei Bedarf nachgeladen |
+| **Preload/Prefetch** | Kritische Ressourcen werden vorgeladen |
 
 ---
 
@@ -361,4 +388,4 @@ Dieses Projekt steht unter der MIT-Lizenz.
 
 ---
 
-*Zuletzt aktualisiert: Februar 2026*
+*Zuletzt aktualisiert: Februar 2026 (Mobile UX/UI Optimierung)*

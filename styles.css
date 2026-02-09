@@ -60,9 +60,13 @@
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --duration-instant: 100ms;
     --duration-fast: 150ms;
     --duration-normal: 250ms;
     --duration-slow: 350ms;
+    --duration-modal: 400ms;
 
     --scrollbar-thumb: rgba(0, 0, 0, 0);
     --scrollbar-thumb-hover: rgba(0, 0, 0, 0.18);
@@ -193,6 +197,46 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+}
+
+/* GPU-Beschleunigung für animierte Elemente */
+.gpu-accelerated,
+.mobile-header,
+.bottom-nav,
+.sidebar,
+.fab,
+.section-picker,
+.section-picker-backdrop,
+.sop-section,
+.browse-item,
+.cat-card,
+.nav-item,
+.view-panel {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Will-Change Hints für Performance */
+.will-change-transform {
+    will-change: transform;
+}
+
+.will-change-opacity {
+    will-change: opacity;
+}
+
+/* Containment für isolierte Elemente */
+.contain-layout {
+    contain: layout;
+}
+
+.contain-paint {
+    contain: paint;
+}
+
+.contain-strict {
+    contain: strict;
 }
 
 * {
@@ -386,16 +430,19 @@ a {
     padding: 6px 0 2px;
     min-width: 72px;
     color: var(--text-tertiary);
-    transition: color var(--duration-fast);
+    transition: color var(--duration-fast) var(--ease-smooth);
     -webkit-user-select: none;
     user-select: none;
     height: var(--bottom-nav-height);
+    position: relative;
+    overflow: hidden;
 }
 
 .bottom-nav-item i {
     font-size: 22px;
     line-height: 1;
     transition: transform var(--duration-fast) var(--ease-spring);
+    will-change: transform;
 }
 
 .bottom-nav-item span {
@@ -403,6 +450,7 @@ a {
     font-weight: 600;
     letter-spacing: 0.01em;
     line-height: 1;
+    transition: transform var(--duration-fast) var(--ease-smooth);
 }
 
 .bottom-nav-item.active {
@@ -413,8 +461,37 @@ a {
     transform: scale(1.08);
 }
 
+.bottom-nav-item:active {
+    color: var(--primary);
+}
+
 .bottom-nav-item:active i {
     transform: scale(0.88);
+}
+
+.bottom-nav-item:active span {
+    transform: scale(0.95);
+}
+
+/* Touch Ripple für Bottom Nav */
+.bottom-nav-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform var(--duration-normal) var(--ease-out), opacity var(--duration-normal) var(--ease-out);
+    pointer-events: none;
+}
+
+.bottom-nav-item:active::after {
+    opacity: 0.1;
+    transform: translate(-50%, -50%) scale(1.5);
 }
 
 .sidebar {
@@ -856,14 +933,34 @@ a {
     align-items: center;
     gap: 12px;
     cursor: pointer;
-    transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast);
+    transition: transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-smooth);
     box-shadow: var(--shadow-xs);
     text-decoration: none;
     min-height: 72px;
+    position: relative;
+    overflow: hidden;
+    contain: layout style;
+    will-change: transform;
+}
+
+.cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--duration-instant);
+    pointer-events: none;
 }
 
 .cat-card:active {
     transform: scale(0.97);
+}
+
+.cat-card:active::before {
+    opacity: 0.05;
 }
 
 .cat-card-icon {
@@ -979,13 +1076,33 @@ a {
     color: var(--text-primary);
     gap: 12px;
     min-height: 60px;
-    transition: transform var(--duration-fast), background var(--duration-fast);
+    transition: transform var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-out);
     box-shadow: var(--shadow-xs);
+    position: relative;
+    overflow: hidden;
+    contain: layout style;
+    will-change: transform;
+}
+
+.browse-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity var(--duration-instant);
+    pointer-events: none;
 }
 
 .browse-item:active {
     transform: scale(0.98);
     background: var(--bg-surface-active);
+}
+
+.browse-item:active::after {
+    opacity: 0.05;
 }
 
 .browse-item-dot {
@@ -1701,10 +1818,14 @@ tbody tr {
     font-size: 14px;
 }
 
+/* ========================================
+   Animation Keyframes
+   ======================================== */
+
 @keyframes viewFadeIn {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -1712,8 +1833,287 @@ tbody tr {
     }
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleInBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Animation Classes
+   ======================================== */
+
 .view-animate-in {
     animation: viewFadeIn var(--duration-normal) var(--ease-out) both;
+}
+
+.animate-fade-in {
+    animation: fadeIn var(--duration-fast) var(--ease-out) both;
+}
+
+.animate-slide-up {
+    animation: slideInUp var(--duration-normal) var(--ease-out) both;
+}
+
+.animate-slide-down {
+    animation: slideInDown var(--duration-normal) var(--ease-out) both;
+}
+
+.animate-slide-right {
+    animation: slideInRight var(--duration-normal) var(--ease-out) both;
+}
+
+.animate-scale-in {
+    animation: scaleIn var(--duration-normal) var(--ease-out) both;
+}
+
+.animate-bounce-in {
+    animation: scaleInBounce var(--duration-slow) var(--ease-spring) both;
+}
+
+.animate-pulse {
+    animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Staggered Animation Delays */
+.stagger-1 { animation-delay: 30ms; }
+.stagger-2 { animation-delay: 60ms; }
+.stagger-3 { animation-delay: 90ms; }
+.stagger-4 { animation-delay: 120ms; }
+.stagger-5 { animation-delay: 150ms; }
+.stagger-6 { animation-delay: 180ms; }
+.stagger-7 { animation-delay: 210ms; }
+.stagger-8 { animation-delay: 240ms; }
+
+/* ========================================
+   Ripple Effect
+   ======================================== */
+
+.ripple-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.2;
+    pointer-events: none;
+    transform: scale(0);
+    animation: ripple var(--duration-slow) var(--ease-out) forwards;
+}
+
+.ripple-light {
+    background: #ffffff;
+}
+
+.ripple-dark {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   Touch Feedback
+   ======================================== */
+
+.touch-feedback {
+    position: relative;
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.touch-feedback::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--duration-instant);
+    pointer-events: none;
+}
+
+.touch-feedback:active::after {
+    opacity: 0.08;
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-surface) 25%,
+        var(--bg-surface-hover) 50%,
+        var(--bg-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+    height: 1em;
+    margin-bottom: 0.5em;
+}
+
+.skeleton-text:last-child {
+    width: 70%;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .view-animate-in,
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-slide-down,
+    .animate-slide-right,
+    .animate-scale-in,
+    .animate-bounce-in {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .ripple {
+        animation: none !important;
+        display: none !important;
+    }
+
+    .skeleton {
+        animation: none !important;
+        background: var(--bg-surface-hover);
+    }
 }
 
 @media (min-width: 1024px) {

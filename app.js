@@ -670,6 +670,78 @@
         };
     }
 
+    function throttle(fn, limit) {
+        var inThrottle = false;
+        var lastFunc;
+        var lastRan;
+        return function() {
+            var ctx = this, args = arguments;
+            if (!inThrottle) {
+                fn.apply(ctx, args);
+                lastRan = Date.now();
+                inThrottle = true;
+            } else {
+                clearTimeout(lastFunc);
+                lastFunc = setTimeout(function() {
+                    if ((Date.now() - lastRan) >= limit) {
+                        fn.apply(ctx, args);
+                        lastRan = Date.now();
+                    }
+                }, Math.max(limit - (Date.now() - lastRan), 0));
+            }
+        };
+    }
+
+    function rafSchedule(fn) {
+        var rafId = null;
+        var lastArgs = null;
+        var lastCtx = null;
+        return function() {
+            lastCtx = this;
+            lastArgs = arguments;
+            if (rafId === null) {
+                rafId = requestAnimationFrame(function() {
+                    rafId = null;
+                    fn.apply(lastCtx, lastArgs);
+                });
+            }
+        };
+    }
+
+    function createRipple(element, event) {
+        var rect = element.getBoundingClientRect();
+        var ripple = document.createElement('span');
+        var diameter = Math.max(rect.width, rect.height);
+        var radius = diameter / 2;
+        
+        var clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : rect.left + rect.width / 2);
+        var clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : rect.top + rect.height / 2);
+        
+        ripple.style.width = ripple.style.height = diameter + 'px';
+        ripple.style.left = (clientX - rect.left - radius) + 'px';
+        ripple.style.top = (clientY - rect.top - radius) + 'px';
+        ripple.className = 'ripple';
+        
+        element.appendChild(ripple);
+        
+        setTimeout(function() {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
+    }
+
+    function addRippleToElement(element) {
+        if (!element) return;
+        element.classList.add('ripple-container');
+        element.addEventListener('touchstart', function(e) {
+            createRipple(element, e);
+        }, { passive: true });
+        element.addEventListener('mousedown', function(e) {
+            createRipple(element, e);
+        });
+    }
+
     function bindEvents() {
         if (el.themeToggle) el.themeToggle.addEventListener('click', toggleTheme);
         if (el.themeToggleMobile) el.themeToggleMobile.addEventListener('click', toggleTheme);
@@ -882,6 +954,42 @@
                 } else if (state.currentSopId) {
                     goBack();
                 }
+            }
+        });
+
+        // Passive Touch-Events für bessere Scroll-Performance
+        if (el.contentScroll) {
+            el.contentScroll.addEventListener('touchstart', function() {}, { passive: true });
+            el.contentScroll.addEventListener('touchmove', function() {}, { passive: true });
+        }
+
+        if (el.navList) {
+            el.navList.addEventListener('touchstart', function() {}, { passive: true });
+        }
+
+        if (el.browseList) {
+            el.browseList.addEventListener('touchstart', function() {}, { passive: true });
+        }
+
+        // Scroll-Performance mit rafSchedule
+        var handleScroll = rafSchedule(function() {
+            // Future: Scroll-Position für Lazy-Loading nutzen
+        });
+
+        if (el.contentScroll) {
+            el.contentScroll.addEventListener('scroll', handleScroll, { passive: true });
+        }
+
+        // Touch-Delay entfernen für schnellere Klicks
+        document.addEventListener('touchstart', function() {}, { passive: true });
+
+        // Visibility Change für Performance-Optimierung
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Pause animations when tab is hidden
+                document.body.classList.add('reduce-motion');
+            } else {
+                document.body.classList.remove('reduce-motion');
             }
         });
     }
