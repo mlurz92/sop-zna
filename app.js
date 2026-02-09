@@ -397,7 +397,7 @@
             if (countByCategory(catKeys[c]) > 0) usedCats.push(catKeys[c]);
         }
         var html = '<div class="home-hero">' +
-            '<img src="Basislogo_farbig.png" alt="Klinikum St. Georg Leipzig" class="home-logo-image">' +
+            '<img src="img/Patientenpfade.png" alt="Patientenpfade" class="home-logo-image">' +
             '<h1 class="home-title">Patientenpfade: ZNA</h1>' +
             '<p class="home-subtitle">Standardarbeitsanweisungen f\u00fcr die Notaufnahme \u2013 AG Klinische Pfade</p>' +
             '<div class="home-stats">' +

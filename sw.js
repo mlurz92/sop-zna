@@ -1,10 +1,11 @@
-var CACHE_NAME = 'sop-notaufnahme-v20260209c';
+var CACHE_NAME = 'sop-notaufnahme-v20260209e';
 
 var ASSETS_TO_CACHE = [
     './',
     './index.html',
     './styles.css',
     './app.js',
+    './img/Patientenpfade.png',
     './sops/abdominelle-schmerzen.js',
     './sops/aecopd.js',
     './sops/akute-alkoholintoxikation.js',
