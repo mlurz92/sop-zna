@@ -29,6 +29,10 @@ In der Notaufnahme zählt jede Sekunde. **Patientenpfade: ZNA** wurde entwickelt
 
 Die Anwendung enthält **73 modulare SOP-Dateien**, die nach dem Separation-of-Concerns-Prinzip organisiert sind. Jede SOP ist eine eigenständige Datei, was die Wartung, Erweiterung und kollaborative Bearbeitung erheblich vereinfacht.
 
+### Logo & Branding
+
+Die Anwendung verwendet das **Patientenpfade-Logo** ([`img/Patientenpfade.png`](img/Patientenpfade.png)) als Haupterkennungsmerkmal. Dieses wird sowohl als App-Icon für die PWA-Installation als auch im Header der Anwendung angezeigt. Ein zusätzliches Logo ([`img/Basislogo_farbig.png`](img/Basislogo_farbig.png)) steht für weitere Branding-Zwecke zur Verfügung.
+
 ### Zielgruppe
 
 - Ärzte in der Notaufnahme
@@ -91,43 +95,75 @@ Die SOPs sind farblich kodiert und folgenden Kategorien zugeordnet:
 | 💧 **Nephrologie** | Nierenerkrankungen | Nierenkolik, Akute Nierenschädigung |
 | ℹ️ **Sonstige** | Diverse Erkrankungen | Delir, Hitzschlag, Sterbephase/Palliativ |
 
-### Alle 73 SOPs
+### Alle 73 SOPs im Überblick
 
-```
-abdominelle-schmerzen          akute-nierenschaedigung         hypokaliaemie
-aecopd                         akute-pankreatitis              ikterus
-akute-alkoholintoxikation      akuter-gichtanfall              kohlenmonoxidintoxikation
-akute-divertikulitis           akuter-harnverhalt              kopfschmerzen
-akute-gastroenteritis          akutes-aortensyndrom            lungenarterienembolie
-akute-herzinsuffizienz         anaemie                         myxoedemkoma
-akute-intoxikation             anaphylaxie                     nicht-st-hebungsinfarkt
-akute-mesenterialischaemie     asthmaexazerbation              nierenkolik
-akute-nebenniereninsuffizienz  bakterielle-meningitis          obere-gastrointestinale-blutung
-                               bradykarde-hrst                 oesophageale-bolusimpaktion
-                               cannabinoid-hyperemesis-syndrom pleuraerguss
-                               delir                           pneumonie
-                               diabetische-ketoazidose         schock
-                               dyspnoe                         sepsis
-                               erbrechen                       spontan-bakterielle-peritonitis
-                               erysipel                        st-hebungsinfarkt
-                               fieber-in-der-neutropenie       status-epilepticus
-                               fremdkoerperingestion           sterbephase-palliativ
-                               harnwegsinfektion               stromunfall
-                               heparininduzierte-thrombozytopenie  synkope
-                               hepatische-enzephalopathie      tachykarde-hrst
-                               herz-kreislauf-stillstand       thoraxschmerzen
-                               hitzschlag                      thrombozytopenie
-                               hyperkaliaemie                  tiefe-venenthrombose
-                               hyperkalzaemie                  tonsillitis
-                               hypernatriaemie                 transiente-globale-amnesie
-                               hyperosmolares-hyperglykaemisches-syndrom  tumorlysesyndrom
-                               hypertensiver-notfall           unklaere-vigilanzminderung
-                               hypoglykaemie                   untere-gastrointestinale-blutung
-                               hypokaliaemie                   vena-cava-superior-syndrom
-                               hypokalzaemie                   vorhofflimmern
-                               hyponatriaemie                  zerebrale-metastasen
-                                                               zerebrale-venen-sinusthrombose
-```
+| A | B | D |
+|---|---|---|
+| [`abdominelle-schmerzen`](sops/abdominelle-schmerzen.js) | [`bakterielle-meningitis`](sops/bakterielle-meningitis.js) | [`delir`](sops/delir.js) |
+| [`aecopd`](sops/aecopd.js) | [`bradykarde-hrst`](sops/bradykarde-hrst.js) | [`diabetische-ketoazidose`](sops/diabetische-ketoazidose.js) |
+| [`akute-alkoholintoxikation`](sops/akute-alkoholintoxikation.js) | | [`dyspnoe`](sops/dyspnoe.js) |
+| [`akute-divertikulitis`](sops/akute-divertikulitis.js) | **C** | |
+| [`akute-gastroenteritis`](sops/akute-gastroenteritis.js) | [`cannabinoid-hyperemesis-syndrom`](sops/cannabinoid-hyperemesis-syndrom.js) | **E** |
+| [`akute-herzinsuffizienz`](sops/akute-herzinsuffizienz.js) | | [`erbrechen`](sops/erbrechen.js) |
+| [`akute-intoxikation`](sops/akute-intoxikation.js) | | [`erysipel`](sops/erysipel.js) |
+| [`akute-mesenterialischaemie`](sops/akute-mesenterialischaemie.js) | | |
+| [`akute-nebenniereninsuffizienz`](sops/akute-nebenniereninsuffizienz.js) | | **F** |
+| [`akute-nierenschaedigung`](sops/akute-nierenschaedigung.js) | | [`fieber-in-der-neutropenie`](sops/fieber-in-der-neutropenie.js) |
+| [`akute-pankreatitis`](sops/akute-pankreatitis.js) | | [`fremdkoerperingestion`](sops/fremdkoerperingestion.js) |
+| [`akuter-gichtanfall`](sops/akuter-gichtanfall.js) | | |
+| [`akuter-harnverhalt`](sops/akuter-harnverhalt.js) | | |
+| [`akutes-aortensyndrom`](sops/akutes-aortensyndrom.js) | | |
+| [`anaemie`](sops/anaemie.js) | | |
+| [`anaphylaxie`](sops/anaphylaxie.js) | | |
+| [`asthmaexazerbation`](sops/asthmaexazerbation.js) | | |
+
+| H | I | K |
+|---|---|---|
+| [`harnwegsinfektion`](sops/harnwegsinfektion.js) | [`ikterus`](sops/ikterus.js) | [`kohlenmonoxidintoxikation`](sops/kohlenmonoxidintoxikation.js) |
+| [`heparininduzierte-thrombozytopenie`](sops/heparininduzierte-thrombozytopenie.js) | | [`kopfschmerzen`](sops/kopfschmerzen.js) |
+| [`hepatische-enzephalopathie`](sops/hepatische-enzephalopathie.js) | | |
+| [`herz-kreislauf-stillstand`](sops/herz-kreislauf-stillstand.js) | | |
+| [`hitzschlag`](sops/hitzschlag.js) | | |
+| [`hyperkaliaemie`](sops/hyperkaliaemie.js) | | |
+| [`hyperkalzaemie`](sops/hyperkalzaemie.js) | | |
+| [`hypernatriaemie`](sops/hypernatriaemie.js) | | |
+| [`hyperosmolares-hyperglykaemisches-syndrom`](sops/hyperosmolares-hyperglykaemisches-syndrom.js) | | |
+| [`hypertensiver-notfall`](sops/hypertensiver-notfall.js) | | |
+| [`hypoglykaemie`](sops/hypoglykaemie.js) | | |
+| [`hypokaliaemie`](sops/hypokaliaemie.js) | | |
+| [`hypokalzaemie`](sops/hypokalzaemie.js) | | |
+| [`hyponatriaemie`](sops/hyponatriaemie.js) | | |
+
+| L | M | N |
+|---|---|---|
+| [`lungenarterienembolie`](sops/lungenarterienembolie.js) | [`myxoedemkoma`](sops/myxoedemkoma.js) | [`nicht-st-hebungsinfarkt`](sops/nicht-st-hebungsinfarkt.js) |
+| | | [`nierenkolik`](sops/nierenkolik.js) |
+
+| O | P | S |
+|---|---|---|
+| [`obere-gastrointestinale-blutung`](sops/obere-gastrointestinale-blutung.js) | [`pleuraerguss`](sops/pleuraerguss.js) | [`schock`](sops/schock.js) |
+| [`oesophageale-bolusimpaktion`](sops/oesophageale-bolusimpaktion.js) | [`pneumonie`](sops/pneumonie.js) | [`sepsis`](sops/sepsis.js) |
+| | | [`spontan-bakterielle-peritonitis`](sops/spontan-bakterielle-peritonitis.js) |
+| | | [`st-hebungsinfarkt`](sops/st-hebungsinfarkt.js) |
+| | | [`status-epilepticus`](sops/status-epilepticus.js) |
+| | | [`sterbephase-palliativ`](sops/sterbephase-palliativ.js) |
+| | | [`stromunfall`](sops/stromunfall.js) |
+| | | [`synkope`](sops/synkope.js) |
+
+| T | U | V |
+|---|---|---|
+| [`tachykarde-hrst`](sops/tachykarde-hrst.js) | [`unklaere-vigilanzminderung`](sops/unklaere-vigilanzminderung.js) | [`vena-cava-superior-syndrom`](sops/vena-cava-superior-syndrom.js) |
+| [`thoraxschmerzen`](sops/thoraxschmerzen.js) | [`untere-gastrointestinale-blutung`](sops/untere-gastrointestinale-blutung.js) | [`vorhofflimmern`](sops/vorhofflimmern.js) |
+| [`thrombozytopenie`](sops/thrombozytopenie.js) | | |
+| [`tiefe-venenthrombose`](sops/tiefe-venenthrombose.js) | | |
+| [`tonsillitis`](sops/tonsillitis.js) | | |
+| [`transiente-globale-amnesie`](sops/transiente-globale-amnesie.js) | | |
+| [`tumorlysesyndrom`](sops/tumorlysesyndrom.js) | | |
+
+| Z |
+|---|
+| [`zerebrale-metastasen`](sops/zerebrale-metastasen.js) |
+| [`zerebrale-venen-sinusthrombose`](sops/zerebrale-venen-sinusthrombose.js) |
 
 ---
 
@@ -158,8 +194,11 @@ SOP/
 ├── styles.css                # Alle Styles, CSS-Variablen, Responsive Design
 ├── app.js                    # Kernlogik: Routing, Suche, DOM-Manipulation
 ├── sw.js                     # Service Worker für Offline-Funktionalität
-├── Basislogo_farbig.png      # Logo der Anwendung
 ├── README.md                 # Diese Dokumentation
+│
+├── img/                      # Bilder und Logos
+│   ├── Patientenpfade.png    # Hauptlogo und App-Icon
+│   └── Basislogo_farbig.png  # Zusätzliches Logo
 │
 ├── plans/                    # Planungsunterlagen
 │   └── sop-refactoring-plan.md
@@ -259,6 +298,8 @@ Die Anwendung kann überall gehostet werden, wo statische Dateien bereitgestellt
 | **iOS (Safari)** | Teilen-Button → "Zum Home-Bildschirm" |
 | **Android (Chrome)** | Menü → "App installieren" |
 | **Desktop (Chrome/Edge)** | Install-Symbol in der Adressleiste → "Installieren" |
+
+Nach der Installation erscheint die App mit dem **Patientenpfade-Logo** auf dem Startbildschirm und kann wie eine native Anwendung genutzt werden.
 
 ---
 
