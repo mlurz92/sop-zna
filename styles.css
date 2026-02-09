@@ -774,21 +774,21 @@ a {
 
 .home-hero {
     text-align: center;
-    padding: 20px 20px 8px;
+    padding: 8px 20px 0;
 }
 
 .home-logo-image {
-    width: 360px;
-    height: 360px;
+    width: 280px;
+    height: 280px;
     object-fit: contain;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .home-title {
     font-size: 26px;
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 6px;
+    margin-bottom: 2px;
     letter-spacing: -0.03em;
     line-height: 1.2;
 }
@@ -797,15 +797,15 @@ a {
     font-size: 14px;
     color: var(--text-tertiary);
     max-width: 400px;
-    margin: 0 auto 8px;
+    margin: 0 auto 4px;
     line-height: 1.5;
 }
 
 .home-stats {
     display: flex;
     justify-content: center;
-    gap: 24px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-bottom: 4px;
 }
 
 .home-stat {
@@ -831,14 +831,14 @@ a {
     font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
-    padding: 0 20px 12px;
+    padding: 0 20px 8px;
 }
 
 .cat-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    padding: 0 16px 40px;
+    padding: 0 16px 24px;
 }
 
 .cat-card {
@@ -1753,15 +1753,15 @@ tbody tr {
     .cat-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 14px;
-        padding: 0 0 40px;
+        padding: 0 0 24px;
     }
 
     .home-hero {
-        padding: 24px 0 12px;
+        padding: 12px 0 4px;
     }
 
     .home-section-title {
-        padding: 0 0 14px;
+        padding: 0 0 8px;
     }
 
     .cat-card:hover {

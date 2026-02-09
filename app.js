@@ -330,7 +330,7 @@
             el.mobileTitle.textContent = sop ? sop.title : 'SOP';
         } else {
             el.backBtn.classList.add('hidden');
-            if (state.activeTab === 'home') el.mobileTitle.textContent = 'SOP Notaufnahme';
+            if (state.activeTab === 'home') el.mobileTitle.textContent = 'Patientenpfade ZNA';
             else if (state.activeTab === 'browse') el.mobileTitle.textContent = 'Alle SOPs';
             else if (state.activeTab === 'search') el.mobileTitle.textContent = 'Suche';
         }
@@ -397,9 +397,9 @@
             if (countByCategory(catKeys[c]) > 0) usedCats.push(catKeys[c]);
         }
         var html = '<div class="home-hero">' +
-            '<div class="home-logo-icon"><i class="fa-solid fa-bolt"></i></div>' +
-            '<h1 class="home-title">SOP Notaufnahme</h1>' +
-            '<p class="home-subtitle">Standardarbeitsanweisungen f\u00fcr die Notaufnahme \u2013 Klinikum St. Georg Leipzig</p>' +
+            '<img src="Basislogo_farbig.png" alt="Klinikum St. Georg Leipzig" class="home-logo-image">' +
+            '<h1 class="home-title">Patientenpfade ZNA</h1>' +
+            '<p class="home-subtitle">Standardarbeitsanweisungen f\u00fcr die Notaufnahme \u2013 AG Patientenpflege</p>' +
             '<div class="home-stats">' +
             '<div class="home-stat"><div class="home-stat-value">' + totalSOPs + '</div><div class="home-stat-label">SOPs</div></div>' +
             '<div class="home-stat"><div class="home-stat-value">' + usedCats.length + '</div><div class="home-stat-label">Kategorien</div></div>' +
