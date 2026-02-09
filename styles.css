@@ -443,17 +443,12 @@ a {
     cursor: pointer;
 }
 
-.logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
+.logo-image {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
     flex-shrink: 0;
+    border-radius: var(--radius-xs);
 }
 
 .logo-text {
@@ -779,21 +774,14 @@ a {
 
 .home-hero {
     text-align: center;
-    padding: 32px 20px 12px;
+    padding: 20px 20px 8px;
 }
 
-.home-logo-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
-    color: white;
-    font-size: 28px;
-    margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+.home-logo-image {
+    width: 360px;
+    height: 360px;
+    object-fit: contain;
+    margin-bottom: 8px;
 }
 
 .home-title {
@@ -817,7 +805,7 @@ a {
     display: flex;
     justify-content: center;
     gap: 24px;
-    margin-bottom: 28px;
+    margin-bottom: 16px;
 }
 
 .home-stat {
@@ -1769,7 +1757,7 @@ tbody tr {
     }
 
     .home-hero {
-        padding: 40px 0 16px;
+        padding: 24px 0 12px;
     }
 
     .home-section-title {
@@ -1850,10 +1838,9 @@ tbody tr {
         bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
     }
 
-    .home-logo-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 24px;
+    .home-logo-image {
+        width: 240px;
+        height: 240px;
     }
 
     .home-title {
