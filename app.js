@@ -22,6 +22,11 @@ var SIC={
 };
 var AO=['Diagnostik','Therapie'];
 var FSN=13,FSX=20,FSD=15,PTH=70;
+// iOS Touch-Optimierung Konstanten
+var EDGE_MARGIN=30;      // iOS System-Gesten Randbereich (Notification Center, Control Center, Back/Forward)
+var SAFE_ZONE=44;        // Apple HIG empfohlene Touch-Target Größe
+var TAP_FEEDBACK_DELAY=150;
+var DOUBLE_TAP_DELAY=300;
 var CC={
 'kardio':'#ef4444','pulmo':'#3b82f6','gi':'#f59e0b','neuro':'#8b5cf6',
 'nephro':'#06b6d4','metab':'#10b981','haem':'#ec4899','infekt':'#84cc16',
@@ -29,7 +34,7 @@ var CC={
 };
 var S={data:[],tab:'home',sopId:null,catD:'all',catB:'all',bQ:'',sQ:'',hQ:'',
 theme:'light',fs:FSD,mob:window.innerWidth<1024,allO:false,off:!navigator.onLine,
-ts:null,pY0:0,pY:0,pull:false,refr:false,sCatOpen:false,bCatOpen:false};
+ts:null,pY0:0,pY:0,pX0:0,pull:false,refr:false,sCatOpen:false,bCatOpen:false};
 var E={};
 var sObs=null,sSec='';
 function cache(){
@@ -57,6 +62,93 @@ return'sonst';
 }
 function gc(k){return CC[k]||'#64748b'}
 function strip(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent||d.innerText||''}
+
+// === iOS Touch-Optimierung Hilfsfunktionen ===
+function isInEdgeZone(x,y){
+    // Prüft ob Touch im iOS System-Gesten Bereich liegt
+    var w=window.innerWidth;
+    var h=window.innerHeight;
+    return x<EDGE_MARGIN||x>w-EDGE_MARGIN||y<EDGE_MARGIN||y>h-EDGE_MARGIN;
+}
+function isInSafeZone(x){
+    // Prüft ob Touch außerhalb der kritischen Randbereiche liegt
+    var w=window.innerWidth;
+    return x>=SAFE_ZONE&&x<=w-SAFE_ZONE;
+}
+function isIOS(){
+    // iOS Erkennung für spezifische Optimierungen
+    return/iPad|iPhone|iPod/.test(navigator.userAgent)||(/Mac/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+}
+function hapticFeedback(type){
+    // Haptic Feedback für unterstützte Geräte
+    if(!navigator.vibrate)return;
+    var pattern=type==='light'?10:type==='medium'?20:type==='heavy'?50:10;
+    navigator.vibrate(pattern);
+}
+function addTapFeedback(el){
+    // Fügt einem Element Tap-Feedback hinzu
+    if(!el)return;
+    el.addEventListener('touchstart',function(){
+        this.classList.add('tap-active');
+    },{passive:true});
+    el.addEventListener('touchend',function(){
+        var self=this;
+        setTimeout(function(){self.classList.remove('tap-active')},TAP_FEEDBACK_DELAY);
+    },{passive:true});
+    el.addEventListener('touchcancel',function(){
+        this.classList.remove('tap-active');
+    },{passive:true});
+}
+function preventDoubleTapZoom(el){
+    // Verhindert Double-Tap-Zoom auf interaktiven Elementen
+    if(!el)return;
+    var lastTap=0;
+    el.addEventListener('touchend',function(e){
+        var now=Date.now();
+        if(now-lastTap<DOUBLE_TAP_DELAY){
+            e.preventDefault();
+            // Führe die ursprüngliche Aktion nach kurzer Verzögerung aus
+            var clickEvent=new Event('click',{bubbles:true,cancelable:true});
+            setTimeout(function(){el.dispatchEvent(clickEvent)},100);
+        }
+        lastTap=now;
+    },{passive:false});
+}
+function initTouchOptimizations(){
+    // Initialisiert Touch-Optimierungen für alle interaktiven Elemente
+    if(!isIOS())return;
+    // Tap-Feedback für interaktive Elemente
+    var tapSelectors='.btm-btn,.cat-card,.browse-item,.sop-section-head,.sidebar-cat-chip,.browse-cat-chip,.search-result,.nav-list a,.picker-list li';
+    var tapEls=document.querySelectorAll(tapSelectors);
+    for(var i=0;i<tapEls.length;i++){
+        addTapFeedback(tapEls[i]);
+    }
+    // Double-Tap-Zoom Prävention für Buttons
+    var btnSelectors='.btm-btn,.topbar-btn,.fab,.picker-list li';
+    var btnEls=document.querySelectorAll(btnSelectors);
+    for(var i=0;i<btnEls.length;i++){
+        preventDoubleTapZoom(btnEls[i]);
+    }
+}
+function applyTouchToElement(el){
+    // Wendet Touch-Optimierungen auf ein einzelnes dynamisch erstelltes Element an
+    if(!isIOS()||!el)return;
+    addTapFeedback(el);
+    // Prüfe ob Element Double-Tap-Schutz benötigt
+    var tagName=el.tagName.toLowerCase();
+    if(tagName==='button'||el.classList.contains('btm-btn')||el.classList.contains('topbar-btn')||el.classList.contains('fab-action')){
+        preventDoubleTapZoom(el);
+    }
+}
+function applyTouchToContainer(container,selector){
+    // Wendet Touch-Optimierungen auf alle Elemente in einem Container an
+    if(!isIOS()||!container)return;
+    var els=container.querySelectorAll(selector);
+    for(var i=0;i<els.length;i++){
+        addTapFeedback(els[i]);
+    }
+}
+// === Ende iOS Touch-Optimierung Hilfsfunktionen ===
 function hl(t,q){
 if(!q)return t;
 var e=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -121,6 +213,8 @@ if(E.fontIndicatorMobile){E.fontIndicatorMobile.textContent=S.fs}
 function cFs(d){S.fs=Math.max(FSN,Math.min(FSX,S.fs+d));aFs()}
 function init(){
 cache();lTh();aTh();lFs();aFs();
+// iOS Touch-Optimierungen initialisieren
+setTimeout(initTouchOptimizations,100);
 if(window.SOP_DATA&&window.SOP_DATA.length){
 for(var i=0;i<window.SOP_DATA.length;i++){
 var d=window.SOP_DATA[i];
@@ -203,38 +297,78 @@ window.addEventListener('offline',function(){S.off=true;S.ts=new Date();uOff()})
 window.addEventListener('resize',function(){
 S.mob=window.innerWidth<1024;
 });
+// iOS-optimierter Pull-to-Refresh mit Edge-Swipe-Schutz
 E.contentScroll.addEventListener('touchstart',function(e){
+// Edge-Swipe-Bereiche für iOS-Systemgesten ausschließen
+var touchX=e.touches[0].clientX;
+var touchY=e.touches[0].clientY;
+if(isInEdgeZone(touchX,touchY)){
+    S.pull=false;
+    return;
+}
 if(E.contentScroll.scrollTop===0){
-S.pY0=e.touches[0].clientY;S.pull=true;
+    S.pY0=touchY;
+    S.pX0=touchX; // X-Position für horizontale Swipe-Erkennung speichern
+    S.pull=true;
 }
 },{passive:true});
 E.contentScroll.addEventListener('touchmove',function(e){
 if(!S.pull)return;
-S.pY=e.touches[0].clientY-S.pY0;
+var touchX=e.touches[0].clientX;
+var touchY=e.touches[0].clientY;
+// Abbruch bei zu starker horizontaler Bewegung (Swipe-Navigation)
+var deltaX=Math.abs(touchX-(S.pX0||touchX));
+if(deltaX>30){
+    S.pull=false;
+    E.pullIndicator.classList.remove('show');
+    E.pullIndicator.style.transform='';
+    return;
+}
+S.pY=touchY-S.pY0;
 if(S.pY>0&&S.pY<PTH){
-E.pullIndicator.classList.add('show');
-E.pullIndicator.style.transform='translateX(-50%) translateY('+(S.pY-40)+'px)';
+    E.pullIndicator.classList.add('show');
+    E.pullIndicator.style.transform='translateX(-50%) translateY('+(S.pY-40)+'px)';
 }
 },{passive:true});
 E.contentScroll.addEventListener('touchend',function(){
 if(S.pull&&S.pY>PTH/2){
-E.pullIndicator.classList.add('spin');
-S.refr=true;
-setTimeout(function(){
-rHome();rNav();
-if(S.tab==='browse'){rBrowse()}
-if(S.tab==='search'){rSearch()}
-if(S.tab==='sop'){rSOP()}
-E.pullIndicator.classList.remove('show','spin');
-E.pullIndicator.style.transform='';
-S.refr=false;
-},600);
+    E.pullIndicator.classList.add('spin');
+    S.refr=true;
+    // Haptic Feedback bei Refresh-Auslösung
+    hapticFeedback('medium');
+    setTimeout(function(){
+    rHome();rNav();
+    if(S.tab==='browse'){rBrowse()}
+    if(S.tab==='search'){rSearch()}
+    if(S.tab==='sop'){rSOP()}
+    E.pullIndicator.classList.remove('show','spin');
+    E.pullIndicator.style.transform='';
+    S.refr=false;
+    },600);
 }else{
-E.pullIndicator.classList.remove('show');
-E.pullIndicator.style.transform='';
+    E.pullIndicator.classList.remove('show');
+    E.pullIndicator.style.transform='';
 }
-S.pull=false;S.pY=0;S.pY0=0;
+S.pull=false;S.pY=0;S.pY0=0;S.pX0=0;
 });
+// iOS-spezifische Touch-Optimierungen für Bottom Sheet Picker
+var pickerPY0=0;
+if(E.sectionPickerOverlay){
+E.sectionPickerOverlay.addEventListener('touchstart',function(e){
+    pickerPY0=e.touches[0].clientY;
+},{passive:true});
+E.sectionPickerOverlay.addEventListener('touchmove',function(e){
+    // Verhindere Overscroll-Bounce im Picker
+    var list=E.sectionPickerList;
+    if(list&&list.scrollHeight>list.clientHeight){
+    if(list.scrollTop<=0&&e.touches[0].clientY>pickerPY0){
+        e.preventDefault();
+    }else if(list.scrollTop+list.clientHeight>=list.scrollHeight&&e.touches[0].clientY<pickerPY0){
+        e.preventDefault();
+    }
+    }
+},{passive:false});
+}
 }
 function uOff(){
 if(E.offlineBanner){
@@ -423,6 +557,8 @@ c.addEventListener('click',function(){
 S.catB=c.getAttribute('data-cat');
 sTab('browse');
 });
+// iOS Touch-Optimierung anwenden
+applyTouchToElement(c);
 })(cards[i]);
 }
 E.homeInfo.innerHTML='<p class="info-count">'+S.data.length+' Patientenpfade verf\u00fcgbar</p>'
@@ -487,6 +623,8 @@ E.browseCategoryFilters.innerHTML=h;
 var chips=E.browseCategoryFilters.querySelectorAll('.browse-cat-chip');
 for(var i=0;i<chips.length;i++){
 (function(ch){
+// iOS Touch-Optimierung anwenden
+applyTouchToElement(ch);
 ch.addEventListener('click',function(){
 S.catB=ch.getAttribute('data-cat');
 var all=E.browseCategoryFilters.querySelectorAll('.browse-cat-chip');
@@ -546,6 +684,8 @@ E.browseList.innerHTML=h;
 var items=E.browseList.querySelectorAll('.browse-item');
 for(var i=0;i<items.length;i++){
 (function(it){
+// iOS Touch-Optimierung anwenden
+applyTouchToElement(it);
 it.addEventListener('click',function(){
 S.sopId=it.getAttribute('data-id');
 sTab('sop');
@@ -613,6 +753,8 @@ E.searchResultsArea.innerHTML=h;
 var items=E.searchResultsArea.querySelectorAll('.search-result');
 for(var i=0;i<items.length;i++){
 (function(it){
+// iOS Touch-Optimierung anwenden
+applyTouchToElement(it);
 it.addEventListener('click',function(){
 S.sopId=it.getAttribute('data-id');
 sTab('sop');
@@ -675,6 +817,8 @@ E.viewSOP.innerHTML=h;
 var heads=E.viewSOP.querySelectorAll('.sop-section-head');
 for(var i=0;i<heads.length;i++){
 (function(hd){
+// iOS Touch-Optimierung anwenden
+applyTouchToElement(hd);
 hd.addEventListener('click',function(){
 var bd=hd.nextElementSibling;
 var tg=hd.querySelector('.sec-toggle');
