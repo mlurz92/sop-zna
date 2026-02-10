@@ -1,197 +1,141 @@
-/**
- * Service Worker für SOP-Notaufnahme
- * 
- * PRIORITÄT: SOFORTIGE UPDATES > OFFLINE-FUNKTIONALITÄT
- * 
- * Strategie:
- * - Bilder: Network-Only (niemals cachen)
- * - HTML/JS/CSS: Network-First mit sofortigem Cache-Update
- * - Nur bei Offline: Fallback auf Cache
- */
+var CACHE_NAME = 'sop-zna-v3';
 
-var CACHE_NAME = 'sop-notaufnahme-v20260209f';
-
-// Dateien für Offline-Fallback (nur essentielle Dateien, keine Bilder!)
-var OFFLINE_FALLBACK = [
+var ASSETS = [
     './',
     './index.html',
     './styles.css',
-    './app.js'
+    './app.js',
+    './img/Basislogo_farbig.png',
+    './img/Patientenpfade.png',
+    './img/ZNA/akute-herzinsuffizienz_diagnostischer_algorithmus.png',
+    './img/ZNA/akute-intoxikation_toxidrom.png',
+    './sops/abdominelle-schmerzen.js',
+    './sops/aecopd.js',
+    './sops/akute-alkoholintoxikation.js',
+    './sops/akute-divertikulitis.js',
+    './sops/akute-gastroenteritis.js',
+    './sops/akute-herzinsuffizienz.js',
+    './sops/akute-intoxikation.js',
+    './sops/akute-mesenterialischaemie.js',
+    './sops/akute-nebenniereninsuffizienz.js',
+    './sops/akute-nierenschaedigung.js',
+    './sops/akute-pankreatitis.js',
+    './sops/akuter-gichtanfall.js',
+    './sops/akuter-harnverhalt.js',
+    './sops/akutes-aortensyndrom.js',
+    './sops/anaemie.js',
+    './sops/anaphylaxie.js',
+    './sops/asthmaexazerbation.js',
+    './sops/bakterielle-meningitis.js',
+    './sops/bradykarde-hrst.js',
+    './sops/cannabinoid-hyperemesis-syndrom.js',
+    './sops/delir.js',
+    './sops/diabetische-ketoazidose.js',
+    './sops/dyspnoe.js',
+    './sops/erbrechen.js',
+    './sops/erysipel.js',
+    './sops/fieber-in-der-neutropenie.js',
+    './sops/fremdkoerperingestion.js',
+    './sops/harnwegsinfektion.js',
+    './sops/heparininduzierte-thrombozytopenie.js',
+    './sops/hepatische-enzephalopathie.js',
+    './sops/herz-kreislauf-stillstand.js',
+    './sops/hitzschlag.js',
+    './sops/hyperkaliaemie.js',
+    './sops/hyperkalzaemie.js',
+    './sops/hypernatriaemie.js',
+    './sops/hyperosmolares-hyperglykaemisches-syndrom.js',
+    './sops/hypertensiver-notfall.js',
+    './sops/hypoglykaemie.js',
+    './sops/hypokaliaemie.js',
+    './sops/hypokalzaemie.js',
+    './sops/hyponatriaemie.js',
+    './sops/ikterus.js',
+    './sops/kohlenmonoxidintoxikation.js',
+    './sops/kopfschmerzen.js',
+    './sops/lungenarterienembolie.js',
+    './sops/myxoedemkoma.js',
+    './sops/nicht-st-hebungsinfarkt.js',
+    './sops/nierenkolik.js',
+    './sops/obere-gastrointestinale-blutung.js',
+    './sops/oesophageale-bolusimpaktion.js',
+    './sops/pleuraerguss.js',
+    './sops/pneumonie.js',
+    './sops/schock.js',
+    './sops/sepsis.js',
+    './sops/spontan-bakterielle-peritonitis.js',
+    './sops/status-epilepticus.js',
+    './sops/sterbephase-palliativ.js',
+    './sops/st-hebungsinfarkt.js',
+    './sops/stromunfall.js',
+    './sops/synkope.js',
+    './sops/tachykarde-hrst.js',
+    './sops/thoraxschmerzen.js',
+    './sops/thrombozytopenie.js',
+    './sops/tiefe-venenthrombose.js',
+    './sops/tonsillitis.js',
+    './sops/transiente-globale-amnesie.js',
+    './sops/tumorlysesyndrom.js',
+    './sops/unklare-vigilanzminderung.js',
+    './sops/untere-gastrointestinale-blutung.js',
+    './sops/vena-cava-superior-syndrom.js',
+    './sops/vorhofflimmern.js',
+    './sops/zerebrale-metastasen.js',
+    './sops/zerebrale-venen-sinusthrombose.js'
 ];
 
-// Dateitypen die NIEMALS gecached werden sollen
-var NEVER_CACHE_PATTERNS = [
-    /\.(png|jpg|jpeg|svg|gif|webp|ico|bmp|tiff?|avif)$/i,
-    /\.(mp4|webm|ogg|mp3|wav|flac)$/i,
-    /\.(woff2?|ttf|otf|eot)$/i
-];
-
-// Prüfen ob URL niemals gecached werden soll
-function shouldNeverCache(url) {
-    for (var i = 0; i < NEVER_CACHE_PATTERNS.length; i++) {
-        if (NEVER_CACHE_PATTERNS[i].test(url)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// Install-Event: Sofort aktivieren ohne auf Cache zu warten
 self.addEventListener('install', function(event) {
-    // SOFORT skipWaiting - keine Wartezeit
-    self.skipWaiting();
-    
-    // Cache im Hintergrund befüllen (non-blocking)
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
-            // Fallback-Dateien vor-cachen, aber nicht blockieren
-            return Promise.allSettled(
-                OFFLINE_FALLBACK.map(function(url) {
-                    return cache.add(url).catch(function(err) {
-                        console.log('[SW] Konnte nicht cachen:', url, err);
-                    });
-                })
-            );
+            return cache.addAll(ASSETS);
+        }).then(function() {
+            return self.skipWaiting();
         })
     );
 });
 
-// Activate-Event: ALTE CACHES SOFORT LÖSCHEN
 self.addEventListener('activate', function(event) {
     event.waitUntil(
-        caches.keys().then(function(cacheNames) {
-            var deletePromises = cacheNames.map(function(key) {
-                if (key !== CACHE_NAME) {
-                    console.log('[SW] Lösche veralteten Cache:', key);
-                    return caches.delete(key);
-                }
-                return Promise.resolve();
-            });
-            
-            return Promise.all(deletePromises);
+        caches.keys().then(function(names) {
+            return Promise.all(
+                names.filter(function(name) {
+                    return name !== CACHE_NAME;
+                }).map(function(name) {
+                    return caches.delete(name);
+                })
+            );
         }).then(function() {
-            console.log('[SW] Aktiviert - Cache:', CACHE_NAME);
-            // SOFORT alle Clients übernehmen
             return self.clients.claim();
-        }).then(function() {
-            // Alle Clients benachrichtigen, dass neuer SW aktiv ist
-            return self.clients.matchAll().then(function(clients) {
-                clients.forEach(function(client) {
-                    client.postMessage({
-                        type: 'SW_ACTIVATED',
-                        cacheVersion: CACHE_NAME
-                    });
-                });
-            });
         })
     );
 });
 
-// Fetch-Event: Network-First mit intelligenter Caching-Strategie
 self.addEventListener('fetch', function(event) {
-    var request = event.request;
-    var url = request.url;
-
-    // Nur GET-Requests behandeln
-    if (request.method !== 'GET') return;
-    
-    // Nur http/https Requests
-    if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) return;
-    
-    // Chrome-Extensions und andere nicht-HTTP(S) Requests ignorieren
-    if (url.indexOf('chrome-extension') !== -1) return;
-    if (url.indexOf('extensions') !== -1) return;
-    if (url.indexOf('about:') === 0) return;
-
-    // BILDER und andere Medien: Network-Only (niemals cachen)
-    if (shouldNeverCache(url)) {
-        event.respondWith(
-            fetch(request, { 
-                cache: 'no-store',
-                mode: 'cors'
-            }).catch(function() {
-                // Bei Offline: 404 zurückgeben statt Cache
-                return new Response('Offline - Ressource nicht verfügbar', {
-                    status: 503,
-                    statusText: 'Service Unavailable',
-                    headers: { 'Content-Type': 'text/plain' }
-                });
-            })
-        );
-        return;
-    }
-
-    // HTML/JS/CSS: NETWORK-FIRST mit sofortigem Cache-Update
+    if (event.request.method !== 'GET') return;
+    var url = event.request.url;
+    if (url.indexOf('http') !== 0) return;
     event.respondWith(
-        // Erst vom Netzwerk laden
-        fetch(request, { cache: 'no-store' })
-            .then(function(networkResponse) {
-                // Bei erfolgreichem Response: Cache aktualisieren
-                if (networkResponse && (networkResponse.status === 200 || networkResponse.status === 0)) {
-                    var responseClone = networkResponse.clone();
+        caches.match(event.request).then(function(cached) {
+            var fetchPromise = fetch(event.request).then(function(response) {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    var clone = response.clone();
                     caches.open(CACHE_NAME).then(function(cache) {
-                        cache.put(request, responseClone);
+                        try {
+                            cache.put(event.request, clone);
+                        } catch(e) {}
                     });
                 }
-                return networkResponse;
-            })
-            .catch(function(error) {
-                // NETZWERK-FEHLER: Fallback auf Cache
-                console.log('[SW] Netzwerk nicht verfügbar, nutze Cache:', url);
-                
-                return caches.match(request).then(function(cachedResponse) {
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    
-                    // Wenn auch kein Cache-Eintrag: Offline-Seite oder Fehler
-                    return new Response('Offline und nicht im Cache verfügbar', {
-                        status: 503,
-                        statusText: 'Service Unavailable',
-                        headers: { 'Content-Type': 'text/plain' }
-                    });
-                });
-            })
+                return response;
+            }).catch(function() {
+                return cached;
+            });
+            return cached || fetchPromise;
+        })
     );
 });
 
-// Message-Handler für manuelle Updates
 self.addEventListener('message', function(event) {
     if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('[SW] SKIP_WAITING empfangen');
         self.skipWaiting();
     }
-    
-    if (event.data && event.data.type === 'CHECK_UPDATE') {
-        // Prüfen ob neuer SW verfügbar
-        self.registration.update().catch(function() {
-            // Ignorieren wenn offline
-        });
-    }
-    
-    if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({
-            version: CACHE_NAME
-        });
-    }
 });
-
-// Periodische Update-Prüfung (wenn Browser es unterstützt)
-self.addEventListener('sync', function(event) {
-    if (event.tag === 'check-updates') {
-        event.waitUntil(checkForUpdates());
-    }
-});
-
-// Hilfsfunktion: Auf Updates prüfen
-function checkForUpdates() {
-    return fetch('./sw.js', { cache: 'no-store' })
-        .then(function(response) {
-            if (response.ok) {
-                console.log('[SW] Update-Prüfung durchgeführt');
-            }
-        })
-        .catch(function() {
-            console.log('[SW] Update-Prüfung fehlgeschlagen (offline)');
-        });
-}
