@@ -63,6 +63,285 @@ return'sonst';
 function gc(k){return CC[k]||'#64748b'}
 function strip(h){var d=document.createElement('div');d.innerHTML=h;return d.textContent||d.innerText||''}
 
+// === Performance Utility Functions ===
+function throttle(func,limit){
+    var inThrottle;
+    return function(){
+        var args=arguments;
+        var context=this;
+        if(!inThrottle){
+            func.apply(context,args);
+            inThrottle=true;
+            setTimeout(function(){inThrottle=false},limit);
+        }
+    };
+}
+function debounce(func,wait){
+    var timeout;
+    return function(){
+        var args=arguments;
+        var context=this;
+        clearTimeout(timeout);
+        timeout=setTimeout(function(){func.apply(context,args)},wait);
+    };
+}
+function easeOutCubic(t){
+    return 1-Math.pow(1-t,3);
+}
+function easeOutQuart(t){
+    return 1-Math.pow(1-t,4);
+}
+function easeOutExpo(t){
+    return t===1?1:1-Math.pow(2,-10*t);
+}
+function easeInOutCubic(t){
+    return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+}
+
+// === Smooth Scroll Animation mit requestAnimationFrame ===
+// smoothScrollTo entfernt - verwende smoothScrollInContainer für korrekten Scroll-Container
+function smoothScrollInContainer(container,element,duration){
+    duration=duration||400;
+    var targetPosition=element.offsetTop;
+    var startPosition=container.scrollTop;
+    var distance=targetPosition-startPosition;
+    var startTime=null;
+    function animation(currentTime){
+        if(startTime===null)startTime=currentTime;
+        var timeElapsed=currentTime-startTime;
+        var progress=Math.min(timeElapsed/duration,1);
+        var ease=easeOutCubic(progress);
+        container.scrollTop=startPosition+distance*ease;
+        if(timeElapsed<duration){
+            requestAnimationFrame(animation);
+        }
+    }
+    requestAnimationFrame(animation);
+}
+
+// === Staggered List Animation ===
+function animateListItems(container,delay){
+    delay=delay||50;
+    var items=container.querySelectorAll('.list-item,.browse-item,.search-result,.cat-card');
+    for(var i=0;i<items.length;i++){
+        (function(item,index){
+            item.style.opacity='0';
+            item.style.transform='translateY(20px)';
+            setTimeout(function(){
+                item.style.transition='opacity 0.3s ease, transform 0.3s ease';
+                item.style.opacity='1';
+                item.style.transform='translateY(0)';
+            },index*delay);
+        })(items[i],i);
+    }
+}
+function animateStaggerIn(elements,delay){
+    delay=delay||50;
+    for(var i=0;i<elements.length;i++){
+        (function(el,index){
+            el.style.opacity='0';
+            el.style.transform='translateY(16px)';
+            el.style.willChange='opacity,transform';
+            setTimeout(function(){
+                el.style.transition='opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+                el.style.opacity='1';
+                el.style.transform='translateY(0)';
+                setTimeout(function(){
+                    el.style.willChange='auto';
+                },350);
+            },index*delay);
+        })(elements[i],i);
+    }
+}
+
+// === Touch Ripple Effect (JS-gesteuert) ===
+function createRipple(event,element){
+    var rect=element.getBoundingClientRect();
+    var x=event.clientX-rect.left;
+    var y=event.clientY-rect.top;
+    var ripple=document.createElement('span');
+    ripple.className='ripple-effect';
+    ripple.style.cssText='position:absolute;border-radius:50%;background:rgba(255,255,255,0.4);pointer-events:none;transform:scale(0);';
+    ripple.style.left=x+'px';
+    ripple.style.top=y+'px';
+    ripple.style.width='100px';
+    ripple.style.height='100px';
+    ripple.style.marginLeft='-50px';
+    ripple.style.marginTop='-50px';
+    element.style.overflow='hidden';
+    element.style.position=element.style.position||'relative';
+    element.appendChild(ripple);
+    ripple.style.transition='transform 0.6s ease-out, opacity 0.6s ease-out';
+    requestAnimationFrame(function(){
+        ripple.style.transform='scale(4)';
+        ripple.style.opacity='0';
+    });
+    setTimeout(function(){
+        if(ripple.parentNode)ripple.parentNode.removeChild(ripple);
+    },600);
+}
+function addRippleToElement(el){
+    if(!el)return;
+    el.addEventListener('click',function(e){
+        createRipple(e,el);
+    });
+}
+
+// === Toast Notification Animation ===
+function showToast(message,duration){
+    duration=duration||3000;
+    var toast=document.createElement('div');
+    toast.className='toast';
+    toast.textContent=message;
+    toast.style.cssText='position:fixed;bottom:calc(90px + var(--sab));left:50%;transform:translateX(-50%) translateY(100px);opacity:0;z-index:120;max-width:calc(100% - 32px);padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);font-size:0.88rem;color:var(--text);will-change:transform,opacity;';
+    document.body.appendChild(toast);
+    requestAnimationFrame(function(){
+        toast.style.transition='transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
+        toast.style.transform='translateX(-50%) translateY(0)';
+        toast.style.opacity='1';
+    });
+    setTimeout(function(){
+        toast.style.transform='translateX(-50%) translateY(100px)';
+        toast.style.opacity='0';
+        setTimeout(function(){
+            if(toast.parentNode)toast.parentNode.removeChild(toast);
+        },350);
+    },duration);
+}
+
+// === Spring Animation für Picker Sheet ===
+function springAnimation(element,property,targetValue,callback){
+    var currentValue=0;
+    var velocity=0;
+    var stiffness=0.15;
+    var damping=0.75;
+    var precision=0.1;
+    function animate(){
+        var force=(targetValue-currentValue)*stiffness;
+        velocity=(velocity+force)*damping;
+        currentValue+=velocity;
+        element.style[property]=currentValue+'px';
+        if(Math.abs(velocity)>precision||Math.abs(targetValue-currentValue)>precision){
+            requestAnimationFrame(animate);
+        }else{
+            element.style[property]=targetValue+'px';
+            if(callback)callback();
+        }
+    }
+    requestAnimationFrame(animate);
+}
+function springPickerOpen(element){
+    element.style.transform='translateY(100%)';
+    element.style.transition='none';
+    requestAnimationFrame(function(){
+        element.style.transition='transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+        element.style.transform='translateY(0)';
+    });
+}
+function springPickerClose(element,callback){
+    element.style.transition='transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    element.style.transform='translateY(100%)';
+    setTimeout(function(){
+        if(callback)callback();
+    },300);
+}
+
+// === FAB Hide/Show on Scroll ===
+var lastScrollY=0;
+var fabVisible=true;
+function handleFabVisibility(){
+    var fab=E.fabAction;
+    if(!fab||!fab.classList.contains('show'))return;
+    var currentScrollY=E.contentScroll.scrollTop;
+    var scrollDelta=currentScrollY-lastScrollY;
+    if(scrollDelta>5 && currentScrollY>100 && fabVisible){
+        fab.style.transform='translateY(100px) scale(0.8)';
+        fab.style.opacity='0';
+        fabVisible=false;
+    }else if(scrollDelta<-5&&!fabVisible){
+        fab.style.transform='translateY(0) scale(1)';
+        fab.style.opacity='1';
+        fabVisible=true;
+    }
+    lastScrollY=currentScrollY;
+}
+
+// === Intersection Observer für Scroll-Animationen ===
+var scrollAnimationObserver=null;
+function initScrollAnimationObserver(){
+    if(!('IntersectionObserver' in window))return;
+    scrollAnimationObserver=new IntersectionObserver(function(entries){
+        for(var i=0;i<entries.length;i++){
+            if(entries[i].isIntersecting){
+                entries[i].target.classList.add('visible');
+                entries[i].target.classList.add('animate-in');
+            }
+        }
+    },{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+}
+function observeAnimatedElements(){
+    if(!scrollAnimationObserver)initScrollAnimationObserver();
+    var elements=document.querySelectorAll('.animate-on-scroll');
+    for(var i=0;i<elements.length;i++){
+        scrollAnimationObserver.observe(elements[i]);
+    }
+}
+function animateElementOnScroll(el){
+    if(!scrollAnimationObserver)initScrollAnimationObserver();
+    el.classList.add('animate-on-scroll');
+    scrollAnimationObserver.observe(el);
+}
+
+// === Sidebar Slide Animation ===
+function openSidebar(){
+    var sidebar=E.sidebar;
+    var backdrop=document.querySelector('.sidebar-backdrop');
+    if(!sidebar)return;
+    if(!backdrop){
+        backdrop=document.createElement('div');
+        backdrop.className='sidebar-backdrop';
+        backdrop.addEventListener('click',closeSidebar);
+        sidebar.parentNode.insertBefore(backdrop,sidebar);
+    }
+    sidebar.classList.add('open');
+    backdrop.classList.add('visible');
+    document.body.style.overflow='hidden';
+    if(navigator.vibrate)navigator.vibrate(10);
+}
+function closeSidebar(){
+    var sidebar=E.sidebar;
+    var backdrop=document.querySelector('.sidebar-backdrop');
+    if(!sidebar)return;
+    sidebar.classList.remove('open');
+    if(backdrop)backdrop.classList.remove('visible');
+    document.body.style.overflow='';
+}
+function toggleSidebar(){
+    if(E.sidebar&&E.sidebar.classList.contains('open')){
+        closeSidebar();
+    }else{
+        openSidebar();
+    }
+}
+
+// === Pull-to-Refresh Enhancement ===
+function enhancePullToRefresh(){
+    if(!E.pullIndicator)return;
+    var pullProgress=0;
+    var maxPull=PTH;
+    E.contentScroll.addEventListener('touchmove',function(e){
+        if(!S.pull)return;
+        pullProgress=Math.min(S.pY/maxPull,1);
+        var indicator=E.pullIndicator.querySelector('i');
+        if(indicator){
+            indicator.style.transform='rotate('+(pullProgress*360)+'deg)';
+        }
+        if(pullProgress>=1&&!S.refr){
+            hapticFeedback('medium');
+        }
+    },{passive:true});
+}
+
 // === iOS Touch-Optimierung Hilfsfunktionen ===
 function isInEdgeZone(x,y){
     // Prüft ob Touch im iOS System-Gesten Bereich liegt
@@ -215,6 +494,10 @@ function init(){
 cache();lTh();aTh();lFs();aFs();
 // iOS Touch-Optimierungen initialisieren
 setTimeout(initTouchOptimizations,100);
+// Scroll Animation Observer initialisieren
+initScrollAnimationObserver();
+// Pull-to-Refresh Enhancement
+enhancePullToRefresh();
 if(window.SOP_DATA&&window.SOP_DATA.length){
 for(var i=0;i<window.SOP_DATA.length;i++){
 var d=window.SOP_DATA[i];
@@ -291,7 +574,10 @@ if(t){S.sopId=null;sTab(t)}
 });
 })(bns[i]);
 }
-E.contentScroll.addEventListener('scroll',function(){uSticky()});
+// FAB Hide/Show on Scroll mit Throttle
+E.contentScroll.addEventListener('scroll',throttle(handleFabVisibility,100),{passive:true});
+// Sticky Section Bar Update
+E.contentScroll.addEventListener('scroll',throttle(uSticky,50),{passive:true});
 window.addEventListener('online',function(){S.off=false;uOff()});
 window.addEventListener('offline',function(){S.off=true;S.ts=new Date();uOff()});
 window.addEventListener('resize',function(){
@@ -906,8 +1192,38 @@ sec.scrollIntoView({behavior:'smooth',block:'start'});
 })(lis[i]);
 }
 }
-function oPk(){E.sectionPickerOverlay.classList.add('show')}
-function cPk(){E.sectionPickerOverlay.classList.remove('show')}
+function oPk(){
+    if(!E.sectionPickerOverlay)return;
+    var sheet=E.sectionPickerOverlay.querySelector('.picker-sheet');
+    E.sectionPickerOverlay.classList.add('show');
+    document.body.classList.add('picker-open');
+    // Spring Animation für Picker Sheet
+    if(sheet){
+        sheet.style.transition='none';
+        sheet.style.transform='translateY(100%)';
+        requestAnimationFrame(function(){
+            sheet.style.transition='transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+            sheet.style.transform='translateY(0)';
+        });
+    }
+    // Haptic Feedback
+    hapticFeedback('light');
+}
+function cPk(){
+    if(!E.sectionPickerOverlay)return;
+    var sheet=E.sectionPickerOverlay.querySelector('.picker-sheet');
+    if(sheet){
+        sheet.style.transition='transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+        sheet.style.transform='translateY(100%)';
+        setTimeout(function(){
+            E.sectionPickerOverlay.classList.remove('show');
+            document.body.classList.remove('picker-open');
+        },300);
+    }else{
+        E.sectionPickerOverlay.classList.remove('show');
+        document.body.classList.remove('picker-open');
+    }
+}
 function uSticky(){
 if(S.tab!=='sop'){E.stickySectionBar.classList.remove('show');return}
 var secs=E.viewSOP.querySelectorAll('.sop-section');
@@ -934,6 +1250,8 @@ E.stickySectionBar.classList.remove('show');
 }
 function dSO(){
 if(sObs){sObs.disconnect();sObs=null}
+// Auch scrollAnimationObserver bei Tab-Wechseln cleanupen
+if(scrollAnimationObserver){scrollAnimationObserver.disconnect();scrollAnimationObserver=null}
 sSec='';
 }
 function iSO(){
@@ -957,10 +1275,29 @@ lis[j].classList.toggle('active',lis[j].getAttribute('data-idx')===idx);
 },{root:E.contentScroll,threshold:0.2});
 for(var i=0;i<secs.length;i++){sObs.observe(secs[i])}
 }
+// === Globale API Exporte ===
 window.registerSOP=function(d){
 if(!d||!d.id){return}
 normSop(d);
 S.data.push(d);
 };
+// Animation-Funktionen global verfügbar machen
+window.SOPAnimations={
+    showToast:showToast,
+    smoothScrollInContainer:smoothScrollInContainer,
+    animateListItems:animateListItems,
+    animateStaggerIn:animateStaggerIn,
+    createRipple:createRipple,
+    openSidebar:openSidebar,
+    closeSidebar:closeSidebar,
+    toggleSidebar:toggleSidebar,
+    animateElementOnScroll:animateElementOnScroll,
+    observeAnimatedElements:observeAnimatedElements,
+    throttle:throttle,
+    debounce:debounce,
+    hapticFeedback:hapticFeedback
+};
+// Toast-Komfortfunktion
+window.showToast=showToast;
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
 })();

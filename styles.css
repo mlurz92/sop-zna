@@ -47,6 +47,9 @@ transition:opacity .2s;
 }
 .sidebar-brand:hover{opacity:.8}
 .sidebar-brand img{width:42px;height:42px;object-fit:contain;flex-shrink:0;border-radius:8px}
+.header-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+.header-main{font-size:.95rem;font-weight:700;color:var(--text);line-height:1.2;letter-spacing:-.01em}
+.header-sub{font-size:.72rem;font-weight:400;color:var(--text2);line-height:1.3}
 .sidebar-search{
 display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);
 border-radius:var(--radius);padding:8px 12px;margin-bottom:10px;
@@ -664,6 +667,8 @@ min-height:48px;-webkit-tap-highlight-color:transparent;
 .search-bar{padding:0 0 16px}
 .search-input-wrap{padding:11px 14px}
 .fab{bottom:calc(80px + var(--sab));right:calc(18px + var(--sar))}
+.header-main{font-size:.88rem}
+.header-sub{font-size:.68rem}
 }
 @media(max-width:480px){
 .cat-grid{grid-template-columns:repeat(2,1fr)}
@@ -678,6 +683,564 @@ min-height:48px;-webkit-tap-highlight-color:transparent;
 .sop-section-body{padding:0 14px}
 .sop-section-body.open{padding:0 14px 16px}
 }
+
+/* ============================================
+   STATE-OF-THE-ART ANIMATIONS & TRANSITIONS
+   GPU-beschleunigt für 60fps Performance
+   ============================================ */
+
+/* --- Sidebar Mobile Animationen --- */
+@media(max-width:1023px){
+.sidebar{
+    position:fixed;
+    left:0;top:0;bottom:0;
+    transform:translateX(-100%);
+    transition:transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index:100;
+    will-change:transform;
+}
+.sidebar.open{
+    transform:translateX(0);
+}
+.sidebar-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.3s ease, visibility 0.3s ease;
+    z-index:90;
+    pointer-events:none;
+}
+.sidebar-backdrop.visible{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+}
+}
+
+/* --- Touch Ripple Effekt (Native Feel) --- */
+.btn-ripple{
+    position:relative;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+}
+.btn-ripple::after{
+    content:'';
+    position:absolute;
+    width:100%;
+    height:100%;
+    top:50%;
+    left:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+    transform:translate(-50%, -50%) scale(0);
+    opacity:0;
+    border-radius:inherit;
+    pointer-events:none;
+    transition:transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+}
+.btn-ripple:active::after{
+    transform:translate(-50%, -50%) scale(2.5);
+    opacity:1;
+    transition:transform 0s, opacity 0s;
+}
+
+/* Dark Mode Ripple */
+[data-theme="dark"] .btn-ripple::after{
+    background:radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+}
+
+/* --- Card Animationen mit Subtiler Elevation --- */
+.cat-card, .browse-item, .search-result{
+    transition:transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
+}
+.cat-card:active, .browse-item:active, .search-result:active{
+    transform:scale(0.98);
+    transition-duration:0.1s;
+}
+
+/* Card Press State für Sidebar-Chips */
+.sidebar-cat-chip, .browse-cat-chip{
+    transition:transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+.sidebar-cat-chip:active, .browse-cat-chip:active{
+    transform:scale(0.96);
+}
+
+/* --- Staggered List Animation --- */
+@keyframes slideInUp{
+    from{
+        opacity:0;
+        transform:translateY(16px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.stagger-item{
+    animation:slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.stagger-item:nth-child(1){animation-delay:0.05s}
+.stagger-item:nth-child(2){animation-delay:0.1s}
+.stagger-item:nth-child(3){animation-delay:0.15s}
+.stagger-item:nth-child(4){animation-delay:0.2s}
+.stagger-item:nth-child(5){animation-delay:0.25s}
+.stagger-item:nth-child(6){animation-delay:0.3s}
+.stagger-item:nth-child(7){animation-delay:0.35s}
+.stagger-item:nth-child(8){animation-delay:0.4s}
+.stagger-item:nth-child(9){animation-delay:0.45s}
+.stagger-item:nth-child(10){animation-delay:0.5s}
+
+/* --- Bottom Sheet / Picker Animationen --- */
+.picker-sheet{
+    will-change:transform;
+}
+.picker-handle{
+    transition:background-color 0.2s ease, transform 0.2s ease;
+    cursor:grab;
+}
+.picker-handle:active{
+    background-color:var(--text3);
+    transform:scaleY(1.5);
+}
+
+/* Picker List Item Animation */
+.picker-list li{
+    will-change:transform, background-color;
+    transition:transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.2s ease;
+}
+.picker-list li:active{
+    transform:scale(0.99);
+}
+
+/* --- Shimmer Loading Effect (Skeleton) --- */
+@keyframes shimmer{
+    0%{
+        background-position:-200% 0;
+    }
+    100%{
+        background-position:200% 0;
+    }
+}
+
+.skeleton{
+    background:linear-gradient(
+        90deg,
+        var(--surface2) 25%,
+        var(--border) 50%,
+        var(--surface2) 75%
+    );
+    background-size:200% 100%;
+    animation:shimmer 1.5s ease-in-out infinite;
+    border-radius:var(--radius);
+}
+
+.skeleton-text{
+    height:1em;
+    margin:0.5em 0;
+    border-radius:4px;
+}
+.skeleton-text.short{width:60%}
+.skeleton-text.medium{width:80%}
+.skeleton-text.long{width:95%}
+
+.skeleton-card{
+    height:120px;
+    border-radius:var(--radius-lg);
+}
+
+/* --- Smooth Scroll Enhancement --- */
+.scroll-area{
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+    scroll-snap-type:y proximity;
+}
+
+.scroll-snap-item{
+    scroll-snap-align:start;
+}
+
+/* --- Focus Visible (Accessibility) --- */
+*:focus{
+    outline:none;
+}
+*:focus-visible{
+    outline:2px solid var(--primary);
+    outline-offset:2px;
+    border-radius:2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible{
+    outline:2px solid var(--primary);
+    outline-offset:2px;
+}
+
+/* --- Active States für Buttons --- */
+button:active,
+.topbar-btn:active,
+.btm-btn:active,
+.sidebar-btn:active{
+    transform:scale(0.97);
+    transition:transform 0.1s ease;
+}
+
+/* --- FAB Enhanced Animation --- */
+.fab{
+    will-change:transform, opacity;
+}
+.fab:active{
+    transform:scale(0.94);
+    transition:transform 0.1s ease;
+}
+
+/* FAB Show/Hide Animation */
+@keyframes fabIn{
+    from{
+        opacity:0;
+        transform:scale(0.8) translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:scale(1) translateY(0);
+    }
+}
+.fab.show{
+    animation:fabIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Pull-to-Refresh Enhancement --- */
+.pull-ind{
+    will-change:transform;
+    transition:transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Image Zoom Animation --- */
+@keyframes imageZoom{
+    from{
+        transform:scale(0.95);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.sop-section-body img{
+    will-change:transform;
+}
+
+/* --- Toast/Notification Animation --- */
+@keyframes toastSlideIn{
+    from{
+        opacity:0;
+        transform:translateY(100%);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes toastSlideOut{
+    from{
+        opacity:1;
+        transform:translateY(0);
+    }
+    to{
+        opacity:0;
+        transform:translateY(100%);
+    }
+}
+
+.toast{
+    animation:toastSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toast.hiding{
+    animation:toastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- Pulse Animation für wichtige Elemente --- */
+@keyframes pulse{
+    0%, 100%{
+        opacity:1;
+    }
+    50%{
+        opacity:0.6;
+    }
+}
+
+.pulse{
+    animation:pulse 2s ease-in-out infinite;
+}
+
+/* --- Skeleton Pulse (Alternative) --- */
+@keyframes skeletonPulse{
+    0%, 100%{
+        opacity:1;
+    }
+    50%{
+        opacity:0.5;
+    }
+}
+
+.skeleton-pulse{
+    animation:skeletonPulse 1.5s ease-in-out infinite;
+    background:var(--surface2);
+}
+
+/* --- Reduced Motion Support (Accessibility) --- */
+@media(prefers-reduced-motion:reduce){
+    *,
+    *::before,
+    *::after{
+        animation-duration:0.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:0.01ms !important;
+        scroll-behavior:auto !important;
+    }
+    
+    .sidebar{
+        transition:none;
+    }
+    
+    .picker-sheet{
+        transition:none;
+    }
+    
+    .stagger-item{
+        animation:none;
+        opacity:1;
+        transform:none;
+    }
+}
+
+/* --- High Performance Layer Promotion --- */
+.gpu-layer{
+    transform:translateZ(0);
+    backface-visibility:hidden;
+    perspective:1000px;
+}
+
+/* --- Touch Feedback für alle interaktiven Elemente --- */
+.interactive{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+}
+
+.interactive:active{
+    opacity:0.85;
+    transform:scale(0.98);
+    transition:opacity 0.1s ease, transform 0.1s ease;
+}
+
+/* --- Bounce Animation für Feedback --- */
+@keyframes bounce{
+    0%, 100%{
+        transform:scale(1);
+    }
+    50%{
+        transform:scale(1.05);
+    }
+}
+
+.bounce{
+    animation:bounce 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Shake Animation für Fehler --- */
+@keyframes shake{
+    0%, 100%{
+        transform:translateX(0);
+    }
+    20%, 60%{
+        transform:translateX(-4px);
+    }
+    40%, 80%{
+        transform:translateX(4px);
+    }
+}
+
+.shake{
+    animation:shake 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Fade Animationen --- */
+@keyframes fadeIn{
+    from{opacity:0}
+    to{opacity:1}
+}
+
+@keyframes fadeOut{
+    from{opacity:1}
+    to{opacity:0}
+}
+
+.fade-in{
+    animation:fadeIn 0.3s ease;
+}
+.fade-out{
+    animation:fadeOut 0.3s ease forwards;
+}
+
+/* --- Scale Animationen --- */
+@keyframes scaleIn{
+    from{
+        opacity:0;
+        transform:scale(0.9);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+@keyframes scaleOut{
+    from{
+        opacity:1;
+        transform:scale(1);
+    }
+    to{
+        opacity:0;
+        transform:scale(0.9);
+    }
+}
+
+.scale-in{
+    animation:scaleIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.scale-out{
+    animation:scaleOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* --- Slide Animationen --- */
+@keyframes slideInLeft{
+    from{
+        opacity:0;
+        transform:translateX(-20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes slideInRight{
+    from{
+        opacity:0;
+        transform:translateX(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@keyframes slideInDown{
+    from{
+        opacity:0;
+        transform:translateY(-20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.slide-in-left{animation:slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.slide-in-right{animation:slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+.slide-in-down{animation:slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1)}
+
+/* --- Bottom Nav Active Indicator Animation --- */
+.btm-btn::after{
+    will-change:transform;
+}
+
+.btm-btn.active i{
+    animation:bounce 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Hero Logo Float Animation --- */
+@keyframes float{
+    0%, 100%{
+        transform:translateY(0);
+    }
+    50%{
+        transform:translateY(-6px);
+    }
+}
+
+.hero-logo{
+    animation:float 3s ease-in-out infinite;
+}
+
+/* --- Section Expand/Collapse Icon Animation --- */
+.sec-toggle{
+    will-change:transform;
+}
+
+/* --- Nav Dot Pulse bei Hover --- */
+@keyframes dotPulse{
+    0%{
+        box-shadow:0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+    100%{
+        box-shadow:0 0 0 8px rgba(37, 99, 235, 0);
+    }
+}
+
+.nav-dot:hover{
+    animation:dotPulse 0.6s ease-out;
+}
+
+/* --- Search Focus Enhancement --- */
+.sidebar-search:focus-within,
+.hero-search:focus-within,
+.browse-search:focus-within,
+.search-input-wrap:focus-within{
+    animation:scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Callout Hover Enhancement --- */
+.sop-section-body .callout{
+    will-change:transform;
+    transition:transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Table Row Hover Enhancement --- */
+.sop-section-body tbody tr{
+    will-change:background-color;
+}
+
+/* --- Offline Bar Slide Animation --- */
+@keyframes slideDown{
+    from{
+        opacity:0;
+        transform:translateY(-100%);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.offline-bar.show{
+    animation:slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Print Styles bleiben erhalten --- */
 @supports(padding:max(0px)){
 .topbar{
 padding-top:max(0px,var(--sat));
@@ -698,4 +1261,625 @@ padding-bottom:max(0px,var(--sab));
 .sop-section-head .sec-toggle{display:none!important}
 body{background:#fff!important;color:#000!important;font-size:11pt}
 .sop-section-body .callout{break-inside:avoid}
+}
+
+/* ============================================
+   MOBILE LAYOUT PERFEKTIONIERUNG - iPhone 14 Pro Max
+   Z-Index Hierarchie, Safe-Area, Touch-Optimierung
+   ============================================ */
+
+/* --- Z-Index Hierarchie (von unten nach oben) --- */
+/*
+ * 10: Sticky Section Bar
+ * 40: Sidebar (Desktop)
+ * 50: FAB
+ * 90: Sidebar Backdrop (Mobile)
+ * 100: Sidebar (Mobile) & Picker Overlay
+ * 110: Offline Banner / Toast (höchste Priorität)
+ */
+
+/* --- 100vh Fix für Mobile Browser --- */
+@supports(height:100dvh){
+    body,#app,.sidebar{height:100dvh}
+}
+html{
+    height:-webkit-fill-available;
+}
+body{
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+    min-height:100dvh;
+}
+#app{
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+    min-height:100dvh;
+}
+
+/* --- Offline Banner: Höchste Z-Priorität --- */
+.offline-bar{
+    position:relative;
+    z-index:110;
+}
+@media(max-width:1023px){
+    .offline-bar{
+        position:sticky;
+        top:0;
+        z-index:110;
+    }
+}
+
+/* --- Sticky Bar Z-Index Fix --- */
+.sticky-bar{
+    z-index:10;
+}
+
+/* --- FAB Z-Index und Safe-Area Optimierung --- */
+.fab{
+    z-index:50;
+    /* Sicherstellen dass FAB immer über Content liegt */
+    position:fixed;
+}
+@media(max-width:1023px){
+    .fab{
+        /* FAB darf nicht von Bottom-Nav verdeckt werden */
+        z-index:55;
+        bottom:calc(76px + var(--sab));
+        right:calc(16px + var(--sar));
+    }
+}
+
+/* --- Sidebar Mobile: Korrigierte Z-Indizes --- */
+@media(max-width:1023px){
+    .sidebar{
+        z-index:100;
+        /* Sicherstellen dass Sidebar über allem liegt außer Picker */
+    }
+    .sidebar-backdrop{
+        z-index:90;
+    }
+    /* Wenn Picker offen ist, muss Sidebar darunter liegen */
+    .picker-overlay.show ~ .sidebar,
+    body.picker-open .sidebar{
+        z-index:95;
+    }
+}
+
+/* --- Picker Overlay: Höchste Mobile Priorität --- */
+.picker-overlay{
+    z-index:100;
+}
+.picker-sheet{
+    z-index:101;
+}
+
+/* --- Input-Felder: iOS Auto-Zoom Prevention (16px Minimum) --- */
+@media(max-width:1023px){
+    .sidebar-search input,
+    .hero-search input,
+    .browse-search input,
+    .search-input-wrap input,
+    #heroSearchInput,
+    #browseSearchInput,
+    #searchViewInput,
+    #searchInput{
+        font-size:16px;
+        font-size:max(16px,1rem);
+    }
+    /* Auch für Inputs in dynamisch erstellten Bereichen */
+    input[type="text"],
+    input[type="search"]{
+        font-size:16px;
+        font-size:max(16px,1rem);
+    }
+}
+
+/* --- Touch-Targets: Minimum 44x44px für alle interaktiven Elemente --- */
+@media(max-width:1023px){
+    /* Buttons */
+    .topbar-btn,
+    .topbar-btn-sm,
+    .sidebar-btn,
+    .sidebar-font button,
+    .btm-btn,
+    .fab,
+    .desk-toc-btn,
+    .browse-cat-toggle,
+    .sidebar-cat-toggle{
+        min-width:44px;
+        min-height:44px;
+    }
+    
+    /* Category Chips */
+    .sidebar-cat-chip,
+    .browse-cat-chip{
+        min-height:44px;
+        min-width:44px;
+        padding:12px 14px;
+    }
+    
+    /* List Items */
+    .browse-item,
+    .sop-section-head,
+    .search-result,
+    .picker-list li{
+        min-height:48px;
+    }
+    
+    /* Nav Links */
+    .sidebar-nav li a{
+        min-height:44px;
+        padding:10px 12px;
+    }
+    
+    /* Clear Buttons */
+    .sidebar-search-clear,
+    .browse-search-clear,
+    .search-clear{
+        min-width:44px;
+        min-height:44px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+}
+
+/* --- Text Truncation für lange Titel --- */
+.topbar-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* Multi-Line Truncation für SOP-Titel */
+.sop-title{
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* Browse Item Name Truncation */
+.bi-name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* Nav Label Truncation */
+.nav-label{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+/* --- Landscape-Modus Optimierungen --- */
+@media(max-width:1023px) and (orientation:landscape){
+    /* Topbar kompakter im Landscape */
+    .topbar{
+        height:calc(var(--topbar-h) + var(--sat));
+        min-height:var(--topbar-h);
+    }
+    
+    /* Bottom-Nav kompakter */
+    .btm-nav{
+        height:calc(var(--btm-h) + var(--sab));
+        min-height:var(--btm-h);
+    }
+    
+    /* FAB Position anpassen */
+    .fab{
+        bottom:calc(72px + var(--sab));
+    }
+    
+    /* Picker Sheet weniger hoch im Landscape */
+    .picker-sheet{
+        max-height:60vh;
+    }
+    
+    /* Hero-Bereich kompakter */
+    .hero{
+        padding:24px 18px 20px;
+    }
+    .hero-logo{
+        width:120px;
+        margin-bottom:12px;
+    }
+    .hero-title{
+        font-size:1.1rem;
+    }
+    .hero-subtitle{
+        font-size:.9rem;
+    }
+    
+    /* Content-Padding reduzieren */
+    .v{
+        padding-top:14px;
+        padding-bottom:14px;
+    }
+    .v-sop{
+        padding-top:14px;
+        padding-bottom:28px;
+    }
+    
+    /* Sticky Bar weniger hoch */
+    .sticky-bar{
+        padding:8px 18px;
+    }
+}
+
+/* --- Safe-Area Insets für alle Fixed Elements --- */
+@media(max-width:1023px){
+    .topbar{
+        padding-top:var(--sat);
+        padding-left:calc(14px + var(--sal));
+        padding-right:calc(14px + var(--sar));
+    }
+    
+    .btm-nav{
+        padding-bottom:var(--sab);
+        padding-left:var(--sal);
+        padding-right:var(--sar);
+    }
+    
+    .fab{
+        right:calc(16px + var(--sar));
+        bottom:calc(76px + var(--sab));
+    }
+    
+    .picker-sheet{
+        padding-bottom:max(var(--sab),16px);
+    }
+    
+    .offline-bar{
+        padding-left:calc(18px + var(--sal));
+        padding-right:calc(18px + var(--sar));
+    }
+}
+
+/* --- Overflow Prevention: Kein horizontaler Scroll --- */
+html,body{
+    overflow-x:hidden;
+    max-width:100vw;
+}
+#app{
+    overflow-x:hidden;
+    max-width:100vw;
+}
+.main{
+    overflow-x:hidden;
+}
+.scroll-area{
+    overflow-x:hidden;
+}
+.v{
+    overflow-x:hidden;
+}
+
+/* --- Bild-Optimierung: Keine Überläufe --- */
+img{
+    max-width:100%;
+    height:auto;
+    object-fit:contain;
+}
+.sop-section-body img{
+    max-width:100%;
+    height:auto;
+}
+
+/* --- Word-Break für lange medizinische Begriffe --- */
+.sop-section-body,
+.sop-section-body p,
+.sop-section-body li{
+    word-break:break-word;
+    overflow-wrap:break-word;
+    hyphens:auto;
+}
+
+/* --- Table Overflow Fix --- */
+.sop-section-body .table-wrap{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
+}
+
+/* --- iOS Rubber-Banding Prevention in kritischen Bereichen --- */
+.picker-list{
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+}
+
+.sidebar-nav{
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+}
+
+/* --- Keyboard-Avoidance für Input-Felder --- */
+@media(max-width:1023px){
+    .search-bar,
+    .browse-bar-top{
+        /* Sicherstellen dass Inputs nicht unter Keyboard verschwinden */
+        position:relative;
+        z-index:5;
+    }
+}
+
+/* --- Visuelles Feedback bei Touch-Aktivierung --- */
+@media(max-width:1023px){
+    .cat-card:active,
+    .browse-item:active,
+    .search-result:active,
+    .sop-section-head:active,
+    .sidebar-cat-chip:active,
+    .browse-cat-chip:active,
+    .picker-list li:active{
+        background:var(--active);
+        transform:scale(0.98);
+        transition:transform 0.1s ease, background-color 0.1s ease;
+    }
+}
+
+/* --- Fallback für ältere iOS-Versionen (Grid) --- */
+@supports not(display:grid){
+    .cat-grid{
+        display:flex;
+        flex-wrap:wrap;
+        gap:12px;
+    }
+    .cat-card{
+        flex:1 1 calc(50% - 6px);
+        min-width:140px;
+    }
+}
+
+/* --- iOS-spezifische Anpassungen für Dynamic Island --- */
+@supports(padding-top:env(safe-area-inset-top)){
+    /* Bei Geräten mit Dynamic Island (iPhone 14 Pro Max) */
+    .topbar{
+        padding-top:max(var(--sat),12px);
+    }
+}
+
+/* --- Scrollbar auf Mobile ausblenden (iOS-Style) --- */
+@media(max-width:1023px){
+    ::-webkit-scrollbar{
+        display:none;
+    }
+    *{
+        scrollbar-width:none;
+    }
+}
+
+/* --- Pull-to-Refresh Indicator Position --- */
+.pull-ind{
+    z-index:5;
+    /* Sicherstellen dass Indicator nicht verdeckt wird */
+}
+
+/* --- Toast/Notification Styles (falls verwendet) --- */
+.toast{
+    position:fixed;
+    bottom:calc(90px + var(--sab));
+    left:50%;
+    transform:translateX(-50%);
+    z-index:120;
+    max-width:calc(100% - 32px);
+    padding:12px 20px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-lg);
+}
+
+/* --- Accessibility: Focus-Visible für Touch-Geräte --- */
+@media(max-width:1023px){
+    *:focus{
+        outline:none;
+    }
+    *:focus-visible{
+        outline:2px solid var(--primary);
+        outline-offset:2px;
+    }
+}
+
+/* --- Reduced Motion: Animationen deaktivieren --- */
+@media(prefers-reduced-motion:reduce){
+    .hero-logo{
+        animation:none;
+    }
+    .cat-card,
+    .browse-item,
+    .search-result{
+        transition:none;
+    }
+}
+
+/* ============================================
+   JS-ANIMATION SUPPORT CLASSES
+   Ergänzende Styles für JavaScript-Animationen
+   ============================================ */
+
+/* --- Animate-on-Scroll Basis --- */
+.animate-on-scroll{
+    opacity:0;
+    transform:translateY(20px);
+    transition:opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.animate-on-scroll.visible,
+.animate-on-scroll.animate-in{
+    opacity:1;
+    transform:translateY(0);
+}
+
+/* --- Ripple Effect Container --- */
+.ripple-container{
+    position:relative;
+    overflow:hidden;
+}
+.ripple-effect{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.4);
+    pointer-events:none;
+    transform:scale(0);
+    will-change:transform,opacity;
+}
+[data-theme="dark"] .ripple-effect{
+    background:rgba(255,255,255,0.2);
+}
+
+/* --- FAB Animation States --- */
+.fab{
+    transition:transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease, box-shadow 0.3s;
+}
+.fab.hiding{
+    transform:translateY(100px) scale(0.8);
+    opacity:0;
+    pointer-events:none;
+}
+.fab.showing{
+    transform:translateY(0) scale(1);
+    opacity:1;
+}
+
+/* --- Picker Sheet Spring Animation --- */
+.picker-sheet{
+    will-change:transform;
+    transform:translateY(100%);
+}
+.picker-overlay.show .picker-sheet{
+    transform:translateY(0);
+}
+
+/* --- Toast Notification Enhanced --- */
+.toast{
+    font-family:inherit;
+    letter-spacing:-0.01em;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
+[data-theme="dark"] .toast{
+    background:rgba(30,41,59,0.95);
+    border-color:var(--border);
+}
+
+/* --- Staggered Animation Helper --- */
+.stagger-ready{
+    opacity:0;
+    transform:translateY(16px);
+}
+.stagger-ready.animated{
+    opacity:1;
+    transform:translateY(0);
+    transition:opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* --- Smooth Scroll Container --- */
+.smooth-scroll{
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+}
+
+/* --- GPU Layer Promotion für Performance --- */
+.gpu-accelerated{
+    transform:translateZ(0);
+    backface-visibility:hidden;
+    perspective:1000px;
+    will-change:transform;
+}
+
+/* --- Sidebar Backdrop Animation --- */
+.sidebar-backdrop{
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.3s ease, visibility 0.3s ease;
+}
+.sidebar-backdrop.visible{
+    opacity:1;
+    visibility:visible;
+}
+
+/* --- Pull-to-Refresh Progress Indicator --- */
+.pull-ind i{
+    transition:transform 0.15s ease-out;
+}
+.pull-ind.progress i{
+    animation:none;
+}
+
+/* --- Section Expand/Collapse Animation Enhancement --- */
+.sop-section-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s ease, opacity 0.25s ease;
+    opacity:0;
+}
+.sop-section-body.open{
+    max-height:5000px;
+    opacity:1;
+    transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1), padding 0.35s ease, opacity 0.35s ease;
+}
+
+/* --- Card Hover Lift Effect --- */
+.hover-lift{
+    transition:transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s ease;
+}
+.hover-lift:hover{
+    transform:translateY(-3px);
+    box-shadow:var(--shadow-md);
+}
+
+/* --- Button Press Effect --- */
+.press-effect:active{
+    transform:scale(0.97);
+    transition:transform 0.1s ease;
+}
+
+/* --- Loading Shimmer für dynamische Inhalte --- */
+@keyframes contentShimmer{
+    0%{
+        background-position:-200% 0;
+    }
+    100%{
+        background-position:200% 0;
+    }
+}
+.loading-shimmer{
+    background:linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+    background-size:200% 100%;
+    animation:contentShimmer 1.5s ease-in-out infinite;
+}
+
+/* --- Focus Ring Animation --- */
+@keyframes focusRing{
+    0%{
+        box-shadow:0 0 0 0 rgba(37,99,235,0.4);
+    }
+    100%{
+        box-shadow:0 0 0 4px rgba(37,99,235,0);
+    }
+}
+.focus-ring:focus-visible{
+    animation:focusRing 0.3s ease-out;
+}
+
+/* --- Reduced Motion für JS-Animationen --- */
+@media(prefers-reduced-motion:reduce){
+    .animate-on-scroll,
+    .stagger-ready,
+    .sop-section-body,
+    .fab,
+    .picker-sheet,
+    .sidebar-backdrop{
+        transition:none;
+        opacity:1;
+        transform:none;
+    }
+    .ripple-effect{
+        display:none;
+    }
+    .loading-shimmer{
+        animation:none;
+    }
 }
