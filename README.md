@@ -1,49 +1,175 @@
-# Patientenpfade: ZNA
+# 🏥 SOP-ZNA – Patientenpfade Zentrale Notaufnahme
 
-**Standardisierte Handlungsanweisungen für die Zentrale Notaufnahme**
+![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+![Status](https://img.shields.io/badge/Status-Produktiv-brightgreen.svg)
+![Lizenz](https://img.shields.io/badge/Lizenz-Intern-orange.svg)
+![Plattform](https://img.shields.io/badge/Plattform-Web%20%7C%20iOS%20%7C%20Android-lightgrey.svg)
 
-Klinikum St. Georg Leipzig – Klinik für Radiologie und Nuklearmedizin
+<div align="center">
+  <img src="img/Basislogo_farbig.png" alt="Klinikum St. Georg Leipzig Logo" width="200"/>
+  <br><br>
+  <img src="img/Patientenpfade.png" alt="Patientenpfade Logo" width="300"/>
+</div>
 
 ---
 
-## Übersicht
+## 📋 Beschreibung
 
-Patientenpfade: ZNA ist eine progressive Web-App (PWA) zur strukturierten Darstellung klinischer Standard Operating Procedures (SOPs) für die Zentrale Notaufnahme. Die Anwendung bietet schnellen, offline-fähigen Zugriff auf aktuell 73 evidenzbasierte Patientenpfade, gegliedert nach medizinischen Fachkategorien.
+**SOP-ZNA** ist eine Web-Anwendung zur strukturierten Darstellung klinischer **Standard Operating Procedures (SOPs)** für die Zentrale Notaufnahme. Die Anwendung bietet medizinischem Personal schnellen Zugriff auf **73 evidenzbasierte Patientenpfade** – optimiert für Desktop- und mobile Endgeräte.
 
-## Features
+> **Hinweis:** Diese Anwendung ist für den internen klinischen Gebrauch am Klinikum St. Georg Leipzig bestimmt.
 
-- **73 klinische SOPs** mit strukturierten Sektionen (Definition, Ursachen, Symptome, Diagnostik, Therapie, Merke, Disposition, Komplikationen, Quellen)
-- **11 Fachkategorien**: Kardiologie, Pneumologie, Gastroenterologie, Neurologie, Nephrologie, Metabolisch, Hämatologie, Infektiologie, Toxikologie, Leitsymptom, Sonstige
+### Zielgruppe
+
+- 👨‍⚕️ Ärzte in der Zentralen Notaufnahme
+- 👩‍⚕️ Pflegepersonal
+- 🚑 Rettungsdienstpersonal
+- 📚 Medizinstudenten und Assistenzärzte
+
+---
+
+## ✨ Features
+
+### 📚 SOP-Verwaltung
+- **73 klinische SOPs** mit strukturierten Sektionen:
+  - Definition, Ursachen, Symptome, Diagnostik, Therapie, Merke, Disposition, Komplikationen, Quellen
+- **11 Fachkategorien** mit farbcodierter Kennzeichnung
+- **Automatisches Dosierungs-Highlighting** erkennt Medikamentendosierungen und Applikationswege
+
+### 🔍 Suche & Navigation
 - **Volltextsuche** über alle SOPs mit Snippet-Vorschau und Highlighting
 - **Schnellsuche** auf der Startseite mit Echtzeit-Ergebnissen
 - **Kategorie-Filter** in Sidebar und Browse-Ansicht
-- **Automatisches Dosierungs-Highlighting** erkennt Dosierungsangaben und Applikationswege im Fließtext und hebt diese farblich hervor
-- **Akkordeon-Sektionen** mit automatischer Öffnung von Diagnostik und Therapie
-- **Sticky Section Bar** zeigt beim Scrollen die aktuelle Sektion an
-- **Inhaltsverzeichnis** als Bottom-Sheet (mobil) oder Dialog (Desktop) mit Druckfunktion
-- **Dark Mode / Light Mode** mit automatischer Systemerkennung und manueller Umschaltung
-- **Stufenlose Schriftgrößenanpassung** (13–20 px)
-- **Offline-Modus** via Service Worker mit vollständigem Asset-Caching
-- **Pull-to-Refresh** auf der Startseite (mobil)
-- **Responsive Design** optimiert für Desktop, Tablet, iPhone (inkl. Dynamic Island / Safe Areas) und Android
-- **Druckoptimierung** mit automatischer Öffnung aller Sektionen
+- **Breadcrumb-Navigation** zur einfachen Orientierung
+- **Inhaltsverzeichnis** als Bottom-Sheet (mobil) oder Dialog (Desktop)
 
-## Projektstruktur
+### 📱 Mobile Optimierung
+- **Responsive Design** optimiert für:
+  - iPhone 14 Pro Max (inkl. Dynamic Island / Safe Areas)
+  - iPad und Tablets
+  - Android-Geräte
+- **Touch-optimierte Bedienung** (44px Touch-Targets nach Apple HIG)
+- **iOS-Safe-Areas** Unterstützung (`env(safe-area-inset-*)`)
+- **Pull-to-Refresh** auf der Startseite
+- **Haptic Feedback** für unterstützte Geräte
+
+### 🎨 Benutzeroberfläche
+- **Dark Mode / Light Mode** mit:
+  - Automatischer Systemerkennung (`prefers-color-scheme`)
+  - Manueller Umschaltung
+  - Persistenz via LocalStorage
+- **Stufenlose Schriftgrößenanpassung** (13–20px)
+- **Sticky Section Bar** zeigt beim Scrollen die aktuelle Sektion
+- **Akkordeon-Sektionen** mit automatischer Öffnung von Diagnostik und Therapie
+- **Smooth Animations** und Übergänge
+
+### 🖨️ Druckfunktion
+- **Druckoptimierung** mit automatischer Öffnung aller Sektionen
+- Druckbutton im Inhaltsverzeichnis
+
+### ⚡ Performance
+- **Kein Caching** – Änderungen sind sofort sichtbar
+- **Keine Build-Tools** – läuft direkt im Browser
+- **Vanilla JavaScript** – keine Framework-Abhängigkeiten
+
+---
+
+## 🚀 Installation & Deployment
+
+### Voraussetzungen
+
+- Beliebiger Webserver (Apache, Nginx, IIS, etc.)
+- Optional: HTTPS für erweiterte PWA-Features
+
+### Lokale Entwicklung
+
+```bash
+# Repository klonen
+git clone <repository-url>
+cd sop-zna
+
+# Einfachen HTTP-Server starten
+# Python 3
+python3 -m http.server 8080
+
+# Node.js (npx)
+npx serve .
+
+# PHP
+php -S localhost:8080
+```
+
+Anwendung im Browser öffnen: `http://localhost:8080`
+
+### Produktiv-Deployment
+
+Die Anwendung besteht ausschließlich aus statischen Dateien und kann auf jedem Webserver bereitgestellt werden:
+
+| Plattform | Beschreibung |
+|-----------|--------------|
+| **Apache / Nginx** | Statische Dateien ins Webroot kopieren |
+| **GitHub Pages** | Repository → Settings → Pages → Deploy |
+| **Netlify** | Drag & Drop oder Git-Integration |
+| **Vercel** | Automatisches Deployment via Git |
+| **AWS S3 + CloudFront** | Statische Website-Hosting |
+
+---
+
+## 📖 Verwendung
+
+### Startseite
+
+1. **Schnellsuche:** Tippen Sie einen Suchbegriff ein, um direkt zu den Ergebnissen zu gelangen
+2. **Kategorie-Karten:** Klicken Sie auf eine Kategorie, um alle SOPs dieser Fachrichtung zu durchsuchen
+
+### SOPs durchsuchen
+
+1. Navigieren Sie über die untere Navigation zum **"SOPs"**-Tab
+2. Filtern Sie nach **Kategorien** oder nutzen Sie die **Suchleiste**
+3. Klicken Sie auf eine SOP, um sie zu öffnen
+
+### SOP-Ansicht
+
+- **Sektionen:** Klicken Sie auf eine Sektion, um sie zu öffnen/schließen
+- **Diagnostik & Therapie** sind standardmäßig geöffnet
+- **Inhaltsverzeichnis:** Tippen Sie auf den FAB-Button (unten rechts) oder den TOC-Button (Desktop)
+- **Drucken:** Nutzen Sie den Druckbutton im Inhaltsverzeichnis
+
+### Einstellungen
+
+- **Theme:** Klicken Sie auf das Sonne/Mond-Icon zum Wechseln zwischen Dark/Light Mode
+- **Schriftgröße:** Nutzen Sie die +/- Buttons in der Sidebar (Desktop) oder im Menü (Mobile)
+
+---
+
+## 🛠️ Technologie-Stack
+
+| Komponente | Technologie |
+|------------|-------------|
+| **Frontend** | Vanilla JavaScript (ES5-kompatibel), HTML5, CSS3 |
+| **Icons** | Font Awesome 6.5.1 (CDN) |
+| **Styling** | CSS Custom Properties, Flexbox, CSS Grid |
+| **Responsive** | Media Queries, `env(safe-area-inset-*)`, `viewport-fit=cover` |
+| **Theming** | `data-theme` Attribut mit `prefers-color-scheme` Erkennung |
+| **Build** | Keine Build-Tools, kein Bundler, keine Frameworks |
+
+---
+
+## 📁 Projektstruktur
 
 ```
 sop-zna/
-├── index.html                 Einstiegspunkt der Anwendung
-├── app.js                     Anwendungslogik (Rendering, Navigation, Suche, Events)
-├── styles.css                 Vollständiges Stylesheet (Light/Dark, Responsive, Print)
-├── sw.js                      Service Worker für Offline-Caching
-├── README.md                  Diese Datei
+├── index.html                 # Einstiegspunkt der Anwendung
+├── app.js                     # Anwendungslogik (Rendering, Navigation, Suche)
+├── styles.css                 # Vollständiges Stylesheet (Light/Dark, Responsive, Print)
+├── README.md                  # Diese Datei
 ├── img/
-│   ├── Basislogo_farbig.png   Klinikum-Logo (Favicon, Touch-Icon)
-│   ├── Patientenpfade.png     App-Logo (Sidebar, Hero)
-│   └── ZNA/                   SOP-spezifische Abbildungen
+│   ├── Basislogo_farbig.png   # Klinikum-Logo (Favicon, Touch-Icon)
+│   ├── Patientenpfade.png     # App-Logo (Sidebar, Hero)
+│   └── ZNA/                   # SOP-spezifische Abbildungen
 │       ├── akute-herzinsuffizienz_diagnostischer_algorithmus.png
 │       └── akute-intoxikation_toxidrom.png
-└── sops/                      73 einzelne SOP-Dateien (JavaScript-Module)
+└── sops/                      # 73 einzelne SOP-Dateien (JavaScript-Module)
     ├── abdominelle-schmerzen.js
     ├── aecopd.js
     ├── akute-alkoholintoxikation.js
@@ -99,9 +225,9 @@ sop-zna/
     ├── schock.js
     ├── sepsis.js
     ├── spontan-bakterielle-peritonitis.js
+    ├── st-hebungsinfarkt.js
     ├── status-epilepticus.js
     ├── sterbephase-palliativ.js
-    ├── st-hebungsinfarkt.js
     ├── stromunfall.js
     ├── synkope.js
     ├── tachykarde-hrst.js
@@ -119,142 +245,153 @@ sop-zna/
     └── zerebrale-venen-sinusthrombose.js
 ```
 
-## Technologie
+---
 
-| Komponente | Technologie |
-|------------|-------------|
-| Frontend | Vanilla JavaScript (ES5-kompatibel), HTML5, CSS3 |
-| Icons | Font Awesome 6.5.1 (CDN) |
-| Offline | Service Worker API mit Cache-First-Strategie |
-| Styling | CSS Custom Properties, Flexbox, CSS Grid |
-| Responsive | Media Queries, `env(safe-area-inset-*)`, `viewport-fit=cover` |
-| Theming | `data-theme` Attribut mit `prefers-color-scheme` Erkennung |
+## 📚 SOP-Kategorien
 
-Keine Build-Tools, kein Bundler, keine Frameworks – die Anwendung läuft direkt im Browser.
+| Kategorie | Schlüssel | Anzahl | Farbe |
+|-----------|-----------|--------|-------|
+| ❤️ Kardiologie | `kardio` | – | Rot |
+| 🫁 Pneumologie | `pulmo` | – | Blau |
+| 🍽️ Gastroenterologie | `gi` | – | Orange |
+| 🧠 Neurologie | `neuro` | – | Violett |
+| 💧 Nephrologie | `nephro` | – | Cyan |
+| 🧪 Metabolisch | `metab` | – | Grün |
+| 💉 Hämatologie | `haem` | – | Pink |
+| 🦠 Infektiologie | `infekt` | – | Limette |
+| ☠️ Toxikologie | `tox` | – | Orange |
+| 🩺 Leitsymptom | `leit` | – | Indigo |
+| ℹ️ Sonstige | `sonst` | – | Grau |
 
-## Installation und Deployment
+---
 
-### Lokale Entwicklung
+## 📝 Neue SOP hinzufügen
 
-```bash
-git clone <repository-url>
-cd sop-zna
-```
+### 1. SOP-Datei erstellen
 
-Die Anwendung benötigt einen HTTP-Server (Service Worker funktionieren nicht über `file://`):
-
-```bash
-# Python 3
-python3 -m http.server 8080
-
-# Node.js (npx)
-npx serve .
-
-# PHP
-php -S localhost:8080
-```
-
-Anschließend im Browser öffnen: `http://localhost:8080`
-
-### Produktiv-Deployment
-
-Die Anwendung besteht ausschließlich aus statischen Dateien und kann auf jedem Webserver oder Static-Hosting-Dienst bereitgestellt werden:
-
-- Apache / Nginx
-- GitHub Pages
-- Netlify
-- Vercel
-- AWS S3 + CloudFront
-
-Für HTTPS-Betrieb (empfohlen, erforderlich für Service Worker) genügt ein einfaches SSL-Zertifikat.
-
-## SOP-Datenformat
-
-Jede SOP-Datei unter `sops/` registriert sich über das globale Array `window.SOP_DATA`:
+Erstellen Sie eine neue Datei unter `sops/` (z. B. `sops/neue-sop.js`):
 
 ```javascript
 (function(){
     if(!window.SOP_DATA) window.SOP_DATA = [];
     window.SOP_DATA.push({
-        id: "eindeutige-id",
-        title: "Titel der SOP",
-        category: "kardio",          // Kategorie-Schlüssel
+        id: "eindeutige-id",              // URL-freundliche ID (keine Leerzeichen!)
+        title: "Titel der SOP",            // Anzeigename
+        name: "Titel der SOP",             // Alternativ: name statt title
+        category: "kardio",                // Kategorie-Schlüssel (siehe Tabelle)
+        stand: "03/25",                    // Aktualisierungsstand (MM/YY)
+        sources: "<p>Quellenangaben...</p>", // HTML-String
         sections: [
             {
-                title: "Definition",  // Sektionsname
-                html: "<p>...</p>"    // HTML-Inhalt
+                title: "Definition",
+                html: "<p>Definitionstext...</p>"
+            },
+            {
+                title: "Ursachen",
+                html: "<ul><li>Ursache 1</li><li>Ursache 2</li></ul>"
+            },
+            {
+                title: "Symptome",
+                html: "<p>Symptomatik...</p>"
             },
             {
                 title: "Diagnostik",
-                html: "<ul><li>...</li></ul>"
+                html: "<p>Diagnostische Schritte...</p>"
+            },
+            {
+                title: "Therapie",
+                html: "<p>Therapieoptionen...</p>"
+            },
+            {
+                title: "Merke",
+                html: "<div class=\"callout callout-wichtig\">Wichtiger Hinweis!</div>"
+            },
+            {
+                title: "Disposition",
+                html: "<p>Weiteres Vorgehen...</p>"
+            },
+            {
+                title: "Komplikationen",
+                html: "<p>Mögliche Komplikationen...</p>"
             }
-        ],
-        stand: "03/25",              // Aktualisierungsstand
-        sources: "Quellenangaben als HTML-String"
+        ]
     });
 })();
 ```
 
-### Verfügbare Kategorien
+### 2. Script einbinden
 
-| Schlüssel | Bezeichnung |
-|-----------|-------------|
-| `kardio` | Kardiologie |
-| `pulmo` | Pneumologie |
-| `gi` | Gastroenterologie |
-| `neuro` | Neurologie |
-| `nephro` | Nephrologie |
-| `metab` | Metabolisch |
-| `haem` | Hämatologie |
-| `infekt` | Infektiologie |
-| `tox` | Toxikologie |
-| `leit` | Leitsymptom |
-| `sonst` | Sonstige |
+Fügen Sie in [`index.html`](index.html) vor `app.js` ein:
 
-### Unterstützte HTML-Elemente in SOP-Sektionen
+```html
+<script src="sops/neue-sop.js"></script>
+<script src="app.js"></script>
+```
 
-| Element | CSS-Klasse | Beschreibung |
-|---------|-----------|--------------|
-| Callout CAVE | `callout callout-cave` | Roter Warnhinweis |
-| Callout Wichtig | `callout callout-wichtig` | Blauer Hinweis |
-| Callout Hinweis | `callout callout-hinweis` | Grüner Hinweis |
-| Tabelle | `table-wrap` (Wrapper) | Responsive Tabelle |
-| Bild | `<img>` | Automatisch responsive |
+### Unterstützte Callout-Klassen
 
-## Neue SOP hinzufügen
-
-1. Neue Datei unter `sops/` erstellen (z. B. `sops/neue-sop.js`)
-2. SOP-Daten im oben beschriebenen Format einfügen
-3. `<script src="sops/neue-sop.js"></script>` in `index.html` vor `app.js` einfügen
-4. Dateiname in das `urlsToCache`-Array in `sw.js` aufnehmen
-5. Cache-Version in `sw.js` hochzählen
-
-## Browser-Kompatibilität
-
-| Browser | Version |
-|---------|---------|
-| Chrome / Edge | 80+ |
-| Safari (iOS) | 14+ |
-| Firefox | 78+ |
-| Samsung Internet | 13+ |
-
-## Offline-Verhalten
-
-Beim ersten Laden werden alle Assets (HTML, CSS, JS, Bilder, SOP-Dateien) vom Service Worker gecacht. Bei nachfolgenden Aufrufen werden Inhalte aus dem Cache geladen (Cache-First-Strategie). Der Offline-Status wird in der Anwendung durch ein gelbes Banner angezeigt.
-
-Zum Aktualisieren des Caches:
-
-- **Mobil**: Pull-to-Refresh auf der Startseite
-- **Desktop**: Browser-Cache leeren oder Service Worker in den DevTools aktualisieren
-
-## Lizenz
-
-Dieses Projekt ist für den internen klinischen Gebrauch am Klinikum St. Georg Leipzig bestimmt. Alle medizinischen Inhalte unterliegen dem Urheberrecht der jeweiligen Autoren und Leitlinienkommissionen.
-
-## Autor
-
-**Dr. med. Markus Lurz**
-Klinikum St. Georg Leipzig
+| CSS-Klasse | Verwendung | Farbe |
+|------------|------------|-------|
+| `callout callout-cave` | Warnhinweise, Kontraindikationen | Rot |
+| `callout callout-wichtig` | Wichtige Hinweise | Blau |
+| `callout callout-hinweis` | Allgemeine Tipps | Grün |
 
 ---
 
+## 🌐 Browser-Kompatibilität
+
+| Browser | Minimale Version |
+|---------|------------------|
+| Chrome / Edge | 80+ |
+| Safari (iOS/macOS) | 14+ |
+| Firefox | 78+ |
+| Samsung Internet | 13+ |
+
+---
+
+## 🤝 Mitwirken
+
+### Beiträge willkommen!
+
+1. **Fehler melden:** Erstellen Sie ein Issue mit Beschreibung und Screenshots
+2. **SOP aktualisieren:** Erstellen Sie einen Pull Request mit den Änderungen
+3. **Neue SOP:** Folgen Sie der Anleitung oben und reichen Sie einen PR ein
+
+### Entwicklungsrichtlinien
+
+- **Code-Stil:** ES5-kompatibles JavaScript für maximale Browser-Unterstützung
+- **SOP-Format:** Strikte Einhaltung des oben definierten Datenformats
+- **Medizinische Inhalte:** Nur mit entsprechender Fachprüfung freigeben
+
+---
+
+## 📄 Lizenz
+
+Dieses Projekt ist für den **internen klinischen Gebrauch** am Klinikum St. Georg Leipzig bestimmt.
+
+Alle medizinischen Inhalte unterliegen dem Urheberrecht der jeweiligen Autoren und Leitlinienkommissionen. Eine Weitergabe oder Vervielfältigung ohne ausdrückliche Genehmigung ist nicht gestattet.
+
+---
+
+## 📞 Kontakt & Impressum
+
+**Klinikum St. Georg Leipzig**  
+Klinik für Radiologie und Nuklearmedizin  
+AG Klinische Pfade
+
+### Autor
+
+**Dr. med. Markus Lurz**  
+Klinikum St. Georg Leipzig  
+Delitzscher Straße 141  
+04129 Leipzig
+
+---
+
+<div align="center">
+
+**[⬆ Nach oben](#-sop-zna--patientenpfade-zentrale-notaufnahme)**
+
+*Stand: Februar 2026*
+
+</div>

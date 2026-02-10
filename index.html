@@ -15,6 +15,10 @@
     <meta name="format-detection" content="email=no">
     <meta name="format-detection" content="address=no">
     <meta name="description" content="Patientenpfade ZNA">
+    <!-- Cache deaktivieren -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <!-- iOS Touch-Optimierung -->
     <meta name="HandheldFriendly" content="true">
     <meta name="MobileOptimized" content="width">
@@ -234,12 +238,20 @@
     <script src="sops/zerebrale-venen-sinusthrombose.js"></script>
     <script src="app.js"></script>
     <script>
+        // Service Worker komplett deaktivieren und alle Caches löschen
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(r) {
-                for (var i = 0; i < r.length; i++) r[i].unregister();
-            }).then(function() {
-                return navigator.serviceWorker.register('sw.js');
-            }).catch(function() {});
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                registrations.forEach(function(registration) {
+                    registration.unregister();
+                });
+            });
+        }
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
         }
     </script>
 </body>
