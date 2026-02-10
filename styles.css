@@ -506,7 +506,7 @@ a {
 }
 
 .sidebar-header {
-    height: 64px;
+    height: 56px;
     padding: 0 20px;
     display: flex;
     align-items: center;
@@ -531,7 +531,8 @@ a {
 .logo-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    line-height: 1.15;
+    gap: 0;
 }
 
 .logo-main {
@@ -853,19 +854,19 @@ a {
 }
 
 .view-panel.view-pad {
-    padding: 32px 40px 60px;
+    padding: 12px 40px 60px;
 }
 
 .home-hero {
     text-align: center;
-    padding: 8px 20px 0;
+    padding: 0 20px;
 }
 
 .home-logo-image {
     width: 280px;
     height: 280px;
     object-fit: contain;
-    margin-bottom: 0;
+    margin-bottom: -20px;
 }
 
 .home-title {
@@ -885,11 +886,42 @@ a {
     line-height: 1.5;
 }
 
+.home-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+    margin-top: -56px;
+    margin-bottom: 4px;
+}
+
+.home-header-main {
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.home-header-sub {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-top: 0;
+}
+
+.home-header-sub-2 {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    opacity: 0.8;
+    margin-top: 0;
+}
+
 .home-stats {
     display: flex;
     justify-content: center;
     gap: 16px;
-    margin-bottom: 4px;
+    margin-bottom: 0;
 }
 
 .home-stat {
@@ -2138,7 +2170,7 @@ tbody tr {
     }
 
     .view-panel.view-pad {
-        padding: 32px 40px 60px;
+        padding: 12px 40px 60px;
     }
 
     .sop-view-pad {
@@ -2164,7 +2196,7 @@ tbody tr {
     }
 
     .home-hero {
-        padding: 12px 0 4px;
+        padding: 4px 0 0;
     }
 
     .home-section-title {
@@ -2230,7 +2262,7 @@ tbody tr {
     }
 
     .view-panel.view-pad {
-        padding: 20px 0 40px;
+        padding: 12px 0 40px;
     }
 
     .sop-view-pad {
@@ -2252,6 +2284,18 @@ tbody tr {
 
     .home-title {
         font-size: 22px;
+    }
+
+    .home-header-main {
+        font-size: 22px;
+    }
+
+    .home-header-sub {
+        font-size: 13px;
+    }
+
+    .home-header-sub-2 {
+        font-size: 11px;
     }
 }
 

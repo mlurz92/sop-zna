@@ -430,8 +430,11 @@
         }
         var html = '<div class="home-hero">' +
             '<img src="img/Basislogo_farbig.png" alt="Patientenpfade" class="home-logo-image">' +
-            '<h1 class="home-title">Patientenpfade: ZNA</h1>' +
-            '<p class="home-subtitle">Standardarbeitsanweisungen f\u00fcr die Notaufnahme \u2013 AG Klinische Pfade</p>' +
+            '<div class="home-header-text">' +
+            '<span class="home-header-main">Patientenpfade: ZNA</span>' +
+            '<span class="home-header-sub">SOPs f\u00fcr die Notaufnahme</span>' +
+            '<span class="home-header-sub-2">AG Klinische Pfade</span>' +
+            '</div>' +
             '<div class="home-stats">' +
             '<div class="home-stat"><div class="home-stat-value">' + totalSOPs + '</div><div class="home-stat-label">SOPs</div></div>' +
             '<div class="home-stat"><div class="home-stat-value">' + usedCats.length + '</div><div class="home-stat-label">Kategorien</div></div>' +
