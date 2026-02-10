@@ -1,159 +1,189 @@
-// SOP: Akutes Aortensyndrom
-// Kategorie: Kardiologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "akutes-aortensyndrom",
         title: "Akutes Aortensyndrom",
         category: "Kardiologie",
         catKey: "kardio",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Akutes Aortensyndrom (AAS):</strong> Sammelbegriff für akute, lebensbedrohliche Erkrankungen der Aorta mit Einriss der Gefäßwand</li>
-<li>Umfasst:
-<ul>
-<li><strong>Aortendissektion (Typ A/B):</strong> Einriss der Intima mit Bildung eines falschen Lumens</li>
-<li><strong>Intramurales Hämatom (IMH):</strong> Blutung in die Media ohne Intimaeinriss</li>
-<li><strong>Penetrierendes Aortenulkus (PAU):</strong> Ulzeration einer atherosklerotischen Plaque mit Perforation der Lamina elastica interna</li>
-</ul>
-</li>
-</ul>`
-},
-{
-title: "Klassifikation",
-html: `<h3>Stanford-Klassifikation</h3>
-<ul>
-<li><strong>Typ A:</strong> Beteiligung der Aorta ascendens (ca. 65%) → <strong>operative Therapie</strong></li>
-<li><strong>Typ B:</strong> Beteiligung der Aorta descendens distal der linken A. subclavia (ca. 35%) → <strong>konservative/endovaskuläre Therapie</strong></li>
-</ul>
-<h3>DeBakey-Klassifikation</h3>
-<ul>
-<li><strong>Typ I:</strong> Aorta ascendens + Aortenbogen + Aorta descendens</li>
-<li><strong>Typ II:</strong> Nur Aorta ascendens</li>
-<li><strong>Typ III:</strong> Nur Aorta descendens</li>
-</ul>`
-},
-{
-title: "Risikofaktoren",
-html: `<ul>
-<li><strong>Arterielle Hypertonie</strong> (wichtigster Risikofaktor, 70% der Patienten)</li>
-<li><strong>Bindegewebserkrankungen:</strong> Marfan-Syndrom, Ehlers-Danlos-Syndrom, Loeys-Dietz-Syndrom</li>
-<li><strong>Atherosklerose</strong></li>
-<li><strong>Bikuspidale Aortenklappe</strong></li>
-<li><strong>Vorherige Aortenoperationen</strong> / Aneurysma</li>
-<li><strong>Trauma</strong> (stumpf/penetrierend)</li>
-<li><strong>Iatrogen:</strong> Kathetermanöver, Herzoperation</li>
-<li><strong>Schwangerschaft</strong></li>
-<li><strong>Kokainkonsum</strong></li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Plötzlich einsetzender, stärkster Thoraxschmerz</strong> (90%):
-<ul>
-<li>Charakteristisch: <strong>reißend, messerstichartig</strong></li>
-<li>Typ A: präkordial, vorderer Thorax</li>
-<li>Typ B: interskapulär, Rücken</li>
-</ul>
-</li>
-<li><strong>Wandernder Schmerz</strong> (Pulsationsschmerz) bei Fortleitung der Dissektion</li>
-<li><strong>Blutdruckdifferenz</strong> >20 mmHg zwischen beiden Armen (30–50%)</li>
-<li><strong>Pulsdefizit</strong> (Karotis, Aa. radiales, Femoralis)</li>
-<li><strong>Neurologische Symptome:</strong> Synkope (10–15%), Schlaganfall, Paraplegie (Spinalischämie)</li>
-<li><strong>Abdominelle Schmerzen</strong> (Beteiligung abdomineller Aorta/Mesenterialgefäße)</li>
-<li><strong>Dyspnoe</strong> (Aortenklappeninsuffizienz, Hämoperikard, Pleuraerguss)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Bei plötzlichem, stärkstem Thoraxschmerz + Blutdruckdifferenz/Pulsdefizit → <strong>hochgradiger V.a. AAS!</strong></p></div>`
-},
-{
-title: "Komplikationen",
-html: `<ul>
-<li><strong>Ruptur</strong> (Hämoperikard → Perikardtamponade, Hämatothorax, Hämoabdomen)</li>
-<li><strong>Aortenklappeninsuffizienz</strong> (Typ A)</li>
-<li><strong>Koronarischämie</strong> (v.a. rechte Koronararterie bei Typ A)</li>
-<li><strong>Schlaganfall</strong> (Beteiligung der Karotiden)</li>
-<li><strong>Spinalischämie/Paraplegie</strong> (Beteiligung der Aa. spinales)</li>
-<li><strong>Viszeralischämie</strong> (Mesenterialgefäße, Nierenarterien)</li>
-<li><strong>Extremitätenischämie</strong> (Iliakal-/Femoralarterien)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li><strong>Blutdruck an BEIDEN Armen messen!</strong> (Differenz?)</li>
-<li><strong>Pulse an allen 4 Extremitäten</strong> prüfen (Pulsdefizit?)</li>
-<li>2x großvolumiger venöser Zugang</li>
-<li><strong>12-Kanal-EKG:</strong> DD Myokardinfarkt (ST-Hebungen möglich bei Koronarbeteiligung!)</li>
-<li><strong>Labor:</strong> BB, E'lyte, NW, Troponin, D-Dimer (negativer D-Dimer schließt AAS nicht sicher aus!), LDH (Hämolyse?), Gerinnung, Blutgruppe (Kreuzprobe)</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Schmerzcharakter? Beginn? Wanderung? Bekanntes Aneurysma? Bindegewebserkrankung? Hypertonie? Trauma?</li>
-<li><strong>Körperliche Untersuchung:</strong> Blutdruckdifferenz? Pulsdefizite? Herzgeräusch (Aortenklappeninsuffizienz)? Perikardreiben? Neurologische Ausfälle? Abdominelle Symptomatik? Beinischämie?</li>
-</ul>
-<h3>Bildgebung (notfallmäßig!)</h3>
-<ul>
-<li><strong>CT-Angiographie (CTA) Thorax/Abdomen:</strong> Goldstandard! (Sensitivität/Spezifität >95%)
-<ul>
-<li>Zeigt: Dissektionsmembran, wahres/falsches Lumen, Entry/Re-entry, Beteiligung von Seitenästen</li>
-</ul>
-</li>
-<li><strong>TEE (transösophageale Echokardiographie):</strong> alternativ bei Kontraindikationen für CTA, instabilem Patienten, intraoperativ</li>
-<li><strong>MRT-Angiographie:</strong> alternativ bei Kontraindikationen für CTA (zeitintensiver)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Röntgen Thorax kann unauffällig sein! Verbreitertes Mediastinum, doppeltes Aortenkontur, Pleuraerguss sind Hinweise, aber nicht beweisend.</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Sofortmaßnahmen</h3>
-<ul>
-<li><strong>Analgesie:</strong> i.v. Opioid (z.B. Morphin 2–5 mg, Fentanyl 50–100 µg)</li>
-<li><strong>Blutdrucksenkung:</strong> Ziel systolisch <120 mmHg, Herzfrequenz <60/min
-<ul>
-<li><strong>β-Blocker</strong> (z.B. Esmolol 500 µg/kg über 1 min, dann 50–200 µg/kg/min i.v.) – <strong>zuerst!</strong></li>
-<li><strong>Nitro</strong> (z.B. Nitroglycerin 1–10 mg/h i.v.) – erst nach β-Blockade! (CAVE: Reflextachykardie)</li>
-<li>Alternativ: Urapidil (10–50 mg i.v., dann 5–40 mg/h)</li>
-</ul>
-</li>
-<li><strong>2 großvolumige venöse Zugänge</strong></li>
-<li><strong>Notfallmäßige kardiochirurgische Vorstellung</strong> bei Typ A!</li>
-</ul>
-<h3>Weiteres Vorgehen nach Typ</h3>
-<ul>
-<li><strong>Typ A:</strong> <strong>Notfall-OP</strong> (Suprakommissurale Aortenklappenersatz, Ascendens-Ersatz, ggf. Bogenersatz) – Letalität ohne OP 1–2%/h!</li>
-<li><strong>Typ B (unkompliziert):</strong> konservativ (Blutdrucksenkung, Analgesie, Überwachung)</li>
-<li><strong>Typ B (kompliziert):</strong> endovaskuläre Therapie (TEVAR) bei Ruptur, Malperfusion, therapieresistentem Schmerz, rascher Größenzunahme</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Thrombolyse bei V.a. AAS absolut kontraindiziert! (Rupturgefahr!)</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Typ A = Notfall-OP!</strong> Letalität ohne OP 1–2% pro Stunde!</li>
-<li><strong>Blutdruck an beiden Armen messen!</strong> Differenz >20 mmHg verdächtig auf AAS</li>
-<li><strong>Thrombolyse absolut kontraindiziert</strong> bei V.a. AAS!</li>
-<li><strong>CTA = Goldstandard</strong> in der Diagnostik</li>
-<li><strong>β-Blocker zuerst!</strong> Vor Nitro (sonst Reflextachykardie mit erhöhter Wandspannung)</li>
-<li>Typ B wird primär konservativ behandelt, außer bei Komplikationen (Ruptur, Malperfusion)</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Typ A:</strong> Notfallmäßige Verlegung in ein Zentrum mit Herzchirurgie zur <strong>Notfall-OP</strong></li>
-<li><strong>Typ B (unkompliziert):</strong> Überwachung auf ICU, konservative Therapie</li>
-<li><strong>Typ B (kompliziert):</strong> Endovaskuläre Therapie (TEVAR) in gefäßchirurgischem Zentrum</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Erbel R et al. 2014 ESC Guidelines on the diagnosis and treatment of aortic diseases. Eur Heart J. 2014;35(41):2873-926.<br>
-Conzelmann LO et al. German Registry for Acute Aortic Dissection Type A (GERAADA) – Update 2024. Eur J Cardiothorac Surg. 2024.<br>
-Hiratzka LF et al. 2010 ACCF/AHA/AATS/ACR/ASA/SCAI/SIR/STS/SVM Guidelines for the diagnosis and management of patients with thoracic aortic disease. Circulation. 2010;121(13):e266-369.`
+            {
+                title: "Definition",
+                html: `<p><strong>Akutes Aortensyndrom (AAS):</strong> Sammelbegriff für lebensbedrohliche Erkrankungen der Aorta, die sich klinisch ähnlich präsentieren:</p>
+                <ul>
+                    <li><strong>Aortendissektion (AD):</strong> Durch Intima-Einriss und Blutfluss in Media bedingte Separation der Aortenwand mit Ausbildung eines falschen Lumens.
+                        <ul>
+                            <li><strong>Typ A:</strong> Aorta ascendens betroffen (unabhängig von Beginn und distaler Ausbreitung).</li>
+                            <li><strong>Typ B:</strong> Aorta descendens betroffen (nach Abgang der A. subclavia sinistra).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Intramurales Hämatom (IMH)</strong></li>
+                    <li><strong>Penetrierendes atherosklerotisches Ulcus (PAU)</strong></li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li>Arterielle Hypertonie, Atherosklerose</li>
+                    <li>Genetische Bindegewebserkrankungen (z.B. Marfan-Syndrom, Ehlers-Danlos-Syndrom)</li>
+                    <li>Positive Familienanamnese bzw. bekanntes Aortenaneurysma</li>
+                    <li>Aortenklappenerkrankung (z.B. bikuspide Aortenklappe)</li>
+                    <li>Vorangegangener aortaler Eingriff, Trauma</li>
+                    <li>Amphetamin/Kokain-Abusus</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Plötzlicher, stärkster, scharfer bzw. reißender Schmerz</strong> im Bereich von Thorax, Abdomen oder Rücken ("Vernichtungsschmerz")</li>
+                    <li>ggf. Wanderung des Schmerzes mit Ausbreitung der Dissektionsmembran</li>
+                    <li><strong>Symptome des malperfundierten Endorgans:</strong>
+                        <ul>
+                            <li><strong>Koronar:</strong> Bild eines ST-Hebungsinfarkts</li>
+                            <li><strong>Zerebral:</strong> Bild eines Schlaganfalls</li>
+                            <li><strong>Extremitäten:</strong> Bild eines akuten arteriellen Verschlusses</li>
+                            <li><strong>Spinal:</strong> segmentale Sensibilitätsstörung bis komplette Paraplegie (hoher Querschnitt)</li>
+                            <li><strong>Viszeral/Renal:</strong> Bauchschmerzen, Diarrhoe, akute Nierenschädigung</li>
+                        </ul>
+                    </li>
+                    <li>ggf. vegetative Begleitsymptomatik (z.B. Kaltschweißigkeit, Übelkeit)</li>
+                    <li>ggf. lokale Komplikationen (Perikarderguss, Hämatomediastinum/-peritoneum, Aortenklappeninsuffizienz, Pleuraerguss)</li>
+                    <li><strong>Schockformen:</strong>
+                        <ul>
+                            <li>Kardiogen (bei Aortenklappeninsuffizienz oder Myokardischämie)</li>
+                            <li>Obstruktiv (bei Perikardtamponade)</li>
+                            <li>Hämorrhagisch (bei Aortenruptur)</li>
+                        </ul>
+                    </li>
+                    <li>ggf. unspezifische Beschwerden (z.B. Synkope)</li>
+                </ul>`
+            },
+            {
+                title: "Aortic Dissection Detection Risk Score (ADD-RS)",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kategorie</th>
+                                <th>Merkmale (mind. 1 erfüllt = 1 Punkt pro Kategorie)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hochrisiko-Anamnese</strong></td>
+                                <td>Marfan-Syndrom (oder andere Bindegewebserkrankung), Familienanamnese f. Aortenerkrankungen, bekannte Aortenklappenerkrankung, bekanntes thorakales Aortenaneurysma, vorangegangene Manipulation an der Aorta (einschl. Herz-OP).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hochrisiko-Schmerz</strong></td>
+                                <td>Brust-, Rücken- oder abdominelle Schmerzen mit: Abruptem Beginn, hoher Schmerzintensität UND zerreißendem Charakter.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hochrisiko-Untersuchung</strong></td>
+                                <td>Pulsdefizit, RR-Unterschied (systolisch), fokale neurologische Defizite (im Zusammenhang mit Schmerz), neu aufgetretenes Diastolikum (im Zusammenhang mit Schmerz), Hypotonie oder Schock.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><em>Der Score variiert von 0-3 Punkten. Pro Kategorie wird maximal 1 Punkt vergeben.</em></p>`
+            },
+            {
+                title: "Diagnostischer Algorithmus",
+                html: `<div class="callout callout-hinweis">
+                    <p><strong>Vorgehen basierend auf ADD-RS:</strong></p>
+                    <ul>
+                        <li><strong>0-1 Punkte (Niedrigrisiko):</strong>
+                            <ul>
+                                <li>TTE, D-Dimere (Cutoff: 500 µg/l), Röntgen-Thorax</li>
+                                <li>Bei ≥ 1 Auffälligkeit (oder positiven D-Dimeren) → direkt <strong>CT-Angiografie</strong></li>
+                                <li>Sind alle unauffällig → Aortendissektion unwahrscheinlich</li>
+                            </ul>
+                        </li>
+                        <li><strong>2-3 Punkte (Hochrisiko):</strong>
+                            <ul>
+                                <li>Sofortige <strong>EKG-getriggerte CT-Angiografie</strong> der gesamten Aorta.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Merke:</strong> Bei hämodynamischer Instabilität rasches TTE bzw. TEE!</p>
+                </div>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter + <strong>RR-Messung an beiden Armen</strong></li>
+                    <li>2x großlumiger venöser Zugang</li>
+                    <li><strong>BGA:</strong> Hb? pH? BE? Laktat?</li>
+                    <li><strong>Kreuzblut</strong> abnehmen und ggf. EK anfordern</li>
+                    <li><strong>Labor:</strong> BB, CRP, E’lyte, NW, Gerinnung, GOT, GPT, CK, LDH, TSH, hs-Troponin, D-Dimere, β-HCG</li>
+                    <li><strong>12-Kanal-EKG:</strong> Ischämiezeichen? Niedervoltage?</li>
+                    <li><strong>Anamnese:</strong> Fokus auf Schmerzcharakter, Vorerkrankungen, Marfan, KHK, Drogenabusus.</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz, Rekap-Zeit, Pulsstatus, neues Diastolikum, leise Herztöne, fokale Neurologie.</li>
+                    <li><strong>POCUS:</strong> Suche nach Dissektionsmembran, Perikarderguss, Aorteninsuffizienz, freier Flüssigkeit, Pleuraerguss.</li>
+                    <li><strong>Röntgen-Thorax:</strong> Verbreitertes Mediastinum? Abnormale Aortenkontur? Trachealkompression?</li>
+                    <li><strong>TEE</strong> bei hämodynamischer Instabilität oder Nicht-Verfügbarkeit von CT-A.</li>
+                    <li><strong>CT-Angiografie (EKG-getriggert):</strong> Gesamte Aorta zur Lokalisation des ersten Entry und OP-Planung.</li>
+                    <li><strong>Invasive Blutdruckmessung:</strong> Bei RR-Differenz stets am Arm mit den höheren Werten (ohne OP-Verzögerung).</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Sofortige Rücksprache mit Gefäß- oder Herzchirurgie halten!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema.</li>
+                    <li>Bei Hypotonie: Ursachensuche, 1000 ml Sterofundin i.v., Katecholamine meiden sofern möglich.</li>
+                    <li><strong>Analgesie:</strong> Morphin repetitiv 3-5 mg i.v.</li>
+                    <li><strong>Anxiolyse:</strong> ggf. zusätzlich Midazolam 1-2 mg i.v.</li>
+                    <li><strong>Bei Perikardtamponade:</strong> ggf. notfallmäßige Perikardiozentese (CAVE: Keine OP-Verzögerung).</li>
+                </ul>
+
+                <h3>Herzfrequenzsenkung (Ziel: 60-80/min)</h3>
+                <ul>
+                    <li><strong>Metoprololtartrat:</strong> 2,5-5 mg (1 Amp. = 5 mg/5 ml ≙ 1 mg/ml) langsam i.v., ggf. nach 5-10 min wiederholen (max. 15 mg/d).</li>
+                    <li><strong>Esmolol-Perfusor:</strong> (≙ 50 mg/ml), Bolus 1-2 ml, Start mit 4 ml/h, nach Wirkung titrieren.</li>
+                    <li><strong>Alternative (β-Blocker-Unverträglichkeit):</strong> Verapamil 5 mg i.v. (1 Amp. = 5 mg/2 ml ≙ 2,5 mg/ml) langsam i.v., ggf. nach 5-10 min wiederholen.</li>
+                </ul>
+
+                <h3>Blutdrucksenkung (Ziel: systolisch < 120 mmHg)</h3>
+                <p><em>Ziel ist der niedrigste Blutdruck mit noch adäquater Organperfusion.</em></p>
+                <ul>
+                    <li><strong>Urapidil:</strong> 5-10 mg Boli i.v., ggf. als Perfusor (≙ 250 mg/50 ml ≙ 5 mg/ml), Start mit 1 ml/h, Titration meist 1-8 ml/h.</li>
+                    <li><strong>Nitroglycerin-Perfusor:</strong> (50 mg/50 ml ≙ 1 mg/ml), Start mit 1 ml/h, Titration meist 2-8 ml/h.</li>
+                    <li><strong>Clonidin-Perfusor:</strong> (1,5 mg/50 ml ≙ 0,03 mg/ml), Start mit 1 ml/h, Titration meist 1-3 ml/h.</li>
+                </ul>
+                <div class="callout callout-cave">
+                    <p><strong>WICHTIG:</strong> Gabe von Vasodilatatoren (z.B. Nitroglycerin) erst <strong>NACH</strong> vorheriger Reduktion der Herzfrequenz!</p>
+                </div>
+
+                <h3>Kausale Therapie</h3>
+                <ul>
+                    <li><strong>AD Typ A:</strong> Notfall-Operation bzw. Intervention.</li>
+                    <li><strong>AD Typ B:</strong> Konservativ, außer bei Komplikationen (Malperfusion, Ruptur, Expansion, retrograde Typ-A-AD, therapierefraktäre Hypertonie/Schmerz).</li>
+                    <li><strong>IMH / PAU:</strong> Behandlung i.d.R. analog zur Aortendissektion.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bei Thoraxschmerzen + 1 (Synkope, neurologische Ausfälle, etc.) stets an AAS denken!</li>
+                    <li>Die AD Typ A bzw. Typ B mit Komplikationen stellt einen herzchirurgischen Notfall dar.</li>
+                    <li>Therapeutische Grundpfeiler: Suffiziente Analgesie, HF- und RR-Kontrolle sowie rasche OP/Intervention.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>AD Typ A / AD Typ B mit Komplikationen:</strong> Notfall-OP/Intervention mit anschließender Aufnahme auf <strong>ICU</strong>.</li>
+                    <li><strong>AD Typ B ohne Komplikationen:</strong> Konservatives Procedere auf Überwachungsstation (<strong>IMC/ICU</strong>).</li>
+                    <li><strong>IMH / PAU:</strong> i.d.R. analog zur Aortendissektion.</li>
+                </ul>`
+            }
+        ],
+        stand: "10/23",
+        sources: `Isselbacher EM et al. Guideline for the Diagnosis and Management of Aortic Disease. Circulation. 2022 Dec 13;146(24). – Erbel R et al. 2014 ESC Guidelines on the diagnosis and treatment of aortic diseases. Eur Heart J. 2014 Nov 1;35(41):2873-926. – Ohle R et al. Diagnosing acute aortic syndrome: a Canadian clinical practice guideline. CMAJ 2020 July 20. – Leick J et al. Standard operating procedures zur Diagnostik und Therapie des akuten Aortensyndroms. Kardiologe. 2013. 7:326–345. – DGTHG S2k Leitlinie 011-018: Behandlung der Thorakalen Aortendissektion Typ A. – Fachinformationen Stand 12/22.`
     });
 })();

@@ -8,134 +8,145 @@
         category: "Kardiologie",
         catKey: "kardio",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Akute Herzinsuffizienz (AHF):</strong> Rasches Auftreten oder akute Verschlechterung von Symptomen und Zeichen der Herzinsuffizienz, die eine notfallmäßige Diagnostik und Therapie erfordert</li>
-</ul>
-<h3>Klinische Profile (nach ESC)</h3>
-<div class="table-wrap"><table>
-<thead><tr><th>Profil</th><th>Klinisch</th><th>Beschreibung</th></tr></thead>
-<tbody>
-<tr><td>Warm + Nass</td><td>Ausreichende Perfusion, Kongestion</td><td>Häufigstes Profil, Lungenödem, periphere Ödeme</td></tr>
-<tr><td>Kalt + Nass</td><td>Minderperfusion + Kongestion</td><td>Kardiogener Schock mit Stauung</td></tr>
-<tr><td>Kalt + Trocken</td><td>Minderperfusion, keine Kongestion</td><td>Low-Output, oft Volumenmangel</td></tr>
-<tr><td>Warm + Trocken</td><td>Ausreichende Perfusion, keine Kongestion</td><td>Kompensiert, kein akuter Handlungsbedarf</td></tr>
-</tbody>
-</table></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Akute Dekompensation einer chronischen HI:</strong> Non-Compliance (Medikamente, Salz-/Flüssigkeitsrestriktion), Infektionen, Anämie, Niereninsuffizienz, Arrhythmien</li>
-<li><strong>Akutes Koronarsyndrom:</strong> STEMI/NSTEMI mit akuter Pumpfunktionsstörung</li>
-<li><strong>Hypertensive Krise:</strong> Akutes hypertensives Lungenödem</li>
-<li><strong>Arrhythmien:</strong> Tachykardes Vorhofflimmern, VT, Bradykardie</li>
-<li><strong>Akute Klappeninsuffizienz:</strong> Endokarditis, Papillarmuskelruptur, Aortendissektion</li>
-<li><strong>Lungenarterienembolie:</strong> Akute Rechtsherzbelastung</li>
-<li><strong>Perikardtamponade</strong></li>
-<li><strong>Myokarditis</strong></li>
-<li><strong>Takotsubo-Kardiomyopathie</strong></li>
-<li><strong>Toxisch:</strong> Alkohol, Chemotherapeutika (Anthrazykline)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Dyspnoe</strong> (Belastungs- bis Ruhedyspnoe), <strong>Orthopnoe</strong>, paroxysmale nächtliche Dyspnoe</li>
-<li><strong>Rasselgeräusche</strong> beidseits basal (Lungenödem)</li>
-<li><strong>Periphere Ödeme</strong> (Knöchel, prätibial, Anasarka)</li>
-<li><strong>Jugularvenenstauung</strong>, positiver hepatojugulärer Reflux</li>
-<li>Tachykardie, ggf. 3. Herzton (Galopprhythmus)</li>
-<li>ggf. <strong>Schaumiges rosafarbenes Sputum</strong> (schweres Lungenödem)</li>
-<li>ggf. Zeichen des <strong>kardiogenen Schocks</strong> (Hypotonie, Kaltschweißigkeit, Oligurie, Verwirrtheit)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
-<li>1–2x venöser Zugang</li>
-<li><strong>BGA</strong> (Oxygenierung? pH? Laktat?)</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte, NW, GOT, GPT, <strong>BNP/NT-proBNP</strong>, hs-Troponin, Gerinnung, TSH, D-Dimere</li>
-<li><strong>12-Kanal-EKG:</strong> Ischämie? Arrhythmie? Blockbilder? Hypertrophiezeichen?</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Symptombeginn/-dynamik? Belastungsdyspnoe? Orthopnoe? Gewichtszunahme? Ödeme? Vorbekannte HI (LVEF? NYHA?)? Medikamente? Compliance? Auslöser (Infektion, Arrhythmie, Diätfehler)?</li>
-<li><strong>Körperliche Untersuchung:</strong> Warm/Kalt? Nass/Trocken? Rasselgeräusche? Periphere Ödeme? JVD? Hepatomegalie? 3. Herzton? Herzgeräusch? Rekapillarisierungszeit?</li>
-</ul>
-<h3>Erweiterte Diagnostik</h3>
-<ul>
-<li><strong>Echokardiographie</strong> (notfallmäßig): LVEF? Wandbewegungsstörungen? Klappenvitien? Perikarderguss? Rechtsherzbelastung?</li>
-<li><strong>Röntgen-Thorax:</strong> Stauungszeichen? Pleuraerguss? Kardiomegalie?</li>
-<li><strong>POCUS (Lungensonographie):</strong> B-Linien (pulmonale Stauung)? Pleuraerguss?</li>
-<li>ggf. CT-Thorax (bei V.a. LAE), Koronarangiographie (bei V.a. ACS)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Profil: Warm + Nass (häufigstes Szenario)</h3>
-<ul>
-<li><strong>Oberkörperhochlagerung</strong>, Beine tief</li>
-<li><strong>Sauerstoff:</strong> nur bei SpO₂ < 90% (Ziel-SpO₂ ≥ 90%)</li>
-<li><strong>NIV (CPAP/BiPAP):</strong> frühzeitig bei Lungenödem und respiratorischer Insuffizienz</li>
-<li><strong>Furosemid i.v.:</strong>
-<ul>
-<li>Diuretika-naive Patienten: 20–40 mg i.v. Bolus</li>
-<li>Vorbestehende Diuretika-Therapie: mindestens Äquivalent der oralen Tagesdosis als i.v. Bolus</li>
-<li>Ziel: Urinproduktion > 100 ml/h in den ersten 2 Stunden</li>
-</ul>
-</li>
-<li><strong>Nitroglycerin</strong> 1–2 Hübe s.l. initial, dann ggf. Perfusor 1–10 mg/h i.v. (bei RR syst. > 110 mmHg; besonders wirksam beim hypertensiven Lungenödem)</li>
-</ul>
-<h3>Profil: Kalt + Nass (kardiogener Schock)</h3>
-<ul>
-<li>Intensivmedizinische Betreuung</li>
-<li><strong>Vasopressor:</strong> Noradrenalin (bei MAP < 65 mmHg)</li>
-<li><strong>Inotropikum:</strong> Dobutamin 2,5–20 µg/kg/min (bei Hypoperfusion trotz adäquatem Volumenstatus)</li>
-<li>Zurückhaltende Diurese (erst nach Stabilisierung der Hämodynamik)</li>
-<li>Ggf. mechanische Kreislaufunterstützung (IABP, Impella, ECMO) nach kardiologischer Evaluation</li>
-</ul>
-<h3>Profil: Kalt + Trocken</h3>
-<ul>
-<li>Vorsichtige Volumengabe (250 ml Bolus, Reevaluation)</li>
-<li>Bei fehlender Besserung: Inotropika</li>
-</ul>
-<h3>Ursachenbezogene Therapie</h3>
-<ul>
-<li><strong>ACS:</strong> Koronarangiographie</li>
-<li><strong>Arrhythmie:</strong> Kardioversion / Antiarrhythmika</li>
-<li><strong>Perikardtamponade:</strong> Perikardpunktion</li>
-<li><strong>Hypertensive Krise:</strong> Aggressive Nachlastsenkung</li>
-<li><strong>Akute Klappeninsuffizienz:</strong> Chirurgisches Konsil</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Keine Betablocker</strong> in der akuten Dekompensation einleiten oder steigern! Bestehende Betablocker bei kardiogenem Schock pausieren.</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Klinisches Profil bestimmen: <strong>Warm/Kalt + Nass/Trocken</strong> → leitet die Therapie!</li>
-<li><strong>BNP/NT-proBNP</strong> zur Diagnosebestätigung und zum Ausschluss (hoher negativ-prädiktiver Wert). Grenzwerte: NT-proBNP > 300 pg/ml (akut) spricht für HI</li>
-<li><strong>Frühzeitig NIV</strong> bei Lungenödem → reduziert Intubationsrate und Mortalität</li>
-<li>Auslöser identifizieren und behandeln (<strong>CHAMP</strong>: Coronary syndrome, Hypertension, Arrhythmia, Mechanical cause, Pulmonary embolism)</li>
-<li>Furosemid-Ansprechen nach 2h evaluieren, bei fehlendem Ansprechen Dosis verdoppeln oder Kombinationsdiurese (+ Thiazid)</li>
-<li>Sauerstoff nur bei SpO₂ < 90% – <strong>Hyperoxie vermeiden!</strong></li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> kardiogener Schock, Intubationspflichtigkeit, schwere hämodynamische Instabilität, akute Klappenpathologie</li>
-<li><strong>Überwachungsstation/IMC:</strong> NIV-Pflichtigkeit, hämodynamische Instabilität, Troponin-Anstieg, Arrhythmie, i.v.-Inotropika</li>
-<li><strong>Normalstation:</strong> stabile Patienten mit Kongestion und i.v.-Diuretikabedarf</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `McDonagh TA et al. 2021 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure. Eur Heart J. 2021;42(36):3599-3726.<br>
-Mebazaa A et al. Recommendations on pre-hospital and early hospital management of acute heart failure. Eur Heart J. 2015;36(30):1958-66.<br>
-Ponikowski P et al. 2016 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure. Eur Heart J. 2016;37(27):2129-2200.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Akute Herzinsuffizienz:</strong> Rasches oder allmähliches Auftreten von Symptomen und/oder klinischen Untersuchungsbefunden von Herzinsuffizienz, deren Schwere zur ungeplanten Krankenhausaufnahme oder zum Besuch einer Notaufnahme führt.</li>
+                    <li>Eine akute Herzinsuffizienz kann die Erstmanifestation einer Herzinsuffizienz sein (Neuerkrankung) oder häufiger auf eine akute Dekompensation von chronischer Herzinsuffizienz zurückzuführen sein.</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li><strong>Kardial:</strong> Myokardinfarkt, HRST, Klappenvitien, Hypertensiver Notfall, Perikardtamponade, LAE, akutes Aortensyndrom, etc.</li>
+                    <li><strong>Komorbiditäten:</strong> Niereninsuffizienz, Infektionen, Anämie, Schilddrüsendysfunktion, etc.</li>
+                    <li><strong>Patientenverhalten:</strong> Fehlende Medikamenten-Adhärenz, Substanzmissbrauch, etc.</li>
+                    <li><strong>Arzneimittelwirkungen:</strong> NSAR, Verapamil, Diltiazem, verminderte Medikamenten-Resorption bei intestinalem Schleimhautödem, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome (Klinische Profile)",
+                html: `<h3>Stauung („feucht“)</h3>
+                <ul>
+                    <li>Periphere Ödeme, Aszites</li>
+                    <li>Gestaute Halsvenen, Stauungsgastritis/-leber</li>
+                    <li>Pleuraergüsse, pulmonale Stauung (Asthma cardiale, Lungenödem)</li>
+                    <li>Dyspnoe, Orthopnoe, Tachypnoe</li>
+                </ul>
+                <h3>Hypoperfusion („kalt“)</h3>
+                <ul>
+                    <li>Kaltschweißigkeit, kalte Extremitäten, marmorierte Haut</li>
+                    <li>Bewusstseinsstörung</li>
+                    <li>Oligurie, Laktatanstieg, akute Nierenschädigung, metabolische Azidose</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter</strong> (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li>1-2x venöser Zugang</li>
+                    <li><strong>Venöse bzw. arterielle BGA</strong> (pH? pO₂? pCO₂? BE? Laktat?)</li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, TSH, Leberwerte, <strong>NT-proBNP</strong>, ggf. hs-Troponin, D-Dimere, Gerinnung, PCT</li>
+                    <li><strong>12-Kanal-EKG</strong> (Ischämiezeichen? Herzrhythmusstörungen?)</li>
+                    <li><strong>Anamnese:</strong> AP-Beschwerden? Dyspnoe? Nykturie? Gewichtszunahme? Palpitationen? Vorerkrankungen? Medikamente? Adhärenz? Letzte TTE und Koro?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? Hautkolorit? Rekap-Zeit? Halsvenenstauung? Periphere Ödeme? Pulmonale RG? Abgeschwächte AG basal?</li>
+                    <li><strong>DK-Anlage:</strong> Bilanzierung mit Urinflasche/täglichem Wiegen bei milden Verläufen</li>
+                    <li><strong>POCUS:</strong> VCI? Ventrikelfüllung? Pleuraergüsse? Vermehrte pulmonale B-Linien? Perikarderguss? Rechtsherzbelastungszeichen? Vitien?</li>
+                    <li><strong>Röntgen-Thorax:</strong> Kardiomegalie? Stauung? Ergüsse? Infiltrate?</li>
+                    <li>Abhängig vom klinischen Zustand Etablierung eines erweiterten hämodynamischen Monitorings (arterieller Zugang, ZVK, etc.)</li>
+                </ul>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema</li>
+                    <li>Patienten beruhigen</li>
+                    <li>Oberkörperhochlagerung bzw. sitzende Position mit herabhängenden Beinen</li>
+                    <li><strong>O₂-Gabe</strong> bei Dyspnoe oder SpO₂ < 90 % bzw. PaO₂ < 60 mmHg</li>
+                    <li>ggf. <strong>Morphin</strong> 2-3 mg i.v. bei Schmerzen oder Dyspnoe</li>
+                    <li><strong>NIV-Therapie frühzeitig</strong> (bei Atemfrequenz > 25/min, SpO₂ < 90 % trotz O₂-Gabe)</li>
+                    <li><strong>Invasive Beatmung</strong> (bei kardiogenem Schock/Versagen nicht-invasiver Maßnahmen mit PaO₂ < 60 mmHg, PaCO₂ > 50 mmHg, pH < 7,35)</li>
+                </ul>
+                <h3>Akut reversible Ursachen beheben (CHAMPIT)</h3>
+                <ul>
+                    <li><strong>C:</strong> Akutes Coronarsyndrom → Koronarangiografie</li>
+                    <li><strong>H:</strong> Hypertensiver Notfall → Blutdrucksenkung</li>
+                    <li><strong>A:</strong> Arrhythmien → Antiarrhythmische Therapie (Medikamente, Herzschrittmacher, Kardioversion)</li>
+                    <li><strong>M:</strong> Mechanische Ursachen → (Chirurgische) Intervention</li>
+                    <li><strong>P:</strong> Pulmonalarterienembolie → Antikoagulation, ggf. EKOS®-Lyse bzw. systemische Lyse</li>
+                    <li><strong>I:</strong> Infektionen → Behandlung der Infektion</li>
+                    <li><strong>T:</strong> Tamponade → Perikardiozentese</li>
+                </ul>
+                <h3>Medikamentöse Therapie (nach Profil)</h3>
+                <ul>
+                    <li><strong>Warm + Trocken</strong> (= noch kompensiert): Optimierung der oralen medikamentösen Therapie</li>
+                    <li><strong>Warm + Feucht</strong> (meist normaler/erhöhter Blutdruck): Diuretikum, ggf. Vasodilatator (bei RRsys ≥ 110 mmHg), ggf. Dialyse</li>
+                    <li><strong>Kalt + Trocken:</strong> Vorsichtige Volumengabe (z.B. 250 ml Vollelektrolytlösung i.v.), ggf. Inotropikum</li>
+                    <li><strong>Kalt + Feucht</strong> (= kardiogener Schock):
+                        <ul>
+                            <li>RR systolisch < 90 mmHg: Inotropikum, ggf. Vasopressor, ggf. Diuretikum (nach Korrektur der Perfusion), ggf. mechanische Kreislaufunterstützung (Impella®, ECMO)</li>
+                            <li>RR systolisch > 90 mmHg: Vasodilatator (vorsichtig!), Diuretikum, ggf. Inotropikum</li>
+                            <li><em>CAVE: Hypoperfusion ist nicht synonym mit Hypotonie!</em></li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Medikamente im Detail</h3>
+                <ul>
+                    <li><strong>Diuretikum: Furosemid (Lasix®)</strong>
+                        <ul>
+                            <li><strong>20-40 mg i.v.</strong> (bzw. mind. bestehende orale Dosis i.v.)</li>
+                            <li>Bei niedriger Diurese (< 100 ml/h): Wiederholung nach 30-60 Min, ggf. mit doppelter Dosis</li>
+                            <li>ggf. Perfusor (500 mg/50ml ≙ 10mg/ml, max. 1500 mg/d ≙ max. Laufrate 6,25 ml/h)</li>
+                            <li><em>Kontraindikation:</em> schwere Hypokaliämie</li>
+                        </ul>
+                    </li>
+                    <li><strong>Vasodilatator: Nitroglycerin (Nitrolingual akut®)</strong>
+                        <ul>
+                            <li>Spray: 0,4-0,8 mg (≙ 1-2 Hub) s.l., ggf. alle 10 Minuten wiederholen</li>
+                            <li>ggf. Perfusor (50mg/50ml ≙ 1 mg/ml): Start mit 1 ml/h, nach Wirkung titrieren, meist 2-8 ml/h</li>
+                            <li><em>Vorsichtige Anwendung:</em> Höhergradige Aortenklappenstenose, HOCM, Schwangerschaft, Stillzeit</li>
+                            <li><em>Kontraindikationen:</em> Einnahme von PDE-5-Hemmern, Hirndruck, kardiogener Schock (RR sys. < 90 mmHg)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Vasopressor: Noradrenalin (Arterenol®)</strong>
+                        <ul>
+                            <li>Dosierung: s. SOP Sepsis</li>
+                        </ul>
+                    </li>
+                    <li><strong>Inotropikum: Dobutamin (Dobutrex®)</strong>
+                        <ul>
+                            <li>Perfusor (250mg/50ml ≙ 5mg/ml), Start mit 2 ml/h, nach Wirkung titrieren</li>
+                            <li><em>CAVE:</em> Meist Kombination mit Noradrenalin notwendig (periphere Vasodilatation)</li>
+                        </ul>
+                    </li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bei Patienten mit akuter Herzinsuffizienz stets reversible Ursachen beheben (<strong>“CHAMPIT”</strong>)</li>
+                    <li>Akute Verschlechterung bei Flachlagerung des Patienten (z.B. für CT/Koronarangiografie) möglich!</li>
+                    <li>Bei kardial dekompensierten Patienten initial tägliche Kontrollen von NW, El’yten und Gewicht bzw. Bilanz</li>
+                    <li>Bestehende Betablockertherapie in der Dekompensation weiterführen (Ausnahmen: Bradykardie, Schock, höhergradiger AV-Block)</li>
+                    <li>Keine strenge (≙ 1 l/d) Flüssigkeitsrestriktion</li>
+                    <li>Bei Diuretika-Resistenz sequentielle Nephronblockade (Schleifendiuretikum + Thiazid, z.B. 10 mg Xipamid p.o.) erwägen</li>
+                    <li>Die Bolusgabe von Schleifendiuretika ist der kontinuierlichen Gabe über Perfusor gleichwertig</li>
+                    <li>40 mg Furosemid oral ≙ 10 mg Torasemid oral; 40 mg Furosemid i.v. ≙ 10-20 mg Torasemid i.v.</li>
+                    <li>Bei hypertensivem Lungenödem: O₂-Gabe, 2 Hub Nitroglycerin s.l., Morphin + Furosemid i.v, NIV, Nitroglycerin-Perfusor</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Ambulantes Procedere erwägen:</strong> Kompensiert ("Warm und Trocken")</li>
+                    <li><strong>Normalstation:</strong> Dekompensiert, stabil</li>
+                    <li><strong>Überwachungsstation (IMC/ICU):</strong> Dekompensiert und instabil oder relevante Komorbiditäten</li>
+                    <li><strong>ICU:</strong> Kardiogener Schock</li>
+                </ul>`
+            }
+        ],
+        stand: "12/22",
+        sources: `ESC Pocket Guidelines. Akute und chronische Herzinsuffizienz, Version 2021.<br>2021 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure. European Heart Journal; 2021.<br>Nationale VersorgungsLeitlinie Chronische Herzinsuffizienz Langfassung 3.Auflage, 2019 Version 2.<br>Fandler M et al. Akute Herzinsuffizienz. Notaufnahme up2date 2020.`
     });
 })();

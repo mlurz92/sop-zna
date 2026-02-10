@@ -1,111 +1,179 @@
-// SOP: Schock
-// Kategorie: Leitsymptom
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "schock",
         title: "Schock",
         category: "Leitsymptom",
         catKey: "leit",
+        date: "10/25",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Schock:</strong> Akutes Kreislaufversagen mit inadäquater Gewebeperfusion und zellulärer Sauerstoffschuld, die unbehandelt zu Multiorganversagen und Tod führt</li>
-</ul>
-<h3>Schockformen</h3>
-<div class="table-wrap"><table>
-<thead><tr><th>Schockform</th><th>Mechanismus</th><th>Beispiele</th></tr></thead>
-<tbody>
-<tr><td><strong>Hypovolämisch</strong></td><td>Volumenmangel</td><td>Blutung, Dehydratation, Verbrennung</td></tr>
-<tr><td><strong>Kardiogen</strong></td><td>Pumpversagen</td><td>Myokardinfarkt, Myokarditis, Arrhythmie, Klappenversagen</td></tr>
-<tr><td><strong>Distributiv</strong></td><td>Vasodilatation</td><td>Sepsis, Anaphylaxie, neurogen, Addison-Krise</td></tr>
-<tr><td><strong>Obstruktiv</strong></td><td>Abflussbehinderung</td><td>Lungenarterienembolie, Perikardtamponade, Spannungspneumothorax</td></tr>
-</tbody>
-</table></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Hypovolämisch:</strong> Hämorrhagie (Trauma, GI-Blutung, Aortenruptur), Dehydratation (Diarrhoe, Erbrechen, DKA), Verbrennung, Pankreatitis</li>
-<li><strong>Kardiogen:</strong> STEMI/NSTEMI, dekompensierte Herzinsuffizienz, akute Myokarditis, Klappenvitien, Arrhythmien, Kardiomyopathie</li>
-<li><strong>Distributiv:</strong> Septischer Schock (häufigste Schockform auf Intensivstation!), anaphylaktischer Schock, neurogener Schock (SCI), Addison-Krise</li>
-<li><strong>Obstruktiv:</strong> Massive LAE, Perikardtamponade, Spannungspneumothorax</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Tachykardie</strong> (> 100/min) – Ausnahme: neurogener Schock (Bradykardie!), Betablocker</li>
-<li><strong>Hypotonie</strong> (RR syst. < 90 mmHg oder MAP < 65 mmHg)</li>
-<li><strong>Kaltschweißigkeit</strong>, marmorierte Haut (CAVE: warme Peripherie bei distributivem Schock!)</li>
-<li><strong>Tachypnoe</strong></li>
-<li><strong>Oligurie</strong> (< 0,5 ml/kg/h)</li>
-<li><strong>Bewusstseinseintrübung</strong> (Unruhe, Verwirrtheit, Somnolenz)</li>
-<li><strong>Verlängerte Rekapillarisierungszeit</strong> (> 3 sec)</li>
-<li><strong>Laktaterhöhung</strong> (> 2 mmol/l)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li><strong>2x großlumige venöse Zugänge</strong></li>
-<li><strong>BGA</strong> (Laktat! pH! Hb! Glukose! E'lyte!)</li>
-<li><strong>Labor:</strong> BB, CRP, PCT, E'lyte, NW, GOT, GPT, LDH, Lipase, Gerinnung, D-Dimere, hs-Troponin, BNP, Kreuzblut, Blutkulturen</li>
-<li><strong>12-Kanal-EKG</strong></li>
-<li><strong>POCUS</strong> (RUSH-Protokoll): Perikarderguss? RV-Dilatation? LV-Funktion? VCI? Freie Flüssigkeit? Pneumothorax? B-Linien? Aorta?</li>
-<li>ggf. Rö-Thorax, CT, Echokardiographie</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Hinweis:</strong> <strong>POCUS (RUSH-Exam)</strong> ermöglicht eine schnelle Differenzierung der Schockursache am Bett: Pump (Herz) – Tank (Volumenstatus) – Pipes (Gefäße).</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Allgemeine Sofortmaßnahmen</h3>
-<ul>
-<li>ABCDE-Schema, Hilfe rufen</li>
-<li>Sauerstoff (Ziel-SpO₂ ≥ 94%)</li>
-<li>2x großlumige Zugänge, ggf. intraossärer Zugang</li>
-<li>Flüssigkeitsbolus 250–500 ml VEL (außer kardiogener Schock!)</li>
-</ul>
-<h3>Schockformspezifische Therapie</h3>
-<div class="table-wrap"><table>
-<thead><tr><th>Schockform</th><th>Therapie</th></tr></thead>
-<tbody>
-<tr><td><strong>Hypovolämisch</strong></td><td>Aggressive Volumengabe, Blutprodukte (Massivtransfusion bei Hämorrhagie 1:1:1), chirurgische Blutstillung, Tranexamsäure</td></tr>
-<tr><td><strong>Kardiogen</strong></td><td>Vorsichtige Volumengabe, Dobutamin/Noradrenalin, PCI bei ACS, IABP/Impella, ECMO, Arrhythmie-Behandlung</td></tr>
-<tr><td><strong>Septisch</strong></td><td>Volumengabe 30 ml/kg kristalloid, Noradrenalin (MAP ≥ 65), Antibiotika innerhalb 1h, Fokussanierung</td></tr>
-<tr><td><strong>Anaphylaktisch</strong></td><td>Adrenalin 0,5 mg i.m., Volumengabe, O₂, Steroide, Antihistaminika (s. SOP Anaphylaxie)</td></tr>
-<tr><td><strong>Obstruktiv</strong></td><td>LAE: Lyse; Tamponade: Perikardpunktion; Spannungspneumothorax: Nadeldekompression/Thoraxdrainage</td></tr>
-</tbody>
-</table></div>
-<h3>Vasopressoren/Inotropika</h3>
-<ul>
-<li><strong>Noradrenalin</strong> (1. Wahl bei den meisten Schockformen): 0,1–1 µg/kg/min, Ziel MAP ≥ 65 mmHg</li>
-<li><strong>Dobutamin:</strong> bei kardiogenem Schock (inotrop), 2–20 µg/kg/min</li>
-<li><strong>Vasopressin:</strong> 0,01–0,04 U/min als Add-on bei septischem Schock</li>
-<li><strong>Adrenalin:</strong> bei Anaphylaxie, Reanimation, refraktärem Schock</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Laktat</strong> ist der wichtigste Parameter zur Beurteilung der Gewebeperfusion</li>
-<li><strong>POCUS</strong> zur schnellen Differenzierung der Schockursache</li>
-<li><strong>Noradrenalin</strong> = Vasopressor der 1. Wahl (frühzeitig, nicht erst nach Litern Volumen!)</li>
-<li>Bei <strong>kardiogenem Schock:</strong> vorsichtige Volumengabe (nicht überlasten!)</li>
-<li>Bei <strong>septischem Schock:</strong> Antibiotika innerhalb von 1h, Volumen 30 ml/kg</li>
-<li>An <strong>obstruktiven Schock</strong> denken: LAE, Tamponade, Spannungspneumothorax</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation</strong> (alle Schockpatienten)</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Vincent JL et al. Circulatory Shock. N Engl J Med. 2013;369(18):1726-34.<br>Evans L et al. Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2021. Intensive Care Med. 2021;47(11):1181-1247.`
+            {
+                title: "Definition",
+                content: "<strong>Schock:</strong> Akutes zirkulatorisches Versagen, das zu einem Missverhältnis von Sauerstoffangebot und Sauerstoffbedarf führt."
+            },
+            {
+                title: "Ursachen",
+                content: `<ul>
+                    <li><strong>Hypovolämie:</strong> reduzierte Flüssigkeitsaufnahme oder -verluste (gastrointestinal, renal, Verbrennungen), Blutverlust (Trauma, GI-Blutung, etc.).</li>
+                    <li><strong>Kardial:</strong> myokardiales Pumpversagen, rhythmogen, dekompensierte Klappenvitien, mechanische Komplikationen.</li>
+                    <li><strong>Distributiv:</strong> Sepsis, Anaphylaxie, neurogen, SIRS (z.B. bei Pankreatitis), exogen durch vasodilatatorische Medikamente.</li>
+                    <li><strong>Obstruktiv:</strong> Lungenarterienembolie, Perikardtamponade, Spannungspneumothorax, Beatmung mit hohem PEEP, Vena-cava-Kompressionssyndrom, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                content: `<ul>
+                    <li><strong>Hypotonie:</strong> bzw. Blutdruckabfall (bei Patienten mit vorbestehender Hypertonie kann der Blutdruck normwertig erscheinen!).</li>
+                    <li><strong>Tachykardie:</strong> kann bei Einnahme von Betablockern fehlen.</li>
+                    <li><strong>Tachypnoe:</strong> häufig Kompensationsversuch bei metabolischer Azidose / Hyperlaktatämie.</li>
+                    <li><strong>Kalte, feuchte, marmorierte Haut:</strong> verlängerte Rekap-Zeit (Ausnahme: bei distributivem Schock initial oft warme Extremitäten).</li>
+                    <li><strong>Vigilanzminderung:</strong> Verwirrtheit, Delir.</li>
+                    <li><strong>Oligurie, Anurie.</strong></li>
+                    <li>Hyperlaktatämie, metabolische Azidose.</li>
+                    <li><strong>Symptome der Ursache:</strong> z.B. Blutungsstigmata, Urtikaria, akutes Abdomen.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                content: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur).</li>
+                    <li><strong>2x großlumiger venöser Zugang.</strong></li>
+                    <li><strong>Venöse bzw. arterielle BGA:</strong> (Hb? pH? BE? pO₂? pCO₂? Laktat? Glukose?).</li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Gerinnung, GOT, GPT, LDH, Bilirubin, AP, γ-GT, TSH. Ggf.: β-HCG, hs-Troponin, PCT.</li>
+                    <li>Ggf. ≥ 2 Paar Blutkulturen (bei V.a. Sepsis).</li>
+                    <li>Ggf. Kreuzblut abnehmen und <strong>Blutprodukte anfordern</strong> (bei V.a. Hämorrhagie).</li>
+                    <li><strong>12-Kanal-EKG:</strong> Ischämiezeichen? Herzrhythmusstörungen? Niedervoltage? Lagetyp?.</li>
+                    <li><strong>DK-Anlage</strong> (Urinmonitoring / Bilanzierung) + Urinstatus/-kultur (bei V.a. Urosepsis).</li>
+                    <li><strong>(Fremd)-Anamnese:</strong> Vorereignis (Infektion, Trauma, Blutung, Allergen)? Vorerkrankungen? Medikation?.</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? Rekap-Zeit? Mottling? Infektfokus? Exsikkose? Blutungsstigmata? Traumazeichen? Halsvenenstauung? Urtikaria?.</li>
+                    <li><strong>POCUS gemäß RUSH-Protokoll</strong> (siehe entsprechende Sektion).</li>
+                    <li>Ggf. weiterführende Diagnostik (CT-Angiografie bei V.a. retroperitoneale Blutung, etc.).</li>
+                    <li>Ggf. bereits in der Notaufnahme: Etablierung eines <strong>erweiterten hämodynamischen Monitorings</strong> (arterieller Zugang, ZVK, etc.).</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit ICU!</p>
+                </div>`
+            },
+            {
+                title: "Therapie - Allgemein & Noradrenalin",
+                content: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema.</li>
+                    <li><strong>Schocklagerung:</strong> Oberkörper flach mit angehobenen Beinen. <span class="callout-cave">CAVE: bei kardiogenem Schock individuelle Lagerung!</span></li>
+                    <li>Bedarfsgerechte Volumen- +/- Katecholamintherapie.</li>
+                    <li><strong>Vollelektrolytlösung rasch i.v.:</strong> <br>CAVE: An Volumenstatus, Komorbiditäten und kardiale Leistungsfähigkeit anpassen! Weitere Gabe nach Klinik (POCUS, Passive Leg Raise).</li>
+                </ul>
+                <h3>Noradrenalin (Arterenol®) - Vasopressor der 1. Wahl</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Applikationsform</th>
+                                <th>Dosierung / Herstellung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Push Dose Pressor</strong></td>
+                                <td>10 µg repetitiv i.v. (Herstellung: 1 mg Noradrenalin auf 100 ml NaCl 0,9% verdünnt, davon jeweils 1 ml Boli).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Perfusor peripher</strong></td>
+                                <td>1 mg (1 kl. Ampulle) auf 50 ml NaCl 0,9% (0,02 mg/ml). <strong>Start: 20 ml/h.</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Perfusor zentral (ZVK)</strong></td>
+                                <td>10 mg (1 gr. Ampulle) auf 50 ml NaCl 0,9% (0,2 mg/ml). <strong>Start: 2 ml/h.</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><strong>Zielparameter:</strong> Kreislaufstabilisierung (MAD ≥ 65 mmHg), Normalisierung des Laktatwerts und der Rekap-Zeit.</p>`
+            },
+            {
+                title: "Therapie - Kausale Therapie",
+                content: `<h3>Hypovolämischer Schock</h3>
+                <ul>
+                    <li><strong>Volumenmangelschock:</strong> Flüssigkeitsverluste stoppen und ersetzen.</li>
+                    <li><strong>Hämorrhagischer Schock:</strong> Blutung stoppen, Gabe von Blutprodukten (EK, TK, FFP), Gerinnungsfaktoren, Tranexamsäure (nicht bei GI-Blutung).</li>
+                    <li><strong>Permissive Hypotonie:</strong> MAD ~ 65 mmHg bzw. RRsys ~ 80 mmHg anstreben bis Blutung gestoppt (<span class="callout-cave">NICHT bei SHT oder Schwangerschaft</span>).</li>
+                </ul>
+                <h3>Kardiogener Schock</h3>
+                <ul>
+                    <li><strong>Pumpversagen:</strong> Revaskularisation (PCI) bei Myokardinfarkt, ggf. Inotropika (s. SOP Akute Herzinsuffizienz).</li>
+                    <li><strong>Arrhythmie:</strong> Kardioversion bei tachykarden, Pacing bei bradykarden HRST.</li>
+                    <li><strong>Mechanisch:</strong> chirurgische/interventionelle Therapie bei Klappenvitien.</li>
+                </ul>
+                <h3>Distributiver Schock</h3>
+                <ul>
+                    <li><strong>Septischer Schock:</strong> Schnellstmögliche Antibiotikatherapie (&lt; 1 h), Fokussanierung (s. SOP Sepsis).</li>
+                    <li><strong>Anaphylaktischer Schock:</strong> Allergenzufuhr stoppen, Adrenalin i.m., H1-Blocker, Steroide (s. SOP Anaphylaxie).</li>
+                    <li><strong>Neurogener Schock:</strong> Ursache beseitigen.</li>
+                </ul>
+                <h3>Obstruktiver Schock</h3>
+                <ul>
+                    <li><strong>Lungenarterienembolie:</strong> Systemische Lyse (s. SOP Lungenarterienembolie).</li>
+                    <li><strong>Perikardtamponade:</strong> Perikardiozentese.</li>
+                    <li><strong>Spannungspneumothorax:</strong> Entlastungspunktion, Anlage einer Thoraxdrainage.</li>
+                </ul>`
+            },
+            {
+                title: "Rapid Ultrasound in Shock (RUSH)-Protokoll",
+                content: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bereich</th>
+                                <th>Einstellung</th>
+                                <th>Fragestellungen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>"PUMP"</strong></td>
+                                <td>Parasternal l/k Achse, Apikal, Subxiphoidal</td>
+                                <td>Perikarderguss / Tamponade? LV-Funktion (normal, hyperdynam, eingeschränkt)? RV-Dilatation? Paradoxe Septumbewegung? D-Sign?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"TANK"</strong></td>
+                                <td>Subxiphoidal (VCI), E-FAST, Thorax apikal frontal</td>
+                                <td>VCI weit/atemstarr oder schmal/kollaptisch? Freie Flüssigkeit abdominell/pleural? B-Linien? Lungenpunkt (Pneumothorax)?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"PIPES"</strong></td>
+                                <td>Aorta epigastrisch/supraumbilikal, Suprasternal, 2-Punkt-Kompression (Beinvenen)</td>
+                                <td>Aorta &gt; 3 cm? Aortenwurzel &gt; 3,8 cm? Dissektionsmembran? Thorakale Aorta &gt; 5 cm? Beinvenenthrombose (Komprimierbarkeit)?</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-hinweis">
+                    <p>Das RUSH-Protokoll muss nicht immer vollständig durchgeführt werden, sondern sollte an den klinischen Kontext angepasst werden.</p>
+                </div>`
+            },
+            {
+                title: "Merke",
+                content: `<ul>
+                    <li>Kardinalsymptome des Schocks: Vigilanzstörung, marmorierte Haut, Oligurie/Anurie.</li>
+                    <li>Gleichzeitiges Vorliegen mehrerer Schockformen möglich (z.B. hämorrhagisch und obstruktiv bei Trauma).</li>
+                    <li>Ein positiver <strong>Schockindex (HF/RRsys &gt; 1)</strong> ist ein wichtiges Warnsignal, aber nicht sensitiv für alle Schockformen.</li>
+                    <li>Schock kann auch bei <strong>Normotension</strong> und erhöhtem kardialen Output vorliegen.</li>
+                    <li>Der septische Schock ist mit ca. 60 % die häufigste Schockform &rarr; bei geringstem Verdacht: <strong>sofortige Antibiotikagabe!</strong></li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                content: "<ul><li><strong>ICU (Intensivstation)</strong></li></ul>"
+            }
+        ],
+        stand: "10/25",
+        sources: `Standl T et al. The nomenclature, definition and distinction of types of shock. Dtsch Arztebl Int 2018. 
+        – Seif D et al. Bedside ultrasound in resuscitation and the rapid ultrasound in shock protocol. Crit Care Res Pract. 2012. 
+        – Gidwani H et al. The crashing patient: hemodynamic collapse. Curr Opin Crit Care. 2017. 
+        – Kislitsina ON et al. Shock - Classification and Pathophysiological Principles of Therapeutics. Curr Cardiol Rev. 2019. 
+        – Vincent JL et al. Circulatory shock N Engl J Med. 2013.`
     });
 })();

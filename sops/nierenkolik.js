@@ -1,114 +1,110 @@
-// SOP: Nierenkolik
-// Kategorie: Nephrologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "nierenkolik",
         title: "Nierenkolik",
         category: "Nephrologie",
         catKey: "nephro",
+        date: "12/22",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Nierenkolik:</strong> Akuter, krampfartiger Flankenschmerz durch Obstruktion des oberen Harntrakts, meist durch Urolithiasis (Nieren-/Harnleiterstein)</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Urolithiasis</strong> (häufigste Ursache):
-<ul>
-<li>Calciumoxalat (70–80%)</li>
-<li>Calciumphosphat</li>
-<li>Harnsäure (10%)</li>
-<li>Struvit (Infektsteine)</li>
-<li>Cystin (selten)</li>
-</ul>
-</li>
-<li>Blutkoagel (nach Blutung)</li>
-<li>Papillennekrose (Diabetes, Analgetikanephropathie)</li>
-<li>Tumor (selten)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Akuter, heftigster kolikartiger Flankenschmerz</strong> (wellenförmig, plötzlicher Beginn)</li>
-<li><strong>Ausstrahlung:</strong> je nach Steinlokalisation in Leiste, Labien/Hoden, Oberschenkelinnenseite</li>
-<li><strong>Motorische Unruhe</strong> (Patient kann nicht still liegen – DD zu Peritonitis/Schonhaltung!)</li>
-<li>Übelkeit, Erbrechen</li>
-<li>ggf. Hämaturie (Mikro-/Makrohämaturie)</li>
-<li>ggf. Dysurie, Pollakisurie (bei distal gelegenem Stein)</li>
-<li>ggf. Fieber (bei begleitendem Infekt → CAVE: Urosepsis!)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Fieber + Harnstau + Infektzeichen = Urosepsis → Notfall!</strong> Sofortige Antibiotikatherapie und Harnableitung!</p></div>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>BGA</strong> (Kreatinin? Laktat?)</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Harnsäure, Gerinnung, ggf. PCT</li>
-<li><strong>Urin-Status:</strong> Hämaturie? Leukozyturie? Nitrit? pH?</li>
-<li><strong>Anamnese:</strong> Schmerzcharakter? Lokalisation? Ausstrahlung? Vorherige Steinerkrankung? Flüssigkeitszufuhr? Medikamente? Fieber?</li>
-<li><strong>Körperliche Untersuchung:</strong> Nierenlagerklopfschmerz? Abdomen? Fieber?</li>
-</ul>
-<h3>Bildgebung</h3>
-<ul>
-<li><strong>Nativ-CT Abdomen (Low-Dose):</strong> Goldstandard! Sensitivität > 95%, zeigt Steingröße/-lokalisation, Harnstau</li>
-<li><strong>Sonographie:</strong> Harnstau? Nierenstein? (gute Verfügbarkeit, kein KM, als Erstuntersuchung geeignet, aber geringere Sensitivität als CT)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Analgesie (Priorität!)</h3>
-<ul>
-<li><strong>NSAR</strong> (Mittel der 1. Wahl):
-<ul>
-<li>Diclofenac 75 mg i.v./i.m. oder Ibuprofen 600 mg p.o.</li>
-<li>Wirkt analgetisch + antiödematös am Ureter</li>
-</ul>
-</li>
-<li><strong>Metamizol</strong> 1 g i.v. (Zweitwahl, spasmolytisch)</li>
-<li><strong>Paracetamol</strong> 1 g i.v.</li>
-<li><strong>Opioide:</strong> Piritramid 3,75–7,5 mg i.v. oder Morphin 2–5 mg i.v. bei refraktären Schmerzen</li>
-<li><strong>Butylscopolamin</strong> 20 mg i.v. (Zusatz, Evidenz gering)</li>
-</ul>
-<h3>Konservative Therapie (Medical Expulsive Therapy, MET)</h3>
-<ul>
-<li>Bei Steinen <strong>< 5–6 mm</strong>: hohe spontane Abgangsrate (80–90%)</li>
-<li><strong>Tamsulosin</strong> 0,4 mg 1x/d p.o. (erleichtert Steinabgang bei distalem Harnleiterstein 5–10 mm)</li>
-<li>Ausreichende Flüssigkeitszufuhr (aber nicht forcierte Hydratation in der Akutphase!)</li>
-</ul>
-<h3>Interventionelle Therapie</h3>
-<ul>
-<li><strong>Indikation:</strong> Steine > 6–10 mm (geringe Spontanabgangswahrscheinlichkeit), therapierefraktäre Schmerzen, persistierender Harnstau, Urosepsis, Einzelniere, beidseitige Obstruktion</li>
-<li><strong>URS</strong> (Ureterorenoskopie) + Laserlithotripsie</li>
-<li><strong>ESWL</strong> (Extrakorporale Stoßwellenlithotripsie)</li>
-<li><strong>Harnableitung</strong> (DJ-Stent oder Nephrostomie) bei Urosepsis, infiziertem Harnstau</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>NSAR</strong> sind das Analgetikum der 1. Wahl bei Nierenkolik</li>
-<li><strong>Low-Dose-Nativ-CT</strong> ist der Goldstandard der Bildgebung</li>
-<li>Steine < 5 mm: meist spontaner Abgang</li>
-<li><strong>Fieber + Harnstau = Urosepsis</strong> → sofortige AB + Harnableitung!</li>
-<li>DD beachten: Aortenaneurysma, Appendizitis, EUG, Ovarialzystentorsion</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Stationär:</strong> Urosepsis, infizierter Harnstau, therapierefraktäre Schmerzen, AKI, Einzelniere, beidseitige Obstruktion, große Steine (> 10 mm)</li>
-<li><strong>Ambulant:</strong> Stein < 5–6 mm, Schmerzkontrolle, keine Infektzeichen, normale Nierenfunktion, urologische Wiedervorstellung</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Türk C et al. EAU Guidelines on Urolithiasis, 2024.<br>Gottlieb M et al. Management of Nephrolithiasis. Ann Emerg Med. 2023;82(1):80-91.`
+            {
+                title: "Definition",
+                content: "<strong>Nierenkolik:</strong> Plötzlich einsetzende, krampfartige Schmerzen in der Flankengegend aufgrund einer Ureterobstruktion."
+            },
+            {
+                title: "Ursachen",
+                content: `<ul>
+                    <li><strong>Häufig: Urolithiasis</strong> (Kalziumoxalat-/phosphat-, Urat-, Struvitsteine).</li>
+                    <li><strong>Selten:</strong> Blutkoagel, Lymphadenopathie, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                content: `<ul>
+                    <li><strong>Plötzliche, stärkste, krampfartige Schmerzen in der Flankengegend</strong> (häufig mit Ausstrahlung in Unterbauch, Leisten, Hoden bzw. Labien).</li>
+                    <li>Hämaturie, Dysurie.</li>
+                    <li>Häufig Unruhe, vegetative Symptomatik (Schwitzen, Blässe, Übelkeit).</li>
+                    <li>ggf. Bild eines akuten Abdomens mit paralytischem Ileus.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                content: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur).</li>
+                    <li>1x venöser Zugang.</li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte inklusive Kalzium, NW, Gerinnung, Albumin, Harnsäure, ggf. β-HCG.</li>
+                    <li><strong>Anamnese:</strong> Symptome? Beginn? Erstereignis? Hämaturie? Dysurie? Harnsteine? Familienanamnese? Vorerkrankungen? Medikamente?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Flankenklopfschmerz? Hinweise für Differentialdiagnosen wie akutes Aortensyndrom, Hodentorsion.</li>
+                    <li><strong>Urin-Status:</strong> pH? Hämaturie? Hinweise auf Harnwegsinfektion? + ggf. <strong>Urinkultur, Urinsieb</strong>.</li>
+                    <li><strong>POCUS:</strong> Harnsteine? Harnstau? Nierenabszess? Hinweise für Differentialdiagnosen wie rupturiertes Bauchaortenaneurysma.</li>
+                    <li><strong>ggf. natives CT-Abdomen:</strong> ("Low-Dose-CT" bzw. "Stein-CT").</li>
+                    <li><strong>ggf. weitere Diagnostik z.A. von Differentialdiagnosen:</strong> 12-Kanal-EKG bei V.a. Myokardinfarkt, CTA bei V.a. akutes Aortensyndrom, etc.</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Rücksprache mit Urologie!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                content: `<h3>Analgesie</h3>
+                <ul>
+                    <li><strong>Metamizol</strong> (Novalgin®) 1-2,5 g als Kurzinfusion i.v. (max. 5 g/d, CAVE: Blutdruckabfall, allergische Reaktion, Agranulozytose).</li>
+                    <li><strong>Diclofenac</strong> 75 mg p.o. oder i.m. (max. 150 mg/d, CAVE: Nicht bei GFR &lt; 30 ml/min, Magen-/Duodenalulcera, kardial vorerkrankten Patienten).</li>
+                    <li><strong>Paracetamol</strong> (Perfalgan®) 1 g als Kurzinfusion i.v. (max. 60 mg/kg bzw. 3-4 g/d, CAVE: Lebertoxisch! In Schwangerschaft/Stillzeit geeignet).</li>
+                    <li><strong>ggf. zusätzlich Opiat:</strong> z.B. <strong>Piritramid</strong> (Dipidolor®) 7,5 mg als Kurzinfusion i.v. (In Schwangerschaft/Stillzeit kurzzeitig geeignet).</li>
+                </ul>
+                <p><strong>Ziel:</strong> NRS ≤ 3 im Ruheintervall, ≤ 5 während Kolik.</p>
+
+                <h3>Medikamentöse expulsive Therapie (MET)</h3>
+                <ul>
+                    <li>Alphablocker, z.B. <strong>Tamsulosin 0,4 mg retard</strong> 0-0-1 p.o. (Off-Label).</li>
+                    <li><strong>Ziel:</strong> Erhöhung der Wahrscheinlichkeit eines spontanen Steinabgangs und optimierte Bedingungen im Interventionsfall.</li>
+                </ul>
+
+                <h3>Antibiotische Therapie bei begleitender Harnwegsinfektion</h3>
+                <ul>
+                    <li>Gemäß lokalem Standard (z.B. Ampicillin/Sulbactam 3 g 1-1-1 i.v.).</li>
+                </ul>
+
+                <h3>Notfallmäßige Harnableitung durch Urologie</h3>
+                <p>Anlage einer Harnleiterschiene oder perkutane Nephrostomie bei:</p>
+                <ul>
+                    <li>Medikamentös nicht beherrschbaren Koliken.</li>
+                    <li>Hochgradiger Obstruktion mit Harnstauungsniere und/oder postrenalem Nierenversagen.</li>
+                    <li>Infizierter Harnstauungsniere (mit drohender oder bereits eingetretener Sepsis).</li>
+                </ul>
+
+                <h3>Weiteres Procedere nach urologischer Maßgabe</h3>
+                <ul>
+                    <li><strong>Konservative Therapie:</strong> Ausreichende orale Flüssigkeitszufuhr (ca. 2 l/d) + Bewegung + Analgesie + MET.</li>
+                    <li><strong>Interventionelle Therapie:</strong> z.B. extrakorporale Stoßwellenlithotripsie, Ureterorenoskopie.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                content: `<ul>
+                    <li><strong>Wichtige Differentialdiagnosen:</strong> Akutes Aortensyndrom, Hodentorsion, Pyelonephritis, akutes Abdomen (z.B. EUG, Appendizitis).</li>
+                    <li>Bei Steinen <strong>≤ 7 mm</strong> kann ein Spontanabgang bei konservativer Therapie unter Kontrollen abgewartet werden.</li>
+                    <li><strong>Kein Einsatz von Butylscopolamin</strong> (Buscopan®) bei Nierenkolik aufgrund fehlenden Nutzens.</li>
+                    <li>Bei Alphablockern über Off-Label-Use, Gefahr der orthostatischen Hypotonie und retrograden Ejakulation aufklären.</li>
+                    <li>Bei V.a. begleitende Urosepsis, Fieber oder Einzelniere: niederschwelliger CT-Einsatz und rasche Therapie.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                content: `<div class="callout callout-cave">
+                    <p><strong>Red Flags:</strong> Fieber, Harnsteine bei Einzelniere oder Nierentransplantierten, bilaterale Harnsteine, steigende Nierenwerte, Harnstauungsniere, Versagen der medikamentösen Schmerztherapie, Fornixruptur.</p>
+                </div>
+                <ul>
+                    <li><strong>Ambulantes Procedere:</strong> Keine Red Flags, suffiziente Schmerzkontrolle, geplante konservative Therapie mit zeitnaher urologischer Vorstellung.</li>
+                    <li><strong>Stationäre Aufnahme:</strong> Bei Vorliegen von Red Flags (in Urologie), ggf. IMC/ICU.</li>
+                </ul>`
+            }
+        ],
+        stand: "12/22",
+        sources: `S2k-Leitlinie zur Diagnostik, Therapie und Metaphylaxe der Urolithiasis (AWMF Registernummer 043 - 025) Aktualisierung 2018. – Bultitude et al. Management of renal colic. BMJ. 2012 Aug 29;345:e5499. – https://www.urologielehrbuch.de/nierenkolik.html, zuletzt abgerufen am 11/22. – Fachinformationen der genannten Arzneimittel, Stand 12/22.`
     });
 })();

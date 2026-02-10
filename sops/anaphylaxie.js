@@ -1,166 +1,175 @@
-// SOP: Anaphylaxie
-// Kategorie: Sonstige
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "anaphylaxie",
         title: "Anaphylaxie",
         category: "Sonstige",
         catKey: "sonst",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Anaphylaxie:</strong> Schwere, systemische, potenziell lebensbedrohliche Überempfindlichkeitsreaktion vom Typ I (IgE-vermittelt) oder nicht-IgE-vermittelt (anaphylaktoid), die rasch fortschreitet und mehrere Organsysteme betreffen kann</li>
-</ul>`
-},
-{
-title: "Auslöser",
-html: `<ul>
-<li><strong>Medikamente:</strong> β-Laktam-Antibiotika (Penicilline, Cephalosporine), NSAID, Muskelrelaxantien, Kontrastmittel, Latex</li>
-<li><strong>Insektengifte:</strong> Bienen, Wespen, Hornissen</li>
-<li><strong>Nahrungsmittel:</strong> Nüsse (Erdnuss, Haselnuss), Schalentiere, Fisch, Milch, Ei, Weizen, Soja</li>
-<li><strong>Andere:</strong> Impfstoffe, Blutprodukte, Seminalflüssigkeit, Kälte/Wärme, körperliche Anstrengung</li>
-<li><strong>Idiopathisch</strong> (kein Auslöser identifizierbar)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<h3>Graduierung nach Ring & Messmer</h3>
-<ul>
-<li><strong>Grad I:</strong> Haut, Schleimhaut
-<ul>
-<li>Pruritus, Flush, Urtikaria, Quincke-Ödem, Konjunktivitis, Rhinitis</li>
-</ul>
-</li>
-<li><strong>Grad II:</strong> Haut, Schleimhaut + gastrointestinale + respiratorische Symptome
-<ul>
-<li>Haut: wie Grad I</li>
-<li>GI: Übelkeit, Erbrechen, Bauchschmerzen, Stuhldrang</li>
-<li>Respiratorisch: Dyspnoe, Stridor, Giemen</li>
-<li>Kardiovaskulär: Tachykardie (↑20%), Hypotonie (↓20 mmHg), Arrhythmie</li>
-</ul>
-</li>
-<li><strong>Grad III:</strong> Schock, Bewusstlosigkeit
-<ul>
-<li>Schock, Bewusstlosigkeit, Spastik der Bronchien, Larynxödem, Herzrhythmusstörungen</li>
-</ul>
-</li>
-<li><strong>Grad IV:</strong> Herz-Kreislauf-Stillstand
-<ul>
-<li>Atem- und/oder Herzstillstand</li>
-</ul>
-</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Klinische Diagnostik (Notfall!)</h3>
-<ul>
-<li><strong>Ersteindruck + ABCDE</strong></li>
-<li><strong>Vitalparameter:</strong> RR, Puls, SpO₂, AF, Temperatur</li>
-<li><strong>Klinische Kriterien</strong> (nach WAO):
-<ul>
-<li>Akuter Beginn (Minuten bis Stunden) mit Beteiligung von Haut/Schleimhaut (Pruritus, Flush, Urtikaria, Angioödem) UND mindestens einem der folgenden:
-<ul>
-<li>Respiratorische Symptome (Dyspnoe, Stridor, Giemen, Hypoxie)</li>
-<li>Kardiovaskuläre Symptome (Hypotonie, Synkope)</li>
-</ul>
-</li>
-<li>ODER: ≥2 der folgenden Symptome nach Exposition mit wahrscheinlichem Auslöser:
-<ul>
-<li>Haut/Schleimhaut</li>
-<li>Respiratorisch</li>
-<li>Kardiovaskulär</li>
-<li>GI (Krämpfe, Erbrechen)</li>
-</ul>
-</li>
-<li>ODER: Akute Hypotonie nach Exposition mit bekanntem Auslöser</li>
-</ul>
-</li>
-</ul>
-<h3>Labor (retrospektiv)</h3>
-<ul>
-<li><strong>Tryptase</strong> (Peak 1–2h nach Reaktionsbeginn, Normalwert schließt Anaphylaxie nicht aus)</li>
-<li><strong>Histamin</strong> (kurze Halbwertszeit, schwierig zu erfassen)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Sofortmaßnahmen</h3>
-<ul>
-<li><strong>Auslöser stoppen</strong> (Infusion stoppen, Insektenstachel entfernen)</li>
-<li><strong>Notruf</strong> (Reanimationsteam rufen bei Grad III/IV)</li>
-<li><strong>Positionierung:</strong>
-<ul>
-<li>Bei Bewusstsein: Flachlagerung, Beine hoch</li>
-<li>Bei Bewusstlosigkeit: stabile Seitenlage</li>
-<li>Bei Dyspnoe: Oberkörper hoch</li>
-</ul>
-</li>
-</ul>
-<h3>Medikamentöse Therapie</h3>
-<ul>
-<li><strong>Adrenalin (Mittel der 1. Wahl!):</strong>
-<ul>
-<li><strong>i.m. in den lateralen Oberschenkel:</strong> 0,3–0,5 mg (0,3–0,5 ml 1:1000) bei Erwachsenen</li>
-<li>Bei Kindern: 0,01 mg/kg (max. 0,3 mg)</li>
-<li>Wiederholung alle 5–15 min möglich</li>
-<li><strong>i.v.:</strong> nur bei Schock/Herzstillstand durch Erfahrene! 0,05–0,1 mg (0,5–1 ml 1:10.000) langsam, titriert</li>
-</ul>
-</li>
-<li><strong>Volumengabe:</strong> Kristalloide (NaCl 0,9% oder Ringer) 500–1000 ml rasch i.v. (bei Kindern 20 ml/kg)</li>
-<li><strong>Glukokortikoide:</strong> Prednisolon 250–500 mg i.v. (Wirkungseintritt erst nach 4–6h – zur Verhinderung der Spätphase!)</li>
-<li><strong>Antihistaminika:</strong> Dimetinden 4–8 mg i.v. oder Clemastin 2 mg i.v. (H1-Blocker) + ggf. Ranitidin 50 mg i.v. (H2-Blocker)</li>
-<li><strong>Bronchodilatatoren:</strong> Salbutamol 2,5–5 mg vernebelt bei Bronchospasmus</li>
-</ul>
-<h3>Therapie nach Schweregrad</h3>
-<ul>
-<li><strong>Grad I:</strong> Überwachung, ggf. Antihistaminika p.o.</li>
-<li><strong>Grad II:</strong> Adrenalin i.m., Volumen, Glukokortikoid, Antihistaminikum, Überwachung</li>
-<li><strong>Grad III:</strong> Adrenalin i.m./i.v., aggressive Volumentherapie, Glukokortikoid, Antihistaminikum, Bronchodilatator, Intubation bei Larynxödem, Katecholamine bei therapierefraktärem Schock</li>
-<li><strong>Grad IV:</strong> CPR nach ERC-Leitlinien, Adrenalin i.v., Volumen</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Adrenalin i.v. nur durch Erfahrene und bei lebensbedrohlichen Zuständen! Risiko von Tachyarrhythmien, Hypertonie, Myokardischämie!</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Adrenalin i.m. = Mittel der 1. Wahl</strong> bei Anaphylaxie Grad II–IV!</li>
-<li>Adrenalin <strong>nicht zu spät</strong> geben – zögern verschlechtert die Prognose!</li>
-<li><strong>Glukokortikoide und Antihistaminika sind KEINE Akutmedikamente</strong> – sie wirken erst verzögert!</li>
-<li>Bei Schock: <strong>großvolumige Volumengabe</strong> (Kristalloide)</li>
-<li>Immer <strong>Auslöser identifizieren und stoppen</strong></li>
-<li>Überwachung mindestens 6–12h (Gefahr der biphasischen Reaktion!)</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Grad I:</strong> kurze Überwachung (2–4h), Entlassung möglich mit Antihistaminikum p.o. und Instruktionen</li>
-<li><strong>Grad II:</strong> Überwachung 6–12h, ggf. stationäre Aufnahme</li>
-<li><strong>Grad III/IV:</strong> stationäre Aufnahme, Überwachung auf ICU, ggf. Intubation/Beatmung</li>
-</ul>`
-},
-{
-title: "Nachsorge",
-html: `<ul>
-<li>Allergologische Abklärung (Prick-Test, spezifisches IgE)</li>
-<li><strong>Notfallset</strong> für Patienten:
-<ul>
-<li>Adrenalin-Autoinjektor (z.B. Emerade®, EpiPen®, Jext®)</li>
-<li>Antihistaminikum (z.B. Cetirizin)</li>
-<li>Glukokortikoid (z.B. Prednisolon)</li>
-</ul>
-</li>
-<li>Schulung im Umgang mit dem Notfallset</li>
-<li>Anlage eines <strong>Allergiepasses</strong></li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Ring J et al. Guideline for acute therapy and management of anaphylaxis. Allergy. 2014;69(1):1-25.<br>
-Muraro A et al. Anaphylaxis: guidelines from the European Academy of Allergy and Clinical Immunology. Allergy. 2014;69(8):1026-45.<br>
-Simons FE et al. 2015 Update: World Allergy Organization Anaphylaxis Guidelines. J Allergy Clin Immunol. 2015;135(1):e1-54.`
+            {
+                title: "Definition",
+                html: `<p><strong>Anaphylaxie:</strong> Akute systemische Reaktion mit Symptomen einer allergischen Sofortreaktion, die den ganzen Organismus erfassen kann und potenziell lebensbedrohlich ist.</p>
+                <h3>Diagnostische Kriterien:</h3>
+                <ul>
+                    <li>Plötzliches Auftreten von kutanen Symptomen zusammen mit plötzlichen respiratorischen Symptomen oder plötzlichem Blutdruckabfall bzw. dessen Manifestationen (Kollaps, Herzrasen, etc.) <strong>oder</strong></li>
+                    <li>Plötzliches Auftreten von Symptomen an &ge; zwei Organsystemen (Haut, Atemwege, Gastrointestinaltrakt, Kreislaufsystem) <strong>nach</strong> einem Kontakt mit einem wahrscheinlichen Allergen oder Anaphylaxietrigger <strong>oder</strong></li>
+                    <li>Blutdruckabfall nach Kontakt mit einem dem Patienten bekannten Allergen oder einem anderen Anaphylaxietrigger.</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<p>Reaktion auf Allergen (Insektengifte, Arzneimittel, Nahrungsmittel, etc.).</p>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Haut:</strong> Juckreiz, Erythem, Flush, Urtikaria, Angioödem</li>
+                    <li><strong>Atemwege:</strong> Schwellung der Zunge oder des Gaumens, Larynxödem, kloßige Sprache, Dysphagie, Heiserkeit, Dyspnoe, Bronchospasmus, Zyanose</li>
+                    <li><strong>Gastrointestinaltrakt:</strong> Erbrechen, Übelkeit, Bauchkrämpfe, Stuhldrang, Durchfall</li>
+                    <li><strong>Kardiovaskulär:</strong> Tachykardie, Arrhythmie, Hypotension, Synkope, Schock</li>
+                    <li><strong>ggf. Allgemeinsymptome:</strong> Brennen an den Akren oder im Genitalbereich, metallischer Geschmack, Angst, Kopfschmerz, Desorientierung</li>
+                </ul>`
+            },
+            {
+                title: "Schweregrade",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Grad</th>
+                                <th>Haut</th>
+                                <th>Abdomen</th>
+                                <th>Respiration</th>
+                                <th>Herz-Kreislauf</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>I</strong></td>
+                                <td>Juckreiz, Flush, Urtikaria, Angioödem</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>II</strong></td>
+                                <td>Juckreiz, Flush, Urtikaria, Angioödem</td>
+                                <td>Nausea, Krämpfe, Erbrechen</td>
+                                <td>Rhinorrhoe, Heiserkeit, Dyspnoe</td>
+                                <td>Tachykardie (Anstieg > 20/min), Hypotension (Abfall > 20 mmHg), Arrhythmie</td>
+                            </tr>
+                            <tr>
+                                <td><strong>III</strong></td>
+                                <td>Juckreiz, Flush, Urtikaria, Angioödem</td>
+                                <td>Erbrechen, Defäkation</td>
+                                <td>Larynxödem, Bronchospasmus, Zyanose</td>
+                                <td>Schock</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IV</strong></td>
+                                <td>Juckreiz, Flush, Urtikaria, Angioödem</td>
+                                <td>Erbrechen, Defäkation</td>
+                                <td>Atemstillstand</td>
+                                <td>Herz-Kreislaufstillstand</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-hinweis">
+                    <p><strong>Merke:</strong> Die Klassifizierung erfolgt nach den schwersten aufgetretenen Symptomen (kein Symptom ist obligatorisch).</p>
+                </div>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li>1-2x venöser Zugang</li>
+                    <li><strong>Anamnese:</strong> Symptome? Symptombeginn? Trigger? Bekannte Allergien? Schwere Anaphylaxien in Vorgeschichte? Vorerkrankungen? Medikamente?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Zungen-/Rachen-/Uvulaschwellung? Stridor? Bronchospasmus? Rekap-Zeit? Urtikaria?</li>
+                </ul>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li><strong>Allergen beseitigen</strong> (Infusion/Transfusion stoppen, etc.)</li>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema</li>
+                </ul>
+
+                <h3>Medikamentöse Therapie</h3>
+                <h4>Bei leichter Reaktion / Grad I</h4>
+                <ul>
+                    <li><strong>Dimetinden (Fenistil®):</strong> 4-8 mg (1-2 Ampullen) bzw. 0,1 mg/kg KG i.v.</li>
+                    <li><strong>Prednisolon (Solu-Decortin®):</strong> 250-1000 mg i.v.</li>
+                </ul>
+
+                <h4>Bei schwerer Reaktion / Grad II-III</h4>
+                <ul>
+                    <li><strong>Adrenalin 0,5 mg i.m.</strong> (½ Ampulle = 0,5 ml 1:1000) in Oberschenkelaußenseite oder M. deltoideus.
+                        <div class="callout callout-hinweis"><p>Ggf. nach 5-10 Minuten wiederholen (Nadellänge: 25 mm, adipöse Patienten: 40 mm).</p></div>
+                    </li>
+                    <li><strong>1000 ml Vollelektrolytlösung i.v.</strong> (ggf. mehr je nach Bedarf)</li>
+                    <li><strong>Dimetinden und Prednisolon i.v.</strong> (wie bei leichter Reaktion)</li>
+                    <li><strong>Bei Rachen-/Larynxschwellung:</strong> zusätzlich 3-5 mg Adrenalin pur vernebeln (≙ 3-5 ml).</li>
+                    <li><strong>Bei bronchialer Obstruktion:</strong> zusätzlich 2,5 mg Salbutamol pur vernebeln (≙ 2,5 ml).</li>
+                    <li><strong>Bei anaphylaktischem Schock:</strong> ggf. zusätzlich Adrenalin 10-50 µg repetitiv i.v. (1 mg Adrenalin in 100 ml NaCl, jeweils 1-5 ml).</li>
+                </ul>
+
+                <h4>Bei schwerster Reaktion / Grad IV</h4>
+                <ul>
+                    <li>Leitliniengerechte Reanimation (Adrenalin i.v., forcierte Volumengabe, etc.)</li>
+                </ul>
+
+                <div class="callout callout-cave">
+                    <p><strong>Differentialdiagnose: Hereditäres Angioödem</strong> (Hautschwellungen, Larynxödem, Bauchattacken) durch C1-Inhibitor-Mangel. Adrenalin, Antihistaminika oder Glukokortikoide sind hier unwirksam!</p>
+                    <ul>
+                        <li>Bei Gesichtsschwellung/Larynxödem: sofortige Gabe von <strong>C1-Esterase-Inhibitor (Berinert®)</strong> 20 IE/kg KG langsam i.v. (ca. 1500 IE bei 70 kg) <strong>oder Icatibant (Firazyr®)</strong> 30 mg s.c.</li>
+                    </ul>
+                </div>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li><strong>Adrenalin i.m.</strong> ist das Mittel der Wahl bei Anaphylaxie &ge; Grad II (Ausnahme: reine GI-Symptomatik).</li>
+                    <li>Klinisch relevante biphasische Reaktionen sind möglich, aber selten (ca. 5 %).</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li>Indikation für Notfallset prüfen, allergologische Anbindung empfehlen, ggf. Allergieausweis ausstellen.</li>
+                    <li>ggf. Mitgabe eines oralen Glukokortikoids (z.B. Prednisolon 50 mg 1-0-0) und Antihistaminikums (z.B. Cetirizin 10 mg 0-0-1) für 3 Tage.</li>
+                </ul>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zustand</th>
+                                <th>Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Anaphylaxie Grad I</td>
+                                <td><strong>Ambulantes Procedere</strong> (nach Überwachung individuell)</td>
+                            </tr>
+                            <tr>
+                                <td>Anaphylaxie &ge; Grad II</td>
+                                <td><strong>Stationäre Aufnahme (&gt; 24h)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Persistierendes ABC-Problem</td>
+                                <td><strong>Überwachungsstation (IMC/ICU)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        stand: "12/22",
+        sources: `Ring J et al. Leitlinie zu Akuttherapie und Management der Anaphylaxie – Update 2021. Allergo J 30, 20–49 (2021). – Prince et al. Underuse of epinephrine for the treatment of anaphylaxis: missed opportunities. Journal of Asthma and Allergy 2018:11 143–151. – Grunau BE et al. Incidence of clinically important biphasic reactions in emergency department patients with allergic reactions or anaphylaxis. Ann Emerg Med. 2014 Jun;63(6):736-44.e2. – Rohacek M et al.Biphasic anaphylactic reactions: occurrence and mortality. Allergy. 2014 Jun;69(6):791-7. – Bork et al., Leitlinie: Hereditäres Angioödem durch C1-Inhibitor-Mangel. Allergo J Int 2019; 28: 16–29, AWMF-LeitlinienRegister-Nummer 061-029. – Fachinformationen Stand 12/22.`
     });
 })();

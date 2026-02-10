@@ -1,110 +1,190 @@
-// SOP: Tiefe Venenthrombose
-// Kategorie: Hämatologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "tiefe-venenthrombose",
-        title: "Tiefe Venenthrombose",
+        title: "Tiefe Venenthrombose (TVT)",
         category: "Hämatologie",
         catKey: "haem",
+        stand: "05/24",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Tiefe Venenthrombose (TVT):</strong> Thrombotischer Verschluss einer tiefen Vene, meist der unteren Extremität (V. poplitea, V. femoralis, V. iliaca)</li>
-<li>Potenziell lebensbedrohliche Komplikation: <strong>Lungenarterienembolie</strong></li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Virchow-Trias:</strong> Stase, Endothelschaden, Hyperkoagulabilität</li>
-<li><strong>Risikofaktoren:</strong> Immobilisation, OP (v.a. orthopädisch, abdominal), Malignom, orale Kontrazeptiva, Schwangerschaft, Thrombophilie, Adipositas, Alter, VTE in Vorgeschichte, lange Reisen</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Einseitige Beinschwellung</strong></li>
-<li>Spannungsgefühl, Schwere</li>
-<li>Schmerz (v.a. Wade)</li>
-<li>Überwärmung, livide Verfärbung</li>
-<li>Umfangsdifferenz (> 3 cm Wadenumfang Seitenvergleich)</li>
-<li>Druckschmerz Wade (Mayer-Zeichen), Wadenschmerz bei Dorsalflexion (Homans-Zeichen – unspezifisch)</li>
-<li>ggf. dilatierte Oberflächenvenen</li>
-<li>ggf. Zeichen einer begleitenden LAE (Dyspnoe, Tachykardie, Thoraxschmerz)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Phlegmasia coerulea dolens:</strong> Massive Becken-Bein-Venenthrombose mit vollständiger venöser Obstruktion → livide Schwellung, Schmerz, arterielle Kompromittierung → Notfall! Drohendes venöses Gangrän!</p></div>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>Klinische Wahrscheinlichkeit: Wells-Score TVT</strong>
-<ul>
-<li>≤ 1 Punkt: unwahrscheinlich → D-Dimere</li>
-<li>≥ 2 Punkte: wahrscheinlich → Kompressionssonographie</li>
-</ul>
-</li>
-<li><strong>D-Dimere:</strong> altersadaptiert (> 50 J.: Alter × 10 ng/ml). Negativ + geringe Wahrscheinlichkeit → TVT ausgeschlossen</li>
-<li><strong>Kompressionssonographie (KUS):</strong> Goldstandard! Nicht-komprimierbare Vene = Thrombus</li>
-</ul>
-<h3>Erweiterte Diagnostik</h3>
-<ul>
-<li><strong>Labor:</strong> BB, CRP, NW, E'lyte, Gerinnung, ggf. Thrombophilie-Screening (nach Akutphase, nicht unter Antikoagulation)</li>
-<li>Tumorsuche bei unprovozierter TVT (alters-/geschlechtsgerechte Vorsorge, CT Thorax/Abdomen erwägen)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Antikoagulation (sofort bei hoher klinischer Wahrscheinlichkeit, noch vor Diagnosesicherung!)</h3>
-<ul>
-<li><strong>DOAK</strong> (Therapie der 1. Wahl):
-<ul>
-<li><strong>Rivaroxaban:</strong> 15 mg 2x/d für 21 Tage, dann 20 mg 1x/d</li>
-<li><strong>Apixaban:</strong> 10 mg 2x/d für 7 Tage, dann 5 mg 2x/d</li>
-</ul>
-</li>
-<li><strong>Alternativ:</strong> NMH (z.B. Enoxaparin 1 mg/kg 2x/d s.c.) → Übergang auf Edoxaban 60 mg 1x/d oder Dabigatran 150 mg 2x/d (nach mind. 5 Tagen NMH)</li>
-<li><strong>Vitamin-K-Antagonisten:</strong> noch indiziert bei Antiphospholipid-Syndrom, mechanischer Herzklappe</li>
-</ul>
-<h3>Dauer der Antikoagulation</h3>
-<ul>
-<li>Provoziert (transient): 3 Monate</li>
-<li>Unprovoziert: mindestens 3–6 Monate, dann Reevaluation (Langzeit-AC erwägen, Nutzen-Risiko)</li>
-<li>Malignom: DOAK oder NMH, Dauer solange Risikofaktor besteht</li>
-</ul>
-<h3>Kompression</h3>
-<ul>
-<li>Kompressionstherapie zur Symptomlinderung, keine routinemäßige Empfehlung zur PTS-Prophylaxe mehr</li>
-</ul>
-<h3>Phlegmasia coerulea dolens</h3>
-<ul>
-<li>Notfall! Hochlagerung, sofortige Antikoagulation + kathetergestützte Thrombolyse/-ektomie, ggf. chirurgische Thrombektomie</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Wells-Score</strong> zur klinischen Einschätzung → D-Dimere oder direkt KUS</li>
-<li><strong>Kompressionssonographie</strong> = Goldstandard</li>
-<li><strong>DOAK = Therapie der 1. Wahl</strong></li>
-<li>Antikoagulation sofort beginnen bei hoher klinischen Wahrscheinlichkeit!</li>
-<li>Immer an <strong>begleitende LAE</strong> denken</li>
-<li>Bei <strong>unprovozierter TVT</strong>: Tumorsuche erwägen</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Ambulant:</strong> unkomplizierte TVT, DOAK-Therapie, gute Compliance, Wiedervorstellung geplant</li>
-<li><strong>Stationär:</strong> massive TVT, Phlegmasia, begleitende LAE, Nieren-/Leberinsuffizienz, Schwangerschaft, Blutungsrisiko, soziale Gründe</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Konstantinides SV et al. 2019 ESC Guidelines for the diagnosis and management of acute pulmonary embolism. Eur Heart J. 2020;41(4):543-603.<br>Stevens SM et al. Antithrombotic Therapy for VTE Disease: Second Update of the CHEST Guideline. Chest. 2021;160(6):e545-e608.`
+            {
+                title: "Definition",
+                html: `<p><strong>Tiefe Venenthrombose (TVT):</strong> Partielle oder vollständige Verlegung der Leit- und/oder Muskelvenen durch Thromben.</p>
+                <p>Ursächlich ist eine Beeinträchtigung des venösen Blutflusses, eine Schädigung des Endothels oder Veränderungen in der Zusammensetzung des Blutes zugunsten von prokoagulatorischen Faktoren (<strong>Virchow-Trias</strong>).</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li><strong>Unprovoziert:</strong> Idiopathisch, keine ersichtlichen Risikofaktoren.</li>
+                    <li><strong>Provoziert:</strong> Transiente oder persistierende Risikofaktoren:
+                        <ul>
+                            <li>Immobilisation (Fraktur, Bettruhe, Langstreckenflug, etc.)</li>
+                            <li>Tumorerkrankung</li>
+                            <li>Hormoneinnahme, Schwangerschaft</li>
+                            <li>Thrombophilien (angeboren oder erworben)</li>
+                            <li>Medikamente (z.B. Heparin → Verdacht auf HIT II prüfen!)</li>
+                        </ul>
+                    </li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Lokale Schwellung.</li>
+                    <li>Spannungsgefühl, Schmerzen.</li>
+                    <li>Verstärkte Venenzeichnung, Zyanose.</li>
+                    <li>ggf. oligo- bis asymptomatisch.</li>
+                </ul>
+                <div class="callout callout-cave">
+                    <p><strong>Symptome von Komplikationen:</strong></p>
+                    <ul>
+                        <li>Dyspnoe bei begleitender Lungenarterienembolie (LAE).</li>
+                        <li><strong>Phlegmasia coerulea dolens:</strong> Massive Schwellung, fehlende Pulse und livide Verfärbung (Notfall!).</li>
+                    </ul>
+                </div>`
+            },
+            {
+                title: "Diagnostik & Wells-Score",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter.</strong></li>
+                    <li><strong>Anamnese:</strong> Symptome? Krebserkrankung? OP? Immobilisation? Rauchen?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Umfangsdifferenz? Fußpulse? Kollateralvenen?</li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, CK, TSH, Gerinnung.
+                    <br><strong>D-Dimere:</strong> Indikation abhängig von der Vortestwahrscheinlichkeit (Wells-Score).</li>
+                </ul>
+                <h3>Wells-Score (Tiefe Beinvenenthrombose)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kriterium</th>
+                                <th>Punkte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Malignom (aktiv, palliativ oder Diagnose < 6 Monate)</td><td>1</td></tr>
+                            <tr><td>Ruhigstellung eines Beines (Verband, Parese)</td><td>1</td></tr>
+                            <tr><td>Bettruhe ≥ 3 d oder großer chir. Eingriff ≤ 3 Monate</td><td>1</td></tr>
+                            <tr><td>Druckschmerz im Verlauf der tiefen Venen</td><td>1</td></tr>
+                            <tr><td>Schwellung des gesamten Beines</td><td>1</td></tr>
+                            <tr><td>Unterschenkelschwellung (Umfangsdiff. ≥ 3 cm zum Partnerbein)</td><td>1</td></tr>
+                            <tr><td>Einseitiges Ödem am symptomatischen Bein</td><td>1</td></tr>
+                            <tr><td>Prominente, nicht-variköse oberflächliche Kollateralvenen</td><td>1</td></tr>
+                            <tr><td>Frühere dokumentierte TVT in der Vorgeschichte</td><td>1</td></tr>
+                            <tr><td>Alternative Diagnose mindestens ebenso wahrscheinlich wie TVT</td><td>-2</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-hinweis">
+                    <p><strong>Auswertung:</strong><br>
+                    • ≤ 1 Punkt: <strong>Niedrige Wahrscheinlichkeit</strong><br>
+                    • ≥ 2 Punkte: <strong>Hohe Wahrscheinlichkeit</strong></p>
+                </div>`
+            },
+            {
+                title: "Diagnostischer Algorithmus (POCUS)",
+                html: `<p>Vorgehen bei Erstereignis unter Anwendung limitierter Ultraschallprotokolle:</p>
+                <ul>
+                    <li><strong>Wells-Score ≤ 1 (Unwahrscheinlich):</strong>
+                        <ul>
+                            <li>D-Dimere bestimmen.</li>
+                            <li>Grenzwerte: < 500 µg/l bzw. <strong>altersadaptiert</strong> (Alter x 10 µg/l ab dem 50. Lebensjahr, z.B. < 800 µg/l für 80-Jährige).</li>
+                            <li>Unter Grenzwert &rarr; <strong>Ausschluss TVT</strong>.</li>
+                            <li>Über Grenzwert &rarr; POCUS (2-Punkt-KUS).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Wells-Score ≥ 2 (Wahrscheinlich):</strong>
+                        <ul>
+                            <li>Direkt POCUS (2-Punkt-Kompressionsultraschall über Leiste und Knie).</li>
+                            <li>TVT nachgewiesen &rarr; Antikoagulation.</li>
+                            <li>TVT nicht nachweisbar &rarr; dv-KUS (vollständig) innerhalb von 4-7 Tagen.</li>
+                        </ul>
+                </ul>
+                <div class="callout callout-hinweis">
+                    <p>Falls POCUS nicht zeitnah möglich &rarr; Therapeutische Antikoagulation bis zur Durchführung eines dv-KUS innerhalb von 4-7 Tagen.</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li><strong>Kompressionstherapie:</strong> initial Kompressionsverband, im Verlauf Kompressionsstrümpfe Klasse II (CAVE: pAVK, PNP).</li>
+                    <li><strong>Mobilisierung:</strong> Keine Bettruhe notwendig!</li>
+                </ul>
+                <h3>Therapeutische Antikoagulation</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Wirkstoff</th>
+                                <th>Initialtherapie</th>
+                                <th>Erhaltung</th>
+                                <th>Nierenfunktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4"><strong>Direkte orale Antikoagulanzien (DOAK)</strong></td></tr>
+                            <tr><td>Apixaban</td><td>10 mg p.o. 2x/d für 7 d</td><td>5 mg p.o. 2x/d</td><td>GFR ≥ 15 ml/min</td></tr>
+                            <tr><td>Rivaroxaban</td><td>15 mg p.o. 2x/d für 21 d</td><td>20 mg p.o. 1x/d</td><td>GFR ≥ 15 ml/min</td></tr>
+                            <tr><td>Dabigatran</td><td>NMH/UFH für min. 5 d</td><td>150 mg p.o. 2x/d</td><td>GFR ≥ 30 ml/min</td></tr>
+                            <tr><td>Edoxaban</td><td>NMH/UFH für min. 5 d</td><td>60 mg p.o. 1x/d</td><td>GFR ≥ 50 ml/min</td></tr>
+                            <tr><td colspan="4"><strong>Vitamin-K-Antagonisten (VKA)</strong></td></tr>
+                            <tr><td>Phenprocoumon</td><td>6 mg d1+d2, überlappend NMH/UFH bis INR ≥ 2</td><td>INR-Ziel 2-3</td><td>Auch bei Dialyse*</td></tr>
+                            <tr><td colspan="4"><strong>Parenterale Antikoagulation</strong></td></tr>
+                            <tr><td>NMH (Enoxaparin)</td><td colspan="2">100 IE/kg KG s.c. 2x/d</td><td>GFR ≥ 30 ml/min</td></tr>
+                            <tr><td>Fondaparinux</td><td colspan="2">7,5 mg s.c. 1x/d (<50kg: 5mg; >100kg: 10mg)</td><td>GFR ≥ 30 ml/min</td></tr>
+                            <tr><td>UFH</td><td colspan="2">Bolus 5000 IE i.v., dann Perfusor 15-20 IE/kg/h (Ziel aPTT 1,5-2,5x Norm)</td><td>Auch bei Dialyse</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><small>*Laut Fachinfo formal kontraindiziert, aber klinischer Standard bei Dialysepflicht.</small></p>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Alleinige D-Dimer-Bestimmung ohne Berücksichtigung der Vortestwahrscheinlichkeit ist zum Ausschluss nicht ausreichend.</li>
+                    <li>Gefährliche Komplikationen: Lungenarterienembolie, paradoxe Embolien, Phlegmasia coerulea dolens.</li>
+                    <li><strong>Verdacht auf HIT II:</strong> Bei Thrombose trotz bestehender Heparinisierung stets an Heparin-induzierte Thrombozytopenie Typ II denken!</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Klinisches Szenario</th>
+                                <th>Empfohlene Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Unkomplizierte TVT</strong></td>
+                                <td>Ambulant; therapeutische Antikoagulation und zeitnahe hausärztliche Anbindung sicherstellen.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ausgeprägte TVT/Symptomatik, V.a. HIT II, schwere Begleiterkrankung</strong></td>
+                                <td>Stationäre Aufnahme.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Wells ≥ 2 ODER Wells ≤ 1 + D-Dimer positiv (kein POCUS möglich)</strong></td>
+                                <td>Ambulant; therapeutische Antikoagulation einleiten, dv-KUS innerhalb von 4-7 Tagen.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Wells ≥ 2 ODER Wells ≤ 1 + D-Dimer positiv (negativer POCUS)</strong></td>
+                                <td>Ambulant; KEINE therapeutische Antikoagulation, dv-KUS innerhalb von 4-7 Tagen.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        sources: `AWMF-S2k-Leitlinie: Diagnostik und Therapie der Venenthrombose und Lungenembolie (02/2023).<br>
+        ESVS 2021 Clinical Practice Guidelines on the Management of Venous Thrombosis. Eur J Vasc Endovasc Surg.<br>
+        Herold G et al. Innere Medizin 2019, S. 826 ff.<br>
+        Fachinformationen der Antikoagulanzien (Stand 06/23).`
     });
 })();

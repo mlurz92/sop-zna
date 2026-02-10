@@ -1,88 +1,200 @@
-// SOP: Fremdkörperingestion
-// Kategorie: Gastroenterologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "fremdkoerperingestion",
         title: "Fremdkörperingestion",
         category: "Gastroenterologie",
         catKey: "gi",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Fremdkörperingestion:</strong> Verschlucken von Fremdkörpern oder Nahrungsbolusimpaktion im oberen Gastrointestinaltrakt</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Kinder:</strong> Münzen, Spielzeugteile, Batterien, Magnete</li>
-<li><strong>Erwachsene:</strong> Knochenstücke, Zahnstocher, Zahnprothesen, Nahrungsboli (Fleisch)</li>
-<li><strong>Psychiatrische Patienten/Häftlinge:</strong> absichtliche Ingestion (Klingen, Nadeln, Drogenbeutel)</li>
-<li><strong>Risikogruppen:</strong> Kinder, psychiatrische Patienten, ältere Menschen (Zahnprothesen), Patienten mit ösophagealer Pathologie</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li>ggf. asymptomatisch</li>
-<li><strong>Dysphagie</strong>, Odynophagie</li>
-<li><strong>Speicheln</strong> (Hypersalivation), Schluckunfähigkeit</li>
-<li>Fremdkörpergefühl, retrosternale Schmerzen</li>
-<li>ggf. Erbrechen</li>
-<li>ggf. <strong>Stridor</strong>, Husten, Dyspnoe (bei trachealer Kompression/Aspiration)</li>
-<li>ggf. <strong>Peritonitis</strong>-Zeichen (bei Perforation)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li><strong>Röntgen HWS/Thorax/Abdomen:</strong> Röntgendichte Fremdkörper? Freie Luft (Perforation)?</li>
-<li>Anamnese: Was? Wann? Absichtlich? Symptome? Vorerkrankungen Ösophagus?</li>
-<li>Körperliche Untersuchung: Atemwege frei? Speicheln? Peritonismus?</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Indikationen zur notfallmäßigen Endoskopie (< 2h)</h3>
-<ul>
-<li><strong>Komplette ösophageale Obstruktion</strong> (Speicheln, Schluckunfähigkeit)</li>
-<li><strong>Knopfbatterien im Ösophagus</strong> (Verätzungsgefahr!)</li>
-<li><strong>Spitze/scharfe Gegenstände im Ösophagus</strong></li>
-</ul>
-<h3>Dringliche Endoskopie (< 24h)</h3>
-<ul>
-<li>Stumpfe ösophageale Fremdkörper ohne komplette Obstruktion</li>
-<li>Spitze/scharfe Gegenstände im Magen/Duodenum</li>
-<li>Magnete (> 1 oder Magnet + Metall)</li>
-</ul>
-<h3>Konservativ (Beobachtung)</h3>
-<ul>
-<li>Stumpfe, kleine Fremdkörper (< 2,5 cm) im Magen (passieren in 80–90% spontan)</li>
-<li>Klinische Kontrolle, ggf. Röntgen-Kontrolle nach 3–4 Wochen</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Knopfbatterien im Ösophagus</strong> = absoluter Notfall! Innerhalb von 2h schwere Verätzungen möglich! Sofortige endoskopische Entfernung!</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Knopfbatterien im Ösophagus</strong> = sofortige Entfernung!</li>
-<li>Spitze Gegenstände im Ösophagus = notfallmäßige Endoskopie</li>
-<li>Stumpfe FK im Magen können oft konservativ beobachtet werden</li>
-<li>Bei <strong>Body-Packing</strong> (Drogenbeutel): KEINE Endoskopie (Rupturgefahr!) → chirurgische Entfernung bei Komplikation</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Stationär:</strong> ösophageale FK, spitze/scharfe FK, Knopfbatterien, Komplikationen, Body-Packing</li>
-<li><strong>Ambulant:</strong> kleine stumpfe FK im Magen, asymptomatisch, Verlaufs-Röntgen geplant</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Birk M et al. ESGE Guideline: Removal of foreign bodies in the upper gastrointestinal tract in adults. Endoscopy. 2016;48(5):489-496.<br>Ikenberry SO et al. ASGE Guideline: Management of ingested foreign bodies and food impactions. Gastrointest Endosc. 2011;73(6):1085-91.`
+            {
+                title: "Definition",
+                content: `<p><strong>Fremdkörperingestion:</strong> Orale Aufnahme eines Fremdkörpers (akzidentell oder absichtlich).</p>`
+            },
+            {
+                title: "Ursachen",
+                content: `<ul>
+                    <li>Knochen, Fischgräten, Zahnprothesen, Scherben, Münzen, Rasierklingen, Batterien, Magnete, Drogenpakete, etc.</li>
+                </ul>
+                <h3>Begünstigende Faktoren</h3>
+                <ul>
+                    <li>Höheres Alter</li>
+                    <li>Psychiatrische Erkrankung, mentale Retardierung</li>
+                    <li>Alkoholintoxikation</li>
+                    <li>Sekundärer Krankheitsgewinn (z.B. Gefängnisinsassen)</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                content: `<ul>
+                    <li>Häufig symptomlos</li>
+                </ul>
+                <h3>Symptome einer ösophagealen Impaktion</h3>
+                <ul>
+                    <li>Fremdkörpergefühl, Schluckbeschwerden, Brustschmerzen</li>
+                    <li>Würgen, Erbrechen, Hypersalivation</li>
+                    <li>Unfähigkeit, eigenen Speichel zu schlucken</li>
+                    <li>Stridor, Dyspnoe</li>
+                </ul>
+                <h3>Weitere Symptome</h3>
+                <ul>
+                    <li>Abdominelle Schmerzen, Erbrechen</li>
+                </ul>
+                <h3>Symptome von Komplikationen</h3>
+                <ul>
+                    <li>Perforation, Emphysem, Mediastinitis, Abszess, Fistelbildung, Ileus, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                content: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li>1x venöser Zugang</li>
+                    <li><strong>Labor:</strong> BB, Gerinnung</li>
+                    <li><strong>Anamnese:</strong> Umstände der Ingestion? Art des FK? Symptome? Schmerzen? Fieber? Erbrechen? Letzter Stuhlgang? Vorerkrankungen? Medikamente?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Speichelfluss? Hautemphysem? Stridor? Pulmonale RG? Hinweise auf Ileus? Abdominelle Abwehrspannung?</li>
+                    <li><strong>Röntgen Hals/Thorax/Abdomen:</strong> in einer bzw. zwei Ebenen bei V.a. röntgendichte/unbekannte Fremdkörper (Anzahl, Größe und Lokalisation? Hinweise auf Komplikationen?)</li>
+                    <li><strong>Serielle Röntgen-Kontrollen:</strong> bei fehlender Passage unter konservativer Therapie
+                        <ul>
+                            <li>Wöchentlich: stumpfe FK</li>
+                            <li>Täglich: endoskopisch nicht bergbare scharfkantige FK</li>
+                            <li>Alle 3–4 Tage: Batterien distal des Duodenums</li>
+                        </ul>
+                    </li>
+                    <li><strong>CT:</strong> bei V.a. operationsbedürftige Komplikationen (Perforation, Fistelbildung, Abszess, etc.)</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit Gastroenterologie!</p>
+                </div>
+                <h3>Darstellbarkeit ingestierter Fremdkörper mittels Röntgen</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>In Röntgen-Untersuchung identifizierbar?</th>
+                                <th>Fremdkörper</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Ja, meist identifizierbar</strong></td>
+                                <td>"Wahre" Fremdkörper (keine Nahrungsmittel), Steak-Knochen</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nein, meist nicht identifizierbar</strong></td>
+                                <td>Nahrungsbolus, Fisch- oder Hühnchen-Knochen, Holz, Plastik, Glas, Dünne Metallobjekte</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                content: `<h3>Konservativ ("watch and wait")</h3>
+                <ul>
+                    <li>Therapie der Wahl bei <strong>stumpfen, kurzen (&lt; 5-6 cm) und schmalen (&lt; 2,5 cm Durchmesser) Fremdkörpern</strong> (Ausnahme: Magnete, Batterien → Nekrosegefahr!), die den Ösophagus passiert haben und asymptomatischen Patienten.</li>
+                    <li>80–90 % der ingestierten Fremdkörper passieren den Magen-Darm-Trakt spontan und komplikationslos.</li>
+                    <li>Spontaner Abgang meist nach 4–6 Tagen, selten bis 4 Wochen.</li>
+                    <li>Patient soll normal weiteressen und seinen Stuhlgang kontinuierlich auf Abgang des Fremdkörpers beobachten.</li>
+                </ul>
+                <h3>Endoskopische Fremdkörperentfernung</h3>
+                <ul>
+                    <li>Abhängig von Lokalisation und Beschaffenheit des ingestierten Fremdkörpers (s. Tabelle Dringlichkeit).</li>
+                    <li>Bei Versagen des konservativen Procederes (Verbleib des Fremdkörpers im Magen &gt; 3-4 Wochen).</li>
+                </ul>
+                <h3>Chirurgische Intervention (selten!)</h3>
+                <ul>
+                    <li>Bei Komplikationen (Perforation, Abszess, Ileus, frustraner endoskopischer Bergeversuch, endoskopisch nicht stillbare Blutung, etc.).</li>
+                    <li>Bei gefährlichen Objekten distal des Treitz-Bandes, die nach 3 Tagen nicht spontan ausgeschieden wurden.</li>
+                </ul>
+                <h3>Dringlichkeit der Endoskopie</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Art des Fremdkörpers</th>
+                                <th>Ösophagus</th>
+                                <th>Magen/Dünndarm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Batterie</strong></td>
+                                <td>&lt; 2 h bis max. 6 h</td>
+                                <td>&lt; 24 h</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Magnet</strong></td>
+                                <td>&lt; 24 h</td>
+                                <td>&lt; 24 h</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scharfkantiger Fremdkörper</strong></td>
+                                <td>&lt; 2 h bis max. 6 h</td>
+                                <td>&lt; 24 h</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stumpfer, kleiner FK (&lt; 2-2,5 cm)</strong></td>
+                                <td>&lt; 24 h</td>
+                                <td>&lt; 72 h (bzw. fehlende Passage nach 4 W)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stumpfer, mittl. FK (&gt; 2-2,5 cm)</strong></td>
+                                <td>&lt; 24 h</td>
+                                <td>&lt; 72 h</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Großer Fremdkörper (&gt; 5-6 cm Länge)</strong></td>
+                                <td>&lt; 24 h</td>
+                                <td>&lt; 24 h</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nahrungsbolus</strong></td>
+                                <td>&lt; 2 h bis max. 6 h (bei vollst. Okklusion) / &lt; 24 h</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Merke",
+                content: `<ul>
+                    <li>Bei V.a. operationsbedürftige Komplikationen immer <strong>CT</strong> (Röntgen hier nicht sensitiv genug).</li>
+                    <li><strong>Bei Bodypacking:</strong> Konservatives Vorgehen (Gefahr der Ruptur der Drogenpäckchen).
+                        <ul>
+                            <li>Bei Ruptur der Drogenpäckchen oder Komplikationen (z.B. Ileus) → chirurgische Intervention.</li>
+                        </ul>
+                    </li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                content: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Befund / Procedere</th>
+                                <th>Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Komplikationslose ÖGD mit Bergen des Fremdkörpers <strong>oder</strong> konservativer Therapieansatz</td>
+                                <td><strong>Ambulantes Procedere</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Schleimhautschäden (durch FK oder ÖGD) <strong>oder</strong> scharfkantiger FK <strong>oder</strong> Batterien, die nicht geborgen werden können <strong>oder</strong> Bodypacking</td>
+                                <td><strong>Stationäre Aufnahme</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        stand: "12/22",
+        sources: `Birk M et al. Removal of foreign bodies in the upper gastrointestinal tract in adults: European Society of Gastrointestinal Endoscopy (ESGE) Clinical Guideline. Endoscopy 2016 May;48(5):489-96. – Ambe P et al. Swallowed foreign bodies in adults. Dtsch Arztebl Int 2012; 109(50): 869–75.`
     });
 })();

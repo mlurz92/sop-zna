@@ -4,127 +4,123 @@
     if (!window.SOP_DATA) window.SOP_DATA = [];
     window.SOP_DATA.push({
         id: "aecopd",
-        title: "AECOPD",
+        title: "Akute Exazerbation der COPD",
         category: "Pneumologie",
         catKey: "pulmo",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>COPD:</strong> Chronisch obstruktive Lungenerkrankung mit persistierender Atemflusslimitation, die meist progredient verläuft und mit einer verstärkten chronischen Entzündungsreaktion der Atemwege assoziiert ist</li>
-<li><strong>AECOPD (Akute Exazerbation der COPD):</strong> Akute Verschlechterung der respiratorischen Symptome über das übliche Maß der täglichen Variabilität hinaus, die eine Therapieeskalation erfordert</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Hinweis:</strong> Die Einteilung der Exazerbationsschwere erfolgt nach GOLD 2024: leicht (ambulant behandelbar), moderat (systemische Steroide und/oder Antibiotika), schwer (Hospitalisierung oder Notaufnahmebesuch erforderlich).</p></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Infektiös (70–80%):</strong>
-<ul>
-<li><strong>Viral:</strong> Rhinoviren, Influenza, RSV, SARS-CoV-2, Parainfluenza</li>
-<li><strong>Bakteriell:</strong> Haemophilus influenzae, Streptococcus pneumoniae, Moraxella catarrhalis, Pseudomonas aeruginosa (bei schwerer COPD, häufige Exazerbationen, Bronchiektasen)</li>
-</ul>
-</li>
-<li><strong>Nicht-infektiös (20–30%):</strong>
-<ul>
-<li>Luftverschmutzung, Feinstaub, Temperaturänderungen</li>
-<li>Non-Compliance mit Dauertherapie</li>
-<li>Lungenarterienembolie</li>
-<li>Pneumothorax</li>
-<li>Kardiale Dekompensation</li>
-</ul>
-</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li>Zunehmende <strong>Dyspnoe</strong></li>
-<li>Zunahme von <strong>Husten</strong> und <strong>Sputummenge/-purulenz</strong></li>
-<li><strong>Tachypnoe</strong>, Einsatz der Atemhilfsmuskulatur</li>
-<li><strong>Giemen</strong>, verlängertes Exspirium, abgeschwächtes Atemgeräusch</li>
-<li>ggf. <strong>Zyanose</strong></li>
-<li>ggf. <strong>Bewusstseinseintrübung</strong> (Zeichen der ventilatorischen Erschöpfung / CO₂-Narkose)</li>
-<li>ggf. Zeichen der <strong>Rechtsherzbelastung</strong> (Halsvenenstauung, periphere Ödeme)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
-<li>1x venöser Zugang</li>
-<li><strong>Arterielle BGA</strong> (pH? pCO₂? pO₂? Laktat? BE? – Hyperkapnie? Respiratorische Azidose?)</li>
-<li><strong>Labor:</strong> BB, CRP, PCT, E'lyte, NW, GOT, GPT, BNP/NT-proBNP, Gerinnung, ggf. D-Dimere, hs-Troponin</li>
-<li>12-Kanal-EKG (Rechtsherzbelastung? Arrhythmie? Ischämie?)</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Symptombeginn/-dynamik? Sputumfarbe/-menge? Fieber? Vorbekannte COPD-Schwere (GOLD-Stadium, FEV1)? Sauerstoff-Langzeittherapie? Häusliche NIV? Vorherige Exazerbationen/Hospitalisierungen? Intubationen? Aktuelle Dauermedikation? Raucherstatus?</li>
-<li><strong>Körperliche Untersuchung:</strong> Atemfrequenz? Einsatz der Atemhilfsmuskulatur? Lippenbremse? Giemen? Brummen? Abgeschwächtes AG? Silent Chest? Zyanose? Periphere Ödeme? Jugularvenenstauung?</li>
-</ul>
-<h3>Erweiterte Diagnostik (ggf.)</h3>
-<ul>
-<li><strong>Röntgen-Thorax:</strong> Infiltrat (Pneumonie)? Pneumothorax? Pleuraerguss? Stauung? Überblähung?</li>
-<li><strong>CT-Thorax + KM (CT-Angiographie):</strong> bei V.a. Lungenarterienembolie, unklarem Infiltrat</li>
-<li><strong>POCUS:</strong> Pleuraerguss? Pneumothorax? B-Linien (Stauung)? Rechtsherzbelastung?</li>
-<li>Sputumkultur bei purulentem Sputum und häufigen Exazerbationen</li>
-<li>Virologie (Influenza-/RSV-/COVID-19-Schnelltest)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Allgemeinmaßnahmen</h3>
-<ul>
-<li>Stabilisierung gemäß ABCDE-Schema</li>
-<li><strong>Sauerstoff:</strong> Ziel-SpO₂ 88–92% (CAVE: hyperkapnische Ateminsuffizienz bei unkontrollierter O₂-Gabe), kontrollierte O₂-Gabe über Venturi-Maske bevorzugt</li>
-<li>Oberkörperhochlagerung, Kutschersitz</li>
-</ul>
-<h3>Medikamentöse Therapie</h3>
-<ul>
-<li><strong>Salbutamol</strong> 2,5–5 mg Vernebler alle 20 min (oder 4–8 Hübe über Spacer), ggf. als Dauerverneblung</li>
-<li><strong>Ipratropiumbromid</strong> 0,5 mg Vernebler alle 20 min (oder 4 Hübe über Spacer)</li>
-<li><strong>Prednisolon</strong> 40–50 mg p.o. oder i.v. 1x/d für 5 Tage (nicht länger)</li>
-<li><strong>Magnesiumsulfat</strong> 1,2–2 g i.v. über 20 min bei schwerer Exazerbation (Einzelfallentscheidung)</li>
-</ul>
-<h3>Antibiotische Therapie</h3>
-<p>Indikation: purulentes Sputum + Dyspnoe und/oder erhöhte Sputummenge, oder mechanische Beatmung</p>
-<ul>
-<li><strong>Amoxicillin/Clavulansäure</strong> 875/125 mg p.o. 2x/d für 5 Tage</li>
-<li>Alternativ: <strong>Azithromycin</strong> 500 mg p.o. 1x/d für 3 Tage oder <strong>Levofloxacin</strong> 500 mg p.o. 1x/d für 5 Tage</li>
-<li>Bei V.a. Pseudomonas (schwere COPD, Bronchiektasen, häufige AB-Therapien): <strong>Piperacillin/Tazobactam</strong> 4,5 g i.v. 3x/d oder Ciprofloxacin</li>
-</ul>
-<h3>Ventilatorische Unterstützung</h3>
-<ul>
-<li><strong>NIV (nicht-invasive Ventilation):</strong> Indikation bei respiratorischer Azidose (pH < 7,35 und pCO₂ > 45 mmHg) oder persistierender Dyspnoe trotz maximaler medikamentöser Therapie. Bevorzugt BiPAP/PSV-Modus</li>
-<li><strong>Invasive Beatmung:</strong> bei NIV-Versagen, Bewusstlosigkeit, Kreislaufinstabilität, persistierender Hypoxämie trotz NIV</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Bei V.a. ventilatorische Erschöpfung (zunehmende Somnolenz, paradoxe Atmung, pH < 7,25) frühzeitig Intensivstation kontaktieren!</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Ziel-SpO₂ bei COPD-Patienten: <strong>88–92%</strong> – unkontrollierte Sauerstoffgabe kann die Hyperkapnie verschlechtern!</li>
-<li>BGA ist die <strong>wichtigste Untersuchung</strong> zur Einschätzung der Exazerbationsschwere (pH und pCO₂)!</li>
-<li>NIV ist die Therapie der Wahl bei hyperkapnischem Versagen mit Azidose – frühzeitig einsetzen!</li>
-<li>Systemische Steroide für maximal <strong>5 Tage</strong> – eine längere Gabe bringt keinen zusätzlichen Nutzen</li>
-<li>Antibiotika nur bei <strong>purulentem Sputum</strong> oder Beatmungspflichtigkeit</li>
-<li>Differentialdiagnosen beachten: Pneumonie, LAE, Pneumothorax, kardiale Dekompensation</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> schwere Azidose (pH < 7,30), Bewusstseinseintrübung, Intubationspflichtigkeit, hämodynamische Instabilität</li>
-<li><strong>Überwachungsstation/IMC:</strong> NIV-Pflichtigkeit, moderate Azidose</li>
-<li><strong>Normalstation:</strong> stabile Patienten mit Notwendigkeit i.v.-Therapie oder O₂-Bedarf</li>
-<li><strong>Ambulant:</strong> leichte Exazerbation, gute häusliche Versorgung, gesicherte Wiedervorstellung</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `GOLD 2024 Report. Global Strategy for the Diagnosis, Management, and Prevention of Chronic Obstructive Pulmonary Disease.<br>
-Vogelmeier CF et al. S2k-Leitlinie zur Diagnostik und Therapie von Patienten mit COPD. AWMF-Register-Nr. 020-006, 2018.<br>
-Wedzicha JA et al. Management of COPD exacerbations: a European Respiratory Society/American Thoracic Society guideline. Eur Respir J. 2017;49(3):1600791.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Akute Exazerbation der COPD (AECOPD):</strong> Ereignis, das durch verstärkte Dyspnoe und/oder Husten sowie Auswurf gekennzeichnet ist, sich innerhalb von < 14 Tagen verschlimmert, mit Tachypnoe und/oder Tachykardie einhergehen kann und häufig von einer verstärkten lokalen und systemischen Entzündung begleitet wird, die durch eine Infektion, Schadstoffbelastung oder eine andere Beeinträchtigung der Atemwege verursacht wird.</li>
+                </ul>
+                <h3>Schweregrade</h3>
+                <ul>
+                    <li><strong>Milde Exazerbation:</strong> Dyspnoe VAS < 5, AF < 24/min, HF < 95/min, SpO₂ ≥ 92 % (unter Raumluft oder mit gewöhnlichem Sauerstoffbedarf) und Änderung ≤ 3 %, CRP < 10 mg/l (wenn bestimmt)</li>
+                    <li><strong>Moderate Exazerbation</strong> (≥ 3 Kriterien müssen zutreffen): Dyspnoe VAS ≥ 5, AF ≥ 24/min, HF ≥ 95/min, SpO₂ < 92 % (unter Raumluft oder mit gewöhnlichem Sauerstoffbedarf) und/oder Änderung > 3 % (wenn bekannt), CRP ≥ 10 mg/l</li>
+                    <li><strong>Schwere Exazerbation:</strong> Dyspnoe, AF, HF, SaO₂ und CRP wie bei moderater Exazerbation; in arterieller BGA: neue oder verschlechternde <strong>Hyperkapnie</strong> (PaCO₂ > 45 mmHg) und <strong>respiratorische Azidose</strong> (pH < 7,35)</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li>Virale oder bakterielle Infektionen</li>
+                    <li>Fehlende Medikamentenadhärenz</li>
+                    <li>Ursache teilweise unklar (Umweltfaktoren wie Luftverschmutzung, meteorologische Effekte, etc.)</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Zunahme der Dyspnoe, Tachypnoe, Orthopnoe, Zyanose, Einsatz der Atemhilfsmuskulatur</li>
+                    <li>Vermehrter Husten, Brustenge</li>
+                    <li>Zeichen der bronchialen Obstruktion (Giemen, Brummen, Pfeifen, verlängertes Exspirium)</li>
+                    <li>Zunahme des Sputumvolumens, ggf. Sputumpurulenz</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter</strong> (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li><strong>1x venöser Zugang</strong></li>
+                    <li><strong>Venöse, ggf. arterielle BGA</strong> (pH? pO₂? pCO₂? BE? Laktat?)</li>
+                    <li><strong>Labor:</strong> Diff-BB, CRP, E'lyte, NW, ggf.: Bilirubin, Gerinnung, TSH, PCT, NT-proBNP, hs-Troponin, D-Dimere</li>
+                    <li><strong>12-Kanal-EKG</strong> (Ischämiezeichen? Herzrhythmusstörungen?)</li>
+                    <li><strong>Anamnese:</strong> Symptome? Fieber? Auswurf? Sputumfarbe? Medikamentenadhärenz? Vorerkrankungen? Heim-O₂/NIV? Vorangegangene Exazerbationen?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? Zyanose? Tachypnoe? Einsatz der Atemhilfsmuskulatur? Bronchospasmus? „Silent Lung“? Ödeme?</li>
+                    <li><strong>Röntgen-Thorax</strong> (Pneumothorax? Infiltrate? Stauung? Ergüsse?)</li>
+                    <li>ggf. <strong>POCUS</strong> (Pneumothorax? Infiltrate? Pulmonale B-Linien? Pleuraergüsse?)</li>
+                    <li>ggf. <strong>CT-Thorax</strong> (Abszess? Empyem? Lungenarterienembolie?)</li>
+                    <li>ggf. Sputumdiagnostik, ≥ 2 Paar Blutkulturen, Influenza-PCR, SARS-CoV-2-PCR, Legionellen-Antigen im Urin</li>
+                    <li>ggf. Anlage eines arteriellen Zugangs</li>
+                </ul>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema</li>
+                    <li>Patienten beruhigen</li>
+                    <li>Sitzende Position bzw. Oberkörperhochlagerung und atemerleichternde Maßnahmen (z.B. Lippenbremse)</li>
+                    <li><strong>Kontrollierte O₂-Gabe</strong> bei Hypoxie, Ziel-SpO₂: 88–92 %</li>
+                    <li><strong>NIV</strong> frühzeitig bei respiratorischer Azidose, schwerer Dyspnoe mit Einsatz der Atemhilfsmuskulatur bzw. Zeichen muskulärer Erschöpfung oder persistierender Hypoxämie trotz O₂-Gabe (s. NIV-Anleitung SOP Dyspnoe)</li>
+                    <li>Intubation (als Ultima Ratio) bei respiratorischer Insuffizienz und Versagen nicht-invasiver Maßnahmen</li>
+                </ul>
+                <h3>Medikamentöse Therapie</h3>
+                <ul>
+                    <li><strong>Salbutamol</strong> (Sultanol® forte) - Inhalation: 2,5 mg (1x Fertiginhalat ≙ 2,5 ml), ggf. nach 20 Minuten wiederholen</li>
+                    <li><strong>Ipratropiumbromid</strong> (Atrovent®) - Inhalation: 0,5 mg (2 x Fertiginhalat ≙ 4 ml), ggf. nach 30 Minuten wiederholen</li>
+                    <li><strong>Prednisolon</strong> (Solu-Decortin®): 40 mg p.o. für 5 Tage (ggf. initial 50–100 mg i.v.)</li>
+                </ul>
+                <h3>ggf. Therapieeskalation</h3>
+                <ul>
+                    <li><strong>Reproterol</strong> (Bronchospasmin®): 0,09 mg (1 Ampulle) langsam i.v. (ggf. nach 10 Minuten wiederholen), ggf. kontinuierlich als Perfusor 0,018–0,09 mg/h (≙ 5 Ampullen Reproterol auf 50 ml, Laufrate 2–10 ml/h)</li>
+                    <li><strong>Terbutalin</strong> (Bricanyl®): 0,25–0,5 mg (½–1 Ampulle) s.c. (max. alle 4 h, max. 4x/d)</li>
+                    <li><strong>Morphin:</strong> 2 mg i.v. oder 5 mg s.c. bei Tachypnoe und Agitation</li>
+                    <li><strong>Furosemid</strong> (Lasix®): 40 mg i.v. bei peripheren Ödemen</li>
+                </ul>
+                <h3>Antibiotische Therapie</h3>
+                <ul>
+                    <li><strong>Indikationen:</strong>
+                        <ul>
+                            <li>Vorliegen folgender <strong>drei Kardinalsymptome</strong>: Zunahme von Dyspnoe, Sputummenge, Sputumpurulenz</li>
+                            <li>Zunahme der Sputumpurulenz + Zunahme von Dyspnoe oder Sputummenge</li>
+                            <li>Notwendigkeit zur invasiven oder nicht-invasiven Beatmung</li>
+                        </ul>
+                    </li>
+                    <li><strong>Therapiedauer:</strong> i.d.R. 5–7 Tage</li>
+                    <li><strong>Wirkstoffe:</strong> z.B. <strong>Ampicillin/Sulbactam</strong> 3 g 1-1-1 i.v. oder Piperacillin/Tazobactam 4,5 g 1-1-1(-1) i.v. (bei Pseudomonasrisiko)</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bei V.a. AECOPD immer Differentialdiagnosen bedenken (Herzinsuffizienz, LAE, ACS, Pneumonie, Pneumothorax, etc.)</li>
+                    <li>Häusliche Dauertherapie (LAMAs, LABAs, etc.) in bisheriger Dosierung auch in der Exazerbation weiterführen</li>
+                    <li>Titrierte O₂-Gabe und regelmäßige Blutgaskontrollen (nach 20 min) zur Vermeidung einer Hyperkapnie</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Stationäre Aufnahme:</strong>
+                        <ul>
+                            <li>Klinische Instabilität oder</li>
+                            <li>Nichtansprechen auf ambulante Therapie</li>
+                        </ul>
+                    </li>
+                    <li><strong>Überwachungsstation (IMC/ICU):</strong>
+                        <ul>
+                            <li>Schwere Dyspnoe, nicht korrigierbar durch Akuttherapie</li>
+                            <li>Veränderte Vigilanz (Verwirrtheit, Lethargie, Koma)</li>
+                            <li>Persistierende Hypoxämie trotz O₂-Gabe</li>
+                            <li>Progrediente Hyperkapnie mit respiratorischer Azidose</li>
+                            <li>Kreislaufinsuffizienz</li>
+                        </ul>
+                    </li>
+                </ul>`
+            }
+        ],
+        stand: "10/23",
+        sources: `Herold G et al. Innere Medizin 2019.<br>Vogelmeier C et al. Leitlinie... COPD. Pneumologie 2018.<br>GOLD Report 2023.<br>Klemmer A et al. COPD... Dtsch Med Wochenschr 2023.<br>S2k Leitlinie „Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen“. 2018.<br>Ko FW et al. Acute Exacerbation of COPD. Respirology 2016.<br>Abdo WF et al. Oxygen-induced hypercapnia in COPD. Critical Care 2012.`
     });
 })();

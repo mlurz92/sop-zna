@@ -1,106 +1,168 @@
-// SOP: Synkope
-// Kategorie: Leitsymptom
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "synkope",
         title: "Synkope",
         category: "Leitsymptom",
         catKey: "leit",
+        stand: "12/22",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Synkope:</strong> Transienter Bewusstseinsverlust (T-LOC) durch eine vorübergehende globale zerebrale Minderperfusion, gekennzeichnet durch schnellen Beginn, kurze Dauer und spontane, vollständige Erholung</li>
-</ul>
-<h3>Einteilung</h3>
-<ul>
-<li><strong>Reflexsynkope (neurokardiogen):</strong> vasovagal, situativ (Husten, Miktion, Defäkation), Karotissinussyndrom</li>
-<li><strong>Orthostatische Synkope:</strong> autonome Dysfunktion, medikamentös, Volumenmangel</li>
-<li><strong>Kardiogene Synkope:</strong> Arrhythmien, strukturelle Herzerkrankung (HOCM, Aortenstenose, LAE, Tamponade)</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<h3>Häufig (low-risk)</h3>
-<ul>
-<li><strong>Vasovagale Synkope</strong> (häufigste Ursache!): emotionaler Trigger, langes Stehen, Hitze, Schmerz</li>
-<li><strong>Situativ:</strong> Miktionssynkope, Hustenstoß, Defäkation, Schlucksynkope</li>
-<li><strong>Orthostatisch:</strong> Medikamente (Antihypertensiva, Diuretika, α-Blocker, trizyklische AD, Neuroleptika), Volumenmangel, autonome Neuropathie</li>
-</ul>
-<h3>Gefährlich (high-risk)</h3>
-<ul>
-<li><strong>Kardiale Arrhythmien:</strong> AV-Block III°, Sick-Sinus-Syndrom, VT, Torsade de Pointes, Brugada-Syndrom, Long-QT-Syndrom, Schrittmacherdysfunktion</li>
-<li><strong>Strukturelle Herzerkrankung:</strong> Aortenstenose, HOCM, Myokardinfarkt, LAE, Perikardtamponade, Aortendissektion</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Synkope bei Belastung</strong> (Sport, Treppensteigen) → immer an <strong>kardiale Ursache</strong> denken (Aortenstenose, HOCM, Arrhythmie)!</p></div>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li>Plötzlicher <strong>Bewusstseinsverlust</strong> mit Tonusverlust und Sturz</li>
-<li>Kurze Dauer (Sekunden bis max. 1–2 min)</li>
-<li><strong>Spontane, vollständige Erholung</strong></li>
-<li>ggf. <strong>Prodromi bei vasovagaler Synkope:</strong> Schwindel, Übelkeit, Schwitzen, Wärmegefühl, Tunnelblick, Ohrensausen</li>
-<li>ggf. kurze Myoklonien während der Synkope (DD epileptischer Anfall!)</li>
-<li>ggf. <strong>keine Prodromi</strong> bei kardiogener Synkope (Alarmzeichen!)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter (inkl. orthostasetest: RR liegend + nach 3 min Stehen)</li>
-<li>1x venöser Zugang</li>
-<li><strong>12-Kanal-EKG</strong> (obligat bei jeder Synkope!)</li>
-<li><strong>BGA</strong> (Hb? Glukose? Laktat?)</li>
-<li><strong>Labor:</strong> BB, E'lyte, NW, Glukose, hs-Troponin, ggf. D-Dimere, β-HCG</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese (WICHTIGSTE Diagnostik!):</strong> Auslöser? Position? Prodromi? Dauer? Zeugenbeobachtung? Zungenbiss (lateral = epi, Zungenspitze = Synkope)? Postiktale Verwirrtheit (> 5 min = epi)? Belastungssynkope? Palpitationen? Thoraxschmerz? Familienanamnese (plötzlicher Herztod!)?</li>
-<li><strong>Körperliche Untersuchung:</strong> Herzgeräusch (Aortenstenose)? Karotisgeräusch? Neurologischer Status? Verletzungen durch Sturz?</li>
-</ul>
-<h3>Risikostratifizierung (High-Risk-Merkmale)</h3>
-<ul>
-<li>Synkope bei Belastung oder im Liegen</li>
-<li>Keine/kurze Prodromi, Palpitationen vor Synkope</li>
-<li>Pathologisches EKG (AV-Block, LSB, QTc > 460 ms, Brugada-Muster, WPW)</li>
-<li>Strukturelle Herzerkrankung (HI, KHK, HOCM)</li>
-<li>Familienanamnese für plötzlichen Herztod (< 40 J.)</li>
-<li>Anämie, niedrige SpO₂, Troponin ↑</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<ul>
-<li><strong>Ursachenbehandlung!</strong></li>
-<li><strong>Vasovagal:</strong> Aufklärung, Trigger-Vermeidung, physische Gegenmanöver (Beine kreuzen, Hände zusammenpressen), ausreichende Flüssigkeitszufuhr</li>
-<li><strong>Orthostatisch:</strong> Auslösende Medikamente reduzieren/absetzen, Kompressionsstrümpfe, Flüssigkeit + Kochsalz, ggf. Midodrin</li>
-<li><strong>Kardiale Arrhythmie:</strong> Schrittmacher (bei Bradykardie/AV-Block), ICD (bei VT/VF), Katheterablation, Antiarrhythmika</li>
-<li><strong>Strukturell:</strong> Aortenklappenersatz (Aortenstenose), PCI/ACVB (ACS), Therapie der LAE, Perikardpunktion</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Anamnese</strong> ist die wichtigste Diagnostik bei Synkope!</li>
-<li><strong>EKG ist Pflicht</strong> bei jeder Synkope!</li>
-<li><strong>High-Risk-Merkmale</strong> identifizieren → Kardiologische Abklärung!</li>
-<li>DD <strong>Epilepsie:</strong> prolongierte Bewusstlosigkeit, postiktale Verwirrtheit > 5 min, lateraler Zungenbiss, Enuresis → eher epileptisch</li>
-<li><strong>Synkope bei Belastung = kardiogen bis zum Beweis des Gegenteils!</strong></li>
-<li>An <strong>LAE</strong> und <strong>Aortendissektion</strong> als lebensgefährliche Ursachen denken!</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Stationär:</strong> High-Risk-Merkmale, pathologisches EKG, strukturelle Herzerkrankung, Synkope bei Belastung, rezidivierende Synkopen, relevante Verletzungen</li>
-<li><strong>Ambulant:</strong> Low-Risk, typische vasovagale Synkope, normales EKG, keine Risikofaktoren</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Brignole M et al. 2018 ESC Guidelines for the diagnosis and management of syncope. Eur Heart J. 2018;39(21):1883-1948.<br>Costantino G et al. Syncope clinical management in the emergency department: a consensus from the first international workshop on syncope risk stratification in the emergency department. Eur Heart J. 2016;37(19):1493-8.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Synkope:</strong> Vorübergehender Bewusstseinsverlust infolge einer zerebralen Hypoperfusion, gekennzeichnet durch rasches Einsetzen, kurze Dauer und spontane, vollständige Erholung.</li>
+                    <li><strong>Präsynkope:</strong> Prodromalstadium einer Synkope (Schwarzwerden vor den Augen, Benommenheit, Schweißausbruch, etc.).</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<h3>Kardial</h3>
+                <ul>
+                    <li><strong>Strukturell kardial:</strong> Aortenklappenstenose, akuter Myokardinfarkt, HOCM, etc.</li>
+                    <li><strong>Rhythmogen:</strong> Sick-Sinus-Syndrom, AV-Block II°-III°, Bradyarrhythmia absoluta, supra- und ventrikuläre Tachykardie, etc.</li>
+                    <li><strong>Kardiopulmonal und große Gefäße:</strong> Aortendissektion, Lungenarterienembolie, etc.</li>
+                </ul>
+                <h3>Reflex-Synkope</h3>
+                <ul>
+                    <li><strong>Vasovagal:</strong> im Stehen, seltener im Sitzen oder wegen emotionalem Stress wie Furcht, Schmerz, Geruch, Geräusch, Phobie.</li>
+                    <li><strong>Situativ:</strong> Miktion, Defäkation, Husten, Lachen, nach körperlicher Anstrengung, etc.</li>
+                    <li><strong>Karotissinus-Syndrom:</strong> bei Kopfdrehung, Rasieren, Tumor im Halsbereich, etc.</li>
+                    <li><strong>Nichtklassische Form:</strong> ohne Prodromi oder ohne ersichtlichen Trigger.</li>
+                </ul>
+                <h3>Orthostatisch</h3>
+                <ul>
+                    <li><strong>Medikamentös:</strong> Vasodilatatoren, Diuretika, Antidepressiva.</li>
+                    <li><strong>Volumenmangel:</strong> Diarrhoe, Erbrechen, Blutung, etc.</li>
+                    <li><strong>Neurogen:</strong> Morbus Parkinson, Polyneuropathie etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Kurzzeitiger Bewusstseinsverlust mit spontaner vollständiger Erholung.</li>
+                    <li>ggf. Verletzungen als Folge eines Sturzes.</li>
+                    <li>ggf. Symptome einer zugrundeliegenden Erkrankung (z.B. Dyspnoe bei LAE, Teerstuhl bei GI-Blutung).</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter</strong> (RR, Puls, SpO₂, AF, Temperatur).</li>
+                    <li><strong>1x venöser Zugang.</strong></li>
+                    <li><strong>Venöse BGA:</strong> Hb? E'lyte? Glukose?</li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, ggf.: hs-Troponin, D-Dimere, NT-proBNP.</li>
+                    <li><strong>12-Kanal-EKG:</strong> Herzrhythmusstörung? Ischämiezeichen? Blockbild? Brugada-Muster? Hypertrophiezeichen? QTc-Zeit? Delta-/Epsilon-Welle?</li>
+                    <li><strong>(Fremd-)Anamnese:</strong> Situation? Rasche Re-Orientierung? Provokationsfaktoren? Körperposition? Prodromi? Erstereignis? Hochrisikomerker? Schmerzen? Palpitationen? Dyspnoe? Medikamente? Vorerkrankungen? Herzerkrankung? Plötzlicher Herztod in Familienanamnese?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Systolikum? Fokal-neurologisches Defizit? Sturzfolgen? Blut/Teerstuhl in DRU?</li>
+                    <li><strong>Orthostase-Test:</strong> minütliche Messung von Blutdruck und Herzfrequenz im Liegen und während aktiven Stehens über 3 min.</li>
+                    <li><strong>POCUS:</strong> Strukturelle Herzerkrankung? Klappenvitien? LV-EF? Akute Rechtsherzbelastungszeichen? Dissektionsmembran? Freie Flüssigkeit?</li>
+                    <li><strong>ggf. weiterführende Diagnostik</strong> bei Hinweisen für andere akute Erkrankung.</li>
+                </ul>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Kardiale Synkope oder Synkope als Symptom einer anderen akuten Erkrankung</h3>
+                <ul>
+                    <li>Kausale Behandlung der Grunderkrankung.</li>
+                </ul>
+                <h3>Reflex-Synkope oder orthostatische Synkope ohne Anhalt für akute Erkrankung</h3>
+                <ul>
+                    <li><strong>Kausale Behandlung:</strong> Reduktion der Antihypertensiva, Volumengabe, etc.</li>
+                    <li><strong>Aufklärung, Beruhigung und Information über präventive Maßnahmen:</strong>
+                        <ul>
+                            <li>Langsamer Lagewechsel.</li>
+                            <li>Ausreichende Salz- und Flüssigkeitszufuhr.</li>
+                            <li>Tragen von Kompressionsstrümpfen.</li>
+                            <li>Isometrische Manöver (z.B. Beine kreuzen, Hände ineinander verhaken und ziehen).</li>
+                        </ul>
+                    </li>
+                </ul>`
+            },
+            {
+                title: "Risikostratifizierung (Risikomerkmale)",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kategorie</th>
+                                <th>Hochrisiko (V.a. kardial/ernst)</th>
+                                <th>Intermediär</th>
+                                <th>Niedrigrisiko (V.a. Reflex/Ortho)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Anamnese</strong></td>
+                                <td>Plötzliche Palpitationen unmittelbar vor Synkope; Belastung oder im Liegen; Neu einsetzende Atemnot, Thorax-, Abdominal- oder Kopfschmerz.</td>
+                                <td>Keine Warnsymptome oder kurze (< 10 s) Prodromi; Plötzlicher Herztod in jungen Jahren in Familienanamnese; Synkope im Sitzen.</td>
+                                <td>Typische Prodromi (> 10s) wie Übelkeit, Schwitzen; Typische Charakteristika einer Reflex- oder orthostatischen Synkope.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vorgeschichte</strong></td>
+                                <td>Schwere kardiale Erkrankung (Herzinsuffizienz, niedrige LVEF oder früherer Myokardinfarkt).</td>
+                                <td>-</td>
+                                <td>Keine kardiale Erkrankung; Jahrelang rezidivierende Synkopen mit identischem Charakter.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Untersuchung</strong></td>
+                                <td>Unklarer RR-systolisch < 90 mmHg; Verdacht auf GI-Blutung (DRU); Bradykardie < 40/min im Wachzustand; Undiagnostiziertes Systolikum.</td>
+                                <td>-</td>
+                                <td>Normalbefund.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EKG</strong></td>
+                                <td>Akute Ischämiezeichen; AV-Block II° Mobitz oder AV-Block III°; HF < 40/min oder Sinusarrest > 3s; Kompletter Schenkelblock; Hypertrophiezeichen; Ventrikuläre Tachykardie; Schrittmacherfehlfunktion; Brugada-Muster; QTc > 460 ms.</td>
+                                <td>AV-Block II° Wenckebach; AV-Block I° mit deutlich verlängertem PR; Asymptomatische Bradykardie (40-50/min); Paroxysmales SVT/VHF; QRS-Komplex mit Präexzitation; Verkürzte QTc-Zeit (< 340 ms); Atypische Brugada-Muster; Negative T-Wellen rechtspräkordial/Epsilon-Welle (ARVC).</td>
+                                <td>Normalbefund.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Präsynkope und Synkope haben den gleichen Pathomechanismus, die gleiche Prognose und erfordern die gleiche Abklärung.</li>
+                    <li><strong>Rasche Reorientierung</strong> ist das wichtigste Abgrenzungsmerkmal zum Krampfanfall.</li>
+                    <li>Niedrigrisikokonstellation: Vitalparameter, Anamnese, körperliche Untersuchung und 12-Kanal-EKG sind alle ausreichend/unauffällig.</li>
+                    <li>Typische <strong>„PPP“-Synkopen</strong> (Prodromi und Provokationsfaktor vorhanden, Position = Stehen bzw. Lagewechsel) sind meist benigner Natur.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Risikoprofil</th>
+                                <th>Empfohlene Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Niedrigrisikomerkmale</strong></td>
+                                <td>Ambulantes Procedere</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Intermediäre Risikomerkmale oder rezidivierende Synkopen</strong></td>
+                                <td>Einzelfallentscheidung</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hochrisikomerkmale</strong></td>
+                                <td>Stationäre Aufnahme, häufig Überwachungsstation (IMC/ICU)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        sources: `Fleischmann T et al. Fälle Klinische Notfallmedizin: Die 100 wichtigsten Diagnosen, 2018.<br>
+        D'Ascenzo F et al. Incidence, etiology and predictors of adverse outcomes in patients presenting to the ED with syncope. Int J Cardiol. 2013.<br>
+        ESC Guidelines for the diagnosis and management of syncope (2018).<br>
+        Bruno RR et al. Syncope oder „...auf einmal war ich weg“... Notaufnahme up2date 2019.<br>
+        Brignole M et al. Practical Instructions for the 2018 ESC Guidelines for the diagnosis and management of syncope. Eur Heart J. 2018.`
     });
 })();

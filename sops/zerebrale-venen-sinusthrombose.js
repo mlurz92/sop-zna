@@ -1,103 +1,112 @@
-// SOP: Zerebrale Venen-/Sinusthrombose
-// Kategorie: Neurologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "zerebrale-venen-sinusthrombose",
         title: "Zerebrale Venen-/Sinusthrombose",
         category: "Neurologie",
         catKey: "neuro",
+        date: "03/25",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Zerebrale Venen- und Sinusthrombose (CVST):</strong> Thrombose der venösen Blutleiter im Gehirn mit Entwicklung einer venösen Abflussstörung und Gefahr von konsekutiver Ödembildung, Ischämien und Stauungsblutungen</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Aseptisch (90%):</strong>
-<ul>
-<li>Hormoneinnahme (kombinierte Kontrazeptiva, Hormonersatztherapie)</li>
-<li>Thrombophilie (Protein-C/S-Mangel, Antiphospholipid-Syndrom)</li>
-<li>Schwangerschaft (v.a. 3. Trimenon und Wochenbett)</li>
-<li>Myeloproliferative Erkrankungen (JAK2V617F-Mutation)</li>
-<li>Sonstige (idiopathisch, Vaskulitiden, Kollagenosen, Malignom)</li>
-</ul>
-</li>
-<li><strong>Septisch (10%):</strong>
-<ul>
-<li>Lokale Infektionen (Otitis media, Mastoiditis, Sinusitis, Meningitis)</li>
-</ul>
-</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Kopfschmerzen</strong> (in 90% der Fälle, häufigstes Symptom)</li>
-<li><strong>Epileptische Anfälle</strong></li>
-<li><strong>Fokal-neurologische Defizite</strong></li>
-<li><strong>Stauungspapille</strong>, Sehstörungen</li>
-<li>Übelkeit, Erbrechen</li>
-<li>Vigilanzminderung bis Koma</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Gerinnung, TSH, ggf. β-HCG, D-Dimere, BSG</li>
-<li><strong>Anamnese:</strong> Kopfschmerzen? Epileptischer Anfall? Fokal-neurologische Ausfälle? Sehstörungen? Kontrazeptivum? Schwangerschaft? Hormoneinnahme? Infektionen im Kopfbereich?</li>
-<li><strong>Körperliche Untersuchung:</strong> Vigilanz? GCS? Fokal-neurologisches Defizit? Meningismus? Infektfokus?</li>
-<li><strong>cMRT + KM-Venographie</strong> (Goldstandard!) <strong>oder cCT + KM-Venographie</strong></li>
-<li>ggf. weitere Diagnostik z.A. von DD (BGA, EKG, Fundoskopie, CTA, Lumbalpunktion)</li>
-<li><strong>Zeitnahe Rücksprache mit Neurologie!</strong></li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Nativ-CT ist nicht ausreichend</strong> zum Ausschluss einer CVST! Immer <strong>KM-Venographie</strong> (cMRT oder cCT) anfordern!</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Allgemeinmaßnahmen</h3>
-<ul>
-<li>Stabilisierung gemäß ABCDE-Schema</li>
-<li>Ursachen beheben (Kontrazeptivum absetzen, Fokussanierung bei septischer CVST, Antibiotikatherapie)</li>
-<li>Bedarfsgerechte Analgesie und Antiemese</li>
-<li>Anfallsdurchbrechung bei Anfall (s. SOP Status epilepticus), Anfallsprophylaxe nur nach stattgehabtem Anfall</li>
-</ul>
-<h3>Therapeutische Antikoagulation</h3>
-<ul>
-<li><strong>NMH s.c. gewichtsadaptiert</strong> (UFH bei GFR < 15 ml/min oder falls Intervention geplant)</li>
-<li>Nach Akutphase Umstellung auf DOAK</li>
-</ul>
-<h3>Spezifische Therapie</h3>
-<ul>
-<li>Neuroradiologische Intervention (Einzelfallentscheidung bei Verschlechterung trotz Antikoagulation)</li>
-<li>Operative Dekompression (bei Stauungsödem/Hämorrhagie und drohender Einklemmung)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Auch bei Vorliegen einer <strong>begleitenden Hirnblutung</strong> ist in der Akutphase eine <strong>therapeutische Antikoagulation indiziert!</strong></p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>CVST kann sich <strong>vielfältig</strong> präsentieren – Leitsymptom in 90%: <strong>Kopfschmerzen</strong></li>
-<li>Vor allem an CVST denken bei: <strong>junge Frauen, Schwangerschaft/Wochenbett, hormonelle Kontrazeptiva, Thrombophilie</strong></li>
-<li><strong>cMRT/cCT + KM-Venographie!</strong> (Nativ-CT nicht ausreichend!)</li>
-<li><strong>D-Dimere</strong> können nur bei niedrig-Risiko-Fällen (isolierter Kopfschmerz, keine Neurologie, Dauer < 30d) und negativem Ergebnis eine CVST unwahrscheinlich machen</li>
-<li>Auch bei Hirnblutung → <strong>Antikoagulation!</strong></li>
-<li>Frauen mit Z.n. CVST: <strong>keine kombinierten Kontrazeptiva, NMH in Schwangerschaft</strong></li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Überwachungsstation (Stroke-Unit / Neuro-ICU)</strong></li>
-</ul>`
-}
-],
+            {
+                title: "Definition",
+                html: `<p><strong>Zerebrale Venen- und Sinusthrombose (CVST):</strong> Thrombose der venösen Blutleiter im Gehirn mit Entwicklung einer venösen Abflussstörung und Gefahr von konsekutiver Ödembildung, Ischämien und Stauungsblutungen.</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<h3>Aseptisch (90%)</h3>
+                <ul>
+                    <li><strong>Hormoneinnahme:</strong> z.B. kombinierte Kontrazeptiva, Hormonersatztherapie.</li>
+                    <li><strong>Thrombophilie:</strong> z.B. Protein-C/S-Mangel, Antiphospholipid-Syndrom.</li>
+                    <li><strong>Schwangerschaft:</strong> insbesondere 3. Trimenon und Wochenbett.</li>
+                    <li><strong>Myeloproliferative Erkrankungen:</strong> z.B. bei JAK2V617F-Mutation.</li>
+                    <li><strong>Sonstige:</strong> z.B. idiopathisch, Vaskulitiden, Kollagenosen, Malignom.</li>
+                </ul>
+                <h3>Septisch (10%)</h3>
+                <ul>
+                    <li><strong>Lokale Infektionen:</strong> z.B. Otitis media, Mastoiditis, Sinusitis, Meningitis.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Kopfschmerzen:</strong> Leitsymptom in 90 % der Fälle.</li>
+                    <li>Epileptische Anfälle.</li>
+                    <li>Fokal-neurologische Defizite.</li>
+                    <li>Stauungspapille, Sehstörungen.</li>
+                    <li>Übelkeit, Erbrechen.</li>
+                    <li>Vigilanzminderung bis hin zum Koma.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter:</strong> RR, Puls, SpO₂, AF, Temperatur.</li>
+                    <li><strong>1x venöser Zugang.</strong></li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Gerinnung, TSH.
+                    <br>Ggf. zusätzlich: <strong>beta-HCG, D-Dimere, BSG</strong>.</li>
+                    <li><strong>Anamnese:</strong> Kopfschmerzen? Epileptischer Anfall? Fokal-neurologische Ausfälle? Sehstörungen? Vorerkrankungen? Gerinnungsstörung? Medikamente? Kombiniertes Kontrazeptivum? Schwangerschaft? Hormoneinnahme? Infektionen im Kopfbereich?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? GCS? Fokal-neurologisches Defizit? Meningismus? <strong>Infektfokus im Zahn-/Kiefer-/HNO-Bereich?</strong></li>
+                    <li><strong>Bildgebung (Mittel der Wahl):</strong>
+                        <ul>
+                            <li><strong>cMRT + KM-Venografie:</strong> Goldstandard, keine Strahlenbelastung.</li>
+                            <li><strong>cCT + KM-Venografie:</strong> gute Verfügbarkeit, schnelle Durchführbarkeit.</li>
+                        </ul>
+                    </li>
+                    <li>Ggf. weitere Diagnostik zum Ausschluss von Differentialdiagnosen (BGA, 12-Kanal-EKG, Fundoskopie, CTA, Lumbalpunktion, etc.).</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Zeitnahe Rücksprache mit Neurologie + ggf. weiteren Fachdisziplinen (Neuroradiologie/-chirurgie, HNO, MKG)!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema.</li>
+                    <li><strong>Ursachen beheben:</strong> z.B. Kontrazeptivum absetzen, Fokussanierung und antibiotische Therapie bei septischer CVST.</li>
+                    <li>Bedarfsgerechte analgetische und antiemetische Therapie.</li>
+                    <li><strong>Anfallsdurchbrechung:</strong> (s. SOP Status epilepticus), Anfallsprophylaxe nur nach stattgehabtem epileptischem Anfall.</li>
+                </ul>
+                <h3>Therapeutische Antikoagulation</h3>
+                <ul>
+                    <li><strong>NMH s.c. gewichtsadaptiert:</strong> Mittel der Wahl.</li>
+                    <li><strong>UFH i.v.:</strong> bei GFR < 15 ml/min oder falls eine neurochirurgische Intervention geplant ist.</li>
+                    <li>Nach Akutphase Umstellung auf DOAK (nach neurologischer Maßgabe).</li>
+                </ul>
+                <div class="callout callout-cave">
+                    <p><strong>WICHTIG:</strong> Auch bei Vorliegen einer begleitenden Hirnblutung ist in der Akutphase eine therapeutische Antikoagulation indiziert!</p>
+                </div>
+                <h3>Spezifische Therapie</h3>
+                <ul>
+                    <li><strong>Neuroradiologische Intervention:</strong> Einzelfallentscheidung bei Verschlechterung der Symptomatik trotz suffizienter Antikoagulation.</li>
+                    <li><strong>Operative Dekompression:</strong> bei Stauungsödem/Hämorrhagie und drohender Einklemmung.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Die CVST kann sich vielfältig präsentieren, Leitsymptom sind in 90 % der Fälle Kopfschmerzen.</li>
+                    <li>Eine CVST sollte vor allem bei jungen Frauen, in Schwangerschaft/Wochenbett, bei Einnahme von hormonellen Kontrazeptiva sowie bei hereditären Thrombophilien in Betracht gezogen werden.</li>
+                    <li>Bei Verdacht auf eine CVST &rarr; notfallmäßige Bildgebung: <strong>cMRT/cCT + KM-Venografie</strong> (CAVE: Nativ-CT nicht ausreichend!).</li>
+                    <li>Kein sicherer Ausschluss einer CVST durch D-Dimer-Testung möglich (&rarr; keine routinemäßige D-Dimer-Bestimmung).</li>
+                    <li>Lediglich bei <strong>ausgewählten Fällen</strong> (geringe klinische Wahrscheinlichkeit bei lediglich isoliertem Kopfschmerz, fehlenden neurologischen Symptomen und Symptomdauer < 30 Tage) kann bei negativen D-Dimeren auf eine Schnittbildgebung verzichtet werden.</li>
+                    <li>Frauen mit stattgehabter CVST sollten keine kombinierten hormonellen Kontrazeptiva einnehmen und im Falle einer Schwangerschaft (und bis 6 Wochen danach) eine NMH-Prophylaxe erhalten.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li>In der Regel <strong>Überwachungsstation (Stroke-Unit/Neuro-ICU)</strong>.</li>
+                </ul>`
+            }
+        ],
         stand: "03/25",
-        sources: `Weimar C et al. Zerebrale Venen- und Sinusthrombose, S2k-Leitlinie, 2023; AWMF-Versionsnr.: 6.1.<br>Stam J. Thrombosis of the cerebral veins and sinuses. N Engl J Med. 2005;352(17):1791-8.<br>Agrawal K et al. Cerebral Sinus Thrombosis. Headache. 2016;56(8):1380-9.`
+        sources: `Weimar C et al. Zerebrale Venen- und Sinusthrombose, S2k-Leitlinie, 2023; in: Deutsche Gesellschaft für Neurologie (Hrsg.), Leitlinien für Diagnostik und Therapie in der Neurologie. AWMF-Versionsnr.: 6.1.<br>
+        Hendin A et al. Just the facts: how to assess for cerebral venous thrombosis. CJEM. 2021.<br>
+        Stam J. Thrombosis of the cerebral veins and sinuses. N Engl J Med. 2005.<br>
+        Agrawal K et al. Cerebral Sinus Thrombosis. Headache. 2016.`
     });
 })();

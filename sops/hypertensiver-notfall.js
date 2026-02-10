@@ -1,111 +1,199 @@
-// SOP: Hypertensiver Notfall
-// Kategorie: Kardiologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "hypertensiver-notfall",
         title: "Hypertensiver Notfall",
         category: "Kardiologie",
         catKey: "kardio",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Hypertensiver Notfall:</strong> RR systolisch > 180 mmHg und/oder RR diastolisch > 120 mmHg <strong>mit</strong> akuter Endorganschädigung</li>
-<li><strong>Hypertensive Dringlichkeit:</strong> RR systolisch > 180 mmHg und/oder RR diastolisch > 120 mmHg <strong>ohne</strong> akute Endorganschädigung</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Endorganschäden:</strong> Enzephalopathie, Schlaganfall, akutes Koronarsyndrom, akute Herzinsuffizienz, Aortendissektion, Nierenversagen, Eklampsie</p></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li>Essentielle Hypertonie (Exazerbation)</li>
-<li>Medikamenten-Non-Adhärenz (Absetzen von Antihypertensiva)</li>
-<li>Sekundäre Hypertonie (Phäochromozytom, renovaskuläre Hypertonie)</li>
-<li>Drogen (Kokain, Amphetamine)</li>
-<li>Medikamente (NSAR, orale Kontrazeptiva, Steroide)</li>
-<li>Schwangerschaft (Eklampsie, HELLP)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Neurologisch:</strong> Kopfschmerzen, Sehstörungen, Verwirrtheit, Bewusstseinseintrübung, Krampfanfälle (Enzephalopathie)</li>
-<li><strong>Kardial:</strong> Thoraxschmerzen, Dyspnoe, Palpitationen</li>
-<li><strong>Renal:</strong> Oligurie, Hämaturie</li>
-<li>Übelkeit, Erbrechen</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter (beide Arme messen!)</li>
-<li><strong>Blutdruckmessung</strong> (automatisch, alle 5–15 min)</li>
-<li><strong>EKG</strong> (Ischämie, LVH)</li>
-<li><strong>Labor:</strong> BB, E'lyte, Kreatinin, Harnstoff, Troponin, BNP/NT-proBNP, LDH, Haptoglobin (Hämolyse bei TTP/HUS), D-Dimere, Schwangerschaftstest</li>
-<li><strong>BGA</strong> (Laktat)</li>
-<li>Urin-Status (Erythrozytenzylinder)</li>
-<li><strong>Fundoskopie</strong> (Papillenödem, Retinopathie)</li>
-<li><strong>CT Kopf</strong> bei neurologischen Symptomen</li>
-<li><strong>Echo</strong> bei Dyspnoe/Thoraxschmerzen</li>
-<li><strong>CT Thorax/Abdomen</strong> bei Verdacht auf Aortendissektion</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Allgemeines</h3>
-<ul>
-<li><strong>RR-Ziel:</strong> In den ersten 60 min um max. <strong>20–25%</strong> senken (außer Aortendissektion, siehe unten)</li>
-<li>Vermeide zu schnelle Senkung → Gefahr der zerebralen/peripheren Hypoperfusion!</li>
-<li>Monitoring: EKG, SpO₂, invasive RR-Messung bei schwerer Symptomatik</li>
-</ul>
-<h3>Medikamente nach Endorganschaden</h3>
-<table>
-<thead>
-<tr><th>Endorganschaden</th><th>Medikament der Wahl</th><th>Alternative</th></tr>
-</thead>
-<tbody>
-<tr><td>Hypertensive Enzephalopathie</td><td>Nicardipin</td><td>Labetalol</td></tr>
-<tr><td>Ischämischer Schlaganfall</td><td>Nicardipin, Labetalol</td><td>–</td></tr>
-<tr><td>Intrazerebrale Blutung</td><td>Nicardipin, Labetalol</td><td>–</td></tr>
-<tr><td>Akutes Koronarsyndrom</td><td>Nitroglycerin + β-Blocker</td><td>Labetalol</td></tr>
-<tr><td>Akute Herzinsuffizienz</td><td>Nitroglycerin</td><td>Nesiritid</td></tr>
-<tr><td><strong>Aortendissektion</strong></td><td><strong>Esmolol + Nicardipin</strong></td><td>Labetalol</td></tr>
-<tr><td>Eklampsie</td><td>Magnesiumsulfat + Hydralazin</td><td>Labetalol</td></tr>
-<tr><td>Phäochromozytom</td><td>Phentolamin</td><td>Nicardipin</td></tr>
-</tbody>
-</table>
-<h3>Dosierungen</h3>
-<ul>
-<li><strong>Nicardipin:</strong> 5 mg/h i.v., alle 15–30 min um 2,5 mg/h steigern (max. 15 mg/h)</li>
-<li><strong>Labetalol:</strong> 20 mg i.v. über 2 min, dann 40–80 mg alle 10 min (max. 300 mg)</li>
-<li><strong>Esmolol:</strong> 500 µg/kg über 1 min, dann 50–200 µg/kg/min</li>
-<li><strong>Nitroglycerin:</strong> 10–20 µg/min, alle 5 min um 5–10 µg/min steigern (max. 200 µg/min)</li>
-<li><strong>Urapidil:</strong> 10–50 mg i.v. als Bolus, dann 5–40 mg/h</li>
-<li><strong>Phentolamin:</strong> 1–5 mg i.v. als Bolus, wiederholen alle 5 min</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Bei <strong>Aortendissektion</strong> Ziel-RR systolisch < 120 mmHg innerhalb von 20 min! β-Blocker <strong>vor</strong> Vasodilatatoren (Vermeidung von Tachykardie und Scherkräften).</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Langsame Blutdrucksenkung!</strong> Max. 20–25% in der ersten Stunde (außer Aortendissektion)</li>
-<li>Zu schnelle Senkung → zerebrale Ischämie, Nierenversagen, Myokardischämie</li>
-<li><strong>β-Blocker</strong> vor Vasodilatatoren bei Aortendissektion</li>
-<li>Immer nach Endorganschäden suchen!</li>
-<li>Ursache abklären (Non-Adhärenz, sekundäre Hypertonie)</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> Hypertensiver Notfall mit Endorganschaden</li>
-<li><strong>Überwachungsstation:</strong> Hypertensive Dringlichkeit, RR-Kontrolle</li>
-<li><strong>ambulant:</strong> Nur bei hypertensiver Dringlichkeit mit guter Einstellung und Compliance</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Whelton PK et al. 2017 ACC/AHA Guideline for the Prevention, Detection, Evaluation, and Management of High Blood Pressure in Adults. J Am Coll Cardiol. 2018;71(19):e127-e248.<br>van den Born BJH et al. ESC/ESH 2023 Guidelines on acute heart failure. Eur Heart J. 2023.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Hypertensive Entgleisung:</strong> Blutdruckanstieg ≥ 180/110 mmHg</li>
+                    <li><strong>Hypertensiver Notfall:</strong> Blutdruckanstieg ≥ 180/110 mmHg + <strong>akuter Endorganschaden</strong></li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li>Fehlende Medikamentenadhärenz</li>
+                    <li><strong>Medikamente:</strong> NSAR, Glukokortikoide, etc.</li>
+                    <li><strong>Drogen:</strong> Kokain, Amphetamine, Ecstasy, etc.</li>
+                    <li><strong>Sonstige Erkrankungen:</strong> Phäochromozytom, akute Glomerulonephritis, Präeklampsie, etc.</li>
+                    <li><strong>Zerebrale Ischämie:</strong> "Bedarfshypertonie"</li>
+                    <li><strong>Sympathikus-Aktivierung:</strong> Schmerzen, Stress, Angst, Panikattacke, Alkoholentzug, akuter Harnverhalt, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Bei hypertensiver Entgleisung:</strong> Häufig asymptomatisch, ggf. unspezifische Symptome wie leichte Kopfschmerzen, Nasenbluten, Unwohlsein, Schwindel.</li>
+                    <li><strong>Bei hypertensivem Notfall:</strong> Zeichen der akuten Endorganschädigung (z.B. Dyspnoe bei hypertensivem Lungenödem, Angina Pectoris, neurologische Defizite).</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li><strong>RR-Messung an beiden Armen wiederholen</strong> (Korrekte Manschettengröße? Korrekte Messung? Seitendifferenz?)</li>
+                    <li><strong>Anamnese:</strong> Symptome (insb. AP, Dyspnoe, Neurologie)? Vorerkrankungen? Häusliche Werte? Adhärenz? Drogen? Alkohol?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Hinweise auf akute Endorganschädigung? Fokal neurologisches Defizit?</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p><strong>Wichtige Fragen klären:</strong></p>
+                    <ul>
+                        <li>Patient symptomatisch oder asymptomatisch?</li>
+                        <li>Erhöhtter Blutdruck Ursache oder Folge der Symptome?</li>
+                        <li>Handelt es sich um einen hypertensiven Notfall?</li>
+                    </ul>
+                </div>
+                <p><strong>Bei V.a. hypertensiven Notfall (Red Flags: AP, Dyspnoe, neurologische Symptome, starke Kopfschmerzen, Sehstörungen):</strong></p>
+                <ul>
+                    <li>1-2x venöser Zugang</li>
+                    <li><strong>Venöse BGA:</strong> (pH? BE? Hb? Laktat?)</li>
+                    <li><strong>Labor:</strong> BB, E'lyte, NW, LDH, Haptoglobin, Bilirubin, ggf.: Fibrinogen, β-HCG</li>
+                    <li><strong>12-Kanal-EKG:</strong> (Ischämiezeichen?)</li>
+                    <li><strong>ggf. Urinstatus:</strong> (Proteinurie?) + <strong>Urinmikroskopie</strong> (Erythrozyten, Leukozyten und Zylinder?)</li>
+                    <li><strong>ggf. Fundoskopie:</strong> (Papillenödem? Hämorrhagien?)</li>
+                    <li><strong>Gezielte Diagnostik:</strong> (POCUS, Röntgen-Thorax, cCT, CTA-Aorta, Blutausstrich, etc.)</li>
+                    <li>Etablierung eines <strong>arteriellen Zugangs</strong> (invasive RR-Kontrollen)</li>
+                </ul>
+                <div class="callout callout-hinweis">
+                    <p>Bei hypertensivem Notfall frühzeitige Rücksprache mit Überwachungsstation (IMC/ICU)!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Hypertensive Entgleisung</h3>
+                <ul>
+                    <li><strong>Ursachen beheben:</strong> Analgesie, DK bei Harnverhalt, Lorazepam 1 mg s.l. bei Angst.</li>
+                    <li>Patienten in <strong>ruhigen Raum</strong> legen, Blutdruck in 30 Minuten kontrollieren (in > 30 % dadurch bereits gebessert).</li>
+                    <li><strong>Orale Therapie:</strong> z.B. 5 mg Amlodipin oder 2,5 mg Ramipril p.o. (bei bestehender Therapie: Dosis erhöhen oder erweitern).</li>
+                </ul>
+                <div class="callout callout-cave">
+                    <p><strong>CAVE:</strong> Keine aggressive Blutdrucksenkung notwendig! Überschießende Senkung unbedingt vermeiden!</p>
+                </div>
+
+                <h3>Hypertensiver Notfall</h3>
+                <ul>
+                    <li><strong>Sofortige Blutdrucksenkung:</strong> Wahl des Mittels und Aggressivität abhängig vom Endorganschaden (s. Tabelle unten).</li>
+                    <li>Behandlung des Endorganschadens (z.B. OP bei Stanford A-Dissektion, Neurochirurgie bei ICB).</li>
+                </ul>
+
+                <h3>Auswahl von Antihypertensiva (i.v. / s.c.)</h3>
+                <ul>
+                    <li><strong>Urapidil (Ebrantil®):</strong> 5-10 mg Boli i.v. (1 Amp. ≙ 50 mg/10 ml). 
+                        <br>ggf. Perfusor (250 mg/50 ml): Start 4 ml/h, Titration meist 1-8 ml/h.
+                        <br><em>Merke:</em> Bevorzugt bei den meisten Notfällen, auch Schwangerschaft (off-label).</li>
+                    <li><strong>Nitroglycerin (Nitrolingual®):</strong> 0,4-1,2 mg (1-3 Hub) s.l. 
+                        <br>ggf. Perfusor (50 mg/50 ml): Start 1 ml/h, Titration meist 2-8 ml/h.
+                        <br><strong>KI:</strong> PDE-5-Hemmer, Hirndruck. 
+                        <br><em>Merke:</em> Bevorzugt bei Lungenödem und ACS.</li>
+                    <li><strong>Clonidin (Catapresan®):</strong> 0,075-0,150 mg s.c. (bis max. 6x/d).
+                        <br>ggf. Perfusor (1,5 mg/50 ml): Start 1 ml/h, Titration meist 1-3 ml/h.
+                        <br><strong>KI:</strong> Bradykardie, SSS, AV-Block II-III, Depression.
+                        <br><em>Merke:</em> Bevorzugt bei Alkoholentzug.</li>
+                </ul>`
+            },
+            {
+                title: "Zielwerte & Medikamente",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Krankheitsbild</th>
+                                <th>Blutdruck Zielwerte</th>
+                                <th>Medikamente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Akute Aortendissektion</strong></td>
+                                <td>Sofortige Senkung RRsys < 120 mmHg + Hf 60-80/min</td>
+                                <td>Metoprolol, Urapidil</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Akutes Koronarsyndrom</strong></td>
+                                <td>Sofortige Senkung RRsys < 140 mmHg</td>
+                                <td>Nitroglycerin, Urapidil</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hypertensives Lungenödem</strong></td>
+                                <td>Sofortige Senkung RRsys < 140 mmHg</td>
+                                <td>Nitroglycerin, Urapidil, Furosemid</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hypertensive Enzephalopathie</strong></td>
+                                <td>Sofortige Senkung des MAD um 20-25 %</td>
+                                <td>Urapidil</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ischämischer Schlaganfall</strong></td>
+                                <td><strong>Keine Lyse:</strong> Senkung erst ab ≥ 220/120 mmHg (MAD um 15 % in 1. h)
+                                <br><strong>Thrombolyse:</strong> Senkung erst ab > 185/110 mmHg (Ziel ≤ 180/105 mmHg)</td>
+                                <td>Urapidil</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hämorrhagischer Schlaganfall</strong></td>
+                                <td>Senkung RRsys ≤ 140 mmHg innerhalb 2 h (Delta nicht > 90 mmHg, nicht < 110 mmHg)</td>
+                                <td>Urapidil</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Eklampsie, schwere Präeklampsie, HELLP</strong></td>
+                                <td>Sofortige Senkung RRsys < 160 mmHg und RRdia < 105 mmHg</td>
+                                <td>Urapidil, Furosemid, Nitroglycerin, Magnesium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maligne Hypertonie</strong> (mit AKI / TMA)</td>
+                                <td>Senkung des MAD um 20-25 % (innerhalb mehrerer Stunden)</td>
+                                <td>Urapidil</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li><strong>Keine aggressive Blutdruck-Kosmetik</strong> bei asymptomatischen Patienten (Gefahr der zerebralen Ischämie durch zu schnelle Senkung!).</li>
+                    <li><strong>Unretardiertes Nifedipin (Adalat®)</strong> ist aufgrund schlechter Steuerbarkeit und Gefahr der Reflextachykardie <strong>obsolet</strong>.</li>
+                    <li>Bei überschießender Senkung: Pausieren der Therapie, Schocklagerung, Volumen, ggf. Katecholamine.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Befund</th>
+                                <th>Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hypertensive Entgleisung</strong></td>
+                                <td>Ambulantes Procedere mit zeitnaher hausärztlicher Vorstellung</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hypertensiver Notfall</strong></td>
+                                <td>Überwachungsstation (IMC/ICU)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        stand: "10/24",
+        sources: `Nationale Versorgungsleitlinie Hypertonie 2023. Kurzfassung 1.0. AWMF-Register-Nr. nvl-009.
+        <br>van den Born BJH et al. ESC position document on the management of hypertensive emergencies. Eur Heart J Cardiovasc Pharmacother. 2019.
+        <br>Bress AP et al. The Management of Elevated Blood Pressure in the Acute Care Setting. AHA Statement. Hypertension. 2024.
+        <br>Ringleb P et al. Akuttherapie des ischämischen Schlaganfalls, S2e Leitlinie, 2021 (DGN).
+        <br>Steiner T et al. Behandlung von spontanen intrazerebralen Blutungen, S2k-Leitlinie, 2021 (DGN).
+        <br>Isselbacher EM et al. Guideline for the Diagnosis and Management of Aortic Disease. Circulation. 2022.
+        <br>Hypertensive Disorders in Pregnancy. Guideline of the DGGG (AWMF 015/018, June 2024).`
     });
 })();

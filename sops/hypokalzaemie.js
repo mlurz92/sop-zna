@@ -1,110 +1,138 @@
-// SOP: Hypokalzämie
-// Kategorie: Metabolisch
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "hypokalzaemie",
         title: "Hypokalzämie",
         category: "Metabolisch",
         catKey: "metab",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Hypokalzämie:</strong> Serum-Kalzium (korrigiert) < 2,2 mmol/l (< 8,8 mg/dl)</li>
-<li><strong>Schwere Hypokalzämie:</strong> < 1,9 mmol/l (< 7,6 mg/dl)</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Kalziumkorrektur bei Hypalbuminämie:</strong><br>Korrigiertes Ca²⁺ = gemessenes Ca²⁺ + 0,02 × (40 – Albumin g/l) mmol/l<br>oder: Korrigiertes Ca²⁺ = gemessenes Ca²⁺ + 0,8 × (4 – Albumin g/dl) mg/dl</p></div>`
-},
-{
-title: "Ursachen",
-html: `<h3>Hypoparathyreoidismus</h3>
-<ul>
-<li>Postoperativ (nach Thyreoidektomie, Parathyreoidektomie)</li>
-<li>Autoimmun</li>
-</ul>
-<h3>Vitamin-D-Mangel</h3>
-<ul>
-<li>Mangelnde Sonnenexposition, Malabsorption</li>
-<li>Schwere Leber-/Nierenerkrankung</li>
-</ul>
-<h3>Weitere Ursachen</h3>
-<ul>
-<li><strong>Hypomagnesiämie</strong> (häufigste Ursache! Hemmt PTH-Sekretion)</li>
-<li>Pankreatitis (Verfettung des Omentums)</li>
-<li>Rhabdomyolyse (Kalziumsequestration)</li>
-<li>Sepsis („Hungry bone syndrome" nach Parathyreoidektomie)</li>
-<li>Medikamente: Bisphosphonate, Denosumab, Cisplatin, Furosemid</li>
-<li>Massive Transfusion (Zitrat-Toxizität)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Neuromuskuläre Übererregbarkeit:</strong>
-<ul>
-<li>Parästhesien (perioral, Hände, Füße)</li>
-<li>Muskelkrämpfe, Tetanie</li>
-<li><strong>Chvostek-Zeichen:</strong> Zucken der Gesichtsmuskulatur bei Beklopfen des N. facialis</li>
-<li><strong>Trousseau-Zeichen:</strong> Pfötchenstellung der Hand nach Blutdruckmanschetten-Ischämie (3 min)</li>
-</ul>
-</li>
-<li><strong>Kardial:</strong> QT-Verlängerung, Arrhythmien, Herzinsuffizienz</li>
-<li><strong>ZNS:</strong> Verwirrtheit, Krampfanfälle</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> QT-Verlängerung → Risiko für Torsades de pointes! EKG-Monitoring bei schwerer Hypokalzämie.</p></div>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li><strong>EKG</strong> (QT-Verlängerung)</li>
-<li><strong>Labor:</strong> BB, E'lyte inkl. Mg²⁺, korrigiertes Ca²⁺, Phosphat, Albumin, Kreatinin, PTH, 25-OH-Vitamin D, 1,25-OH-Vitamin D</li>
-<li><strong>BGA</strong> (ionisiertes Ca²⁺, pH)</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Ionisiertes Kalzium</strong> (freies Ca²⁺) ist physiologisch relevanter als Gesamt-Kalzium. Normal: 1,1–1,35 mmol/l.</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Asymptomatische Hypokalzämie</h3>
-<ul>
-<li><strong>Orale Substitution:</strong> Kalziumkarbonat oder Kalziumzitrat 1–3 g/Tag</li>
-<li><strong>Vitamin D:</strong> Bei Vitamin-D-Mangel: Cholekalziferol 1000–4000 IE/Tag oder Kolekalziferol</li>
-</ul>
-<h3>Symptomatische Hypokalzämie (Notfall!)</h3>
-<ul>
-<li><strong>Kalziumglukonat 10%:</strong> 10–20 ml i.v. über 10–20 min (2,2–4,5 mmol Ca²⁺)</li>
-<li>Alternative: <strong>Kalziumchlorid 10%:</strong> 5–10 ml i.v. (nur zentralvenös! Gewebenekrose bei Paravasat)</li>
-<li>Anschließend: <strong>Kalziumglukonat-Perfusor:</strong> 50 ml Kalziumglukonat 10% in 500 ml NaCl 0,9% oder Glukose 5% über 6–12h</li>
-<li>Wiederholung der Bolusgabe nach 30–60 min möglich</li>
-</ul>
-<h3>Begleitende Hypomagnesiämie</h3>
-<ul>
-<li><strong>Mg²⁺ substituieren!</strong> Ohne Mg²⁺-Korrektur bleibt Ca²⁺-Substitution oft ineffektiv</li>
-<li>Magnesiumsulfat 2–4 g i.v. über 10–20 min</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Kalziumchlorid <strong>nur zentralvenös</strong> geben (hohe Gewebetoxizität, Nekrosegefahr bei Paravasat!). Kalziumglukonat kann peripher gegeben werden.</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Hypomagnesiämie</strong> ist eine häufige Ursache für therapieresistente Hypokalzämie → immer Mg²⁺ mitbestimmen und substituieren!</li>
-<li><strong>Chvostek- und Trousseau-Zeichen</strong> sind klinische Hinweise auf neuromuskuläre Übererregbarkeit</li>
-<li><strong>QT-Verlängerung</strong> im EKG → Arrhythmiegefahr</li>
-<li><strong>Kalziumglukonat</strong> bevorzugen (peripher möglich), <strong>Kalziumchlorid nur zentral</strong></li>
-<li>Bei Digitalistherapie: Vorsicht bei i.v. Kalzium (Digitalis-Toxizität verstärkt!)</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> Symptomatische Hypokalzämie, QT-Verlängerung, Arrhythmien</li>
-<li><strong>Normalstation:</strong> Asymptomatische Hypokalzämie mit Monitoring</li>
-<li><strong>ambulant:</strong> Milde Hypokalzämie, orale Substitution</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Cooper MS, Gittoes NJL. Diagnosis and management of hypocalcaemia. BMJ. 2008;336(7656):1298-302.<br>Shoback D. Hypocalcemia: Definition, Etiology, and Pathogenesis. J Clin Endocrinol Metab. 2023;108(5):e1-e10.`
+            {
+                title: "Definition",
+                html: `<p><strong>Hypokalzämie:</strong> Serumkalzium &lt; 2,2 mmol/l bzw. ionisiertes Kalzium &lt; 1,1 mmol/l.</p>
+                <ul>
+                    <li><strong>Milde Hypokalzämie:</strong> Serumkalzium 2,2 - 1,9 mmol/l, asymptomatisch.</li>
+                    <li><strong>Schwere Hypokalzämie:</strong> Serumkalzium &lt; 1,9 mmol/l bzw. jede symptomatische Hypokalzämie.</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li><strong>Hypoparathyreoidismus:</strong> (z.B. nach Thyreoidektomie).</li>
+                    <li><strong>Hypomagnesiämie:</strong> (PPI-Einnahme, Alkoholabusus, Malnutrition).</li>
+                    <li><strong>Vitamin D-Mangel</strong></li>
+                    <li><strong>Renale Genese:</strong> Dialyse (Zitrat-Effekt).</li>
+                    <li><strong>Hyperphosphatämie:</strong> (Rhabdomyolyse, Tumorlyse, etc.).</li>
+                    <li><strong>Pankreatitis</strong></li>
+                    <li><strong>Alkalose:</strong> (z.B. respiratorisch durch Hyperventilation).</li>
+                    <li><strong>Medikamente:</strong> Bisphosphonate, Schleifendiuretika, Zytostatika, etc.</li>
+                    <li><strong>Massentransfusionen</strong></li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Kribbelparästhesien, Tetanien, Hyperreflexie.</li>
+                    <li>Laryngospasmus</li>
+                    <li>Epileptischer Anfall</li>
+                    <li>Depression, Angst</li>
+                    <li>„Low-output”-Syndrom</li>
+                    <li><strong>QT-Zeit-Verlängerung:</strong> (Gefahr von HRST, z.B. Torsades de pointes).</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur).</li>
+                    <li>1x venöser Zugang <div class="callout callout-cave"><strong>CAVE:</strong> Sicherer Zugang! Kalzium i.v. ist stark venenreizend.</div></li>
+                    <li><strong>Venöse BGA:</strong> (Ionisiertes Kalzium? Ausschluss Pseudohypokalzämie).</li>
+                    <li><strong>Labor:</strong> NW, E'lyte inkl. Kalzium, Magnesium, Phosphat, Albumin, 25(OH)-Vitamin D3, 1,25(OH)2-Vitamin D3, PTH.</li>
+                    <li><strong>12-Kanal-EKG:</strong> (QTc-Zeit-Verlängerung? Herzrhythmusstörungen?).</li>
+                    <li><strong>Anamnese:</strong> Symptome? Vorerkrankungen? Vorangegangene Schilddrüsen-OP? Medikamente?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Chvostek-Zeichen? Trousseau-Zeichen? Generelle Hyperreflexie?</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p><strong>Cave:</strong> Bei Abweichungen des Serumkalziums immer <strong>ionisiertes Kalzium</strong> in der Blutgasanalyse betrachten!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<p><strong>Ursachen beheben:</strong> Grunderkrankung behandeln, Medikamente anpassen, etc.</p>
+                
+                <h3>Milde Hypokalzämie (Gesamtkalzium > 1,9 mmol/l, asymptomatisch)</h3>
+                <ul>
+                    <li><strong>1000 mg Calciumcarbonat</strong> 1-0-1 p.o. (max. 1-1-1/d).</li>
+                    <li><strong>Bei Vitamin-D-Mangel:</strong> 1000 IE Cholecalciferol (Vigantoletten®) 1-0-0 p.o., Calcitriol (Rocaltrol®) 0,25-0,5 µg 1-0-1 p.o.</li>
+                </ul>
+
+                <h3>Schwere Hypokalzämie (Gesamtkalzium < 1,9 mmol/l bzw. jede symptomatische)</h3>
+                <ul>
+                    <li><strong>10-20 ml 10% Calciumglukonat</strong> (als Kurzinfusion in 50 ml NaCl 0,9%) über 10 min i.v. unter EKG-Kontrolle. Ggf. wiederholen bis Symptome sistieren.</li>
+                    <li><strong>Dauerinfusion im Anschluss:</strong> 100 ml 10% Calciumglukonat (10 Ampullen) in 1000 ml NaCl 0,9% über Infusomat.
+                        <ul>
+                            <li>Laufrate: 50-100 ml/h unter engmaschigen Kalziumkontrollen mit Anpassung der Laufrate.</li>
+                            <li>Ziel: Normokalzämie bis Ursache gefunden und kausal behandelt.</li>
+                        </ul>
+                    </li>
+                    <li>Orale Therapie im Verlauf (s. oben).</li>
+                </ul>
+
+                <h3>Sonstiges</h3>
+                <ul>
+                    <li><strong>Bei Hypomagnesiämie:</strong> Magnesium Verla® 1-3 x/d p.o. (Brause ≙ 121 mg, Dragees ≙ 40 mg) oder ggf. <strong>1 Ampulle Magnesium Verla® 50%</strong> (≙ 10 ml ≙ 20 mmol ≙ 5 g) in 500 ml NaCl 0,9% über 2-4 h (ggf. 24h) i.v.</li>
+                    <li>Änderungen in der Dauermedikation erwägen: <strong>Thiazid</strong> statt Schleifendiuretikum.</li>
+                    <li>Kalziumsubstitution bei Hyperphosphatämie (z.B. Rhabdomyolyse, Tumorlyse) <strong>nur bei symptomatischer</strong> Hypokalzämie.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostischer Algorithmus",
+                html: `<p>Vorgehen bei Verdacht auf Hypokalzämie:</p>
+                <ol>
+                    <li>Bestimmung von <strong>ionisiertem Kalzium</strong> bzw. Albumin-korrigiertem Kalzium.
+                        <ul>
+                            <li>Wenn normal &rarr; Pseudohypokalzämie (behandlungsfrei).</li>
+                            <li>Wenn erniedrigt &rarr; "Echte" Hypokalzämie &rarr; Schritt 2.</li>
+                        </ul>
+                    </li>
+                    <li>Bestimmung von <strong>Magnesium (Mg), Phosphat (PO4), 25(OH)-Vitamin D3, 1,25(OH)2-Vitamin D3 und PTH</strong>.</li>
+                    <li><strong>Pfade basierend auf Werten:</strong>
+                        <ul>
+                            <li><strong>Mg &darr; :</strong> Hypomagnesiämie.</li>
+                            <li><strong>PO4 &uarr; :</strong> V.a. Pseudohypoparathyreoidismus, renale Erkrankungen oder Rhabdomyolyse.</li>
+                            <li><strong>PO4 &darr; :</strong> 
+                                <ul>
+                                    <li>Wenn Vitamin D-Metabolite &darr; &rarr; Vitamin D-Mangel.</li>
+                                    <li>Wenn PTH &darr; &rarr; Hypoparathyreoidismus.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Unterscheide immer <strong>“echte“ vs. Pseudohypokalzämie</strong> mittels ionisiertem Kalzium in der BGA.</li>
+                    <li>Die Pseudohypokalzämie ist nicht behandlungsbedürftig (höchstens der zugrundeliegende Albuminmangel).</li>
+                    <li><strong>Bei Hyperventilation:</strong> CO₂-Rückatmung mittels Tüte durchführen; keine Kalziumgabe indiziert, da es sich nur um eine Umverteilung handelt.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Symptomatische Hypokalzämie:</strong> Überwachungsstation (IMC/ICU).</li>
+                </ul>`
+            }
+        ],
+        stand: "10/24",
+        sources: `Herold G et al. Innere Medizin 2019, S. 586 f.
+        <br>Miamed Amboss: „Hypokalzämie“, Stand 18.12.2020.
+        <br>Walsh J et al. SOCIETY FOR ENDOCRINOLOGY ENDOCRINE EMERGENCY GUIDANCE: Emergency management of acute hypocalcaemia in adult patients. Endocr Connect. 2016.
+        <br>Rosner MH. Hypocalcemia in a Patient with Cancer. Clin J Am Soc Nephrol. 2017.
+        <br>Ñamendys-Silva SA et al. Tumor lysis syndrome in the emergency department: challenges and solutions. Open Access Emerg Med. 2015.
+        <br>Kenny CM et al. Things We Do for No Reason™: Calculating a "Corrected Calcium" Level. J Hosp Med. 2021.
+        <br>Fachinformationen der genannten Arzneimittel, Stand 12/22.`
     });
 })();

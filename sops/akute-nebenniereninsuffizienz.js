@@ -8,95 +8,178 @@
         category: "Metabolisch",
         catKey: "metab",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Akute Nebenniereninsuffizienz (Addison-Krise):</strong> Lebensbedrohlicher Zustand durch akuten Cortisolmangel mit Kreislaufinsuffizienz, der einer sofortigen Glukokortikoidsubstitution bedarf</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Häufigste Ursache:</strong> Stresssituation bei bekannter NNR-Insuffizienz ohne adäquate Dosisanpassung (Infektion, Operation, Trauma, Erbrechen/Diarrhoe)</li>
-<li><strong>Abruptes Absetzen</strong> einer Langzeit-Glukokortikoidtherapie (iatrogen, häufigste Ursache einer sekundären NNR-Insuffizienz)</li>
-<li><strong>Primäre NNR-Insuffizienz (M. Addison):</strong> Autoimmun-Adrenalitis (häufigste Ursache), bilaterale NNR-Einblutung (Waterhouse-Friderichsen-Syndrom bei Meningokokkensepsis), Tuberkulose, Metastasen, CMV bei HIV</li>
-<li><strong>Sekundäre NNR-Insuffizienz:</strong> Hypophyseninsuffizienz (Tumor, OP, Bestrahlung, Scheehan-Syndrom, Hypophysitis durch Checkpoint-Inhibitoren)</li>
-<li><strong>Medikamenteninduziert:</strong> Ketoconazol, Etomidat, Checkpointinhibitoren</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Kreislaufinstabilität:</strong> Hypotonie (refraktär gegenüber Volumen- und Vasopressortherapie!), Tachykardie, Schock</li>
-<li><strong>Übelkeit, Erbrechen, abdominelle Schmerzen</strong> (Pseudoperitonitis)</li>
-<li><strong>Schwäche, Müdigkeit, Adynamie</strong></li>
-<li><strong>Dehydratation</strong></li>
-<li><strong>Hypoglykämie</strong></li>
-<li>ggf. <strong>Fieber</strong> (ohne Infektfokus oder als Trigger)</li>
-<li>ggf. <strong>Bewusstseinsstörung</strong> bis Koma</li>
-<li>ggf. <strong>Hyperpigmentierung</strong> der Haut (bei primärer NNR-Insuffizienz, chronisch)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1–2x großlumiger venöser Zugang</li>
-<li><strong>BGA</strong> (Hyperkaliämie? Hyponatriämie? Hypoglykämie? Azidose?)</li>
-<li><strong>BZ-Messung</strong></li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte (Na⁺↓, K⁺↑), NW, BZ, <strong>Cortisol</strong> (Basalwert vor Hydrocortisongabe – Diagnostik darf Therapie aber NICHT verzögern!), ACTH, TSH, Gerinnung</li>
-<li>12-Kanal-EKG (Hyperkaliämie-Zeichen?)</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Bekannte NNR-Insuffizienz? Steroidtherapie (aktuell oder kürzlich abgesetzt)? Notfallausweis? Dosisanpassung bei Stress? Auslöser (Infektion, Erbrechen, OP, Trauma)? Checkpoint-Inhibitor-Therapie?</li>
-<li><strong>Körperliche Untersuchung:</strong> RR? Schockzeichen? Dehydratation? Hyperpigmentierung? Abdominelle Schmerzen? Fieber? Bewusstseinslage?</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Die <strong>Therapie darf durch die Diagnostik nicht verzögert</strong> werden! Bei klinischem Verdacht sofort Hydrocortison verabreichen. Blutentnahme für Cortisol idealerweise VOR Therapie, aber: <strong>erst spritzen, dann diagnostizieren!</strong></p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Sofortmaßnahmen</h3>
-<ul>
-<li><strong>Hydrocortison 100 mg i.v. Bolus</strong> (sofort!)</li>
-<li>Dann: <strong>Hydrocortison 200 mg/24h i.v.</strong> als Dauerinfusion oder 50 mg i.v. alle 6–8h</li>
-<li><strong>Aggressive Volumentherapie:</strong> NaCl 0,9% (initial 1000 ml rasch, dann nach Bedarf)</li>
-<li><strong>Glukosesubstitution:</strong> Glukose 10–40% i.v. bei Hypoglykämie</li>
-<li><strong>Hyperkaliämie behandeln</strong> (s. SOP Hyperkaliämie)</li>
-</ul>
-<h3>Weiteres Vorgehen</h3>
-<ul>
-<li>Auslöser identifizieren und behandeln (Infektion, Sepsis → Antibiotika)</li>
-<li>Monitoring auf Intensivstation</li>
-<li>Schrittweise Reduktion auf orale Substitution nach Stabilisierung</li>
-<li>Keine Mineralokortikoidsubstitution in der Akutphase nötig (Hydrocortison > 50 mg hat ausreichende mineralokortikoide Wirkung)</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Hinweis:</strong> <strong>Kein Dexamethason</strong> in der Akuttherapie verwenden, da es keine mineralokortikoide Wirkung hat! Hydrocortison ist das Mittel der Wahl.</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Addison-Krise = lebensbedrohlich</strong> – bei Verdacht sofort Hydrocortison 100 mg i.v. verabreichen, BEVOR Diagnostik abgeschlossen ist!</li>
-<li>Klassische <strong>Laborkonstellation:</strong> Hyponatriämie + Hyperkaliämie + Hypoglykämie</li>
-<li>An Addison-Krise denken bei: <strong>therapierefraktärer Hypotonie</strong> (kein Ansprechen auf Volumen/Katecholamine)</li>
-<li>Häufigste Ursache: <strong>unzureichende Steroiddosis-Anpassung</strong> bei bekannter NNR-Insuffizienz in Stresssituationen</li>
-<li>Patienten mit NNR-Insuffizienz sollten einen <strong>Notfallausweis</strong> und <strong>Notfall-Hydrocortison</strong> bei sich tragen</li>
-<li>An <strong>Checkpoint-Inhibitor-induzierte Hypophysitis/Adrenalitis</strong> als neue Ursache denken!</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation</strong> bei hämodynamischer Instabilität, Schock, Bewusstseinsstörung</li>
-<li><strong>Überwachungsstation</strong> bei rascher Stabilisierung</li>
-<li>Endokrinologisches Konsil im Verlauf</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Bornstein SR et al. Diagnosis and Treatment of Primary Adrenal Insufficiency: An Endocrine Society Clinical Practice Guideline. J Clin Endocrinol Metab. 2016;101(2):364-89.<br>
-Rushworth RL et al. Adrenal Crisis. N Engl J Med. 2019;381:852-61.<br>
-Quinkler M et al. S1-Leitlinie Nebennieren­insuffizienz. Endokrinologie Informationen. 2020;Sonderheft.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Akute Nebenniereninsuffizienz (= Nebennierenkrise):</strong> Akute Verschlechterung des Gesundheitszustandes mit Hypotonie (systolischer Blutdruck < 100 mmHg oder ≥ 20 mmHg niedriger als normalerweise) und Symptomen, die innerhalb von 1-2 Stunden nach parenteraler Glukokortikoid-Gabe deutlich rückläufig sind.</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<h3>Primär (Nebenniere betroffen)</h3>
+                <ul>
+                    <li>Autoimmun (M. Addison), Hämorrhagie (z.B. bei Waterhouse-Friderichsen-Syndrom), Metastasen, nach Adrenalektomie, Infektion (TBC, etc.), genetisch, medikamentös (Etomidat, Fluconazol, etc.)</li>
+                </ul>
+                <h3>Sekundär (Hypophyse betroffen) und Tertiär (Hypothalamus betroffen)</h3>
+                <ul>
+                    <li>Tumoren, Operationen, Bestrahlung, Infektionen, Trauma, Autoimmunhypophysitis, Hypophyseninfarkt (z.B. Sheehan-Syndrom), genetisch, Glukokortikoidtherapie (≥ 5 mg Prednisolonäquivalent/d > 4 Wochen)</li>
+                </ul>
+                <h3>Triggerfaktoren</h3>
+                <ul>
+                    <li><strong>Abruptes Absetzen</strong> einer bestehenden Glukokortikoidtherapie</li>
+                    <li><strong>Erhöhter Bedarf</strong> (z.B. bei Infektionen, Stress, körperlicher Arbeit, OP, Trauma, Schwangerschaft, Hyperthyreose, CYP3A4-induzierende Medikamente)</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Schwäche, Abgeschlagenheit, Inappetenz, Gewichtsverlust, Fieber</li>
+                    <li>Übelkeit, Erbrechen, abdominelle Schmerzen (Pseudoperitonitis)</li>
+                    <li>Exsikkose, orthostatische Dysregulation, prärenales Nierenversagen, Schock</li>
+                    <li><strong>Krämpfe und Spasmen</strong> in Rücken und Beinen</li>
+                    <li>Verwirrtheit, Delir, Vigilanzminderung, Koma</li>
+                    <li><strong>Metabolische Störungen:</strong> Hyponatriämie, Hyperkaliämie, Hyperkalzämie, Hypoglykämie, AKI</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur) + RR-Messung im Liegen und Stehen</li>
+                    <li>2x großlumiger venöser Zugang</li>
+                    <li><strong>Labor:</strong> Diff-BB, CRP, E'lyte, NW, TSH, fT4, zeitgleiche Abnahme von Serum-Cortisol und Plasma-ACTH, ggf.: PCT, β-HCG</li>
+                    <li><strong>Venöse BGA</strong> (Hyponatriämie? Hyperkaliämie? Hypoglykämie? pH? BE?)</li>
+                    <li><strong>12-Kanal-EKG</strong> (Hyperkaliämietypische EKG-Veränderungen? Herzrhythmusstörungen? Ischämiezeichen?)</li>
+                    <li><strong>Anamnese:</strong> Symptome? Vorerkrankungen? Medikamente? Glukokortikoide p.o., Spray, Creme, Injektion, abruptes Absetzen/Reduktion? Infekt? Stress?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? Delir? Rekap-Zeit? Exsikkose? Hyperpigmentierung oder alabasterfarbene Haut? Abdominelle Abwehrspannung?</li>
+                    <li>ggf. Infektfokussuche (≥ 2x BK, Urinstatus/-kultur, POCUS, Röntgen-Thorax)</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit Überwachungsstation (IMC/ICU)!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Triggerfaktoren beheben (z.B. Infektfokus behandeln)</li>
+                </ul>
+                <h3>Glukokortikoidsubstitution</h3>
+                <ul>
+                    <li><strong>100 mg Hydrocortison i.v./i.m.</strong> (sofort als Bolus), dann 200 mg Hydrocortison über 24 h via Perfusor i.v. oder 50 mg Hydrocortison alle 6 h i.v./i.m.</li>
+                </ul>
+                <h4>Bei Nicht-Verfügbarkeit:</h4>
+                <ul>
+                    <li><strong>25 mg Prednisolon i.v.</strong> (sofort als Bolus), dann 25 mg alle 8 h i.v. (= 75 mg/24h), dann 1x 50 mg/24h i.v. oder</li>
+                    <li><strong>4 mg Dexamethason i.v.</strong> (sofort als Bolus), dann 1x 4 mg/24 h i.v.</li>
+                </ul>
+                <ul>
+                    <li>Nach erfolgreicher Therapie der NNR-Krise (normalerweise nach 24 h): Umstellung der Glukokortikoide auf p.o.-Gabe mit dem 2-3-fachen der Erhaltungsdosis und Reduktion über 3 Tage auf Erhaltungsdosis</li>
+                    <li>Erhaltungsdosis individuell unterschiedlich (ca. 15-25 mg Hydrocortison/d): bei Hydrocortison meist 2-3 Einzeldosen/d p.o., z.B. Hydrocortison 10-5-5 mg oder 15-5-0 mg; bei Prednisolon 1x/d 3 mg oder 5 mg morgens</li>
+                    <li>Bei primärer NNR-Insuffizienz sobald Hydrocortison-Dosis < 50 mg/24h: 0,05-0,1 mg Fludrocortison 1-0-0 ergänzen</li>
+                </ul>
+                <h3>Flüssigkeitssubstitution</h3>
+                <ul>
+                    <li><strong>1000 ml 0,9 % NaCl in einer Stunde i.v.</strong></li>
+                    <li>ca. <strong>3-6 l Vollelektrolytlösung</strong> in 24 h i.v.</li>
+                    <li><strong>CAVE:</strong> An Volumenstatus, Komorbiditäten und kardiale Leistungsfähigkeit anpassen! Weitere Volumengabe in Abhängigkeit von Hämodynamik und Volumenstatus (Orientierung an Vitalparametern, Rekap-Zeit, Diurese, Laktat, POCUS, "Passive Leg Raise", etc.)</li>
+                </ul>
+                <h3>Sonstiges</h3>
+                <ul>
+                    <li><strong>Hypoglykämie:</strong> Blutzucker anheben (s. SOP Hypoglykämie)</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bei akut kranken Patienten mit Exsikkose, Hypotonie, Bauchschmerzen, Elektrolytstörungen, Fieber stets auch an eine akute NNR-Krise denken ("Sepsis mimic")</li>
+                    <li>Bei fehlendem Blutdruckanstieg oder ausbleibender Besserung der Beschwerden 1-2 Stunden nach Glukokortikoidgabe an andere Differentialdiagnosen (z.B. Sepsis) denken</li>
+                    <li>Bei V.a. akute Nebenniereninsuffizienz: <strong>Sofortige Glukokortikoidgabe!</strong> (auch bei begleitendem Infekt/Sepsis!)</li>
+                    <li>Die Glukokortikoidtherapie muss in Stresssituationen angepasst werden (s. "Sick day rules" S.3)</li>
+                    <li>Nach NNR-Krise: endokrinologische Anbindung mit Schulung, Notfallausweis/Armband, Notfallset (Glukokortikoid, etc.)</li>
+                </ul>`
+            },
+            {
+                title: "\"Sick-Day-Rules\"",
+                html: `<h3>Zur Prophylaxe einer akuten Nebenniereninsuffizienz</h3>
+                <div class="callout callout-hinweis">
+                    <p><strong>Sick Day Rule 1</strong><br>
+                    Notwendigkeit der Verdopplung der oralen Glukokortikoiddosis bei Patienten mit chronischer Nebenniereninsuffizienz im Falle einer Erkrankung mit Fieber, Erforderlichkeit von Bettruhe oder Antibiotikaeinnahme.</p>
+                </div>
+                <div class="callout callout-hinweis">
+                    <p><strong>Sick Day Rule 2</strong><br>
+                    Notwendigkeit der prophylaktischen i.v./i.m.-Applikation eines Glukokortikoids (idem zur akuten NNR-Insuffizienz) bei Patienten mit chronischer Nebenniereninsuffizienz bei prolongiertem Erbrechen oder Durchfällen, vor Koloskopie, bei schwerer Erkrankung, Geburt, Trauma oder Operation in Allgemeinanästhesie.</p>
+                </div>`
+            },
+            {
+                title: "Äquivalenzdosen",
+                html: `<h3>Äquivalenzdosen verschiedener Steroide</h3>
+                <p><em>modifiziert nach Liu et al. 2017</em></p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Substanz</th>
+                                <th>Glukokortikoid-Potenz</th>
+                                <th>Mineralokortikoid-Potenz</th>
+                                <th>Äquivalenzdosen</th>
+                                <th>Halbwertszeit in Stunden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cortisol (= Hydrocortison)</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>30</td>
+                                <td>8 - 12</td>
+                            </tr>
+                            <tr>
+                                <td>Cortison</td>
+                                <td>0,8</td>
+                                <td>0,8</td>
+                                <td>37,5</td>
+                                <td>8 - 12</td>
+                            </tr>
+                            <tr>
+                                <td>Prednison</td>
+                                <td>4</td>
+                                <td>0,8</td>
+                                <td>7,5</td>
+                                <td>18 - 36</td>
+                            </tr>
+                            <tr>
+                                <td>Prednisolon</td>
+                                <td>4</td>
+                                <td>0,8</td>
+                                <td>7,5</td>
+                                <td>12 - 36</td>
+                            </tr>
+                            <tr>
+                                <td>Methylprednisolon</td>
+                                <td>5</td>
+                                <td>0,5</td>
+                                <td>6</td>
+                                <td>18 - 36</td>
+                            </tr>
+                            <tr>
+                                <td>Dexamethason</td>
+                                <td>30 - 40</td>
+                                <td>0</td>
+                                <td>1 - 0,75</td>
+                                <td>36 - 54</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Überwachungsstation (IMC/ICU)</strong></li>
+                </ul>`
+            }
+        ],
+        stand: "12/22",
+        sources: `Rushworth RL et al. Adrenal Crisis. N Engl J Med. 2019.<br>Arlt W, Society for Endocrinology Clinical Committee. SOCIETY FOR ENDOCRINOLOGY ENDOCRINE EMERGENCY GUIDANCE: Emergency management of acute adrenal insufficiency (adrenal crisis) in adult patients. Endocrine Connect. 2016.<br>Simpson H et al. Guidance for the prevention and emergency management of adult patients with adrenal insufficiency. Clin Med (Lond). 2020.<br>Quinkler M et al. Adrenal cortical insufficiency—a life threatening illness with multiple etiologies. Dtsch Arztebl Int 2013.<br>Trummer C et al. Addison-Krise – Strategien zu Therapie und Prävention. J. Klin. Endokrinol. Stoffw. 2019.<br>Bornstein SR et al. Diagnosis and Treatment of Primary Adrenal Insufficiency: An Endocrine Society Clinical Practice Guideline. J Clin Endocrinol Metab. 2016.<br>Liu MM et al. Perioperative Steroid Management: Approaches Based on Current Evidence. Anesthesiology. 2017.`
     });
 })();

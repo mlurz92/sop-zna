@@ -1,132 +1,126 @@
-// SOP: Sterbephase (Palliativ)
-// Kategorie: Sonstige
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "sterbephase-palliativ",
-        title: "Sterbephase (Palliativ)",
+        title: "Sterbephase in palliativer Situation",
         category: "Sonstige",
         catKey: "sonst",
+        stand: "12/22",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Sterbephase:</strong> Die letzten Stunden bis Tage des Lebens bei einem irreversibel verlaufenden Sterbeprozess. Die Erkennung der Sterbephase ist eine <strong>klinische Einschätzung</strong> und basiert auf dem Gesamtbild des Patienten</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li>Endstadium einer nicht-heilbaren Grunderkrankung (fortgeschrittenes Malignom, terminale Organinsuffizienz, fortgeschrittene neurodegenerative Erkrankung, etc.)</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<h3>Zeichen der Sterbephase</h3>
-<ul>
-<li><strong>Zunehmende Schwäche und Bettlägerigkeit</strong></li>
-<li><strong>Zunehmende Bewusstseinsminderung</strong> (Somnolenz → Sopor → Koma)</li>
-<li><strong>Interesselosigkeit</strong> an Nahrung und Flüssigkeit</li>
-<li><strong>Schluckstörung</strong></li>
-<li><strong>Veränderung der Atmung</strong> (Cheyne-Stokes-Atmung, Rasselatmung, agonale Atemmuster)</li>
-<li><strong>Periphere Zyanose</strong>, Marmorierung der Haut, kühle Extremitäten</li>
-<li><strong>Oligurie/Anurie</strong></li>
-<li><strong>Veränderung der Vitalzeichen:</strong> Hypotonie, Tachykardie oder Bradykardie</li>
-</ul>
-<h3>Häufige belastende Symptome</h3>
-<ul>
-<li><strong>Schmerzen</strong></li>
-<li><strong>Dyspnoe/Atemnot</strong></li>
-<li><strong>Rasselatmung</strong> (terminales Rasseln)</li>
-<li><strong>Unruhe/Agitation</strong> (terminale Unruhe)</li>
-<li><strong>Angst</strong></li>
-<li><strong>Übelkeit/Erbrechen</strong></li>
-<li><strong>Mundtrockenheit</strong></li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li><strong>Klinische Einschätzung</strong> im multiprofessionellen Team</li>
-<li><strong>Kritische Reflexion:</strong> Ist der Sterbeprozess irreversibel? Gibt es potenziell reversible Ursachen (Opioidüberdosierung → Naloxon? Hyperkalzämie? Infekt?)?</li>
-<li><strong>Überprüfung des Patientenwillens:</strong> Patientenverfügung? Vorsorgevollmacht? Mutmaßlicher Wille? Therapiezieländerung besprochen?</li>
-<li><strong>Keine weitere belastende Diagnostik</strong> (Blutentnahmen, Bildgebung etc.) wenn Sterbephase erkannt</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Grundprinzipien</h3>
-<ul>
-<li><strong>Symptomkontrolle</strong> ist das oberste Therapieziel</li>
-<li><strong>Nicht-indizierte Maßnahmen beenden:</strong> Kurative Medikamente absetzen (Antibiotika, Antidiabetika, Statine, Antihypertensiva, etc.)</li>
-<li><strong>Monitoring beenden</strong> (Vitalzeichen, SpO₂, Laborkontollen)</li>
-<li><strong>Venösen Zugang</strong> nur beibehalten wenn für Symptomkontrolle erforderlich, ggf. s.c.-Zugang (Butterfly)</li>
-<li><strong>Flüssigkeits-/Nahrungszufuhr:</strong> Orale Zufuhr nur nach Patientenwunsch. Parenterale Flüssigkeit in der Sterbephase in der Regel beenden (keine Lebensverlängerung, kann Rasselatmung/Ödeme verschlechtern)</li>
-</ul>
-<h3>Schmerzen</h3>
-<ul>
-<li><strong>Morphin</strong> 2,5–5 mg s.c./i.v. alle 4h + Bedarfsdosis 1/6 der Tagesdosis alle 1h</li>
-<li>Bei vorbestehender Opioidtherapie: Dosisanpassung, Umstellung auf s.c.-Perfusor</li>
-<li>Ggf. <strong>Morphin-Perfusor s.c.:</strong> 10–30 mg/24h initial (Titration nach Bedarf)</li>
-</ul>
-<h3>Dyspnoe</h3>
-<ul>
-<li><strong>Morphin</strong> 2,5–5 mg s.c./i.v. alle 4h (Morphin ist das wirksamste Medikament gegen Atemnot!)</li>
-<li>Sauerstoff nur bei subjektiver Erleichterung (nicht routinemäßig, SpO₂-Messung nicht sinnvoll)</li>
-<li>Frischluftzufuhr, Ventilator, beruhigende Begleitung</li>
-</ul>
-<h3>Rasselatmung (terminales Rasseln)</h3>
-<ul>
-<li><strong>Butylscopolamin</strong> 20 mg s.c. alle 4–8h (oder Perfusor 60–120 mg/24h s.c.)</li>
-<li>Alternativ: Glycopyrroniumbromid 0,2 mg s.c. alle 4–6h</li>
-<li>Lagerung (Seitenlage, Oberkörperhochlagerung)</li>
-<li>Absaugen nur in Ausnahmefällen (belastend!)</li>
-<li>Angehörige aufklären (Rasseln belastet Angehörige mehr als den Patienten)</li>
-</ul>
-<h3>Unruhe/Agitation (terminale Unruhe)</h3>
-<ul>
-<li><strong>Midazolam</strong> 2,5–5 mg s.c./i.v. alle 2h bei Bedarf (oder Perfusor 10–30 mg/24h s.c.)</li>
-<li>Ggf. Haloperidol 0,5–2 mg s.c. (bei Delir-Komponente)</li>
-<li>Reversible Ursachen ausschließen: Harnverhalt? Obstipation? Schmerz? Angst?</li>
-</ul>
-<h3>Übelkeit/Erbrechen</h3>
-<ul>
-<li><strong>Haloperidol</strong> 0,5–1,5 mg s.c. 2x/d</li>
-<li>Alternativ: Levomepromazin 2,5–5 mg s.c. 1–2x/d</li>
-</ul>
-<h3>Mundpflege</h3>
-<ul>
-<li>Regelmäßige Mundpflege (Befeuchtung, Lippenpflege)</li>
-<li>Kleine Schlucke Wasser oder Eisstückchen nach Wunsch</li>
-</ul>
-<h3>Palliative Sedierung (Einzelfallentscheidung!)</h3>
-<ul>
-<li>Bei therapierefraktärem Leid als Ultima ratio</li>
-<li>Interdisziplinäre Entscheidung, informierte Zustimmung</li>
-<li>Midazolam-Perfusor s.c./i.v., Titration nach Leidenslinderung</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Die <strong>Erkennung der Sterbephase</strong> ist eine wichtige ärztliche Aufgabe</li>
-<li>Oberstes Ziel: <strong>Symptomkontrolle und Würde</strong></li>
-<li><strong>Morphin</strong> ist das Medikament der Wahl bei Schmerz UND Dyspnoe in der Sterbephase</li>
-<li><strong>Nicht-indizierte Therapien beenden</strong> (einschließlich i.v.-Flüssigkeit, Monitoring)</li>
-<li><strong>Angehörige einbeziehen</strong>, informieren und begleiten</li>
-<li>Dokumentation der Therapiezieländerung, Patientenverfügung, Vorsorgevollmacht</li>
-<li>Morphin in palliativer Dosierung führt <strong>nicht</strong> zur Lebensverkürzung (Doppelwirkung vs. Tötung)</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Betreuung dort, wo der Patient sich wohlfühlt:</strong> Station, Palliativstation, Hospiz, Zuhause (mit SAPV)</li>
-<li>Verlegung auf Intensivstation ist in der Sterbephase <strong>nicht indiziert</strong></li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Leitlinienprogramm Onkologie: S3-Leitlinie Palliativmedizin für Patienten mit einer nicht-heilbaren Krebserkrankung. AWMF-Reg.-Nr. 128-001, 2020.<br>Ellershaw J et al. Care of the dying: a pathway to excellence. Oxford University Press. 2011.`
+            {
+                title: "Definition",
+                html: `<p><strong>Sterbephase:</strong> Die letzten Tage des Lebens, in denen die körperlichen und geistigen Fähigkeiten des Sterbenden durch die Erkrankung zunehmend eingeschränkt sind.</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li>Frailty bei Hochbetagten</li>
+                    <li>Unheilbare Erkrankung</li>
+                    <li>(Potentiell) heilbare Erkrankung, bei der medizinische Maßnahmen aufgrund des Patientenwunschs unterbleiben</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Zunehmende Schwäche und reduzierter Allgemeinzustand</li>
+                    <li>Verlust des Interesses an Nahrungs- und Flüssigkeitszufuhr</li>
+                    <li>Veränderung von Emotionen und Bewusstsein, Verwirrtheit, Delir</li>
+                    <li>Veränderungen der Atmung (z.B. Cheyne-Stokes-Atmung, Rasselatmung)</li>
+                    <li>Zeichen der Kreislaufinsuffizienz (z.B. Mottling, Anurie)</li>
+                    <li>ggf. krankheitsspezifische Symptome (z.B. Schmerzen, Luftnot, Übelkeit)</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Patientenwillen</strong> im Gespräch mit dem Patienten eruieren (Therapieziele, Sterbeort, Wünsche, etc.).</li>
+                    <li>Bei fehlender Einwilligungsfähigkeit (z.B. Vigilanzminderung, Delir, fortgeschrittene Demenz): mutmaßlichen Patientenwillen mit Angehörigen/Betreuern/Vorsorgebevollmächtigten unter Würdigung der <strong>Patientenverfügung</strong>, Vorsorgevollmacht und sonstigen notierten Wertevorstellungen des Patienten eruieren.</li>
+                    <li><strong>Therapieziele</strong> (z.B. DNR, DNI, DND, no NIV, no ICU, no IMC, palliatives Procedere) in Akte gut sichtbar dokumentieren (Unterschrift + Stempel).</li>
+                    <li>Klären, wer im Falle des Versterbens informiert werden soll (Name, Telefonnummer in Akte notieren) <strong>und wann</strong> (auch nachts sofort?).</li>
+                    <li><strong>Keine</strong> Blutdruck-/Temperatur-/Pulsoxymetrie-/Blutzucker-/Labormessungen mehr vornehmen (fehlende Konsequenz).</li>
+                    <li>Engmaschiges Beobachten auf Anzeichen für Dyspnoe, Angst, Schmerz, Stress (Unruhe, Schwitzen, Mimik, Abwehrreaktion).</li>
+                </ul>`
+            },
+            {
+                title: "Therapie - Allgemeinmaßnahmen",
+                html: `<ul>
+                    <li>Ruhige Umgebung schaffen.</li>
+                    <li>Angehörige in Sterbebegleitung miteinbeziehen (sofern gewünscht).</li>
+                    <li>Möglichkeiten zur seelischen Entlastung anbieten (Seelsorger, Pfarrer, etc.).</li>
+                    <li>Alle Maßnahmen unterlassen, die Wohlbefinden des Patienten nicht verbessern (routinemäßiger Wechsel des Bettzeugs, etc.).</li>
+                    <li><strong>Alle Medikamente absetzen</strong>, die Patienten-Lebensqualität nicht verbessern (OAK, Statine, Antihypertensiva, Antibiotika, Insulin, etc.).</li>
+                    <li><strong>Keine künstliche Ernährung oder parenterale Flüssigkeitsgabe</strong> (Gefahr eines Lungenödems! Durstempfinden hingegen meist herabgesetzt).</li>
+                    <li>Defibrillationsfunktion bei vorhandenem <strong>ICD deaktivieren</strong> (durch Magnetauflage oder Umprogrammierung durch Kardiologen).</li>
+                    <li><strong>Subkutane Medikamentengabe bevorzugen</strong> (viele Medikamente können "off-label" s.c. verabreicht werden, z.B. auch Levetiracetam als Kurzinfusion bei Patienten mit Epilepsie in der Sterbephase); bereits vorhandene intravenöse Zugänge können jedoch weiter verwendet werden.</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Bei strikt palliativem Procedere gilt die <strong>Symptomkontrolle als einziges Therapieziel!</strong></p>
+                </div>`
+            },
+            {
+                title: "Symptomorientierte Therapie",
+                html: `<h3>Atemnot / Schmerzen</h3>
+                <ul>
+                    <li><strong>Morphin (MSI®):</strong> z.B. 2,5 mg s.c. alle 4–6 h (b.B. alle 30 min) oder als <strong>Perfusor</strong> (50 mg/50 ml): Start mit 0,5 ml/h s.c./i.v.
+                        <ul>
+                            <li>Individuelle Dosierung abhängig von Symptomlast, Alter, Gewicht, Opiatvorbehandlung.</li>
+                            <li>Bei vorbestehender Opiattherapie: Erhöhung der Morphin-Äquivalenzdosis um 25 %.</li>
+                        </ul>
+                    </li>
+                    <li>Persistierende Atemnot trotz Opioiddosissteigerung: ergänzend <strong>Midazolam (Dormicum®)</strong> 1–2 mg s.c./i.v. (b.B. alle 30 min).</li>
+                    <li>O₂-Gabe allenfalls übergangsweise bei Hypoxämie bis ausreichende Morphindosis etabliert (belastende Mundtrockenheit).</li>
+                </ul>
+                <h3>Angst, Unruhe, Delir</h3>
+                <ul>
+                    <li>Dem Patienten Vertrautes präsentieren (Angehörige, Musik, etc.).</li>
+                    <li><strong>Midazolam (Dormicum®):</strong> 1–2 mg s.c./i.v. (b.B. alle 30 min) oder als Perfusor (10 mg/50 ml): Start mit 2 ml/h s.c./i.v.</li>
+                    <li>Psychotisches Erleben: ggf. <strong>Haloperidol (Haldol®)</strong> z.B. 2,5 mg s.c. oder als Perfusor (5 mg/50 ml): 2 ml/h s.c. (max. 20 mg/d).</li>
+                </ul>
+                <h3>Übelkeit und Erbrechen</h3>
+                <ul>
+                    <li><strong>Haloperidol (Haldol®):</strong> z.B. 1–2,5 mg s.c. oder als Perfusor (5 mg/50 ml): 2 ml/h s.c. (max. 20 mg/d, i.d.R. 5 mg/d ausreichend).</li>
+                    <li>Bei anhaltendem Erbrechen Anlage einer Entlastungsmagensonde erwägen.</li>
+                </ul>
+                <h3>Mundtrockenheit (Xerostomie)</h3>
+                <ul>
+                    <li>Regelmäßige Lippen-/Mundbefeuchtung ist die wichtigste Maßnahme gegen Durstempfinden.</li>
+                </ul>
+                <h3>Rasselatmung</h3>
+                <ul>
+                    <li><strong>Kein Absaugen</strong> des Trachealsekrets (außer ggf. bei Patienten mit Tracheostoma oder Endotrachealtubus).</li>
+                    <li>Bei belastender Rasselatmung geeignete Lagerungsmethoden für Sekretmobilisation/-ablauf wählen.</li>
+                    <li><strong>Medikamentös:</strong> Glycopyrrolat (Robinul®) 0,2 mg s.c. alle 4–6 h oder <strong>Butylscopolamin (Buscopan®)</strong> 20–40 mg s.c. alle 4–6 h.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li><strong>Die 3 wichtigsten Medikamente in der Sterbephase:</strong>
+                        <ul>
+                            <li><strong>Morphin</strong> (Atemnot, Schmerz)</li>
+                            <li><strong>Midazolam</strong> (Agitation, Unruhe, Atemnot)</li>
+                            <li><strong>Haloperidol</strong> (Übelkeit, Erbrechen, psychotisches Erleben)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Palliative Sedierung</strong> erwägen bei nicht kontrollierbarem, unerträglicher Symptomlast (Palliativmediziner hinzuziehen).</li>
+                    <li>Rasselatmung ist Zeichen für fortgeschrittenen Sterbeprozess und für das Umfeld belastender als für den Patienten.</li>
+                    <li>Aktive Sterbehilfe ist in Deutschland gesetzlich verboten. Bei ausgeprägter Symptomlast kann in Einzelfällen die benötigte Morphindosis eine Lebenszeitverkürzung nach sich ziehen. Dies stellt <strong>keine</strong> aktive Sterbehilfe dar, wenn Symptomlast und Morphindosis in nachvollziehbarem Verhältnis stehen (Morphintitration!).</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Einzelzimmer auf Normalstation oder Palliativstation</strong> (lange Liegedauer in Notaufnahme vermeiden).</li>
+                    <li><strong>Verlegung nach Hause mit SAPV-Anbindung</strong> (falls Patient dies wünscht und häusliche Versorgung gewährleistet ist).</li>
+                </ul>`
+            }
+        ],
+        sources: `Bausewein C et al. Atemnot und Husten bei Palliativpatienten. Dtsch Arztebl Int 2013; 110(33-34): 563-72.<br>
+        Erweiterte S3-Leitlinie Palliativmedizin für Patienten mit einer nicht heilbaren Krebserkrankung, Kurzversion 2.2 – September 2020. AWMF-Registernummer: 128/001OL.<br>
+        Waltenberger J. et al. Verantwortlicher Umgang mit ICDs. Stellungnahme der Deutschen Gesellschaft für Kardiologie und ihrer Schwester-Gesellschaften. Kardiologe 2017. 11:383-397.<br>
+        Nehls W. et al. Handlungsempfehlung zur Therapie von Patient*innen mit COVID-19 aus palliativmedizinischer Perspektive. Deutsche Gesellschaft für Palliativmedizin / Deutsche Gesellschaft für Pneumologie und Beatmungsmedizin. Stand 29.06.2021. AWMF-Registernummer 128-002.`
     });
 })();

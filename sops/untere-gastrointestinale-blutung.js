@@ -1,109 +1,123 @@
-// SOP: Untere Gastrointestinale Blutung
-// Kategorie: Gastroenterologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "untere-gastrointestinale-blutung",
         title: "Untere Gastrointestinale Blutung",
         category: "Gastroenterologie",
         catKey: "gi",
+        stand: "12/22",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Untere GI-Blutung:</strong> Blutung aus dem Gastrointestinaltrakt distal des Treitz-Bandes (Jejunum, Ileum, Kolon, Rektum, Anus)</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Divertikulose/-blutung</strong> (häufigste Ursache im Alter!)</li>
-<li><strong>Angiodysplasien</strong></li>
-<li><strong>Kolorektales Karzinom / Polypen</strong></li>
-<li><strong>Hämorrhoiden</strong> (häufigste Ursache rektaler Blutung!)</li>
-<li><strong>Analfissur</strong></li>
-<li><strong>Ischämische Kolitis</strong></li>
-<li><strong>Chronisch-entzündliche Darmerkrankungen</strong> (M. Crohn, Colitis ulcerosa)</li>
-<li><strong>Infektiöse Kolitis</strong></li>
-<li>Meckel-Divertikel (jüngere Patienten)</li>
-<li>Post-Polypektomie-Blutung</li>
-<li>Strahlenkolitis</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Hämatochezie</strong> (frisches Blut per rectum) – Leitsymptom!</li>
-<li>ggf. Meläna (bei langsamer Blutung aus rechtem Kolon/Dünndarm)</li>
-<li>ggf. Hypovolämie-/Schockzeichen bei massiver Blutung</li>
-<li>ggf. Bauchschmerzen, Krämpfe</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> 10–15% der <strong>Hämatochezien</strong> sind Ausdruck einer <strong>massiven oberen GI-Blutung!</strong> Immer obere GI-Blutung als Differentialdiagnose bedenken!</p></div>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li><strong>2x großlumige venöse Zugänge</strong></li>
-<li><strong>BGA</strong> (Hb! Laktat!)</li>
-<li><strong>Labor:</strong> BB, Gerinnung (INR, aPTT, Fibrinogen), <strong>Kreuzblut + Blutgruppe</strong>, E'lyte, NW</li>
-<li><strong>DRU</strong> (Blut? Hämorrhoiden?)</li>
-<li>Anamnese: Medikamente (Antikoagulantien, NSAR, ASS)? Vorherige GI-Blutung? Divertikelerkrankung? CED? Polypen/Ca?</li>
-</ul>
-<h3>Endoskopie</h3>
-<ul>
-<li><strong>Koloskopie</strong> (innerhalb von 24h nach Stabilisierung): Goldstandard für Diagnose und ggf. Intervention</li>
-<li><strong>ÖGD:</strong> zum Ausschluss einer oberen GI-Blutung bei Hämatochezie + hämodynamischer Instabilität</li>
-</ul>
-<h3>Weitere Bildgebung (bei massiver, nicht-lokalisierbarer Blutung)</h3>
-<ul>
-<li><strong>CT-Angiographie:</strong> bei aktiver Blutung und instabilem Patienten (Blutungsquelle lokalisieren)</li>
-<li>Angiographie + Embolisation (bei aktiver Blutung, endoskopisch nicht beherrschbar)</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Stabilisierung</h3>
-<ul>
-<li>ABCDE-Schema</li>
-<li>Volumentherapie, Transfusion bei Hb < 7 g/dl (restriktiv)</li>
-<li>Antikoagulantien pausieren/antagonisieren bei relevanter Blutung</li>
-</ul>
-<h3>Endoskopische Therapie</h3>
-<ul>
-<li>Clipping, Thermokoagulation, Injektion bei identifizierter Blutungsquelle</li>
-</ul>
-<h3>Interventionelle/Chirurgische Therapie</h3>
-<ul>
-<li>Angiographische Embolisation bei endoskopisch nicht beherrschbarer Blutung</li>
-<li>Chirurgische Resektion (Ultima ratio)</li>
-</ul>
-<h3>Spezifisch</h3>
-<ul>
-<li>Divertikelblutung sistiert in 80% spontan</li>
-<li>Hämorrhoiden/Analfissur: konservative/lokale Therapie</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Hämatochezie ≠ automatisch untere GI-Blutung!</strong> Obere GI-Blutung ausschließen!</li>
-<li><strong>Kreuzblut sofort!</strong></li>
-<li><strong>Koloskopie innerhalb von 24h</strong></li>
-<li>CT-Angiographie bei hämodynamisch instabiler Blutung</li>
-<li>Divertikelblutung ist die häufigste Ursache der unteren GI-Blutung im Alter</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> hämodynamische Instabilität, massive Blutung</li>
-<li><strong>Normalstation:</strong> stabile Blutung, Koloskopie geplant</li>
-<li><strong>Ambulant:</strong> minimale Blutung (Hämorrhoiden, Fissur), stabil, ambulante Koloskopie geplant</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Strate LL et al. ACG Clinical Guideline: Management of Patients With Acute Lower Gastrointestinal Bleeding. Am J Gastroenterol. 2016;111(4):459-474.`
+            {
+                title: "Definition",
+                html: `<p><strong>Untere gastrointestinale Blutung (UGIB):</strong> Gastrointestinale Blutung distal des Treitz-Bandes (Übergang Duodenum-Jejunum).</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li><strong>Divertikelblutung</strong> (ca. 30 %).</li>
+                    <li><strong>Hämorrhoiden.</strong></li>
+                    <li><strong>Ischämien.</strong></li>
+                    <li><strong>CED.</strong></li>
+                    <li><strong>Sonstige:</strong> Tumoren, Rektalulcera, Angiodysplasien, Post-Polypektomie, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Hämatochezie:</strong>
+                        <ul>
+                            <li>Frisches Blut, streifenförmig auf Stuhl aufliegend (Rektumblutung).</li>
+                            <li>Dunkelrote, geleeartige Blutbeimischung bzw. Koagel (Kolonblutung).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Meläna.</strong></li>
+                    <li><strong>Erhöhte Stuhlfrequenz und Hypermotilität des Darmes.</strong></li>
+                    <li><strong>ggf. Begleitsymptome:</strong> z.B. Aspiration, Synkope, Schock.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter:</strong> RR, Puls, SpO₂, AF, Temperatur.</li>
+                    <li><strong>1-2x großlumiger venöser Zugang.</strong></li>
+                    <li><strong>Venöse BGA:</strong> Hb? pH? BE? Laktat?</li>
+                    <li><strong>Kreuzblut abnehmen + ggf. EK (z.B. 2-4 Stück) anfordern.</strong></li>
+                    <li><strong>Labor:</strong> BB, NW, Gerinnung, Leberwerte.</li>
+                    <li><strong>12-Kanal-EKG:</strong> Ischämiezeichen?</li>
+                    <li><strong>Anamnese:</strong> Symptome? Blutungsstigmata? Medikamente (NSAR, TAH, OAK, SSRI)? Vorerkrankungen (Divertikulose, Hämorrhoiden)? Letzte Endoskopie?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Rekap-Zeit? Blasse Konjunktiven? Abdomineller Druckschmerz? Hämorrhoiden? <strong>Blut/Teerstuhl in DRU?</strong></li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit Gastroenterologie bei kreislaufwirksamer Blutung!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema.</li>
+                    <li><strong>Frühzeitige Schutzintubation bei Aspirationsgefahr:</strong> Anästhesie informieren.</li>
+                    <li><strong>Patienten nüchtern lassen.</strong></li>
+                    <li><strong>Kreislaufstabilisierung:</strong> Ziel: MAD > 65 mmHg, Normalisierung von Herzfrequenz und erhöhtem Laktatspiegel.
+                        <ul>
+                            <li>Bei Kreislaufinstabilität: Hochdosierte O₂-Gabe (auch bei normalem SpO₂) und <strong>Schocklagerung</strong> (Oberkörper flach mit angehobenen Beinen).</li>
+                            <li>500-1000 ml Vollelektrolytlösung i.v.</li>
+                            <li><strong>Transfusion von EK bei Hb < 7 g/dl:</strong> Ziel-Hb: 7-9 g/dl.</li>
+                            <li>Bei anämischer Hypoxie (z.B. Typ 2 Myokardinfarkt) bereits bei <strong>Hb 8-10 g/dl</strong>.</li>
+                            <li>Bei massiver Blutung nach klinischer Einschätzung unabhängig vom Hb-Wert (s. SOP Anämie).</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Optimierung der Gerinnung</h3>
+                <ul>
+                    <li>Antagonisierung von DOAK, TAH, NMH oder Vitamin-K-Antagonisten erwägen.</li>
+                    <li><strong>DOAK periinterventionell pausieren:</strong> Ausnahme: Hohes Thromboembolierisiko oder mechanische Klappe, dann interdisziplinäre Absprache mit Gastroenterologen + Kardiologen; Wiederaufnahme frühestmöglich und innerhalb von 7 Tagen empfohlen.</li>
+                    <li><strong>Thrombozytenaggregationshemmer:</strong> Bei Primärprophylaxe pausieren, bei Sekundärprophylaxe weitergeben (Ausnahme: akut lebensbedrohliche Blutung ggf. Antagonisierung mit TK).</li>
+                </ul>
+                <h3>Endoskopische Blutstillung</h3>
+                <ul>
+                    <li><strong>Bei hämorrhagischem Schock:</strong> Endoskopie < 12 h (ÖGD + ggf. Rekto-/Sigmoidoskopie oder Koloskopie).</li>
+                    <li><strong>Bei hämodynamischer Stabilität:</strong> Koloskopie nach entsprechender Vorbereitung.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Der Hb-Wert „hinkt“ bei aktiver Blutung hinterher, Vitalparameter (Puls, Blutdruck) sind viel sensitiver.</li>
+                    <li><strong>Bei 10-15 % der Patienten mit Hämatochezie liegt eine massive OGIB vor</strong>, daher bei Verdacht entsprechende medikamentöse Therapie (s. SOP OGIB) und <strong>zuerst ÖGD</strong> (vor Spiegelung des unteren GI-Traktes).</li>
+                    <li>Bei V.a. GI-Blutung immer digital rektale Untersuchung durchführen.</li>
+                    <li>Auch bei Vorliegen von Hämorrhoiden sollte (im Verlauf) eine Koloskopie z.A. anderer Blutungsursachen erfolgen.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Klinik / Befund</th>
+                                <th>Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Stabile Situation:</strong><br>Hb > 13 g/dl, systolischer Blutdruck > 115 mmHg, keine Antikoagulation, keine schweren Komorbiditäten.</td>
+                                <td><strong>Ambulantes Procedere</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bei Kreislaufinstabilität</strong></td>
+                                <td><strong>Überwachungsstation (IMC/ICU)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            }
+        ],
+        sources: `Herold G et al. Innere Medizin 2019, S. 453 ff.<br>
+        Götz M. et al. S2k-Leitlinie Gastrointestinale Blutung. Z Gastroenterol 2017; 55(09): 883-936.<br>
+        Ghassemi KA et al. Lower GI bleeding: epidemiology and management. Curr Gastroenterol Rep. 2013 Jul;15(7):333.`
     });
 })();

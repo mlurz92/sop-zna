@@ -1,129 +1,193 @@
-// SOP: Diabetische Ketoazidose
-// Kategorie: Metabolisch
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "diabetische-ketoazidose",
         title: "Diabetische Ketoazidose",
         category: "Metabolisch",
         catKey: "metab",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Diabetische Ketoazidose (DKA):</strong> Akute, lebensbedrohliche metabolische Entgleisung bei absolutem oder relativem Insulinmangel, charakterisiert durch:
-<ul>
-<li><strong>Hyperglykämie</strong> (BZ > 250 mg/dl, selten auch euglykämisch bei SGLT2-Inhibitoren!)</li>
-<li><strong>Ketonämie/Ketonurie</strong></li>
-<li><strong>Metabolische Azidose</strong> (pH < 7,3, Bikarbonat < 18 mmol/l)</li>
-</ul>
-</li>
-</ul>
-<h3>Schweregrade</h3>
-<div class="table-wrap"><table>
-<thead><tr><th>Parameter</th><th>Mild</th><th>Moderat</th><th>Schwer</th></tr></thead>
-<tbody>
-<tr><td>pH</td><td>7,25–7,30</td><td>7,00–7,24</td><td>< 7,00</td></tr>
-<tr><td>Bikarbonat</td><td>15–18 mmol/l</td><td>10–15 mmol/l</td><td>< 10 mmol/l</td></tr>
-<tr><td>Bewusstsein</td><td>Wach</td><td>Somnolent</td><td>Stupor/Koma</td></tr>
-</tbody>
-</table></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Erstmanifestation Diabetes mellitus Typ 1</strong></li>
-<li><strong>Insulinpause/-fehler</strong> (Non-Compliance, Insulinpumpenversagen, fehlerhafte Injektion)</li>
-<li><strong>Erhöhter Insulinbedarf:</strong> Infektion (häufigster Trigger!), OP, Trauma, Schwangerschaft, Myokardinfarkt, Steroidtherapie</li>
-<li><strong>SGLT2-Inhibitoren</strong> (Dapagliflozin, Empagliflozin) → euglykämische DKA!</li>
-<li><strong>Alkoholexzess</strong></li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Polyurie, Polydipsie</strong></li>
-<li><strong>Dehydratation</strong> (trockene Schleimhäute, stehende Hautfalten, Tachykardie, Hypotonie)</li>
-<li><strong>Übelkeit, Erbrechen, abdominelle Schmerzen</strong> (Pseudoperitonitis)</li>
-<li><strong>Kussmaul-Atmung</strong> (tiefe, schnelle Atmung als respiratorische Kompensation)</li>
-<li><strong>Acetongeruch</strong> (fruchtig/nagellackentfernerähnlich)</li>
-<li><strong>Bewusstseinseintrübung</strong> bis Koma</li>
-<li><strong>Schwäche, Müdigkeit</strong></li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1–2x venöser Zugang</li>
-<li><strong>BZ-Messung</strong></li>
-<li><strong>BGA</strong> (pH? BE? Bikarbonat? Laktat? K⁺? Na⁺? Glukose? Anionenlücke?)</li>
-<li><strong>Ketone</strong> (Blut-Ketone bevorzugt: β-Hydroxybutyrat > 3 mmol/l; alternativ Urin-Ketone)</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte (K⁺! Na⁺ korrigiert!), NW, Phosphat, GOT, GPT, Lipase, Gerinnung, HbA1c, ggf. Blutkulturen, PCT</li>
-<li>12-Kanal-EKG (Hyperkaliämie-/Hypokaliämie-Zeichen?)</li>
-<li><strong>Urin-Status</strong> (Ketone, Infektzeichen)</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Bekannter Diabetes? Insulintherapie? Compliance? Auslöser (Infektion, Erbrechen, OP)? SGLT2-Inhibitor? Symptombeginn? Flüssigkeitsaufnahme?</li>
-<li><strong>Körperliche Untersuchung:</strong> Dehydratation? Kussmaul-Atmung? Acetongeruch? Bewusstseinslage? Infektfokus? Abdomen?</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Hinweis:</strong> <strong>Korrigiertes Natrium</strong> berechnen: Na⁺_korr = Na⁺_gemessen + 1,6 × (Glukose [mg/dl] − 100) / 100. Das Kalium ist initial oft normal/erhöht, fällt aber unter Insulintherapie rasch ab!</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>1. Volumentherapie (Priorität!)</h3>
-<ul>
-<li><strong>NaCl 0,9%</strong> 1000 ml/h in der 1. Stunde, dann 250–500 ml/h (Anpassung an Klinik)</li>
-<li>Typisches Flüssigkeitsdefizit: 5–7 Liter</li>
-<li>Wechsel auf NaCl 0,45% bei korrigiertem Na⁺ > 145 mmol/l</li>
-<li>Glukose 5–10% hinzufügen wenn BZ < 250 mg/dl (um Insulintherapie fortsetzen zu können)</li>
-</ul>
-<h3>2. Insulintherapie</h3>
-<ul>
-<li><strong>Normalinsulin-Perfusor:</strong> 0,1 IE/kg/h i.v. (ca. 5–7 IE/h)</li>
-<li>Kein initialer Bolus empfohlen</li>
-<li>Ziel: BZ-Senkung um 50–70 mg/dl/h</li>
-<li>BZ alle 1–2h kontrollieren</li>
-<li>Insulinperfusor fortsetzen bis: pH > 7,3, Bikarbonat > 18 mmol/l, Anionenlücke normalisiert, Ketone rückläufig</li>
-<li>Umstellung auf s.c.-Insulin erst bei Besserung + orale Nahrungsaufnahme (30 min Überlappung!)</li>
-</ul>
-<h3>3. Kaliumsubstitution</h3>
-<ul>
-<li><strong>K⁺ > 5,5 mmol/l:</strong> Kein Kalium, Kontrolle alle 2h</li>
-<li><strong>K⁺ 3,5–5,5 mmol/l:</strong> 20–30 mmol KCl pro Liter Infusion</li>
-<li><strong>K⁺ < 3,5 mmol/l:</strong> Aggressiver Kaliumersatz, Insulin pausieren bis K⁺ > 3,5 mmol/l!</li>
-</ul>
-<h3>4. Bikarbonat</h3>
-<ul>
-<li>Nur bei pH < 6,9: Natriumbikarbonat 100 mmol in 400 ml NaCl 0,45% über 2h</li>
-<li>Routinemäßig NICHT empfohlen (verschlechtert ggf. intrazelluläre Azidose)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Kalium</strong> engmaschig kontrollieren! Unter Insulintherapie kann K⁺ rasch abfallen → lebensbedrohliche Hypokaliämie! Bei K⁺ < 3,5: Insulin pausieren!</p></div>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Hirnödem</strong> bei zu rascher BZ-Senkung (v.a. bei Kindern) – BZ nicht schneller als 50–70 mg/dl/h senken!</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Reihenfolge der Therapie: <strong>Volumen → Kalium → Insulin</strong> (erst Volumen, dann Kalium prüfen, dann Insulin!)</li>
-<li><strong>Kalium</strong> ist der kritischste Parameter – engmaschig kontrollieren!</li>
-<li>An <strong>euglykämische DKA</strong> bei SGLT2-Inhibitoren denken (BZ kann < 250 mg/dl sein!)</li>
-<li><strong>Anionenlücke</strong> als Verlaufsparameter (nicht nur BZ!) – Insulinperfusor erst beenden, wenn Anionenlücke normalisiert</li>
-<li><strong>Infektfokus</strong> suchen (häufigster Auslöser!)</li>
-<li>Bikarbonatgabe nur bei pH < 6,9</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> schwere DKA (pH < 7,0), Bewusstseinseintrübung, hämodynamische Instabilität, K⁺ < 3,5 oder > 6,0</li>
-<li><strong>Überwachungsstation/IMC:</strong> moderate DKA</li>
-<li><strong>Normalstation:</strong> milde DKA nach initialer Stabilisierung</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Kitabchi AE et al. Hyperglycemic Crises in Adult Patients With Diabetes. Diabetes Care. 2009;32(7):1335-43.<br>Dhatariya KK et al. The Management of Diabetic Ketoacidosis in Adults. Joint British Diabetes Societies Inpatient Care Group, 2023.<br>S3-Leitlinie Therapie des Typ-1-Diabetes. DDG/DGIM, AWMF-Register-Nr. 057-013, 2023.`
+            {
+                title: "Definition",
+                content: `<p><strong>Diabetische Ketoazidose (DKA):</strong> Lebensbedrohliche Stoffwechselentgleisung aufgrund eines absoluten oder relativen Insulinmangels mit Ketonämie und konsekutiver metabolischer Azidose.</p>
+                <h3>Diagnosekriterien:</h3>
+                <ul>
+                    <li><strong>Hyperglykämie:</strong> Blutglukose > 250 mg/dl</li>
+                    <li><strong>Ketonämie:</strong> ≥ 3 mmol/l bzw. <strong>Ketonurie:</strong> ≥ 2x positiv im Urinstatus</li>
+                    <li><strong>Azidose:</strong> pH < 7,35 arteriell bzw. < 7,3 venös mit erniedrigtem <strong>Serumbikarbonat</strong> (&lt; 15 mmol/l)</li>
+                </ul>
+                <div class="callout callout-hinweis">
+                    <p><strong>Sonderfall: Euglykäme Ketoazidose</strong> (z.B. unter SGLT-2-Inhibitoren, bei Schwangeren): Hier ist das Vorliegen eines Diabetes mellitus als Diagnosekriterium ausreichend, auch wenn die Blutglukosewerte nicht > 250 mg/dl liegen.</p>
+                </div>`
+            },
+            {
+                title: "Ursachen",
+                content: `<ul>
+                    <li>Erstmanifestation eines Diabetes mellitus Typ 1</li>
+                    <li>Unterbrochene Insulintherapie (fehlende Therapieadhärenz, Applikationsfehler, Insulinpumpendefekt, Suizidalität)</li>
+                    <li>Infektion (Gastroenteritis, Harnwegsinfekt, Pneumonie, etc.)</li>
+                    <li>Schwere Akuterkrankung (akuter Myokardinfarkt, Pankreatitis, zerebrovaskuläres Ereignis, etc.)</li>
+                    <li>Medikamente (Glukokortikoide, Immuncheckpoint-Inhibitoren, SGLT-2-Inhibitoren, etc.)</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                content: `<ul>
+                    <li>Appetitlosigkeit, Übelkeit, Erbrechen, abdominelle Schmerzen bis <strong>Pseudoperitonitis</strong></li>
+                    <li><strong>Zeichen der Exsikkose:</strong> reduzierter Hautturgor, Muskelkrämpfe, Hypotonie, Tachykardie, Oligo-/Anurie nach zunächst osmotischer Polyurie</li>
+                    <li>Stark vertiefte, normofrequente bis leicht beschleunigte Atmung (<strong>"Kussmaul-Atmung"</strong>)</li>
+                    <li>Somnolenz bis Koma</li>
+                    <li>ggf. oligo- bis asymptomatisch oder Symptome der zugrundeliegenden Akuterkrankung führend</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                content: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li><strong>2x großlumiger venöser Zugang</strong></li>
+                    <li><strong>Venöse BGA:</strong> pH? pCO₂? BE? Hb? E’lyte? Glukose? Laktat? Anionenlücke?</li>
+                    <li><strong>Labor:</strong> BB, CRP, E’lyte inkl. <strong>Magnesium und Phosphat</strong>, NW, HbA1c, ggf.: Serumosmolalität, 3-Hydroxybutyrat, PCT, hs-Troponin, Lipase, TSH, Alkohol, β-HCG</li>
+                    <li><strong>12-Kanal EKG:</strong> Herzrhythmusstörungen? Ischämiezeichen? Hyperkaliämiezeichen?</li>
+                    <li><strong>Urinstatus/-stix:</strong> Ketone ≥ 2x positiv? oder <strong>Blutketonkörpermessung</strong> (mittels validiertem POCT-Gerät)</li>
+                    <li><strong>Anamnese:</strong> Symptombeginn? Polyurie/-dipsie? DM bekannt? Therapieadhärenz? Insulinmanagement? Abgelaufenes Insulin?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? Acetongeruch? Abdomineller Druckschmerz?</li>
+                    <li><strong>ggf. cCT:</strong> Ausschluss einer intrakraniellen Akutpathologie bei schwerer Vigilanzminderung.</li>
+                    <li><strong>ggf. Infektfokussuche:</strong> ≥ 2x BK, Urinstatus/-kultur, POCUS, Röntgen-Thorax.</li>
+                </ul>
+                <h3>Abhängig von dem Schweregrad der Ketoazidose:</h3>
+                <ul>
+                    <li>Anlage eines DK (Urinmonitoring, Bilanzierung)</li>
+                    <li>Anlage einer Magensonde bei Gastroparese mit persistierendem Erbrechen (<strong>Aspirationsgefahr!</strong>)</li>
+                    <li>Anlage eines zentralen Venenkatheters (bei Notwendigkeit hochdosierter Kaliumsubstitution)</li>
+                    <li>Anlage eines arteriellen Zugangs (bei hämodynamischer Instabilität)</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit Überwachungsstation (IMC/ICU)!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                content: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Ursachen beheben (Infektbehandlung, auslösende Medikamente absetzen).</li>
+                    <li><strong>Insulinpumpe:</strong> falls vorhanden abschalten und diskonnektieren, NICHT weiterverwenden.</li>
+                    <li><strong>Intensivmedizinische Überwachung:</strong>
+                        <ul>
+                            <li>Initial alle 30 Min.: Vitalparameter (RR, HF, SpO₂, AF).</li>
+                            <li>Initial alle 60 Min.: Vigilanzkontrolle (GCS, Pupillen), BGA, E'lyte, Glukose, Urinausscheidung.</li>
+                            <li>Regelmäßig (z.B. alle 8h): Ketonkörper im Urin.</li>
+                        </ul>
+                    </li>
+                    <li><strong>BZ-Senkung:</strong> um 50 - (max.) 100 mg/dl pro Stunde, nicht unter 250 mg/dl in ersten 24h senken.</li>
+                    <li><strong>Kriterien für Durchbrechung der DKA:</strong> Blutglukose < 200 mg/dl, Serumbikarbonat ≥ 18 mmol/l, venöser pH > 7,3.</li>
+                </ul>
+
+                <h3>1. Flüssigkeitssubstitution</h3>
+                <ul>
+                    <li>Initial <strong>1000 ml Sterofundin über 1 h i.v.</strong>, dann Reduktion auf 250-500 ml/h (s. Schema).</li>
+                    <li>Gesamtvolumenbedarf ca. 100 ml/kg KG (z.B. 7 l bei 70 kg KG).</li>
+                    <li>Ziel: MAD > 65 mmHg, Exsikkose-Ausgleich, Diurese > 0,5 ml/kg KG/h.</li>
+                    <li><span class="callout-cave"><strong>CAVE:</strong> An Volumenstatus, Komorbiditäten und kardiale Leistungsfähigkeit anpassen!</span></li>
+                </ul>
+
+                <h3>2. Insulintherapie</h3>
+                <ul>
+                    <li><strong>Sofortiger Beginn</strong> mit Insulinperfusor (50 IE auf 50 ml): <strong>0,05-0,1 IE/kg KG/h i.v.</strong> (z.B. 4 IE/h bei 80 kg KG, max. LR: 15 IE/h).</li>
+                    <li>Nur bei <strong>Hypokaliämie (Kalium < 3,3 mmol/l)</strong> verzögert beginnen bzw. pausieren.</li>
+                    <li>Ab Blutglukose von <strong>250 mg/dl</strong> oder bei zu raschem Abfall: <strong>G10% parallel</strong> mitlaufen lassen (Start mit 125 ml/h).</li>
+                    <li>Umstellung auf Insulin s.c.: erst wenn Patient isst. <span class="callout-cave"><strong>WICHTIG:</strong> Insulinperfusor mind. 60 min überlappend weiterführen!</span></li>
+                </ul>
+
+                <h3>3. Kaliumsubstitution</h3>
+                <ul>
+                    <li>Kaliumsubstitution bereits bei <strong>hochnormalen Werten</strong>, sofern keine Anurie vorliegt.</li>
+                    <li><strong>Ziel-Kalium: 4-5 mmol/l.</strong></li>
+                    <li>Ziel: Ersetzen des Gesamtkaliumdefizits, Vermeiden einer Hypokaliämie durch Insulinwirkung.</li>
+                </ul>
+
+                <h3>Sonstiges</h3>
+                <ul>
+                    <li><strong>Hypophosphatämie:</strong> Phosphat substituieren, falls Patient symptomatisch (Atem-/Skelettmuskelschwäche).</li>
+                    <li><strong>Hypomagnesiämie:</strong> Magnesium substituieren (z.B. 2 g als Kurzinfusion i.v.).</li>
+                    <li><strong>Natriumbikarbonat:</strong> (50 mmol 8,4 % NaBic über 1 h i.v.) allenfalls bei <strong>pH < 7,0</strong> erwägen, Pufferung nur bis pH 7,1.</li>
+                </ul>`
+            },
+            {
+                title: "Substitutionstabellen (S3-Leitlinie 2023)",
+                content: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Infusionslösung (Sterofundin)</th>
+                                <th>Menge und Zeitraum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1000 ml Vollelektrolytlösung</td><td>über die erste Stunde</td></tr>
+                            <tr><td>1000 ml mit Kaliumchlorid</td><td>über die nächsten zwei Stunden</td></tr>
+                            <tr><td>1000 ml mit Kaliumchlorid</td><td>über die nächsten zwei Stunden</td></tr>
+                            <tr><td>1000 ml mit Kaliumchlorid</td><td>über die nächsten vier Stunden</td></tr>
+                            <tr><td>1000 ml mit Kaliumchlorid</td><td>über die nächsten vier Stunden</td></tr>
+                            <tr><td>1000 ml mit Kaliumchlorid</td><td>über die nächsten sechs Stunden</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kaliumspiegel (mmol/l)</th>
+                                <th>Kaliumzugabe pro 1000 ml Infusion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>> 5,5</td><td>Keine</td></tr>
+                            <tr><td>3,5 - 5,5</td><td>40 mval/l (≙ 40 mmol/l)</td></tr>
+                            <tr><td>< 3,5</td><td>Hochdosiert über Perfusor via ZVK (z.B. 20 mval/h)</td></tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Merke",
+                content: `<ul>
+                    <li>Die drei Säulen: <strong>Flüssigkeit, Insulin, Kalium.</strong></li>
+                    <li>Mischbild aus DKA und hyperosmolarem hyperglykämischem Syndrom (HHS) möglich.</li>
+                    <li>Bei <strong>euglykämer DKA:</strong> Mit Beginn der Insulintherapie direkt auch G10% (z.B. 125 ml/h) starten, SGLT-2-Inhibitor absetzen.</li>
+                    <li>Leukozytose bei DKA auch ohne Infekt häufig.</li>
+                    <li><strong>Gefahr des Hirnödems:</strong> insb. bei &lt; 25-Jährigen durch zu schnelle Glukosesenkung oder zu aggressive Volumensubstitution.</li>
+                    <li><strong>V.a. Hirnödem:</strong> sofortiges cCT und Beginn Hirndruck-senkender Maßnahmen (Oberkörper 30°, Mannitol), wenn Kopfschmerz, Vigilanzminderung oder Pupillenänderung unter Therapie auftreten.</li>
+                    <li>Hypertone Hyponatriämie bei DKA häufig, i.d.R. KEINE Natriumsubstitution indiziert.</li>
+                    <li>BGA-Geräte zeigen oft "high" &rarr; Laborabnahme für exakte Werte zwingend notwendig.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition & Schweregrade",
+                content: `<div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Leicht</th>
+                                <th>Mittel</th>
+                                <th>Schwer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>pH-Wert</strong></td><td>&lt; 7,3</td><td>&le; 7,2</td><td>&le; 7,1</td></tr>
+                            <tr><td><strong>Bikarbonat</strong></td><td>&lt; 15 mmol/l</td><td>&le; 10 mmol/l</td><td>&lt; 5 mmol/l</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <ul>
+                    <li><strong>Leichte DKA:</strong> Normalstation, ggf. ambulantes Procedere.</li>
+                    <li><strong>Mittlere oder schwere DKA:</strong> Überwachungsstation (IMC/ICU).</li>
+                </ul>`
+            }
+        ],
+        date: "10/24",
+        sources: `Deutsche Diabetes Gesellschaft (DDG). S3-Leitlinie Therapie des Typ-1-Diabetes. Version 5.1, 2023. – Dhatariya KK et al. Diabetic ketoacidosis. Nat Rev Dis Primers. 2020. – JBDS-IP. The Management of Diabetic Ketoacidosis in Adults. 2013/2023. – Self WH et al. Clinical Effects of Balanced Crystalloids vs Saline in Adults With DKA. JAMA Netw Open. 2020. – Fachinformationen Stand 12/22.`
     });
 })();

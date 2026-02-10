@@ -8,125 +8,211 @@
         category: "Nephrologie",
         catKey: "nephro",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Akute Nierenschädigung (AKI, Acute Kidney Injury):</strong> Akuter Abfall der Nierenfunktion innerhalb von Stunden bis Tagen</li>
-</ul>
-<h3>KDIGO-Klassifikation</h3>
-<div class="table-wrap"><table>
-<thead><tr><th>Stadium</th><th>Serumkreatinin</th><th>Urinausscheidung</th></tr></thead>
-<tbody>
-<tr><td><strong>1</strong></td><td>Anstieg ≥ 0,3 mg/dl in 48h oder 1,5–1,9× Ausgangswert in 7d</td><td>< 0,5 ml/kg/h für 6–12h</td></tr>
-<tr><td><strong>2</strong></td><td>2,0–2,9× Ausgangswert</td><td>< 0,5 ml/kg/h für ≥ 12h</td></tr>
-<tr><td><strong>3</strong></td><td>≥ 3× Ausgangswert oder Kreatinin ≥ 4 mg/dl oder Dialyseindikation</td><td>< 0,3 ml/kg/h für ≥ 24h oder Anurie ≥ 12h</td></tr>
-</tbody>
-</table></div>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Prärenal (60–70%):</strong> Volumenmangel (Dehydratation, Blutung, Erbrechen/Diarrhoe), Herzinsuffizienz, Sepsis, Leberversagen, NSAR, ACE-Hemmer/Sartane, hepatorenales Syndrom</li>
-<li><strong>Renal/Intrinsisch (25–30%):</strong>
-<ul>
-<li><strong>Akute Tubulusnekrose (ATN):</strong> Ischämisch (Schock, OP) oder toxisch (Aminoglykoside, Röntgen-KM, Myoglobin, Cisplatin)</li>
-<li><strong>Akute interstitielle Nephritis:</strong> Medikamentös (NSAR, PPI, Antibiotika), autoimmun</li>
-<li><strong>Glomerulonephritis:</strong> Rapid-progressive GN, Vaskulitis, Lupusnephritis</li>
-<li><strong>Vaskuläre Ursachen:</strong> Nierenarterienthrombose, HUS/TTP, Cholesterinembolie</li>
-</ul>
-</li>
-<li><strong>Postrenal (5–10%):</strong> Ureterobstruktion bds. (Steine, Tumor, retroperitoneale Fibrose), Blasenauslassobstruktion (BPH, Karzinom, Koagel), Harnleiterkompression</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li>Ggf. <strong>asymptomatisch</strong> (Zufallsbefund im Labor)</li>
-<li><strong>Oligurie/Anurie</strong> (< 400 ml/24h bzw. < 100 ml/24h)</li>
-<li>Zeichen der <strong>Überwässerung:</strong> Periphere Ödeme, Lungenödem, Dyspnoe</li>
-<li>Zeichen der <strong>Urämie:</strong> Übelkeit, Erbrechen, Verwirrtheit, Pruritus, Perikardreiben</li>
-<li><strong>Elektrolytstörungen:</strong> Hyperkaliämie (Herzrhythmusstörungen!), metabolische Azidose</li>
-<li>Symptome der Grunderkrankung (Sepsis, Schock, Blutung, etc.)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>BGA</strong> (K⁺? pH? BE? Laktat?)</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte (Na⁺, K⁺, Ca²⁺, Phosphat), <strong>Kreatinin, Harnstoff</strong>, GOT, GPT, LDH, CK, Gerinnung, BNP/NT-proBNP</li>
-<li><strong>Urin-Diagnostik:</strong> Urin-Status, Urin-Sediment, Urin-Na⁺, Urin-Kreatinin, <strong>Fraktionelle Na⁺-Exkretion (FENa)</strong></li>
-<li>12-Kanal-EKG (Hyperkaliämie-Zeichen?)</li>
-<li><strong>Bilanzierung:</strong> Ein-/Ausfuhr, Dauerkatheter zur Urinmengenmessung</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Vorbekannte Nierenerkrankung? Ausgangswert Kreatinin? Medikamente (NSAR, ACE-I/ARB, Aminoglykoside, KM-Exposition)? Volumenstatus (Trinkmenge, Erbrechen, Diarrhoe, Blutung)? Urinmenge? Hämaturie?</li>
-<li><strong>Körperliche Untersuchung:</strong> Volumenstatus (Dehydratation vs. Überwässerung)? Ödeme? Rasselgeräusche? Blasenhochstand? Hautveränderungen (Vaskulitis)?</li>
-</ul>
-<h3>Erweiterte Diagnostik</h3>
-<ul>
-<li><strong>Sonographie Nieren/Blase:</strong> Nierengröße? Harnstau (Hydronephrose)? Blasenfüllung? Restharn?</li>
-<li>ggf. Immunologische Diagnostik bei V.a. Glomerulonephritis/Vaskulitis (ANA, ANCA, Anti-GBM, Komplement C3/C4)</li>
-<li>ggf. Nierenbiopsie (nach nephrologischem Konsil)</li>
-</ul>
-<div class="callout callout-hinweis"><p><strong>Hinweis:</strong> <strong>FENa < 1%</strong> spricht für prärenale AKI, <strong>FENa > 2%</strong> für renale/intrinsische AKI (CAVE: verfälscht durch Diuretika – dann FE-Harnstoff verwenden).</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Allgemeinmaßnahmen</h3>
-<ul>
-<li>Behandlung der <strong>Grundursache</strong> (wichtigste Maßnahme!)</li>
-<li><strong>Nephrotoxische Medikamente absetzen/pausieren:</strong> NSAR, ACE-Hemmer, Sartane, Aminoglykoside, etc.</li>
-<li>Dosisanpassung renal eliminierter Medikamente</li>
-<li>Bilanzierung: Dauerkatheter, Ein-/Ausfuhr</li>
-<li>12-Kanal-EKG-Monitoring bei Hyperkaliämie</li>
-</ul>
-<h3>Volumenmanagement</h3>
-<ul>
-<li><strong>Prärenale AKI:</strong> Volumensubstitution (Vollelektrolytlösung; Ziel: Euvolämie)</li>
-<li><strong>Hypervolämie/Lungenödem:</strong> Diuretika (Furosemid i.v.), ggf. Ultrafiltration</li>
-<li><strong>Postrenale AKI:</strong> Harnableitung (Dauerkatheter, Nephrostomie, Ureterschienung)</li>
-</ul>
-<h3>Behandlung von Komplikationen</h3>
-<ul>
-<li><strong>Hyperkaliämie:</strong> s. SOP Hyperkaliämie</li>
-<li><strong>Metabolische Azidose:</strong> Natriumbikarbonat bei pH < 7,15–7,20 (Einzelfallentscheidung)</li>
-<li><strong>Lungenödem:</strong> Furosemid, NIV, ggf. Hämodialyse</li>
-</ul>
-<h3>Dialyseindikation (Notfall)</h3>
-<ul>
-<li><strong>Therapierefraktäre Hyperkaliämie</strong></li>
-<li><strong>Therapierefraktäre Überwässerung</strong> (Lungenödem)</li>
-<li><strong>Schwere metabolische Azidose</strong> (pH < 7,1)</li>
-<li><strong>Urämische Komplikationen</strong> (Enzephalopathie, Perikarditis)</li>
-<li><strong>Dialysepflichtige Intoxikation</strong> (Methanol, Ethylenglykol, Lithium)</li>
-</ul>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li><strong>Sonographie</strong> der Nieren/Blase bei jeder AKI – Harnstau (postrenale Ursache) muss sofort ausgeschlossen werden!</li>
-<li>Häufigste Ursache: <strong>prärenal</strong> (Volumenmangel, Sepsis) – adäquate Volumengabe kann die Nierenfunktion oft rasch verbessern</li>
-<li><strong>Nephrotoxische Medikamente sofort identifizieren und absetzen!</strong></li>
-<li><strong>Hyperkaliämie</strong> ist die gefährlichste akute Komplikation – EKG-Veränderungen sind ein Notfall!</li>
-<li>Frühzeitig <strong>nephrologisches Konsil</strong> bei unklarer Ätiologie, KDIGO-Stadium 3, V.a. Glomerulonephritis/Vaskulitis, Dialyseindikation</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Intensivstation:</strong> Dialyseindikation, therapierefraktäre Hyperkaliämie, Lungenödem, Schock, Oligurie/Anurie mit Komplikationen</li>
-<li><strong>Überwachungsstation/Normalstation:</strong> AKI Stadium 1–2 mit Monitoring-Bedarf, i.v.-Therapie</li>
-<li>Nephrologisches Konsil</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `KDIGO AKI Guideline. Kidney Int Suppl. 2012;2(1):1-138.<br>
-Ronco C et al. Acute kidney injury. Lancet. 2019;394(10212):1949-1964.<br>
-Zarbock A et al. Update on Perioperative Acute Kidney Injury. Anesth Analg. 2018;127(4):1236-1245.`
+            {
+                title: "Definition",
+                html: `<ul>
+                    <li><strong>Akute Nierenschädigung (AKI):</strong> Akut einsetzende, potentiell reversible Abnahme der Nierenfunktion</li>
+                </ul>
+                <h3>Diagnosekriterien nach KDIGO</h3>
+                <ul>
+                    <li>Anstieg des Serumkreatinins um ≥ 0,3 mg/dl innerhalb von 48 Stunden <em>oder</em></li>
+                    <li>Anstieg des Serumkreatinins auf das ≥ 1,5-Fache innerhalb von 7 Tagen <em>oder</em></li>
+                    <li>Neu aufgetretene Reduktion der Urinmenge < 0,5 ml/kg KG/h über 6 Stunden</li>
+                </ul>`
+            },
+            {
+                title: "Ursachen",
+                html: `<h3>Prärenal: Renale Minderperfusion (ca. 60%)</h3>
+                <ul>
+                    <li><strong>Hypovolämie:</strong> Unzureichende Flüssigkeitszufuhr bzw. vermehrte Verluste</li>
+                    <li><strong>Abfall des arteriellen Blutdrucks:</strong> Sepsis, Herzinsuffizienz, Leberzirrhose, etc.</li>
+                </ul>
+                <h3>Intrarenal: Direkte Schädigung der Nephrone (ca. 35%)</h3>
+                <ul>
+                    <li><strong>Tubulär:</strong> Ischämisch, medikamentös-toxisch, infektiös (z.B. Hanta-Virus), Crush-Niere bei Rhabdomyolyse, „Myelomniere“, Uratnephropathie bei Tumorlyse</li>
+                    <li><strong>Makrovaskulär:</strong> Nierenarterienstenose, Nierenvenenthrombose, Niereninfarkt, Aortendissektion</li>
+                    <li><strong>Mikrovaskulär:</strong> Cholesterinembolie, Thrombotische Mikroangiopathien (DIC, TTP, HUS, HELLP-Syndrom)</li>
+                    <li><strong>Glomerulonephritiden:</strong> z.B. Minimal-Change-Glomerulonephritis</li>
+                    <li><strong>Lokale bakterielle Infektionen:</strong> Pyelonephritis, Nierenabszess</li>
+                </ul>
+                <h3>Postrenal: Abflussbehinderung des Harns (ca. 5%)</h3>
+                <ul>
+                    <li>BPH, Steine, Tumoren, Urethrastrikturen, retroperitoneale Fibrose (M. Ormond)</li>
+                    <li>Verstopfter bzw. abgeklemmter DK, medikamentös (s. SOP Akuter Harnverhalt)</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Keine spezifischen Symptome</li>
+                    <li>ggf. Polyurie oder Oligurie/Anurie</li>
+                    <li>ggf. Zeichen der <strong>Exsikkose</strong> oder <strong>Hypervolämie</strong></li>
+                    <li>ggf. Zeichen der <strong>Urämie</strong> (Foetor urämicus, urämische Gastritis, Enzephalopathie, Perikarderguss, Erbrechen)</li>
+                    <li>ggf. Zeichen der zugrundeliegenden Erkrankung</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter</strong> (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li>1x venöser Zugang</li>
+                    <li><strong>Venöse BGA</strong> (Kalium? Metabolische Azidose?)</li>
+                    <li><strong>Labor:</strong> BB, CRP, E‘lyte, NW, CK, LDH, ggf.: Cystatin C, immunologische Diagnostik, Blutausstrich</li>
+                    <li><strong>12-Kanal-EKG</strong> (Zeichen der Hyperkaliämie? Niedervoltage?)</li>
+                    <li><strong>Vergleich der aktuellen Laborwerte mit Vorwerten</strong> (Niereninsuffizienz bekannt? Dynamik?)</li>
+                    <li><strong>Anamnese:</strong> Symptome? Vorerkrankungen? Medikamente? Trinkmenge? Flüssigkeitsverluste? Ausscheidung? KM-Exposition? Kürzliche Hypotonien?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Volumenstatus? Flankenklopfschmerz? Harnverhalt? Zeichen der Urämie?</li>
+                    <li><strong>POCUS:</strong> Postrenale Genese? Nierenmorphologie? Auffälligkeiten an Nieren? Volumenstatus: VCI? Ventrikelfülling? Pleurarergüsse? Pulmonale B-Linien?</li>
+                    <li><strong>DK-Anlage</strong> (Bilanzierung mit Urinflasche/ tägl. Wiegen bei milden Verläufen) + Urinstatus (Nitrit? Leukos? Hämaturie? Proteinurie?) + ggf. Kultur</li>
+                    <li>ggf. <strong>Urinsediment</strong> (Mikroskopie: Leukozyturie? Zahlreiche Tubuluszellen? Glomeruläre Hämaturie?)</li>
+                    <li>ggf. <strong>Furosemid-Stresstest</strong> (s. unten)</li>
+                    <li>ggf. weitere Diagnostik (z.B. CT bei V.a. makrovaskuläre Ursache, Blutausstrich bei V.a. TTP, Nierenbiopsie bei V.a. RPGN)</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige Rücksprache mit Nephrologie bei drohender Dialysenotwendigkeit oder V.a. Glomerulonephritis!</p>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Absetzen bzw. Pausieren nephrotoxischer Medikamente (NSAR, RAAS-Hemmer, Diuretika - außer bei Hypervolämie)</li>
+                    <li>Dosisanpassung von Medikamenten an aktuelle Nierenfunktion gemäß Fachinformation</li>
+                    <li>Kontrolle des Wasser-, pH- und Elektrolythaushalts, ggf. mittels Dialyse (siehe Indikationen unten)</li>
+                </ul>
+                <h3>Prärenale Nierenschädigung</h3>
+                <ul>
+                    <li>Gabe balancierter <strong>Vollelektrolytlösung</strong> (z.B. 2 l VEL i.v.)</li>
+                    <li><strong>Ziel:</strong> Euvolämie und Kreislaufstabilisierung (MAD > 65 mmHg)</li>
+                    <li><strong>CAVE:</strong> An Volumenstatus, Komorbiditäten und kardiale Leistungsfähigkeit anpassen!</li>
+                </ul>
+                <h3>Intrarenale Nierenschädigung</h3>
+                <ul>
+                    <li>Therapie je nach Grunderkrankung (z.B. Immunsuppression, Revaskularisation, etc.)</li>
+                </ul>
+                <h3>Postrenale Nierenschädigung</h3>
+                <ul>
+                    <li>Beseitigung der Abflussbehinderung (z.B. DK-Anlage bei BPH mit Harnverhalt, Spülkatheter bei Blasentamponade)</li>
+                    <li>ggf. Verlegung in Urologie</li>
+                </ul>
+                <h3>Sonstiges</h3>
+                <ul>
+                    <li><strong>Bei Hypervolämie:</strong> Furosemid i.v. (Dosis abhängig von bestehender diuretischer Therapie)</li>
+                </ul>`
+            },
+            {
+                title: "KDIGO-Klassifikation & Dialyseindikationen",
+                html: `<h3>KDIGO-Klassifikation der akuten Nierenschädigung</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Grad</th>
+                                <th>Serumkreatinin</th>
+                                <th>Urinausscheidung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Anstieg um ≥ 0,3 mg/dl innerhalb von 48 h oder 1,5-1,9-facher Anstieg innerhalb von 7 Tagen</td>
+                                <td>< 0,5 ml/kg KG/h für 6-12 h</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>2-2,9-facher Anstieg innerhalb von 7 Tagen</td>
+                                <td>< 0,5 ml/kg KG/h für ≥ 12 h</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>≥ 3-facher Anstieg innerhalb von 7 Tagen oder Anstieg auf ≥ 4 mg/dl oder Beginn einer Nierenersatztherapie oder < 18 Jahren: Abfall der eGFR < 35 ml/min/1,73 m²</td>
+                                <td>< 0,3 ml/kg KG/h für ≥ 24 h oder Anurie ≥ 12 h</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><em>Falls Serumkreatinin und Ausscheidung nicht korrespondieren, zählt jeweils das höher erreichte Stadium.</em></p>
+                <h3>Indikationen für Notfalldialyse</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Indikation</th>
+                                <th>Charakteristika</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Azidose</strong></td>
+                                <td>pH < 7,2 oder BE < -10 mmol/l</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Elektrolytentgleisung</strong></td>
+                                <td>Kalium > 6,5 mmol/l + EKG-Veränderungen, Schwere Hyperkalzämie</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Intoxikation</strong></td>
+                                <td>Lithium, Methanol, andere dialysierbare Toxine</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Overload</strong></td>
+                                <td>Diuretika-refraktäre Volumenüberladung (Lungenödem, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Urämie</strong></td>
+                                <td>Serumharnstoff > 200 mg/dl, Urämische Symptome (Perikarderguss, Enzephalopathie, Erbrechen etc.)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><em>Richtwerte bei Versagen der konservativen Therapie → Dialysebeginn immer Einzelfallentscheidung.</em></p>`
+            },
+            {
+                title: "Furosemid-Stresstest",
+                html: `<p>Der Furosemid-Stresstest darf ausschließlich bei <strong>euvolämen</strong> bzw. hypervolämen Patienten durchgeführt werden und soll nicht bei Patienten mit GFR < 30 ml/min/1,73m² durchgeführt werden. Bei euvolämen Patienten müssen die durch Furosemid induzierten Flüssigkeitsverluste im Anschluss wieder ausgeglichen werden.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patientengruppe</th>
+                                <th>Furosemid-Dosis</th>
+                                <th>Keine drohende Dialysepflichtigkeit, wenn Diurese</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Keine Schleifendiuretika in Dauermedikation</td>
+                                <td>1 mg/kg KG i.v.</td>
+                                <td>> 200 ml Urin innerhalb von 2 h</td>
+                            </tr>
+                            <tr>
+                                <td>Schleifendiuretika in Dauermedikation</td>
+                                <td>1,5 mg/kg KG i.v.</td>
+                                <td>> 200 ml Urin innerhalb von 2 h</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bei der akuten Nierenschädigung ist eine <strong>regelmäßige Kontrolle der Urinausscheidung</strong> obligat.</li>
+                    <li>Keine zeitgleiche Gabe von Schleifendiuretika und Flüssigkeit zur „Nierenspülung“ (DGIM - Klug entscheiden).</li>
+                    <li>Keine Gabe von Schleifendiuretika beim oligoanurischen Patienten mit akuter Nierenschädigung (DGIM - Klug entscheiden).</li>
+                    <li><strong>Schleifendiuretika nur bei „Überwässerung“</strong> zum Volumenmanagement anwenden.</li>
+                    <li>Die Existenz einer Kontrastmittel-Nephropathie bei venöser KM-Applikation wird zunehmend infrage gestellt.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li><strong>Keine Dialyseindikation:</strong> Ambulantes Procedere oder stationäre Aufnahme (je nach Schwere und Komorbidität)</li>
+                    <li><strong>Bei akuter Dialysenotwendigkeit:</strong> Überwachungsstation (IMC/ICU)</li>
+                </ul>`
+            }
+        ],
+        stand: "10/24",
+        sources: `Miamed Amboss: „Akutes Nierenversagen“. Stand 16.09.2019.<br>Herold G et al. Innere Medizin 2019.<br>Bienholz A. et al.: KDIGO Leitlinien zum akuten Nierenversagen; Der Nephrologe 2013.<br>Galle, J. Klug entscheiden: ... in der Nephrologie; Dtsch Arztebl 2016.<br>Chawla LS et al. Development and Standardization of a Furosemide Stress Test... Crit Care 2013.<br>Kielstein T et al. Akute Nierenschädigung. Intensivmedizin up2date 2015.<br>Moore PK et al. Management of Acute Kidney Injury. Am J Kidney Dis. 2018.`
     });
 })();

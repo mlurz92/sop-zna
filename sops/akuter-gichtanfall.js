@@ -1,5 +1,3 @@
-// SOP: Akuter Gichtanfall
-// Kategorie: Sonstige
 (function() {
     if (!window.SOP_DATA) window.SOP_DATA = [];
     window.SOP_DATA.push({
@@ -8,100 +6,161 @@
         category: "Sonstige",
         catKey: "sonst",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Akuter Gichtanfall (Arthritis urica):</strong> Akute Gelenkentzündung durch Ablagerung von Mononatriumuratkristallen in Gelenken und periartikulärem Gewebe bei Hyperurikämie</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Hyperurikämie</strong> (Serumharnsäure > 6,8 mg/dl) als Voraussetzung
-<ul>
-<li><strong>Verminderte renale Ausscheidung (90%):</strong> Niereninsuffizienz, Diuretika (Thiazide, Schleifendiuretika), Ciclosporin, niedrig dosierte ASS, Alkohol</li>
-<li><strong>Überproduktion (10%):</strong> Purinreiche Ernährung, Tumorlysesyndrom, myeloproliferative Erkrankungen, Psoriasis</li>
-</ul>
-</li>
-<li><strong>Auslöser eines akuten Anfalls:</strong> Purinreiche Mahlzeiten, Alkohol (v.a. Bier), Dehydratation, akute Erkrankung, OP, Trauma, Beginn/Dosisänderung harnsäuresenkender Therapie</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Perakuter Gelenkschmerz</strong> (Beginn häufig nachts)</li>
-<li><strong>Monarthritis</strong> (klassisch: Großzehengrundgelenk = <strong>Podagra</strong>, 60%)</li>
-<li>Weitere Lokalisationen: Sprunggelenk, Knie, Handgelenk, Fingergelenke</li>
-<li><strong>Schwellung, Rötung, Überwärmung</strong> des betroffenen Gelenks</li>
-<li>Extreme Berührungsempfindlichkeit</li>
-<li>ggf. Fieber</li>
-<li>ggf. <strong>Tophi</strong> bei chronischer Gicht (Ohrmuschel, Ellenbogen, Finger, Achillessehne)</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<h3>Basismaßnahmen</h3>
-<ul>
-<li>Ersteindruck + Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte, NW, <strong>Harnsäure</strong> (CAVE: kann im akuten Anfall normal oder sogar erniedrigt sein!), Gerinnung</li>
-</ul>
-<h3>Klinische Untersuchung</h3>
-<ul>
-<li><strong>Anamnese:</strong> Schmerzcharakter/-beginn? Betroffenes Gelenk? Vorherige Gichtanfälle? Bekannte Hyperurikämie? Medikamente (Diuretika, ASS)? Ernährung/Alkohol? Auslöser? Nierenerkrankung?</li>
-<li><strong>Körperliche Untersuchung:</strong> Gelenkschwellung/-rötung/-überwärmung? Beweglichkeit? Tophi? Fieber?</li>
-</ul>
-<h3>Erweiterte Diagnostik (ggf.)</h3>
-<ul>
-<li><strong>Gelenkpunktion</strong> (Goldstandard, insbesondere bei Erstmanifestation oder DD septische Arthritis): Nachweis von <strong>Mononatriumuratkristallen</strong> (negativ doppelbrechend in Polarisationsmikroskopie), Zellzahl, Gramfärbung, Kultur</li>
-<li><strong>Sonographie des Gelenks:</strong> Doppelkonturzeichen (Uratkristalle auf Knorpeloberfläche), Schneesturm-Phänomen</li>
-<li><strong>Röntgen:</strong> bei DD, Gelenkerosionen bei chronischer Gicht</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Bei Fieber + Monarthritis + Rötung immer <strong>septische Arthritis ausschließen!</strong> Im Zweifel Gelenkpunktion!</p></div>`
-},
-{
-title: "Therapie",
-html: `<h3>Akute Therapie (so früh wie möglich!)</h3>
-<ul>
-<li><strong>NSAR</strong> (Mittel der 1. Wahl bei fehlenden KI):
-<ul>
-<li>Naproxen 750 mg, dann 250 mg 3x/d</li>
-<li>Indometacin 50 mg 3x/d</li>
-<li>CAVE: kontraindiziert bei Niereninsuffizienz, GI-Ulzera, Herzinsuffizienz</li>
-</ul>
-</li>
-<li><strong>Colchicin:</strong> 0,5 mg 3x/d am Tag 1, dann 0,5 mg 2x/d (nur innerhalb 12h nach Symptombeginn ideal wirksam; CAVE: GI-NW, Dosisreduktion bei Niereninsuffizienz)</li>
-<li><strong>Glukokortikoide</strong> (bei KI gegen NSAR und Colchicin):
-<ul>
-<li>Prednisolon 30–40 mg/d p.o. für 5 Tage, dann ausschleichen</li>
-<li>intraartikuläre Injektion (z.B. Triamcinolon) bei Monarthritis nach Ausschluss einer Infektion</li>
-</ul>
-</li>
-<li>Kühlung, Ruhigstellung, Hochlagerung des betroffenen Gelenks</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> Bestehende <strong>harnsäuresenkende Therapie</strong> (Allopurinol, Febuxostat) im akuten Anfall <strong>NICHT absetzen</strong> und <strong>NICHT neu beginnen</strong> (kann den Anfall verlängern)! Erst nach Abklingen des Anfalls neu beginnen oder anpassen.</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Die <strong>Serumharnsäure kann im akuten Anfall normal sein</strong> – ein normaler Wert schließt einen Gichtanfall nicht aus!</li>
-<li>Goldstandard der Diagnose: <strong>Nachweis von Uratkristallen im Gelenkpunktat</strong></li>
-<li>Immer <strong>septische Arthritis ausschließen</strong> bei akuter Monarthritis mit Fieber!</li>
-<li>Harnsäuresenkende Therapie im Anfall <strong>nicht beginnen und nicht absetzen</strong></li>
-<li>Die Therapie sollte so <strong>früh wie möglich</strong> nach Symptombeginn erfolgen</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Ambulant:</strong> in den meisten Fällen ambulante Behandlung möglich</li>
-<li><strong>Stationär:</strong> bei V.a. septische Arthritis, polyartikulärem Befall, schwerer Komorbidität, i.v.-Therapiebedarf, Niereninsuffizienz</li>
-</ul>`
-}
-],
-        stand: "12/24",
-        sources: `Richette P et al. 2016 updated EULAR evidence-based recommendations for the management of gout. Ann Rheum Dis. 2017;76(1):29-42.<br>
-FitzGerald JD et al. 2020 American College of Rheumatology Guideline for Management of Gout. Arthritis Care Res. 2020;72(6):744-760.<br>
-Kiltz U et al. S3-Leitlinie Gicht: Evidenzbasierte fachübergreifende Leitlinie. AWMF-Register-Nr. 060-005, 2024.`
+            {
+                title: "Definition",
+                html: `<p><strong>Akuter Gichtanfall:</strong> Rasch einsetzende Gelenkentzündung, die durch Ablagerung von Harnsäurekristallen ausgelöst wird.</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<ul>
+                    <li><strong>Hyperurikämie</strong></li>
+                    <li><strong>Risikofaktoren für Hyperurikämie:</strong> Alter, männliches Geschlecht, metabolisches Syndrom, Medikamente (z.B. Thiazide), etc.</li>
+                    <li><strong>Triggerfaktoren für Gichtanfall:</strong> Alkoholexzess, Festessen, Fasten, Beginn einer harnsäuresenkenden Therapie, etc.</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li><strong>Rasche Entwicklung:</strong> i.d.R. &lt; 24 h ohne Prodromi einer sehr schmerzhaften Monarthritis, die sich klinisch als gerötetes, geschwollenes, überwärmtes, berührungsempfindliches und bewegungseingeschränktes Gelenk präsentiert.</li>
+                    <li><strong>Manifestationsorte:</strong>
+                        <ul>
+                            <li><strong>60% Großzehengrundgelenk</strong> (“Podagra”)</li>
+                            <li><strong>15% Sprunggelenk/Fußwurzel</strong></li>
+                            <li><strong>10% Kniegelenk</strong> (“Gonagra”)</li>
+                            <li><strong>5% Zehengelenke</strong></li>
+                            <li><strong>5% Fingergelenke</strong> (“Chiragra”), insbesondere Daumengrundgelenk, Handgelenk, Ellenbogengelenk</li>
+                        </ul>
+                    </li>
+                    <li>ggf. <strong>Gichttophi</strong> von früheren Gichtanfällen (z.B. an Ellenbogen, Fingern, Ohren)</li>
+                    <li>ggf. systemische Entzündungszeichen wie Fieber und erhöhte Infektwerte</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li>Ersteindruck + ABCDE + Vitalparameter (RR, Puls, SpO₂, AF, Temperatur)</li>
+                    <li><strong>Labor:</strong> BB, CRP, NW, Harnsäure, ggf.: LDH, GOT, GPT, γ-GT, HbA1c, Lipidprofil</li>
+                    <li><strong>Anamnese:</strong> Symptome? Beginn? Gichtanfälle bekannt? Vorerkrankungen? Medikamente? Trauma? OP oder intraartikuläre Injektion? Prothesen?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Gelenk mit Kardinalzeichen der Entzündung? Ein Gelenk oder mehrere betroffen? Gichttophi? Offene Stellen?</li>
+                    <li><strong>ggf. Gelenkpunktion:</strong> s. Gichtrechner; Goldstandard zur Diagnosesicherung; bei V.a. septische Arthritis umgehend durchzuführen!</li>
+                    <li><strong>ggf. weitere Diagnostik:</strong> z.B. Gelenksonografie, Röntgen, Dual-Energy-CT</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Bei diagnostischer Unsicherheit oder Vorliegen von <strong>Red Flags</strong> wie Trauma, Z.n. OP bzw. intraartikulärer Injektion, Immunsuppression oder akut eingetretenem schlechten Allgemeinzustand rheumatologische bzw. orthopädische Mitbeurteilung!</p>
+                </div>`
+            },
+            {
+                title: "Gichtrechner",
+                html: `<p><em>adaptiert von Kienhorst et al. 2015</em></p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kriterium</th>
+                                <th>Punkte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Männliches Geschlecht</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Früherer Arthritisanfall</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Beginn innerhalb eines Tages</td>
+                                <td>0,5</td>
+                            </tr>
+                            <tr>
+                                <td>Rötung des Gelenkes</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Befall des Metatarsophalangeal-Gelenk-I</td>
+                                <td>2,5</td>
+                            </tr>
+                            <tr>
+                                <td>Hypertonie oder Herz-Kreislauferkrankung</td>
+                                <td>1,5</td>
+                            </tr>
+                            <tr>
+                                <td>Serumharnsäure &gt; 5,88 mg/dl (&gt; 350 µmol/l)</td>
+                                <td>3,5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-hinweis">
+                    <ul>
+                        <li><strong>&le; 4 Punkte:</strong> Keine Gicht, DD bedenken (septische Arthritis, etc.), weitere Diagnostik (z.B. Gelenkpunktion) entsprechend der Verdachtsdiagnose indiziert.</li>
+                        <li><strong>&gt; 4 und &lt; 8 Punkte:</strong> Unklar, Gelenkpunktion und Untersuchung des Aspirats, u.a. mittels Polarisationsmikroskop.</li>
+                        <li><strong>&ge; 8 Punkte:</strong> Diagnose Gicht kann gestellt werden.</li>
+                    </ul>
+                </div>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Gelenk hochlagern und kühlen</li>
+                    <li>Patienten über Lebensstilmaßnahmen zur Rezidivprophylaxe aufklären (z.B. Reduktion des Alkoholkonsums und gesüßter Getränke)</li>
+                    <li>Bei fehlender Beschwerdebesserung innerhalb von 24-72 h: Re-Evaluation mit ggf. Therapieanpassung</li>
+                </ul>
+                <h3>Medikamentöse Therapie</h3>
+                <ul>
+                    <li>Möglichst rascher Beginn der medikamentösen Therapie (am besten &le; 12-24 h nach Schmerzbeginn)</li>
+                    <li>Therapiedauer bis Ende der Symptomatik, jedoch maximal 2 Wochen</li>
+                    <li>Die Wahl der Medikamente richtet sich nach den Komorbiditäten bzw. Kontraindikationen (Niereninsuffizienz, Ulcera, etc.)</li>
+                    <li>Drei First-Line-Medikamente kommen alleine oder bei fehlender Besserung kombiniert zum Einsatz:
+                        <ul>
+                            <li><strong>NSAR in max. Dosierung:</strong> z.B. Ibuprofen 800 mg 1-1-1 p.o. oder Naproxen 500 mg 1-0-1 p.o. (Kein ASS, da Harnsäure-steigernd)
+                                <div class="callout callout-cave"><p><strong>CAVE:</strong> Nicht bei GFR &lt; 30 ml/min, schweren kardiovaskulären Erkrankungen oder gastroduodenalen Ulcera.</p></div>
+                            </li>
+                            <li><strong>Glukokortikoide:</strong> z.B. Prednisolon 30 mg 1-0-0 p.o. für 5 Tage
+                                <div class="callout callout-cave"><p><strong>CAVE:</strong> Verschlechterung der Blutzuckerwerte bei Patienten mit Diabetes mellitus.</p></div>
+                            </li>
+                            <li><strong>Colchicin:</strong> d1: 3-4x 0,5 mg p.o., d2+d3: 2-3x 0,5 mg p.o., ab d4: 2x 0,5 mg p.o. (maximal 6 mg/Gichtanfall)
+                                <div class="callout callout-cave"><p><strong>CAVE:</strong> Nicht bei GFR &lt; 30 ml/min, nicht bei Einnahme von CYP3A4-Hemmern (z.B. Clarithromycin, Verapamil, Statine). Diarrhoen als häufige Nebenwirkung.</p></div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Sonstiges</h3>
+                <ul>
+                    <li>Medikamente absetzen/austauschen, die Harnsäurespiegel erhöhen (z.B. Losartan statt Thiazid zur antihypertensiven Therapie einsetzen)</li>
+                    <li>Bei Gabe von NSAR/Glukokortikoiden begleitende PPI-Gabe (z.B. 40 mg Pantoprazol) erwägen</li>
+                    <li>Eine harnsäuresenkende Therapie z.B. mit Allopurinol sollte begonnen werden bei &ge; 1 stark einschränkendem/beeinträchtigendem Gichtanfall oder &ge; 2 Gichtanfällen/Jahr oder Uratablagerungen (Tophi, Nephrolithiasis)</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bedenke mögliche Differentialdiagnosen: Septische Arthritis, Trauma, CPPD-Arthritis, aktivierte Arthrose, reaktive Arthritis.</li>
+                    <li>Die <strong>septische Arthritis</strong> stellt die gefährlichste Differentialdiagnose dar und muss rasch erkannt (Gelenkpunktion, Analyse und Kultivierung des Aspirats, Abnahme von &ge; 2 Paar Blutkulturen peripher) und adäquat therapiert werden (Antibiotika, ggf. Arthroskopie, OP, etc.).</li>
+                    <li>Der Harnsäurespiegel muss im Anfall <strong>nicht zwingend erhöht sein</strong> (durch Ausfällung von Harnsäure sinkt die Harnsäure oft ab).</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<ul>
+                    <li>i.d.R. ambulantes Procedere mit hausärztlicher Anbindung</li>
+                </ul>`
+            }
+        ],
+        stand: "10/24",
+        sources: `Deutsche Gesellschaft für Rheumatologie und Klinische Immunologie e.V. (DGRh). Diagnostik und Therapie der Gicht. Version 2024. Verfügbar unter: https://register.awmf.org/de/leitlinien/detail/060-005<br>
+        FitzGerald JD et al. 2020 American College of Rheumatology Guideline for the Management of Gout. Arthritis Care Res (Hoboken). 2020 Jun;72(6):744-760.<br>
+        Schlesinger N et al. Diagnosis and Treatment of Acute Gout at a University Hospital Emergency Department. Open Rheumatol J. 2015 Jun 12;9:21-6.<br>
+        Abhishek A et al. Gout - a guide for the general and acute physicians. Clin Med (Lond). 2017 Feb;17(1):54-59.<br>
+        Engel B et al. Therapieoptionen bei Gicht. Dtsch Arztebl Int 2017; 114: 215-22.<br>
+        Tausche AK. Gicht. Internist 62, 513–525.<br>
+        S2e-Leitlinie der DEGAM für die primärärztliche Versorgung. Häufige Gichtanfälle und chronische Gicht. Gültig bis 31.03.2024 (2021).<br>
+        Herold G et al. Innere Medizin 2019, S.705 ff.<br>
+        Kienhorst LBE et al. The validation of a diagnostic rule for gout without joint fluid analysis: a prospective study Rheumatology (Oxford). 2015 Apr;54(4):609-14.<br>
+        Lee K-H et al. Application of a Novel Diagnostic Rule in the Differential Diagnosis between Acute Gouty Arthritis and Septic Arthritis. J Korean Med Sci. 2015 Jun;30(6):700-4.<br>
+        Long B et al. Evaluation and Management of Septic Arthritis and its Mimics in the Emergency Department. West J Emerg Med. 2019 Mar;20(2):331-341.<br>
+        Fachinformationen der genannten Arzneimittel, Stand 12/22.`
     });
 })();

@@ -1,98 +1,148 @@
-// SOP: Zerebrale Metastasen
-// Kategorie: Neurologie
 (function() {
+    'use strict';
+
     if (!window.SOP_DATA) window.SOP_DATA = [];
+
     window.SOP_DATA.push({
         id: "zerebrale-metastasen",
         title: "Zerebrale Metastasen",
         category: "Neurologie",
         catKey: "neuro",
+        date: "12/24",
         sections: [
-{
-title: "Definition",
-html: `<ul>
-<li><strong>Zerebrale Metastasen:</strong> Absiedlungen extrazerebral gelegener Primärtumoren im Hirnparenchym, den Meningen oder der Schädelkalotte. Häufigste intrakranielle Tumoren im Erwachsenenalter</li>
-</ul>`
-},
-{
-title: "Ursachen",
-html: `<ul>
-<li><strong>Häufigste Primärtumoren:</strong>
-<ul>
-<li>Bronchialkarzinom (häufigste Ursache!)</li>
-<li>Mammakarzinom</li>
-<li>Malignes Melanom</li>
-<li>Nierenzellkarzinom</li>
-<li>Kolorektales Karzinom</li>
-</ul>
-</li>
-</ul>`
-},
-{
-title: "Symptome",
-html: `<ul>
-<li><strong>Kopfschmerzen</strong> (v.a. morgendlich, lagerungsabhängig, zunehmend)</li>
-<li><strong>Fokal-neurologische Defizite</strong> (Hemiparese, Aphasie, Ataxie, Sehstörungen – abhängig von Lokalisation)</li>
-<li><strong>Epileptische Anfälle</strong> (in 20–30%)</li>
-<li><strong>Hirndruckzeichen:</strong> Übelkeit, Erbrechen (nüchtern/schwallartig), Bewusstseinseintrübung, Stauungspapille</li>
-<li><strong>Wesens-/Verhaltensänderung</strong></li>
-<li>ggf. Erstmanifestation eines bisher unbekannten Malignoms</li>
-</ul>`
-},
-{
-title: "Diagnostik",
-html: `<ul>
-<li>Ersteindruck + ABCDE + Vitalparameter</li>
-<li>1x venöser Zugang</li>
-<li><strong>cCT nativ</strong> (Notfallbildgebung: Blutung? Herniation? Hydrozephalus?)</li>
-<li><strong>cMRT + KM</strong> (Goldstandard): Anzahl, Größe, Lokalisation, Ödem, Herniation?</li>
-<li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Gerinnung, ggf. Tumormarker</li>
-<li>12-Kanal-EKG</li>
-<li>Staging (CT Thorax/Abdomen, PET-CT) bei unbekanntem Primarius</li>
-</ul>`
-},
-{
-title: "Therapie",
-html: `<h3>Akute Hirndrucktherapie</h3>
-<ul>
-<li><strong>Dexamethason:</strong> 8–16 mg i.v. Bolus, dann 4–8 mg i.v. alle 6–8h (Ödemreduktion, schneller Wirkungseintritt)</li>
-<li>Oberkörperhochlagerung 30°</li>
-<li>Osmotherapie bei drohender Herniation: Mannitol 20% 0,5–1 g/kg i.v. oder NaCl 3% 150 ml i.v. über 20 min</li>
-</ul>
-<h3>Anfallstherapie</h3>
-<ul>
-<li>Bei epileptischem Anfall: Benzodiazepine (s. SOP Status epilepticus), dann Levetiracetam 500 mg 2x/d als Prophylaxe</li>
-<li>Keine routinemäßige primäre Anfallsprophylaxe ohne stattgehabten Anfall</li>
-</ul>
-<h3>Definitive Therapie (interdisziplinäres Tumorboard!)</h3>
-<ul>
-<li><strong>Neurochirurgische Resektion:</strong> solitäre/große Metastase, Masseneffekt, guter Allgemeinzustand</li>
-<li><strong>Stereotaktische Radiochirurgie (SRS):</strong> ≤ 4 Metastasen, < 3 cm</li>
-<li><strong>Ganzhirnbestrahlung (WBRT):</strong> multiple Metastasen, schlechter AZ</li>
-<li><strong>Systemtherapie:</strong> je nach Tumorentität (Immuntherapie, zielgerichtete Therapie, Chemotherapie)</li>
-</ul>
-<div class="callout callout-cave"><p><strong>CAVE:</strong> <strong>Dexamethason</strong> bei V.a. ZNS-Lymphom möglichst <strong>NICHT vor Biopsie</strong> geben (maskiert Histologie → kann Lymphomzellen lysieren!).</p></div>`
-},
-{
-title: "Merke",
-html: `<ul>
-<li>Zerebrale Metastasen sind die <strong>häufigsten intrakraniellen Tumoren</strong></li>
-<li><strong>Dexamethason</strong> ist das wichtigste Medikament zur akuten Hirndrucksenkung bei Tumorödem</li>
-<li><strong>cMRT mit KM</strong> ist der Goldstandard</li>
-<li>Interdisziplinäre Therapieplanung im <strong>Tumorboard</strong></li>
-<li>Keine routinemäßige Anfallsprophylaxe ohne stattgehabten Anfall</li>
-<li>Bei V.a. ZNS-Lymphom: Dexamethason erst NACH Biopsie!</li>
-</ul>`
-},
-{
-title: "Disposition",
-html: `<ul>
-<li><strong>Stationär:</strong> immer bei Diagnosestellung, Hirndruckzeichen, epileptischem Anfall, relevanter Neurologie</li>
-<li><strong>Intensivstation:</strong> drohende Herniation, Status epilepticus, Bewusstlosigkeit</li>
-</ul>`
-}
-],
+            {
+                title: "Definition",
+                html: `<p><strong>Zerebrale Metastasen:</strong> Absiedelung von malignen Zellen eines Primarius in das Hirngewebe (Parenchym, Meningen oder Schädelkalotte).</p>`
+            },
+            {
+                title: "Ursachen",
+                html: `<p>Häufige Primärtumoren:</p>
+                <ul>
+                    <li>Lungenkarzinom (häufigste Ursache!)</li>
+                    <li>Mammakarzinom</li>
+                    <li>Malignes Melanom</li>
+                    <li>Nierenzellkarzinom</li>
+                    <li>Kolorektales Karzinom</li>
+                </ul>`
+            },
+            {
+                title: "Symptome",
+                html: `<ul>
+                    <li>Kopfschmerzen, Übelkeit, (morgendliches) Erbrechen.</li>
+                    <li>Fokal-neurologisches Defizit, Sehstörungen, Schwindel.</li>
+                    <li>Epileptischer Anfall.</li>
+                    <li>Wesensveränderung, Verwirrtheit, Delir, psychiatrische Symptome.</li>
+                    <li>Vigilanzminderung bis hin zum Koma.</li>
+                </ul>`
+            },
+            {
+                title: "Diagnostik",
+                html: `<ul>
+                    <li><strong>Ersteindruck + ABCDE + Vitalparameter:</strong> (RR, Puls, SpO₂, AF, Temperatur).</li>
+                    <li><strong>1x venöser Zugang.</strong></li>
+                    <li><strong>Labor:</strong> BB, CRP, E'lyte, NW, Leberwerte, Gerinnung, <strong>TSH</strong>.</li>
+                    <li><strong>(Fremd-)Anamnese:</strong> Symptome? Beginn? Kopfschmerzen? Sehstörungen? Erbrechen? Vorerkrankungen? Bekanntes Malignom? Therapie? Medikamente?</li>
+                    <li><strong>Körperliche Untersuchung:</strong> Vigilanz? GCS? Pupillen? Fokal-neurologisches Defizit? Gangstörung?</li>
+                    <li><strong>cCT + KM:</strong> in der Notfallsituation.</li>
+                    <li><strong>cMRT + KM:</strong> Goldstandard.</li>
+                    <li><strong>Ggf. weitere Diagnostik:</strong> venöse BGA, erweitertes Labor, Blutkulturen, Lumbalpunktion (LP), CTA, EEG, etc. zum Ausschluss wichtiger Differenzialdiagnosen.</li>
+                </ul>
+                <div class="callout callout-wichtig">
+                    <p>Frühzeitige interdisziplinäre Rücksprache mit Onkologie, Neurochirurgie, Neurologie und Strahlentherapie!</p>
+                </div>`
+            },
+            {
+                title: "Wichtige Differenzialdiagnosen bei Tumorpatienten",
+                html: `<ul>
+                    <li><strong>Zerebrale Ischämie, Sinus-/Venenthrombose:</strong> begünstigt durch tumorinduzierte Hyperkoagulabilität.</li>
+                    <li><strong>ICB:</strong> z.B. begünstigt durch DOAK-Einnahme nach paraneoplastischer Thromboembolie oder Thrombozytopenie unter Chemotherapie.</li>
+                    <li><strong>Hyponatriämie:</strong> paraneoplastisches SIADH.</li>
+                    <li><strong>Hyperkalzämie:</strong> durch Osteolysen, PTHrp oder gesteigerte 1-alpha-Hydroxylase.</li>
+                    <li><strong>Hyper-/Hypoglykämie:</strong> z.B. durch Checkpointinhibitor induzierten Diabetes mellitus bzw. Hypophysitis/Adrenalitis.</li>
+                    <li><strong>Enzephalopathie:</strong> z.B. septisch bei Infektion unter Neutropenie, hepatisch bei Metastasenleber, urämisch bei Tumorlysesyndrom, medikamentös-toxisch.</li>
+                    <li><strong>Meningitis/Enzephalitis:</strong> z.B. opportunistische Infektionen unter Chemotherapie, paraneoplastisch, Immuncheckpoint-Inhibitor-induziert.</li>
+                    <li><strong>Immuneffektorzell-assoziiertes Neurotoxizitätssyndrom (ICANs):</strong> durch CAR-T-Zell-Therapie.</li>
+                    <li><strong>Radionekrose:</strong> nach Bestrahlung von Hirnmetastasen.</li>
+                    <li><strong>Medikamentenintoxikation:</strong> z.B. akzidentelle Opiatüberdosierung.</li>
+                </ul>`
+            },
+            {
+                title: "Therapie",
+                html: `<h3>Allgemeinmaßnahmen</h3>
+                <ul>
+                    <li>Stabilisierung der Vitalfunktionen gemäß ABCDE-Schema.</li>
+                </ul>
+                <h3>Symptomatische Therapie: Peritumorales Ödem / Hirndruck</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symptomatik</th>
+                                <th>Dexamethason-Dosierung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Keine Symptome</td>
+                                <td>I.d.R. keine Dexamethasongabe indiziert.</td>
+                            </tr>
+                            <tr>
+                                <td>Milde Symptome (z.B. Kopfschmerz)</td>
+                                <td>2-4 mg/d (1-0-0) p.o.</td>
+                            </tr>
+                            <tr>
+                                <td>Moderate/Schwere Symptome (z.B. Erbrechen, FND)</td>
+                                <td>10 mg i.v. Bolus, dann 8-16 mg/d p.o./i.v. (in 1-4 Einzeldosen).</td>
+                            </tr>
+                            <tr>
+                                <td>Hirndruck (Vigilanzminderung, Verwirrtheit)</td>
+                                <td>10 mg i.v. Bolus, dann 16-40 mg/d p.o./i.v. (in 2-4 Einzeldosen).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3>Zusätzliche Maßnahmen bei Hirndruck</h3>
+                <ul>
+                    <li>30°-Oberkörperhochlagerung.</li>
+                    <li>Hals in Neutralstellung.</li>
+                    <li>Hypertone NaCl-Lösung.</li>
+                    <li>Hypo-/Normokapnie anstreben.</li>
+                </ul>
+                <h3>Epileptischer Anfall</h3>
+                <ul>
+                    <li>Anfallsdurchbrechung (s. SOP Status epilepticus).</li>
+                    <li>Sekundärprophylaxe mit z.B. Levetiracetam und/oder Lacosamid (nach neuroonkologischer Maßgabe).</li>
+                </ul>
+                <h3>Kausale Therapie</h3>
+                <ul>
+                    <li>Resektion, Radiochirurgie (SRS), Ganzhirnbestrahlung (WBRT), medikamentöse Tumortherapie.</li>
+                </ul>`
+            },
+            {
+                title: "Merke",
+                html: `<ul>
+                    <li>Bildgebung der Wahl bei Verdacht auf zerebrale Metastasen: <strong>cMRT + KM</strong> (bzw. cCT + KM in der Notfallsituation).</li>
+                    <li>Das Vorliegen von zerebralen Metastasen zeigt ein fortgeschrittenes Krankheitsstadium an, Hirnmetastasen können jedoch auch als <strong>Erstmanifestation</strong> eines malignen Tumors auftreten.</li>
+                    <li>Bereits in der Notaufnahme sollten mit dem Patienten bzw. den Vorsorgebevollmächtigten die <strong>Therapieziele</strong> besprochen werden.</li>
+                </ul>`
+            },
+            {
+                title: "Disposition",
+                html: `<p>Abhängig von klinischer Symptomatik und Therapiezielen:</p>
+                <ul>
+                    <li>Verlegung in Neurochirurgie / Strahlentherapie.</li>
+                    <li>Intensivstation.</li>
+                    <li>Normalstation.</li>
+                    <li>Palliativstation.</li>
+                    <li>Ambulant.</li>
+                </ul>`
+            }
+        ],
         stand: "12/24",
-        sources: `Schmieder K et al. Interdisziplinäre Therapie von Hirnmetastasen. Dtsch Arztebl Int 2016;113:415-21.<br>Vogelbaum MA et al. Treatment for Brain Metastases: ASCO-SNO-ASTRO Guideline. J Clin Oncol. 2022;40(5):492-516.`
+        sources: `Zoghbi M et al. Brain Metastasis in the Emergency Department. Cancers (Basel). 2024.<br>
+        Schmieder K et al. Interdisziplinäre Therapie von Hirnmetastasen. Dtsch Arztebl Int 2016.<br>
+        Thakkar JP et al. Acute Neurological Complications of Brain Tumors and Immune Therapies. Curr Neurol Neurosci Rep. 2020.<br>
+        Suarez-Meade P et al. Neuro-oncologic Emergencies. Curr Oncol Rep. 2022.<br>
+        Roth P et al. EANO-ESMO Clinical Practice Guidelines. Ann Oncol. 2021.`
     });
 })();
