@@ -14,35 +14,41 @@
 
 SOP-ZNA ist eine Progressive Web Application zur Darstellung klinischer Standard Operating Procedures (SOPs) für die Zentrale Notaufnahme des Klinikums St. Georg Leipzig. Die Anwendung bietet medizinischem Personal schnellen Zugriff auf 73 evidenzbasierte Patientenpfade – optimiert für Desktop, Tablet und Smartphone mit nativer mobiler UX.
 
-Die Anwendung wurde entwickelt, um die kognitive Last für Notfallpersonal zu minimieren. Durch intuitive Navigation, visuelle Hierarchie und flüssige Animationen können sich Ärzte und Pflegekräfte vollständig auf die Patientenversorgung konzentrieren, ohne sich in die Anwendung „einlernen“ zu müssen.
+Die Anwendung wurde entwickelt, um die kognitive Last für Notfallpersonal zu minimieren. Durch intuitive Navigation, visuelle Hierarchie und flüssige Animationen können sich Ärzte und Pflegekräfte vollständig auf die Patientenversorgung konzentrieren, ohne sich in die Anwendung „einlernen" zu müssen.
 
 ---
 
-## Neue Funktionen (Version 2.1)
+## Neue Funktionen (Version 2.2)
 
-### Intelligente Back-Navigation mit Breadcrumb-Support
+### Optimierte Mobile Navigation mit Safe Area Support
 
-Die Navigation wurde grundlegend überarbeitet, um eine natürlichere Benutzererfahrung zu ermöglichen. Der Back-Button führt jetzt nicht mehr direkt zum Startbildschirm, sondern respektiert die Navigationshistorie und die Breadcrumb-Struktur der Anwendung.
+Die Bottom Navigation und das gesamte mobile Layout wurden grundlegend überarbeitet, um auf allen iOS-Geräten perfekt zu funktionieren. Die wichtigsten Verbesserungen umfassen die korrekte Handhabung der iOS Safe Areas, insbesondere für Geräte mit Dynamic Island wie das iPhone 14 Pro Max.
 
-Wenn ein Nutzer von der Startseite eine SOP öffnet und dann auf Back klickt, gelangt er zurück zur Browse-Ansicht mit allen SOPs, anstatt zum leeren Startbildschirm. Diese Änderung entspricht dem mentalen Modell der Nutzer, die erwarten, nach dem Betrachten einer SOP zur Liste zurückzukehren. Die Breadcrumb-Navigation in der Desktop-Ansicht zeigt jederzeit den aktuellen Pfad und ermöglicht das direkte Springen zu übergeordneten Ebenen. Klickbare Breadcrumb-Elemente navigieren direkt zum entsprechenden Kontext, ohne die Historie zu beeinflussen.
+Die Viewport-Konfiguration wurde erweitert und nutzt nun die modernen `dvh` (dynamic viewport height), `svh` (small viewport height) und `vh` Einheiten parallel, um maximale Browser-Kompatibilität zu gewährleisten. Der neue `interactive-widget=resizes-content` Meta-Tag sorgt dafür, dass die Anwendung korrekt auf virtuelle Tastaturen und andere interaktive Widgets reagiert.
 
-### Automatischer Version-Check für WebApp-Installation
+Die Bottom Navigation ist jetzt als `position: fixed` Element implementiert und nutzt `backdrop-filter` mit Saturation- und Blur-Effekten für einen modernen, durchscheinenden Look, der dem nativen iOS-Design entspricht. Die Höhe wird dynamisch mit `max()` berechnet, um sowohl die Safe Area als auch den Mindestinhalt zu berücksichtigen. Die FAB-Position wurde entsprechend angepasst und ragt nicht mehr in den Bereich der Bottom Navigation.
 
-Ein neues Update-Benachrichtigungssystem sorgt dafür, dass installierte WebApp-Instanzen immer die aktuelle Version anzeigen. Vor dieser Änderung blieb die installierte Version im Cache erhalten, bis die WebApp entfernt und neu über den Browser installiert wurde.
+### Intelligente Back-Navigation mit Home-Rückkehr
 
-Das neue System lädt bei jedem Seitenaufruf die Datei `version.json` vom Server und vergleicht die Version mit der lokal gespeicherten Version in `localStorage`. Bei Abweichung erscheint eine slide-in Notification am unteren Bildschirmrand mit der Aufforderung zum Aktualisieren. Ein Tippen auf die Benachrichtigung oder das Ausführen des X-Buttons aktualisiert die Seite sofort. Der Version-Check erfolgt mit einem Cache-Buster (`?_=timestamp`), um sicherzustellen, dass immer die aktuelle Version abgefragt wird. Bei `file://` Protokoll (lokale Entwicklung) wird der Check automatisch deaktiviert, da keine Serververbindung besteht.
+Die Navigation wurde weiter verbessert, sodass der Zurück-Button in der SOP-Übersicht nun zum Home-Bildschirm führt statt zur Browse-Ansicht. Dies entspricht dem natürlichen Nutzerverhalten und ermöglicht einen schnellen Neustart der Anwendung von jedem Punkt aus.
 
-### Erweiterte Touch-Optimierung für mobile Geräte
+Der Navigation-Stack wurde entsprechend angepasst und merkt sich jetzt zuverlässig, woher der Benutzer kam. Wenn keine vorherige Navigation im Stack vorhanden ist, wird automatisch zum Home-Bildschirm navigiert, der die beste Orientierung bietet.
 
-Die Touch-Bedienung wurde umfassend optimiert, um eine fehlerfreie und komfortable Bedienung auf Smartphones zu gewährleisten. Alle interaktiven Elemente verfügen jetzt über mindestens 44 Pixel große Touch-Targets, wie von Apple empfohlen.
+### Alle SOPs Kachel auf dem Home-Bildschirm
 
-Die Category-Cards auf der Startseite zeigen verbessertes Active-Feedback mit sofortiger visueller Reaktion bei Berührung. Das `-webkit-tap-highlight-color: transparent` Attribut entfernt den standardmäßigen blauen Touch-Highlight, während `touch-action: manipulation` den 300ms-Delay aufhebt und sofortiges Feedback ermöglicht. Die Browse-Items und Search-Results haben größere Touch-Flächen und klarere visuelle Zustände für gedrückt und aktiv. SOP-Section-Headers sind jetzt 56 Pixel hoch mit optimiertem Padding für bessere Trefferquote mitdem Daumen.
+Der Home-Bildschirm enthält nun eine prominent gestaltete „Alle SOPs" Kachel, die direkt zur vollständigen SOP-Liste führt. Diese Kabel nutzt ein besonderes Farbschema mit einem Gradient von `--primary-light` zu `--primary` und hebt sich visuell von den Kategoriekarten ab. Ein Hover-Effekt verstärkt den Gradient und sorgt für klares visuelles Feedback.
 
-### Responsive Segmented Control mit Scroll-Snap
+Die Kabel ist als erstes Element im Kategorie-Grid positioniert und ermöglicht schnellen Zugriff auf alle Patientenpfade ohne vorherige Kategorieauswahl. Die Schriftfarben passen sich dynamisch an und werden beim Hover weiß für maximalen Kontrast.
 
-Die Segmented Control unter SOP-Titeln wurde für mobile Geräte grundlegend überarbeitet. Die bisherige Implementierung führte bei schmalen Viewports zu überlappenden Labels und abgeschnittenem Text.
+### Optimierte Touch-Gesten-Steuerung
 
-Die neue Lösung nutzt horizontales Scrollen mit CSS `scroll-snap-type: x mandatory` für präzises Einrasten an den Buttons. Jeder Button hat eine feste Mindestbreite von 60 Pixeln und maximale Breite von 100 Pixeln mit automatischem Text-Truncating durch `text-overflow: ellipsis`. Die Icons sind `flex-shrink: 0`, um nicht verzerrt zu werden. Buttons sind mindestens 44 Pixel hoch mit Scroll-Snap-Alignment für ein iOS-ähnliches Scrollverhalten. Das `touch-action: pan-x` ermöglicht horizontales Wischen ohne vertikales Scrollen zu blockieren.
+Die Touch-Bedienung wurde für noch flüssigere Interaktionen auf mobilen Geräten optimiert. Die Swipe-to-Back Geste am linken Bildschirmrand reagiert jetzt noch schneller durch reduzierte Erkennungsschwellen.
+
+Der `EDGE_MARGIN` wurde von 25px auf 20px reduziert, um mehr Fläche für die Wischgeste zu bieten. Der `SWIPE_THRESHOLD` wurde von 80px auf 60px gesenkt, sodass die Zurück-Aktion bereits nach einer kürzeren Wischbewegung ausgelöst wird. Der `HORIZONTAL_THRESHOLD` für die Erkennung der Wischrichtung wurde von 10px auf 8px reduziert, was zu einer früheren Erkennung des Wischens führt.
+
+Die visuelle Rückmeldung während des Wischens wurde intensiviert. Die Opacity-Abnahme geht jetzt von 1 auf 0,6 statt auf 0,7, und die Verschiebung beträgt 50px statt 30px für deutlicheres Feedback. Zusätzlich wurde ein leichter Scale-Effekt von 2% hinzugefügt, der die Tiefe der Navigation suggeriert.
+
+Das Haptic-Feedback wurde verbessert und nutzt nun ein zweistufiges Vibrationsmuster mit 15ms und anschließend 10ms für eine natürlichere taktile Rückmeldung. Die `will-change` CSS-Eigenschaft wird während der Wischgeste gesetzt, um dem Browser GPU-Beschleunigung zu signalisieren und flüssigere Animationen zu ermöglichen.
 
 ---
 
@@ -62,7 +68,7 @@ Die Animationen nutzen kubische Bézier-Kurven für organische, natürlich wirke
 
 ### Swipe-to-Back Gestensteuerung
 
-Für mobile Geräte wurde eine vollständige Wischgeste am linken Bildschirmrand implementiert. Berührungen im 25-Pixel-Randbereich werden als potenzielle Wischgeste erkannt. Horizontale Bewegungen dominieren über vertikale, um versehentliches Auslösen zu vermeiden. Während des Wischens wird der aktuelle View transparenter und verschiebt sich leicht nach rechts für visuelles Feedback. Mindestens 80 Pixel位移 oder entsprechende Geschwindigkeit löst die Zurück-Navigation aus. Auf unterstützten Geräten erfolgt leichte Vibration (Haptic Feedback) bei erfolgreicher Geste.
+Für mobile Geräte wurde eine vollständige Wischgeste am linken Bildschirmrand implementiert. Berührungen im 20-Pixel-Randbereich werden als potenzielle Wischgeste erkannt. Horizontale Bewegungen dominieren über vertikale, um versehentliches Auslösen zu vermeiden. Während des Wischens wird der aktuelle View transparenter und verschiebt sich leicht nach rechts für visuelles Feedback. Mindestens 60 Pixel位移 oder entsprechende Geschwindigkeit löst die Zurück-Navigation aus. Auf unterstützten Geräten erfolgt Vibration (Haptic Feedback) bei erfolgreicher Geste.
 
 Diese Funktion ermöglicht die Einhandbedienung ohne Daumen zum oberen Bildschirmrand strecken zu müssen. Die Wischgeste ist konsistent mit dem Back-Button und der Breadcrumb-Navigation.
 
@@ -84,7 +90,7 @@ Die Kategorie-Filter ermöglichen eine schnelle Einschränkung auf eine Fachrich
 
 Die Anwendung ist für alle Bildschirmgrößen optimiert. Auf Desktop-Geräten erscheint eine Sidebar mit Navigation, Suche und Kategorie-Filtern. Auf mobilen Geräten wird die Sidebar ausgeblendet und durch eine Bottom-Navigation ersetzt. Die Touch-Targets sind mindestens 44 × 44 Pixel groß, wie von Apple empfohlen.
 
-Safe Areas für iOS-Geräte mit Dynamic Island und Home-Indicator werden korrekt berücksichtigt. Das Layout passt sich automatisch an Notch, Dynamic Island und die untere Gestenleiste an. Alle Viewports erhalten optimierte Abstände und Schriftgrößen.
+Safe Areas für iOS-Geräte mit Dynamic Island und Home-Indicator werden korrekt berücksichtigt. Das Layout passt sich automatisch an Notch, Dynamic Island und die untere Gestenleiste an. Alle Viewports erhalten optimierte Abstände und Schriftgrößen. Die neue `100svh` Einheit sorgt dafür, dass die Anwendung auch bei eingeblendeten Browser-UI-Elementen den korrekten Viewport nutzt.
 
 ### Dark Mode
 
@@ -100,6 +106,14 @@ Die Schriftgröße kann stufenlos von 13px bis 20px angepasst werden. Diese Eins
 
 ## Technische Architektur
 
+### iOS Safe Area und Viewport-Optimierung
+
+Die Anwendung nutzt moderne CSS-Techniken für perfekte iOS-Kompatibilität. Der Viewport-Meta-Tag enthält `viewport-fit=cover` für randlose Darstellung und `interactive-widget=resizes-content` für korrekte Reaktion auf virtuelle Tastaturen.
+
+Die Viewport-Höhen werden mit drei Einheiten definiert: `100dvh` für die dynamische Höhe, die sich mit Browser-UI ändert, `100vh` als Fallback und `100svh` als garantierte kleine Höhe ohne Browser-UI. Diese Kombination gewährleistet korrekte Darstellung auf allen iOS-Versionen und Browser-Konfigurationen.
+
+Die Bottom Navigation nutzt `position: fixed` mit `bottom: 0` für zuverlässige Positionierung. Die Höhe wird mit `max(var(--btm-h), calc(var(--btm-h) + var(--sab)))` berechnet, um sowohl den Mindestinhalt als auch die Safe Area zu berücksichtigen. Das `backdrop-filter: saturate(180%) blur(20px)` erzeugt den charakteristischen iOS-Effekt.
+
 ### Frontend-Stack
 
 Die Anwendung ist als reine Single-Page-Application ohne Framework-Abhängigkeiten implementiert. Als Sprache dient ES5-kompatibles JavaScript für maximale Browser-Unterstützung. Das Rendering erfolgt vollständig client-seitig durch DOM-Manipulation.
@@ -112,13 +126,15 @@ Alle Animationen nutzen GPU-beschleunigte CSS-Eigenschaften (transform, opacity)
 
 Throttle- und Debounce-Funktionen begrenzen die Häufigkeit von Event-Handlern bei Scroll- und Resize-Events. Der Intersection Observer API wird für Lazy-Rendering und Scroll-Tracking genutzt. Das DOM Element Caching vermeidet wiederholte `document.getElementById()` Aufrufe.
 
+Die Touch-Gesten nutzen passive Event-Listener wo möglich und `will-change` für GPU-Beschleunigung während aktiver Gesten. Das Haptic-Feedback nutzt kurze Vibrationsimpulse von 10-15ms für subtile taktile Rückmeldung.
+
 ### Navigation-Stack
 
-Die Implementierung nutzt einen internen History-Stack, der die Navigationshierarchie verwaltet. Jeder Push-Navigation wird der aktuelle Zustand `{sopId, tab}` hinzugefügt. Pop-Navigation stellt den vorherigen Zustand wieder her oder navigiert intelligent zur Browse-Ansicht. Die View-Transitions werden synchronisiert mit dem Stack-Ablauf.
+Die Implementierung nutzt einen internen History-Stack, der die Navigationshierarchie verwaltet. Jeder Push-Navigation wird der aktuelle Zustand `{sopId, tab}` hinzugefügt. Pop-Navigation stellt den vorherigen Zustand wieder her oder navigiert intelligent zum Home-Bildschirm. Die View-Transitions werden synchronisiert mit dem Stack-Ablauf.
 
 ### Touch-Gesten
 
-Das Touch-Event-System unterscheidet zwischen verschiedenen Gesten: Swipe-to-Back am linken Rand (25px), Pull-to-Refresh am oberen Rand des Scroll-Bereichs, Draggable-Bottom-Sheet am Picker-Handle. Die Bewegungserkennung nutzt Delta-Berechnungen für X und Y, um die dominante Richtung zu bestimmen.
+Das Touch-Event-System unterscheidet zwischen verschiedenen Gesten: Swipe-to-Back am linken Rand (20px), Pull-to-Refresh am oberen Rand des Scroll-Bereichs, Draggable-Bottom-Sheet am Picker-Handle. Die Bewegungserkennung nutzt Delta-Berechnungen für X und Y, um die dominante Richtung zu bestimmen. Die Schwellenwerte sind für schnelle Reaktion optimiert: 8px für Richtungserkennung, 60px für vollständiges Swipe-Back.
 
 ### Version-Check-System
 
@@ -244,6 +260,8 @@ Die Anwendung unterstützt alle modernen Browser mit ES5-Unterstützung:
 
 Für ältere Browser wird die Anwendung ohne Animationen und mit grundlegender Funktionalität dargestellt. Die `prefers-reduced-motion` Medienabfrage deaktiviert alle Animationen auf Wunsch des Nutzers. Das `touch-action` Attribut stellt sicher, dass Touch-Gesten nur auf unterstützten Geräten aktiviert werden.
 
+Die Viewport-Unit-Varianten (`dvh`, `svh`, `lvh`) werden von allen modernen Browsern unterstützt. Als Fallback dient die klassische `vh` Einheit.
+
 ---
 
 ## Installation und Deployment
@@ -280,6 +298,18 @@ Die `version.json` Datei muss bei Deployment auf dem Server verfügbar sein, dam
 
 ## Changelog
 
+### Version 2.2 (Februar 2026)
+
+- Optimierte Mobile Navigation mit Safe Area Support für iPhone 14 Pro Max
+- Viewport-Optimierung mit dvh, svh und vh Einheiten
+- Fixed Bottom Navigation mit Backdrop-Blur
+- Intelligente Back-Navigation mit Home-Rückkehr
+- Alle SOPs Kachel auf dem Home-Bildschirm
+- Verbesserte Touch-Gesten mit optimierten Schwellenwerten
+- Intensivierte visuelle Rückmeldung beim Swipen
+- Zweistufiges Haptic-Feedback für bessere taktile Rückmeldung
+- GPU-Beschleunigung mit will-change für Touch-Animationen
+
 ### Version 2.1 (Februar 2026)
 
 - Intelligente Back-Navigation mit Breadcrumb-Support
@@ -304,12 +334,11 @@ Die `version.json` Datei muss bei Deployment auf dem Server verfügbar sein, dam
 
 ## Autor und Kontakt
 
-**Dr. med. Markus Lurz**
-Klinikum St. Georg Leipzig gGmbH
+**Klinikum St. Georg Leipzig**
 AG Klinische Pfade
-
+Zentrale Notaufnahme
 
 ---
 
-*Version 2.1 – Februar 2026*
-*Alle 73 SOPs vollständig implementiert mit nativer mobiler UX und intelligentem Version-Check*
+*Version 2.2 – Februar 2026*
+*Alle 73 SOPs vollständig implementiert mit nativer mobiler UX, optimiertem iOS-Support und intelligenter Navigation*

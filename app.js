@@ -51,10 +51,11 @@
     // Font Size Settings
     var FSN = 13, FSX = 20, FSD = 15;
 
-    // Touch-Gesten Konstanten
-    var EDGE_MARGIN = 25;
-    var SWIPE_THRESHOLD = 80;
-    var SWIPE_VELOCITY = 0.5;
+    // Touch-Gesten Konstanten - Optimiert für iOS
+    var EDGE_MARGIN = 20; // Reduziert für bessere Erkennung
+    var SWIPE_THRESHOLD = 60; // Niedriger für schnellere Reaktion
+    var SWIPE_VELOCITY = 0.3; // Niedriger für empfindlichere Erkennung
+    var HORIZONTAL_THRESHOLD = 8; // Niedriger für frühere Erkennung
 
     // Category Colors
     var CC = {
@@ -241,12 +242,13 @@
             return;
         }
 
-        // No history - go to browse view (not home) for better UX
+        // No history - go to home view for better UX
+        // This handles the case when user is in SOP overview (browse) and clicks back
         S.isNavigating = true;
         S.sopId = null;
         S.navStack = [];
 
-        // Determine if we came from browse or search for appropriate animation
+        // Determine current view for appropriate animation
         var activeView = null;
         var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
         for (var i = 0; i < views.length; i++) {
@@ -256,20 +258,20 @@
             }
         }
 
-        // Simple transition to browse
+        // Transition to home view
         if (activeView) {
             activeView.classList.remove('active');
             activeView.classList.add('pop-exit');
         }
 
-        E.viewBrowse.classList.add('pop-enter');
-        void E.viewBrowse.offsetWidth;
-        E.viewBrowse.classList.add('active');
-        E.viewBrowse.classList.remove('pop-enter');
+        E.viewHome.classList.add('pop-enter');
+        void E.viewHome.offsetWidth;
+        E.viewHome.classList.add('active');
+        E.viewHome.classList.remove('pop-enter');
 
         setTimeout(function() {
             if (activeView) activeView.classList.remove('pop-exit');
-            sTab('browse');
+            sTab('home');
             S.isNavigating = false;
         }, 400);
     }
@@ -387,8 +389,6 @@
         // Check if touch is in left edge zone
         if (touch.clientX < EDGE_MARGIN) {
             swipeData.canSwipe = true;
-            // Disable scroll during potential swipe
-            scrollArea.style.overflow = 'hidden';
         }
     }
 
@@ -399,17 +399,20 @@
         var deltaX = touch.clientX - swipeData.startX;
         var deltaY = touch.clientY - swipeData.startY;
 
-        // Check if horizontal swipe dominates
-        if (!swipeData.isSwiping && Math.abs(deltaX) > 10) {
+        // Check if horizontal swipe dominates - lower threshold for faster detection
+        if (!swipeData.isSwiping && Math.abs(deltaX) > HORIZONTAL_THRESHOLD) {
             swipeData.isSwiping = true;
         }
 
         if (swipeData.isSwiping && deltaX > 0) {
+            // Only prevent default if we're actually swiping back
             e.preventDefault();
+            
             swipeData.currentX = touch.clientX;
 
-            // Apply visual feedback
+            // Apply visual feedback with transform
             var progress = Math.min(deltaX / window.innerWidth, 1);
+            
             var activeView = null;
             var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
 
@@ -421,9 +424,11 @@
             }
 
             if (activeView) {
-                activeView.style.opacity = 1 - (progress * 0.3);
-                activeView.style.transform = 'translateX(' + (progress * 30) + 'px)';
+                // More pronounced visual feedback
+                activeView.style.opacity = 1 - (progress * 0.4);
+                activeView.style.transform = 'translateX(' + (progress * 50) + 'px) scale(' + (1 - progress * 0.02) + ')';
                 activeView.style.transition = 'none';
+                activeView.style.willChange = 'transform, opacity';
             }
         }
     }
@@ -431,13 +436,17 @@
     function handleTouchEnd(e) {
         if (!swipeData.canSwipe) return;
 
-        // Re-enable scroll
-        E.contentScroll.style.overflow = '';
-
         var deltaX = swipeData.currentX - swipeData.startX;
-        var shouldPop = deltaX > SWIPE_THRESHOLD;
+        var deltaY = e.changedTouches ? Math.abs(e.changedTouches[0].clientY - swipeData.startY) : 0;
+        
+        // Calculate velocity for better detection
+        var duration = e.timeStamp - (swipeData.startTime || e.timeStamp);
+        var velocity = deltaX / duration;
+        
+        var shouldPop = deltaX > SWIPE_THRESHOLD || 
+                       (deltaX > SWIPE_THRESHOLD * 0.5 && velocity > SWIPE_VELOCITY);
 
-        // Reset view position
+        // Reset view position with smooth transition
         var activeView = null;
         var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
 
@@ -452,11 +461,17 @@
             activeView.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
             activeView.style.opacity = '';
             activeView.style.transform = '';
+            activeView.style.willChange = '';
         }
 
         if (shouldPop) {
-            // Trigger haptic feedback
-            if (navigator.vibrate) navigator.vibrate(20);
+            // Trigger haptic feedback with pattern for better feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(15);
+                setTimeout(function() {
+                    navigator.vibrate(10);
+                }, 30);
+            }
             popNav();
         }
 
@@ -1497,6 +1512,15 @@
         }
 
         var gh = '';
+        
+        // Add "Alle SOPs" card at the beginning
+        gh += '<div class="cat-card cat-card-all" data-cat="all" style="--cat-color:var(--primary)">';
+        gh += '<i class="fa-solid fa-list cat-card-icon" style="color:var(--primary)"></i>';
+        gh += '<span class="cat-card-name">Alle SOPs</span>';
+        gh += '<span class="cat-card-count">' + S.data.length + ' Pfade</span>';
+        gh += '</div>';
+        
+        // Add category cards
         for (var i = 0; i < keys.length; i++) {
             if (counts[keys[i]] > 0) {
                 var cl = gc(keys[i]);
@@ -1519,6 +1543,15 @@
                     sTab('browse');
                 });
             })(cards[i]);
+        }
+        
+        // Add specific handler for "Alle SOPs" card to ensure it works
+        var allCard = E.catGrid.querySelector('.cat-card-all');
+        if (allCard) {
+            allCard.addEventListener('click', function() {
+                S.catB = 'all';
+                sTab('browse');
+            });
         }
 
         E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>' +
