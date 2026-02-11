@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.2.1';
+    var APP_VERSION = '2.2.2';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -907,8 +907,11 @@
                             showUpdateNotification(serverData);
                         }
 
-                        // Store current version
-                        localStorage.setItem('sop-app-version', APP_VERSION);
+                        // Only store version if it matches server version (after successful update)
+                        // This prevents the notification from showing again after reload
+                        if (serverVersion === APP_VERSION) {
+                            localStorage.setItem('sop-app-version', APP_VERSION);
+                        }
                     } catch (e) {
                         console.log('Version check failed:', e);
                     }
