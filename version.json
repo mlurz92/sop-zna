@@ -1,5 +1,5 @@
 {
-    "version": "2.2.4",
-    "lastUpdated": "2026-02-11T13:24:00Z",
-    "changelog": "Stand: Datum/Uhrzeit von Startseite entfernt"
+    "version": "2.3.0",
+    "lastUpdated": "2026-02-11T15:05:00Z",
+    "changelog": "Komplettes Layout-Neudesign mit Bootstrap 5 für moderne, responsive Darstellung mit korrekter iOS PWA Safe Area Unterstützung"
 }

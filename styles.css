@@ -734,10 +734,9 @@ mark {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
-    padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
-    
-    /* Robuste Safe Area Handhabung für Content */
-    padding-bottom: max(calc(var(--btm-h) + 20px), calc(var(--btm-h) + var(--sab) + 20px));
+    padding-bottom: 80px;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 }
 
 .view-container {
@@ -880,7 +879,9 @@ mark {
 }
 
 .v-sop {
-    padding: 28px 28px calc(var(--btm-h) + var(--sab) + 20px);
+    padding: 28px 28px 100px;
+    padding-left: calc(28px + var(--sal));
+    padding-right: calc(28px + var(--sar));
     background: var(--bg);
 }
 
@@ -1962,13 +1963,20 @@ mark {
     font-size: 1.15rem;
     cursor: pointer;
     box-shadow: var(--shadow-md);
-    z-index: 50;
+    z-index: 1020;
     display: none;
     align-items: center;
     justify-content: center;
     transition: transform 0.3s var(--ease-out-cubic), opacity 0.2s, box-shadow 0.3s;
-    /* Safe Area aware positioning */
-    bottom: calc(84px + env(safe-area-inset-bottom));
+    /* Position über der Bottom-Navbar */
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 1023px) {
+    .fab.show {
+        display: flex;
+        animation: fabIn 0.3s var(--ease-out-cubic);
+    }
 }
 
 .fab:hover {
@@ -2005,52 +2013,43 @@ mark {
     width: 100%;
     background: var(--surface);
     border-top: 1px solid var(--border);
-    align-items: flex-start;
-    justify-content: space-around;
-    flex-shrink: 0;
-    z-index: 40;
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    background: rgba(var(--surface-rgb, 255, 255, 255), 0.95);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    
+    z-index: 1030;
     /* Robuste Safe Area Handhabung für iOS PWA */
-    padding-bottom: max(var(--sab), 20px);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
     padding-top: 8px;
-    min-height: calc(var(--btm-h) + var(--sab));
-    height: max(64px, calc(64px + var(--sab)));
-    box-sizing: content-box;
+    /* Feste Höhe mit Safe Area Support */
+    height: auto;
+    min-height: calc(56px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(var(--surface-rgb, 255, 255, 255), 0.95);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btm-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 8px;
 }
 
 [data-theme="dark"] .btm-nav {
     background: rgba(var(--surface-rgb, 30, 41, 59), 0.95);
 }
 
-/* Robuste Safe Area via @supports */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
+@media (max-width: 1023px) {
     .btm-nav {
-        padding-bottom: env(safe-area-inset-bottom);
-        min-height: calc(var(--btm-h) + env(safe-area-inset-bottom));
-        height: max(64px, calc(64px + env(safe-area-inset-bottom)));
-    }
-}
-
-@supports (padding: max(0px)) {
-    .btm-nav {
-        padding-bottom: max(20px, var(--sab));
-        height: max(64px, calc(64px + var(--sab)));
-        min-height: max(64px, calc(64px + var(--sab)));
+        display: block;
     }
     
-    @supports (padding: env(safe-area-inset-bottom)) {
-        .btm-nav {
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            height: max(64px, calc(64px + env(safe-area-inset-bottom)));
-            min-height: max(64px, calc(64px + env(safe-area-inset-bottom)));
-        }
+    .btm-nav-inner {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     }
 }
 
@@ -2059,23 +2058,33 @@ mark {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     background: none;
     border: none;
     color: var(--text3);
-    font-size: 0.62rem;
+    font-size: 0.65rem;
+    font-weight: 500;
     cursor: pointer;
     flex: 1;
+    max-width: 120px;
     font-family: inherit;
-    transition: color 0.2s;
-    padding: 0;
+    transition: color 0.2s ease;
+    padding: 8px 4px;
     position: relative;
     min-height: 48px;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btm-btn i {
-    font-size: 1.2rem;
-    transition: transform 0.2s, color 0.2s;
+    font-size: 1.3rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.btm-btn-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    line-height: 1;
 }
 
 .btm-btn.active {
@@ -2086,13 +2095,24 @@ mark {
     transform: scale(1.1);
 }
 
+.btm-btn:hover {
+    color: var(--text);
+    background: var(--hover);
+}
+
+.btm-btn:active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+}
+
+/* Active indicator line */
 .btm-btn::after {
     content: '';
     position: absolute;
-    top: -4px; /* Move indicator slightly up */
+    bottom: 4px;
     left: 50%;
     transform: translateX(-50%) scaleX(0);
-    width: 28px;
+    width: 20px;
     height: 3px;
     background: var(--primary);
     border-radius: 2px;
@@ -2604,20 +2624,21 @@ mark {
     }
     
     .btm-nav {
-        display: flex;
+        display: block;
     }
     
     .v {
         padding: 18px;
         padding-left: calc(18px + var(--sal));
         padding-right: calc(18px + var(--sar));
+        padding-bottom: 90px;
     }
     
     .v-sop {
         padding: 18px;
         padding-left: calc(18px + var(--sal));
         padding-right: calc(18px + var(--sar));
-        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
+        padding-bottom: 100px;
     }
     
     .hero {
@@ -2774,13 +2795,14 @@ mark {
         padding: 14px;
         padding-left: calc(14px + var(--sal));
         padding-right: calc(14px + var(--sar));
+        padding-bottom: 80px;
     }
     
     .v-sop {
         padding: 14px;
         padding-left: calc(14px + var(--sal));
         padding-right: calc(14px + var(--sar));
-        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
+        padding-bottom: 90px;
     }
     
     .browse-item {
@@ -2953,10 +2975,7 @@ mark {
     }
     
     .btm-nav {
-        /* Landscape specific padding override - preserve safe area for iOS PWA */
-        padding-bottom: max(20px, var(--sab));
-        height: max(64px, calc(64px + var(--sab)));
-        min-height: max(64px, calc(64px + var(--sab)));
+        padding-bottom: env(safe-area-inset-bottom, 10px);
     }
     
     .fab {
@@ -2987,14 +3006,19 @@ mark {
     .v {
         padding-top: 14px;
         padding-bottom: 14px;
+        padding-bottom: 70px;
     }
     
     .v-sop {
         padding-top: 14px;
-        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
+        padding-bottom: 80px;
     }
     
     .sticky-bar {
         padding: 8px 18px;
+    }
+    
+    .scroll-area {
+        padding-bottom: 70px;
     }
 }
