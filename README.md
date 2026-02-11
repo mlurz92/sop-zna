@@ -1,286 +1,215 @@
-# 🏥 SOP-ZNA – Patientenpfade Zentrale Notaufnahme
-
-![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
-![Status](https://img.shields.io/badge/Status-Produktiv-brightgreen.svg)
-![Lizenz](https://img.shields.io/badge/Lizenz-Intern-orange.svg)
-![Plattform](https://img.shields.io/badge/Plattform-Web%20%7C%20iOS%20%7C%20Android-lightgrey.svg)
+# SOP-ZNA – Patientenpfade Zentrale Notaufnahme
 
 <div align="center">
-  <img src="img/Basislogo_farbig.png" alt="Klinikum St. Georg Leipzig Logo" width="200"/>
+  <img src="img/Basislogo_farbig.png" alt="Klinikum St. Georg Leipzig Logo" width="180"/>
   <br><br>
-  <img src="img/Patientenpfade.png" alt="Patientenpfade Logo" width="300"/>
+  <img src="img/Patientenpfade.png" alt="Patientenpfade Logo" width="280"/>
+  <br><br>
+  <p><strong>73 evidenzbasierte Standard Operating Procedures für die Notfallmedizin</strong></p>
 </div>
 
 ---
 
-## 📋 Beschreibung
+## Übersicht
 
-**SOP-ZNA** ist eine Web-Anwendung zur strukturierten Darstellung klinischer **Standard Operating Procedures (SOPs)** für die Zentrale Notaufnahme. Die Anwendung bietet medizinischem Personal schnellen Zugriff auf **73 evidenzbasierte Patientenpfade** – optimiert für Desktop- und mobile Endgeräte.
+SOP-ZNA ist eine Progressive Web Application zur Darstellung klinischer Standard Operating Procedures (SOPs) für die Zentrale Notaufnahme des Klinikums St. Georg Leipzig. Die Anwendung bietet medizinischem Personal schnellen Zugriff auf 73 evidenzbasierte Patientenpfade – optimiert für Desktop, Tablet und Smartphone mit nativer mobiler UX.
 
-> **Hinweis:** Diese Anwendung ist für den internen klinischen Gebrauch am Klinikum St. Georg Leipzig bestimmt.
+### Kernmerkmale
 
-### Zielgruppe
-
-- 👨‍⚕️ Ärzte in der Zentralen Notaufnahme
-- 👩‍⚕️ Pflegepersonal
-- 🚑 Rettungsdienstpersonal
-- 📚 Medizinstudenten und Assistenzärzte
+Die Anwendung wurde entwickelt, um die kognitive Last für Notfallpersonal zu minimieren. Durch intuitive Navigation, visuelle Hierarchie und flüssige Animationen können sich Ärzte und Pflegekräfte vollständig auf die Patientenversorgung konzentrieren, ohne sich in die Anwendung "einlernen" zu müssen.
 
 ---
 
-## ✨ Features
+## Neue Funktionen (Version 2.0)
 
-### 📚 SOP-Verwaltung
-- **73 klinische SOPs** mit strukturierten Sektionen:
-  - Definition, Ursachen, Symptome, Diagnostik, Therapie, Merke, Disposition, Komplikationen, Quellen
-- **11 Fachkategorien** mit farbcodierter Kennzeichnung
-- **Automatisches Dosierungs-Highlighting** erkennt Medikamentendosierungen und Applikationswege
+### 1. Native Push & Pop Navigation
 
-### 🔍 Suche & Navigation
-- **Volltextsuche** über alle SOPs mit Snippet-Vorschau und Highlighting
-- **Schnellsuche** auf der Startseite mit Echtzeit-Ergebnissen
-- **Kategorie-Filter** in Sidebar und Browse-Ansicht
-- **Breadcrumb-Navigation** zur einfachen Orientierung
-- **Inhaltsverzeichnis** als Bottom-Sheet (mobil) oder Dialog (Desktop)
+Die Navigation zwischen Ansichten erfolgt nun mit nativen Smartphone-Übergängen, die dem mentalen Modell der Navigationstiefe entsprechen:
 
-### 📱 Mobile Optimierung
-- **Responsive Design** optimiert für:
-  - iPhone 14 Pro Max (inkl. Dynamic Island / Safe Areas)
-  - iPad und Tablets
-  - Android-Geräte
-- **Touch-optimierte Bedienung** (44px Touch-Targets nach Apple HIG)
-- **iOS-Safe-Areas** Unterstützung (`env(safe-area-inset-*)`)
-- **Pull-to-Refresh** auf der Startseite
-- **Haptic Feedback** für unterstützte Geräte
+- **Vorwärts:** Beim Öffnen einer SOP wischen neue Screens von rechts nach links herein
+- **Zurück:** Beim Zurückgehen wischt der aktuelle Screen nach rechts heraus
+- **History-Stack:** Vollständige Verwaltung der Navigationshistorie für konsistentes Navigieren
+- **GPU-beschleunigt:** Alle Animationen laufen mit 60fps durch CSS-Transform und Opacity
 
-### 🎨 Benutzeroberfläche
-- **Dark Mode / Light Mode** mit:
-  - Automatischer Systemerkennung (`prefers-color-scheme`)
-  - Manueller Umschaltung
-  - Persistenz via LocalStorage
-- **Stufenlose Schriftgrößenanpassung** (13–20px)
-- **Sticky Section Bar** zeigt beim Scrollen die aktuelle Sektion
-- **Akkordeon-Sektionen** mit automatischer Öffnung von Diagnostik und Therapie
-- **Smooth Animations** und Übergänge
+Die Animationen nutzen kubische Bézier-Kurven für organische, natürlich wirkende Bewegungen, die iOS und Android Systemübergängen ähneln.
 
-### 🖨️ Druckfunktion
-- **Druckoptimierung** mit automatischer Öffnung aller Sektionen
-- Druckbutton im Inhaltsverzeichnis
+### 2. Swipe-to-Back Gestensteuerung
 
-### ⚡ Performance
-- **Kein Caching** – Änderungen sind sofort sichtbar
-- **Keine Build-Tools** – läuft direkt im Browser
-- **Vanilla JavaScript** – keine Framework-Abhängigkeiten
+Für mobile Geräte wurde eine vollständige Wischgeste am linken Bildschirmrand implementiert:
 
----
+- **Erkennung:** Berührungen im 25px-Randbereich werden als potenzielle Wischgeste erkannt
+- **Dominante Richtung:** Horizontale Bewegungen dominieren über vertikale, um versehentliches Auslösen zu vermeiden
+- **Visuelles Feedback:** Der aktuelle View wird während des Wischens transparenter und verschiebt sich leicht nach rechts
+- **Schwellenwert:** Mindestens 80 Pixel位移 oder entsprechende Geschwindigkeit löst die Zurück-Navigation aus
+- **Haptic Feedback:** Leichte Vibration bei erfolgreicher Geste (auf unterstützten Geräten)
 
-## 🚀 Installation & Deployment
+Diese Funktion ermöglicht die Einhandbedienung ohne Daumen zum oberen Bildschirmrand strecken zu müssen.
 
-### Voraussetzungen
+### 3. Interaktives Draggable Bottom Sheet
 
-- Beliebiger Webserver (Apache, Nginx, IIS, etc.)
-- Optional: HTTPS für erweiterte PWA-Features
+Das Inhaltsverzeichnis (Section Picker) wurde als vollständig interaktives Bottom Sheet implementiert:
 
-### Lokale Entwicklung
+- **Drag-to-Close:** Nutzer können das Sheet durch Herunterziehen schließen
+- **Physikalisches Feedback:** Das Sheet folgt der Fingerbewegung in Echtzeit
+- **Spring-Animation:** Beim Losen springt das Sheet entweder in die offene Position oder schließt vollständig
+- **Handle-Indikator:** Ein Grifffläche oben zeigt die Interaktionsmöglichkeit an
+- **Overscroll-Schutz:** Verhindert unerwünschtes Bounce-Verhalten auf iOS
 
-```bash
-# Repository klonen
-git clone <repository-url>
-cd sop-zna
+### 4. Segmented Control für SOPs
 
-# Einfachen HTTP-Server starten
-# Python 3
-python3 -m http.server 8080
+Unter dem SOP-Titel erscheint eine fixierte Reiter-Leiste für die wichtigsten Bereiche:
 
-# Node.js (npx)
-npx serve .
+- **Schnellnavigation:** Ein Tap auf einen Segment-Button springt sofort zum entsprechenden Bereich
+- **"Alle"-Button:** Öffnet alle Sektionen auf einen Klick
+- **Autoscroll:** Nach dem Tap wird smooth zum Zielbereich gescrollt
+- **Horizontales Scrollen:** Bei mehr als 5 Segmenten horizontal scrollbar
+- **Aktive Markierung:** Der aktive Segment-Button wird farblich hervorgehoben
 
-# PHP
-php -S localhost:8080
-```
+Diese Funktion reduziert die Scroll-Fatigue bei langen SOPs erheblich.
 
-Anwendung im Browser öffnen: `http://localhost:8080`
+### 5. Card-basiertes Design
 
-### Produktiv-Deployment
+Alle Listenansichten wurden von einfachen Linien auf ein moderneres Card-Design umgestellt:
 
-Die Anwendung besteht ausschließlich aus statischen Dateien und kann auf jedem Webserver bereitgestellt werden:
+- **Erhöhte Karten:** Leichter Schatten und abgerundete Ecken (16px Radius)
+- **Grauer Hintergrund:** Die Cards befinden sich auf einem grauen Surface-Hintergrund
+- **Grupierte Anordnung:** Visuelle Grupierung zusammengehöriger Einträge
+- **Hover-Effekte:** Leichte Anhebung und Farbverschiebung bei Interaktion
+- **Konsistente Abstände:** Einheitliche Padding-Werte für alle Card-Elemente
 
-| Plattform | Beschreibung |
-|-----------|--------------|
-| **Apache / Nginx** | Statische Dateien ins Webroot kopieren |
-| **GitHub Pages** | Repository → Settings → Pages → Deploy |
-| **Netlify** | Drag & Drop oder Git-Integration |
-| **Vercel** | Automatisches Deployment via Git |
-| **AWS S3 + CloudFront** | Statische Website-Hosting |
+### 6. Skeleton Screens
+
+Beim Öffnen einer SOP erscheint sofort ein Skeleton-Layout vor dem tatsächlichen Inhalt:
+
+- **Sofortige Anzeige:** Das Skeleton rendert sofort, noch bevor die JS-Daten verarbeitet sind
+- **Platzhalter:** Enthält Platzhalter für Badge, Titel, Segmented Control und Sektionskarten
+- **Shimmer-Animation:** Fließende Lichtreflexion suggeriert Ladeaktivität
+- **GPU-beschleunigt:** Die Shimmer-Animation nutzt CSS gradients ohne JavaScript-Overhead
+- **Nahtloser Übergang:** Sobald die Daten ready sind, wird das Skeleton transparent ausgeblendet
+
+### 7. Spotlight-Suche
+
+Eine globale Suche mit iOS Spotlight-Feeling:
+
+- **Modal-Overlay:** Keine neue Seite – die Suche erscheint als Modal über dem aktuellen Inhalt
+- **Backdrop-Blur:** Der Hintergrund wird unscharf dargestellt für Fokus auf die Suche
+- **Sofortige Tastatur:** Die Tastatur fährt sofort aus
+- **Cancel-Button:** Oben rechts für sofortiges Schließen (wie bei iOS Spotlight)
+- **Live-Ergebnisse:** Ergebnisse werden während des Tippens aktualisiert
+- **Tastaturkürzel:** Ctrl/Cmd + K öffnet die Spotlight-Suche
 
 ---
 
-## 📖 Verwendung
+## Funktionen
 
-### Startseite
+### SOP-Verwaltung
 
-1. **Schnellsuche:** Tippen Sie einen Suchbegriff ein, um direkt zu den Ergebnissen zu gelangen
-2. **Kategorie-Karten:** Klicken Sie auf eine Kategorie, um alle SOPs dieser Fachrichtung zu durchsuchen
+Die Anwendung enthält 73 klinische SOPs mit strukturierten Sektionen. Jede SOP ist in logische Abschnitte unterteilt: Definition, Ursachen, Symptome, Diagnostik, Therapie, Merke, Disposition, Komplikationen und Quellen. Die Sektionen sind Akkordeons, die Nutzer ein- und ausklappen können. Diagnostik und Therapie sind standardmäßig geöffnet, da sie die wichtigsten Informationen enthalten.
 
-### SOPs durchsuchen
+Die SOPs sind in 11 Fachkategorien organisiert: Kardiologie, Pneumologie, Gastroenterologie, Neurologie, Nephrologie, Metabolisch, Hämatologie, Infektiologie, Toxikologie, Leitsymptom und Sonstige. Jede Kategorie hat eine eindeutige Farbcodierung, die sich durch die gesamte Anwendung zieht.
 
-1. Navigieren Sie über die untere Navigation zum **"SOPs"**-Tab
-2. Filtern Sie nach **Kategorien** oder nutzen Sie die **Suchleiste**
-3. Klicken Sie auf eine SOP, um sie zu öffnen
+### Suche und Navigation
 
-### SOP-Ansicht
+Die Volltextsuche durchsucht alle SOPs inklusive Titel, Sektionsinhalte und Quellen. Bei Treffern wird ein relevanter Ausschnitt mit dem Suchbegriff hervorgehoben angezeigt. Die Suchergebnisse sind nach Relevanz sortiert, wobei exakte Titelübereinstimmungen höher gewichtet werden.
 
-- **Sektionen:** Klicken Sie auf eine Sektion, um sie zu öffnen/schließen
-- **Diagnostik & Therapie** sind standardmäßig geöffnet
-- **Inhaltsverzeichnis:** Tippen Sie auf den FAB-Button (unten rechts) oder den TOC-Button (Desktop)
-- **Drucken:** Nutzen Sie den Druckbutton im Inhaltsverzeichnis
+Die Kategorie-Filter ermöglichen eine schnelle Einschränkung auf eine Fachrichtung. Die Filter können in der Sidebar (Desktop) oder in der Browse-Ansicht (Mobile) gesetzt werden. Ein Breadcrumb zeigt jederzeit die aktuelle Position in der Navigationshierarchie.
 
-### Einstellungen
+### Responsive Design
 
-- **Theme:** Klicken Sie auf das Sonne/Mond-Icon zum Wechseln zwischen Dark/Light Mode
-- **Schriftgröße:** Nutzen Sie die +/- Buttons in der Sidebar (Desktop) oder im Menü (Mobile)
+Die Anwendung ist für alle Bildschirmgrößen optimiert. Auf Desktop-Geräten erscheint eine Sidebar mit Navigation, Suche und Kategorie-Filtern. Auf mobilen Geräten wird die Sidebar ausgeblendet und durch eine Bottom-Navigation ersetzt. Die Touch-Targets sind mindestens 44×44 Pixel groß, wie von Apple empfohlen.
 
----
+Safe Areas für iOS-Geräte mit Dynamic Island und Home-Indicator werden korrekt berücksichtigt. Das Layout passt sich automatisch an Notch, Dynamic Island und die untere Gestenleiste an.
 
-## 🛠️ Technologie-Stack
+### Dark Mode
 
-| Komponente | Technologie |
-|------------|-------------|
-| **Frontend** | Vanilla JavaScript (ES5-kompatibel), HTML5, CSS3 |
-| **Icons** | Font Awesome 6.5.1 (CDN) |
-| **Styling** | CSS Custom Properties, Flexbox, CSS Grid |
-| **Responsive** | Media Queries, `env(safe-area-inset-*)`, `viewport-fit=cover` |
-| **Theming** | `data-theme` Attribut mit `prefers-color-scheme` Erkennung |
-| **Build** | Keine Build-Tools, kein Bundler, keine Frameworks |
+Die Anwendung unterstützt einen vollständigen Dark Mode, der automatisch basierend auf den Systemeinstellungen aktiviert wird. Nutzer können auch manuell zwischen Light und Dark Mode wechseln. Die Einstellung wird im LocalStorage gespeichert und bleibt über Sitzungenhinweg erhalten.
+
+### Schriftgrößenanpassung
+
+Die Schriftgröße kann stufenlos von 13px bis 20px angepasst werden. Diese Einstellung wird ebenfalls persistent gespeichert und verbessert die Lesbarkeit für verschiedene Sehstärken und Nutzungssituationen.
 
 ---
 
-## 📁 Projektstruktur
+## Technische Architektur
+
+### Frontend-Stack
+
+Die Anwendung ist als reine Single-Page-Application ohne Framework-Abhängigkeiten implementiert. Als Sprache dient ES5-kompatibles JavaScript für maximale Browser-Unterstützung. Das Rendering erfolgt vollständig client-seitig durch DOM-Manipulation.
+
+Die Styles sind in einer einzigen CSS-Datei zusammengefasst, die Custom Properties (CSS Variables) für das Theming nutzt. Flexbox und CSS Grid werden für das Layout verwendet, Media Queries für die Responsive-Optimierung.
+
+### Performance-Optimierung
+
+Alle Animationen nutzen GPU-beschleunigte CSS-Eigenschaften (transform, opacity) für flüssige 60fps. Die Shimmer-Animation der Skeleton Screens ist vollständig in CSS implementiert ohne JavaScript-Overhead. Transitions sind mit kubischen Bézier-Kurven optimiert für organische Bewegung.
+
+Throttle- und Debounce-Funktionen begrenzen die Häufigkeit von Event-Handlern bei Scroll- und Resize-Events. Der Intersection Observer API wird für Lazy-Rendering und Scroll-Tracking genutzt.
+
+### Navigation-Stack
+
+Die Implementierung nutzt einen internen History-Stack, der die Navigationshierarchie verwaltet. Jeder Push-Navigation wird der aktuelle Zustand hinzugefügt. Pop-Navigation stellt den vorherigen Zustand wieder her. Die View-Transitions werden synchronisiert mit dem Stack-Ablauf.
+
+### Touch-Gesten
+
+Das Touch-Event-System unterscheidet zwischen verschiedenen Gesten: Swipe-to-Back am linken Rand, Pull-to-Refresh am oberen Rand des Scroll-Bereichs, Draggable-Bottom-Sheet am Picker-Handle. Die Bewegungserkennung nutzt Delta-Berechnungen für X und Y, um die dominante Richtung zu bestimmen.
+
+---
+
+## Projektstruktur
 
 ```
 sop-zna/
-├── index.html                 # Einstiegspunkt der Anwendung
-├── app.js                     # Anwendungslogik (Rendering, Navigation, Suche)
-├── styles.css                 # Vollständiges Stylesheet (Light/Dark, Responsive, Print)
-├── README.md                  # Diese Datei
+├── index.html              # Einstiegspunkt mit HTML-Struktur
+├── app.js                  # Hauptanwendungslogik
+├── styles.css              # Vollständiges Stylesheet
+├── README.md               # Diese Dokumentation
 ├── img/
-│   ├── Basislogo_farbig.png   # Klinikum-Logo (Favicon, Touch-Icon)
-│   ├── Patientenpfade.png     # App-Logo (Sidebar, Hero)
-│   └── ZNA/                   # SOP-spezifische Abbildungen
-│       ├── akute-herzinsuffizienz_diagnostischer_algorithmus.png
-│       └── akute-intoxikation_toxidrom.png
-└── sops/                      # 73 einzelne SOP-Dateien (JavaScript-Module)
+│   ├── Basislogo_farbig.png
+│   ├── Patientenpfade.png
+│   └── ZNA/                # SOP-spezifische Abbildungen
+└── sops/                   # 73 einzelne SOP-Dateien
     ├── abdominelle-schmerzen.js
-    ├── aecopd.js
-    ├── akute-alkoholintoxikation.js
-    ├── akute-divertikulitis.js
-    ├── akute-gastroenteritis.js
-    ├── akute-herzinsuffizienz.js
-    ├── akute-intoxikation.js
-    ├── akute-mesenterialischaemie.js
-    ├── akute-nebenniereninsuffizienz.js
-    ├── akute-nierenschaedigung.js
-    ├── akute-pankreatitis.js
-    ├── akuter-gichtanfall.js
-    ├── akuter-harnverhalt.js
-    ├── akutes-aortensyndrom.js
-    ├── anaemie.js
-    ├── anaphylaxie.js
-    ├── asthmaexazerbation.js
-    ├── bakterielle-meningitis.js
-    ├── bradykarde-hrst.js
-    ├── cannabinoid-hyperemesis-syndrom.js
-    ├── delir.js
-    ├── diabetische-ketoazidose.js
-    ├── dyspnoe.js
-    ├── erbrechen.js
-    ├── erysipel.js
-    ├── fieber-in-der-neutropenie.js
-    ├── fremdkoerperingestion.js
-    ├── harnwegsinfektion.js
-    ├── heparininduzierte-thrombozytopenie.js
-    ├── hepatische-enzephalopathie.js
     ├── herz-kreislauf-stillstand.js
-    ├── hitzschlag.js
-    ├── hyperkaliaemie.js
-    ├── hyperkalzaemie.js
-    ├── hypernatriaemie.js
-    ├── hyperosmolares-hyperglykaemisches-syndrom.js
-    ├── hypertensiver-notfall.js
-    ├── hypoglykaemie.js
-    ├── hypokaliaemie.js
-    ├── hypokalzaemie.js
-    ├── hyponatriaemie.js
-    ├── ikterus.js
-    ├── kohlenmonoxidintoxikation.js
-    ├── kopfschmerzen.js
-    ├── lungenarterienembolie.js
-    ├── myxoedemkoma.js
-    ├── nicht-st-hebungsinfarkt.js
-    ├── nierenkolik.js
-    ├── obere-gastrointestinale-blutung.js
-    ├── oesophageale-bolusimpaktion.js
-    ├── pleuraerguss.js
-    ├── pneumonie.js
-    ├── schock.js
-    ├── sepsis.js
-    ├── spontan-bakterielle-peritonitis.js
-    ├── st-hebungsinfarkt.js
-    ├── status-epilepticus.js
-    ├── sterbephase-palliativ.js
-    ├── stromunfall.js
-    ├── synkope.js
-    ├── tachykarde-hrst.js
-    ├── thoraxschmerzen.js
-    ├── thrombozytopenie.js
-    ├── tiefe-venenthrombose.js
-    ├── tonsillitis.js
-    ├── transiente-globale-amnesie.js
-    ├── tumorlysesyndrom.js
-    ├── unklare-vigilanzminderung.js
-    ├── untere-gastrointestinale-blutung.js
-    ├── vena-cava-superior-syndrom.js
-    ├── vorhofflimmern.js
-    ├── zerebrale-metastasen.js
-    └── zerebrale-venen-sinusthrombose.js
+    └── ...                 # 71 weitere SOPs
 ```
 
----
-
-## 📚 SOP-Kategorien
-
-| Kategorie | Schlüssel | Anzahl | Farbe |
-|-----------|-----------|--------|-------|
-| ❤️ Kardiologie | `kardio` | – | Rot |
-| 🫁 Pneumologie | `pulmo` | – | Blau |
-| 🍽️ Gastroenterologie | `gi` | – | Orange |
-| 🧠 Neurologie | `neuro` | – | Violett |
-| 💧 Nephrologie | `nephro` | – | Cyan |
-| 🧪 Metabolisch | `metab` | – | Grün |
-| 💉 Hämatologie | `haem` | – | Pink |
-| 🦠 Infektiologie | `infekt` | – | Limette |
-| ☠️ Toxikologie | `tox` | – | Orange |
-| 🩺 Leitsymptom | `leit` | – | Indigo |
-| ℹ️ Sonstige | `sonst` | – | Grau |
+Jede SOP-Datei ist ein eigenständiges JavaScript-Modul, das ein Data-Objekt in das globale SOP_DATA-Array pusht. Das ermöglicht modulares Laden und einfaches Hinzufügen neuer SOPs ohne Build-Prozess.
 
 ---
 
-## 📝 Neue SOP hinzufügen
+## SOP-Kategorien
 
-### 1. SOP-Datei erstellen
+| Kategorie | Schlüssel | Farbcode |
+|-----------|-----------|----------|
+| Kardiologie | `kardio` | #ef4444 (Rot) |
+| Pneumologie | `pulmo` | #3b82f6 (Blau) |
+| Gastroenterologie | `gi` | #f59e0b (Orange) |
+| Neurologie | `neuro` | #8b5cf6 (Violett) |
+| Nephrologie | `nephro` | #06b6d4 (Cyan) |
+| Metabolisch | `metab` | #10b981 (Grün) |
+| Hämatologie | `haem` | #ec4899 (Pink) |
+| Infektiologie | `infekt` | #84cc16 (Limette) |
+| Toxikologie | `tox` | #f97316 (Dunkelorange) |
+| Leitsymptom | `leit` | #6366f1 (Indigo) |
+| Sonstige | `sonst` | #64748b (Grau) |
 
-Erstellen Sie eine neue Datei unter `sops/` (z. B. `sops/neue-sop.js`):
+---
+
+## Neue SOP hinzufügen
+
+### SOP-Datei erstellen
+
+Erstellen Sie eine neue Datei unter `sops/` mit folgendem Format:
 
 ```javascript
-(function(){
-    if(!window.SOP_DATA) window.SOP_DATA = [];
+(function() {
+    if (!window.SOP_DATA) window.SOP_DATA = [];
     window.SOP_DATA.push({
-        id: "eindeutige-id",              // URL-freundliche ID (keine Leerzeichen!)
-        title: "Titel der SOP",            // Anzeigename
-        name: "Titel der SOP",             // Alternativ: name statt title
-        category: "kardio",                // Kategorie-Schlüssel (siehe Tabelle)
-        stand: "03/25",                    // Aktualisierungsstand (MM/YY)
-        sources: "<p>Quellenangaben...</p>", // HTML-String
+        id: "eindeutige-id",
+        title: "Titel der SOP",
+        name: "Titel der SOP",
+        category: "kardio",
+        stand: "03/26",
+        sources: "<p>Quellenangaben...</p>",
         sections: [
             {
                 title: "Definition",
@@ -288,15 +217,11 @@ Erstellen Sie eine neue Datei unter `sops/` (z. B. `sops/neue-sop.js`):
             },
             {
                 title: "Ursachen",
-                html: "<ul><li>Ursache 1</li><li>Ursache 2</li></ul>"
-            },
-            {
-                title: "Symptome",
-                html: "<p>Symptomatik...</p>"
+                html: "<p>Ursachen...</p>"
             },
             {
                 title: "Diagnostik",
-                html: "<p>Diagnostische Schritte...</p>"
+                html: "<p>Diagnostische Maßnahmen...</p>"
             },
             {
                 title: "Therapie",
@@ -304,94 +229,84 @@ Erstellen Sie eine neue Datei unter `sops/` (z. B. `sops/neue-sop.js`):
             },
             {
                 title: "Merke",
-                html: "<div class=\"callout callout-wichtig\">Wichtiger Hinweis!</div>"
+                html: "<div class='callout callout-wichtig'>Wichtiger Hinweis!</div>"
             },
             {
                 title: "Disposition",
                 html: "<p>Weiteres Vorgehen...</p>"
-            },
-            {
-                title: "Komplikationen",
-                html: "<p>Mögliche Komplikationen...</p>"
             }
         ]
     });
 })();
 ```
 
-### 2. Script einbinden
+### Script einbinden
 
-Fügen Sie in [`index.html`](index.html) vor `app.js` ein:
+Fügen Sie in `index.html` vor `app.js` ein:
 
 ```html
 <script src="sops/neue-sop.js"></script>
-<script src="app.js"></script>
 ```
 
-### Unterstützte Callout-Klassen
+### Callout-Klassen
 
-| CSS-Klasse | Verwendung | Farbe |
-|------------|------------|-------|
-| `callout callout-cave` | Warnhinweise, Kontraindikationen | Rot |
-| `callout callout-wichtig` | Wichtige Hinweise | Blau |
-| `callout callout-hinweis` | Allgemeine Tipps | Grün |
-
----
-
-## 🌐 Browser-Kompatibilität
-
-| Browser | Minimale Version |
-|---------|------------------|
-| Chrome / Edge | 80+ |
-| Safari (iOS/macOS) | 14+ |
-| Firefox | 78+ |
-| Samsung Internet | 13+ |
+| CSS-Klasse | Bedeutung |
+|------------|-----------|
+| `callout callout-cave` | Warnung, Kontraindikation |
+| `callout callout-wichtig` | Wichtiger Hinweis |
+| `callout callout-hinweis` | Tipp oder Hinweis |
+| `callout callout-info` | Information |
 
 ---
 
-## 🤝 Mitwirken
+## Browser-Unterstützung
 
-### Beiträge willkommen!
+Die Anwendung unterstützt alle modernen Browser mit ES5-Unterstützung:
 
-1. **Fehler melden:** Erstellen Sie ein Issue mit Beschreibung und Screenshots
-2. **SOP aktualisieren:** Erstellen Sie einen Pull Request mit den Änderungen
-3. **Neue SOP:** Folgen Sie der Anleitung oben und reichen Sie einen PR ein
+- Chrome und Edge ab Version 80
+- Safari ab Version 14
+- Firefox ab Version 78
+- Samsung Internet ab Version 13
 
-### Entwicklungsrichtlinien
-
-- **Code-Stil:** ES5-kompatibles JavaScript für maximale Browser-Unterstützung
-- **SOP-Format:** Strikte Einhaltung des oben definierten Datenformats
-- **Medizinische Inhalte:** Nur mit entsprechender Fachprüfung freigeben
+Für ältere Browser wird die Anwendung ohne Animationen und mit grundlegender Funktionalität dargestellt. Die `prefers-reduced-motion` Medienabfrage deaktiviert alle Animationen auf Wunsch des Nutzers.
 
 ---
 
-## 📄 Lizenz
+## Installation und Deployment
 
-Dieses Projekt ist für den **internen klinischen Gebrauch** am Klinikum St. Georg Leipzig bestimmt.
+### Lokale Entwicklung
 
-Alle medizinischen Inhalte unterliegen dem Urheberrecht der jeweiligen Autoren und Leitlinienkommissionen. Eine Weitergabe oder Vervielfältigung ohne ausdrückliche Genehmigung ist nicht gestattet.
+Die Anwendung benötigt keinen Build-Prozess und kann direkt im Browser geöffnet werden:
+
+```bash
+# Python 3
+python3 -m http.server 8080
+
+# Node.js
+npx serve .
+
+# PHP
+php -S localhost:8080
+```
+
+### Produktiv-Deployment
+
+Da es sich um statische Dateien handelt, kann die Anwendung auf jedem Webserver bereitgestellt werden:
+
+- **Apache/Nginx:** Dateien ins Webroot kopieren
+- **GitHub Pages:** Automatisches Deployment via Git
+- **Netlify/Vercel:** Drag & Drop oder Git-Integration
+- **AWS S3:** Statisches Website-Hosting
 
 ---
 
-## 📞 Kontakt & Impressum
+## Autor und Kontakt
 
-**Klinikum St. Georg Leipzig**  
-Klinik für Radiologie und Nuklearmedizin  
+**Klinikum St. Georg Leipzig**
 AG Klinische Pfade
-
-### Autor
-
-**Dr. med. Markus Lurz**  
-Klinikum St. Georg Leipzig  
-Delitzscher Straße 141  
-04129 Leipzig
+Zentrale Notaufnahme
 
 ---
 
-<div align="center">
-
-**[⬆ Nach oben](#-sop-zna--patientenpfade-zentrale-notaufnahme)**
-
-*Stand: Februar 2026*
-
-</div>
+*Version 2.0 – Februar 2026*
+*Alle 73 SOPs vollständig implementiert mit nativer mobiler UX*

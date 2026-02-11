@@ -15,11 +15,9 @@
     <meta name="format-detection" content="email=no">
     <meta name="format-detection" content="address=no">
     <meta name="description" content="Patientenpfade ZNA">
-    <!-- Cache deaktivieren -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- iOS Touch-Optimierung -->
     <meta name="HandheldFriendly" content="true">
     <meta name="MobileOptimized" content="width">
     <title>Patientenpfade: ZNA</title>
@@ -27,12 +25,15 @@
     <link rel="apple-touch-icon" href="img/Patientenpfade.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="app">
+        <!-- Navigation History Stack für Push/Pop -->
+        <div id="navStack" data-stack="[]"></div>
+        
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-top">
                 <a class="sidebar-brand" id="appLogo" href="#">
@@ -75,6 +76,9 @@
                 <button class="topbar-back" id="backBtn"><i class="fa-solid fa-chevron-left"></i></button>
                 <span class="topbar-title" id="mobileTitle">Patientenpfade: ZNA</span>
                 <div class="topbar-actions">
+                    <button id="spotlightBtn" class="topbar-btn" aria-label="Suche">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                     <button id="fontDecMobile" class="topbar-btn-sm">A&minus;</button>
                     <span class="topbar-font-val" id="fontIndicatorMobile">15</span>
                     <button id="fontIncMobile" class="topbar-btn-sm">A+</button>
@@ -108,26 +112,32 @@
                     <span class="sticky-sop" id="stickySopName"></span>
                 </div>
 
-                <div class="v" id="viewHome">
-                    <div class="hero" id="heroArea"></div>
-                    <div class="cat-grid" id="catGrid"></div>
-                    <div class="home-info" id="homeInfo"></div>
-                </div>
-
-                <div class="v" id="viewBrowse"></div>
-
-                <div class="v" id="viewSearch">
-                    <div class="search-bar">
-                        <div class="search-input-wrap">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="searchViewInput" placeholder="Volltextsuche..." autocomplete="off">
-                            <button class="search-clear" id="searchViewClear"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
+                <div class="view-container" id="viewContainer">
+                    <!-- Home View -->
+                    <div class="v" id="viewHome">
+                        <div class="hero" id="heroArea"></div>
+                        <div class="cat-grid" id="catGrid"></div>
+                        <div class="home-info" id="homeInfo"></div>
                     </div>
-                    <div class="search-results" id="searchResultsArea"></div>
-                </div>
 
-                <div class="v v-sop" id="viewSOP"></div>
+                    <!-- Browse View -->
+                    <div class="v" id="viewBrowse"></div>
+
+                    <!-- Search View -->
+                    <div class="v" id="viewSearch">
+                        <div class="search-bar">
+                            <div class="search-input-wrap">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="searchViewInput" placeholder="Volltextsuche..." autocomplete="off">
+                                <button class="search-clear" id="searchViewClear"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div class="search-results" id="searchResultsArea"></div>
+                    </div>
+
+                    <!-- SOP View mit Segmented Control -->
+                    <div class="v v-sop" id="viewSOP"></div>
+                </div>
             </div>
 
             <nav class="btm-nav" id="bottomNav">
@@ -144,14 +154,33 @@
         </main>
     </div>
 
+    <!-- FAB -->
     <button class="fab" id="fabAction">
         <i class="fa-solid fa-list-ul"></i>
     </button>
 
+    <!-- Spotlight Search Modal -->
+    <div class="spotlight-overlay" id="spotlightOverlay">
+        <div class="spotlight-backdrop" id="spotlightBackdrop"></div>
+        <div class="spotlight-container" id="spotlightContainer">
+            <div class="spotlight-search">
+                <i class="fa-solid fa-magnifying-glass spotlight-icon"></i>
+                <input type="text" id="spotlightInput" placeholder="SOP suchen..." autocomplete="off" autofocus>
+                <button class="spotlight-clear" id="spotlightClear"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="spotlight-results" id="spotlightResults"></div>
+            <div class="spotlight-footer">
+                <span class="spotlight-hint"><i class="fa-solid fa-keyboard"></i> Eingabe zur Suche</span>
+                <button class="spotlight-cancel" id="spotlightCancel">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Picker Bottom Sheet (Draggable) -->
     <div class="picker-overlay" id="sectionPickerOverlay">
         <div class="picker-bg" id="sectionPickerBackdrop"></div>
-        <div class="picker-sheet">
-            <div class="picker-handle"></div>
+        <div class="picker-sheet" id="pickerSheet">
+            <div class="picker-handle" id="pickerHandle"></div>
             <div class="picker-head">
                 <h3>Inhalt</h3>
                 <button id="sectionPickerClose"><i class="fa-solid fa-xmark"></i></button>
@@ -163,6 +192,29 @@
         </div>
     </div>
 
+    <!-- Skeleton Container für SOP Loading -->
+    <div class="skeleton-overlay" id="skeletonOverlay">
+        <div class="skeleton-sop">
+            <div class="skeleton-header">
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-meta"></div>
+            </div>
+            <div class="skeleton-segmented">
+                <div class="skeleton skeleton-segment"></div>
+                <div class="skeleton skeleton-segment"></div>
+                <div class="skeleton skeleton-segment"></div>
+                <div class="skeleton skeleton-segment"></div>
+            </div>
+            <div class="skeleton-content">
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOP Skripts -->
     <script src="sops/abdominelle-schmerzen.js"></script>
     <script src="sops/aecopd.js"></script>
     <script src="sops/akute-alkoholintoxikation.js"></script>
@@ -238,7 +290,7 @@
     <script src="sops/zerebrale-venen-sinusthrombose.js"></script>
     <script src="app.js"></script>
     <script>
-        // Service Worker komplett deaktivieren und alle Caches löschen
+        // Service Worker deaktivieren und Caches löschen
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 registrations.forEach(function(registration) {
