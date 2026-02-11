@@ -1,5 +1,5 @@
 {
-    "version": "2.2.2",
-    "lastUpdated": "2026-02-11T13:30:00Z",
-    "changelog": "Fix für Bottom Navigation auf iPhone 14 Pro Max, Optimierte Safe Area Unterstützung, Anpassung FAB-Positionierung"
+    "version": "2.2.3",
+    "lastUpdated": "2026-02-11T14:00:00Z",
+    "changelog": "Fix für iOS PWA Bottom-Navbar Positionierung im Landscape-Modus - Safe Area wird jetzt korrekt berücksichtigt"
 }
