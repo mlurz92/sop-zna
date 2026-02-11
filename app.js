@@ -1182,6 +1182,10 @@
                     if (t) {
                         S.sopId = null;
                         S.navStack = [];
+                        if (t === 'browse') {
+                            S.catB = 'all';  // Filter zurücksetzen
+                            S.bQ = '';       // Suchbegriff zurücksetzen
+                        }
                         sTab(t);
                     }
                 });
