@@ -304,9 +304,10 @@ Die `version.json` Datei muss bei Deployment auf dem Server verfügbar sein, dam
 
 ## Autor und Kontakt
 
-**Klinikum St. Georg Leipzig**
+**Dr. med. Markus Lurz**
+Klinikum St. Georg Leipzig gGmbH
 AG Klinische Pfade
-Zentrale Notaufnahme
+
 
 ---
 
