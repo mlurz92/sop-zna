@@ -18,37 +18,37 @@ Die Anwendung wurde entwickelt, um die kognitive Last für Notfallpersonal zu mi
 
 ---
 
-## Neue Funktionen (Version 2.2)
+## Neue Funktionen (Version 2.2.1)
 
-### Optimierte Mobile Navigation mit Safe Area Support
+### Intelligente Drei-Stufen-Navigation
 
-Die Bottom Navigation und das gesamte mobile Layout wurden grundlegend überarbeitet, um auf allen iOS-Geräten perfekt zu funktionieren. Die wichtigsten Verbesserungen umfassen die korrekte Handhabung der iOS Safe Areas, insbesondere für Geräte mit Dynamic Island wie das iPhone 14 Pro Max.
+Die Navigation wurde grundlegend überarbeitet und folgt nun einem klaren Drei-Stufen-Prinzip, das dem natürlichen Nutzerverhalten entspricht:
 
-Die Viewport-Konfiguration wurde erweitert und nutzt nun die modernen `dvh` (dynamic viewport height), `svh` (small viewport height) und `vh` Einheiten parallel, um maximale Browser-Kompatibilität zu gewährleisten. Der neue `interactive-widget=resizes-content` Meta-Tag sorgt dafür, dass die Anwendung korrekt auf virtuelle Tastaturen und andere interaktive Widgets reagiert.
+**Von einer geöffneten SOP zurück** gelangt man zur SOP-Übersicht (Browse-Ansicht), wo alle Patientenpfade kategorisiert aufgelistet sind. **Von der SOP-Übersicht zurück** führt zum Home-Bildschirm mit den Kategoriekarten und der Schnellsuche. Diese hierarchische Struktur ermöglicht eine intuitive Orientierung ohne kognitive Überlastung.
 
-Die Bottom Navigation ist jetzt als `position: fixed` Element implementiert und nutzt `backdrop-filter` mit Saturation- und Blur-Effekten für einen modernen, durchscheinenden Look, der dem nativen iOS-Design entspricht. Die Höhe wird dynamisch mit `max()` berechnet, um sowohl die Safe Area als auch den Mindestinhalt zu berücksichtigen. Die FAB-Position wurde entsprechend angepasst und ragt nicht mehr in den Bereich der Bottom Navigation.
+Der Navigation-Stack merkt sich die Navigationshistorie zuverlässig. Beim Öffnen einer SOP wird der aktuelle Zustand gespeichert, sodass die Zurück-Funktion korrekt zur vorherigen Position zurückführt. Wenn keine Historie vorhanden ist (z.B. bei direktem Aufruf einer SOP), wird automatisch zur SOP-Übersicht navigiert.
 
-### Intelligente Back-Navigation mit Home-Rückkehr
+### Einheitliches Karten-Design
 
-Die Navigation wurde weiter verbessert, sodass der Zurück-Button in der SOP-Übersicht nun zum Home-Bildschirm führt statt zur Browse-Ansicht. Dies entspricht dem natürlichen Nutzerverhalten und ermöglicht einen schnellen Neustart der Anwendung von jedem Punkt aus.
+Die „Alle SOPs"-Karte auf dem Home-Bildschirm ist nun vollständig mit den Kategoriekarten vereinheitlicht. Die vorherige blaue Hinterlegung mit Gradient wurde entfernt, sodass alle Karten im einheitlichen Design mit transparentem Hintergrund und subtilem Hover-Effekt erscheinen. Dies schafft visuelle Konsistenz und reduziert Ablenkungen.
 
-Der Navigation-Stack wurde entsprechend angepasst und merkt sich jetzt zuverlässig, woher der Benutzer kam. Wenn keine vorherige Navigation im Stack vorhanden ist, wird automatisch zum Home-Bildschirm navigiert, der die beste Orientierung bietet.
+Die Karte reagiert weiterhin auf Hover mit einem dezenten Lift-Effekt und verstärkter Schattengebung. Die Primärfarbe wird für das Icon als Akzentfarbe verwendet, während Name und Zähler in den Standardtextfarben dargestellt werden.
 
-### Alle SOPs Kachel auf dem Home-Bildschirm
+### Optimiertes Responsive Design
 
-Der Home-Bildschirm enthält nun eine prominent gestaltete „Alle SOPs" Kachel, die direkt zur vollständigen SOP-Liste führt. Diese Kabel nutzt ein besonderes Farbschema mit einem Gradient von `--primary-light` zu `--primary` und hebt sich visuell von den Kategoriekarten ab. Ein Hover-Effekt verstärkt den Gradient und sorgt für klares visuelles Feedback.
+Das responsive Verhalten wurde für alle Bildschirmgrößen verfeinert, mit besonderem Fokus auf mobile Geräte mit schmalen Viewports:
 
-Die Kabel ist als erstes Element im Kategorie-Grid positioniert und ermöglicht schnellen Zugriff auf alle Patientenpfade ohne vorherige Kategorieauswahl. Die Schriftfarben passen sich dynamisch an und werden beim Hover weiß für maximalen Kontrast.
+Das Category Grid auf dem Home-Bildschirm passt sich automatisch an. Auf Bildschirmen unter 480 Pixeln werden zwei Spalten mit angepassten Abständen verwendet, während größere Bildschirme ein flexibleres Grid mit mindestens 150 Pixeln pro Karte erhalten. Die Kartenhöhen und Padding-Werte wurden für bessere Touch-Bedienung optimiert.
 
-### Optimierte Touch-Gesten-Steuerung
+Die SOP-Sektionsüberschriften wurden für mobile Geräte angepasst. Auf schmalen Bildschirmen werden kompaktere Abstände und Schriftgrößen verwendet, während die Mindest-Touch-Target-Größe von 44 Pixeln gewährleistet bleibt. Die Abschnittstexte nutzen angepasste Zeilenabstände und Schriftgrößen für optimale Lesbarkeit auf allen Geräten.
 
-Die Touch-Bedienung wurde für noch flüssigere Interaktionen auf mobilen Geräten optimiert. Die Swipe-to-Back Geste am linken Bildschirmrand reagiert jetzt noch schneller durch reduzierte Erkennungsschwellen.
+### Verbesserte Touch-Gesten-Steuerung
 
-Der `EDGE_MARGIN` wurde von 25px auf 20px reduziert, um mehr Fläche für die Wischgeste zu bieten. Der `SWIPE_THRESHOLD` wurde von 80px auf 60px gesenkt, sodass die Zurück-Aktion bereits nach einer kürzeren Wischbewegung ausgelöst wird. Der `HORIZONTAL_THRESHOLD` für die Erkennung der Wischrichtung wurde von 10px auf 8px reduziert, was zu einer früheren Erkennung des Wischens führt.
+Die Swipe-to-Back Geste am linken Bildschirmrand reagiert jetzt kontextabhängig. In der SOP-Ansicht führt die Geste zurück zur Übersicht, in der Übersicht zurück zum Home-Bildschirm. Die Erkennungsschwellen wurden für schnellere Reaktion optimiert:
 
-Die visuelle Rückmeldung während des Wischens wurde intensiviert. Die Opacity-Abnahme geht jetzt von 1 auf 0,6 statt auf 0,7, und die Verschiebung beträgt 50px statt 30px für deutlicheres Feedback. Zusätzlich wurde ein leichter Scale-Effekt von 2% hinzugefügt, der die Tiefe der Navigation suggeriert.
+Der `EDGE_MARGIN` von 20 Pixeln definiert den aktiven Bereichfür die Wischgeste am linken Rand. Der `SWIPE_THRESHOLD` von 60 Pixeln löst die Zurück-Navigation bereits nach einer kurzen Bewegung aus. Der `HORIZONTAL_THRESHOLD` von 8 Pixeln ermöglicht frühe Erkennung der Wischrichtung.
 
-Das Haptic-Feedback wurde verbessert und nutzt nun ein zweistufiges Vibrationsmuster mit 15ms und anschließend 10ms für eine natürlichere taktile Rückmeldung. Die `will-change` CSS-Eigenschaft wird während der Wischgeste gesetzt, um dem Browser GPU-Beschleunigung zu signalisieren und flüssigere Animationen zu ermöglichen.
+Die visuelle Rückmeldung während des Wischens wurde intensiviert. Die Opacity-Abnahme geht von 1 auf 0,6 für deutlicheres Feedback. Die Verschiebung von 50 Pixeln und ein leichter Scale-Effekt von 2% suggerieren die Tiefe der Navigation. Das Haptic-Feedback nutzt ein zweistufiges Vibrationsmuster für natürliche taktile Rückmeldung.
 
 ---
 
@@ -147,8 +147,8 @@ Das Update-System besteht aus drei Komponenten: Der `version.json` Datei mit akt
 ```
 sop-zna/
 ├── index.html              # Einstiegspunkt mit HTML-Struktur
-├── app.js                  # Hauptanwendungslogik (ca. 2000 Zeilen)
-├── styles.css              # Vollständiges Stylesheet (ca. 3000 Zeilen)
+├── app.js                  # Hauptanwendungslogik (ca. 2100 Zeilen)
+├── styles.css              # Vollständiges Stylesheet (ca. 3200 Zeilen)
 ├── version.json            # Versionsdatei für Update-Check
 ├── AGENTS.md               # Dokumentation für KI-Agenten
 ├── README.md               # Diese Dokumentation
@@ -298,6 +298,16 @@ Die `version.json` Datei muss bei Deployment auf dem Server verfügbar sein, dam
 
 ## Changelog
 
+### Version 2.2.1 (Februar 2026)
+
+- Intelligente Drei-Stufen-Navigation: SOP → Übersicht → Home
+- Einheitliches Karten-Design ohne blaue Hinterlegung
+- Optimiertes Responsive Design für mobile Geräte
+- Verbesserte Touch-Gesten mit kontextabhängiger Navigation
+- Angepasste Grid-Layouts für schmale Viewports (< 480px)
+- Optimierte Schriftgrößen und Abstände für mobile Lesbarkeit
+- Erweiterte Mobile-Styles für SOP-Sektionen
+
 ### Version 2.2 (Februar 2026)
 
 - Optimierte Mobile Navigation mit Safe Area Support für iPhone 14 Pro Max
@@ -340,5 +350,5 @@ Zentrale Notaufnahme
 
 ---
 
-*Version 2.2 – Februar 2026*
-*Alle 73 SOPs vollständig implementiert mit nativer mobiler UX, optimiertem iOS-Support und intelligenter Navigation*
+*Version 2.2.1 – Februar 2026*
+*Alle 73 SOPs vollständig implementiert mit nativer mobiler UX, optimiertem iOS-Support, intelligenter Drei-Stufen-Navigation und einheitlichem Karten-Design*

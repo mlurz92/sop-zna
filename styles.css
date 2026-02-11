@@ -1059,6 +1059,13 @@ mark {
     padding: 0 0 20px;
 }
 
+@media (max-width: 480px) {
+    .cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
 .cat-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1076,6 +1083,14 @@ mark {
     min-height: 100px;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+}
+
+@media (max-width: 480px) {
+    .cat-card {
+        padding: 14px 10px;
+        min-height: 90px;
+        gap: 6px;
+    }
 }
 
 .cat-card::before {
@@ -1130,10 +1145,10 @@ mark {
     z-index: 1;
 }
 
-/* Special styling for "Alle SOPs" card */
+/* Special styling for "Alle SOPs" card - unified with category cards */
 .cat-card-all {
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-    border-color: var(--primary);
+    background: var(--surface);
+    border: 1px solid var(--border);
 }
 
 .cat-card-all .cat-card-icon {
@@ -1141,12 +1156,11 @@ mark {
 }
 
 .cat-card-all .cat-card-name {
-    color: var(--primary-dark);
+    color: var(--text);
 }
 
 .cat-card-all .cat-card-count {
-    color: var(--primary);
-    font-weight: 500;
+    color: var(--text3);
 }
 
 .cat-card-all::before {
@@ -1155,22 +1169,23 @@ mark {
 
 .cat-card-all:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
 }
 
 .cat-card-all:hover::before {
-    opacity: 0.3;
+    opacity: 0;
 }
 
 .cat-card-all:hover .cat-card-icon,
 .cat-card-all:hover .cat-card-name,
 .cat-card-all:hover .cat-card-count {
-    color: #fff;
+    color: var(--primary);
 }
 
 .cat-card-all:active {
-    background: var(--primary-dark);
+    background: var(--active);
+    transform: translateY(-1px) scale(0.98);
 }
 
 .home-info {
@@ -1760,6 +1775,22 @@ mark {
     touch-action: manipulation;
 }
 
+@media (max-width: 480px) {
+    .sop-section-head {
+        padding: 14px 16px;
+        min-height: 52px;
+        gap: 10px;
+    }
+
+    .sop-section-head .sec-icon {
+        font-size: 0.9rem;
+    }
+
+    .sop-section-head .sec-title {
+        font-size: 0.9rem;
+    }
+}
+
 .sop-section-head:hover {
     background: var(--hover);
 }
@@ -1858,6 +1889,34 @@ mark {
     font-size: 0.88rem;
     line-height: 1.75;
     color: var(--text);
+}
+
+@media (max-width: 480px) {
+    .sop-section-body p {
+        font-size: 0.85rem;
+        line-height: 1.7;
+    }
+
+    .sop-section-body h3 {
+        font-size: 0.88rem;
+        margin: 14px 0 8px;
+    }
+
+    .sop-section-body h4 {
+        font-size: 0.84rem;
+        margin: 12px 0 6px;
+    }
+
+    .sop-section-body ul,
+    .sop-section-body ol {
+        font-size: 0.85rem;
+        line-height: 1.7;
+        padding-left: 18px;
+    }
+
+    .sop-section-body li {
+        margin-bottom: 4px;
+    }
 }
 
 .sop-section-body ul, .sop-section-body ol {

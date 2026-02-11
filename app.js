@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '1.0.0';
+    var APP_VERSION = '2.2.1';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -52,10 +52,10 @@
     var FSN = 13, FSX = 20, FSD = 15;
 
     // Touch-Gesten Konstanten - Optimiert für iOS
-    var EDGE_MARGIN = 20; // Reduziert für bessere Erkennung
-    var SWIPE_THRESHOLD = 60; // Niedriger für schnellere Reaktion
-    var SWIPE_VELOCITY = 0.3; // Niedriger für empfindlichere Erkennung
-    var HORIZONTAL_THRESHOLD = 8; // Niedriger für frühere Erkennung
+    var EDGE_MARGIN = 20;
+    var SWIPE_THRESHOLD = 60;
+    var SWIPE_VELOCITY = 0.3;
+    var HORIZONTAL_THRESHOLD = 8;
 
     // Category Colors
     var CC = {
@@ -242,38 +242,66 @@
             return;
         }
 
-        // No history - go to home view for better UX
-        // This handles the case when user is in SOP overview (browse) and clicks back
+        // No history - determine where to go based on current view
         S.isNavigating = true;
         S.sopId = null;
-        S.navStack = [];
 
-        // Determine current view for appropriate animation
-        var activeView = null;
-        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-        for (var i = 0; i < views.length; i++) {
-            if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                activeView = E[views[i]];
-                break;
-            }
+        // Check which view is currently active
+        var isInBrowseView = E.viewBrowse.classList.contains('active');
+        var isInHomeView = E.viewHome.classList.contains('active');
+
+        if (isInHomeView) {
+            // Already at home, nothing to do
+            S.isNavigating = false;
+            return;
         }
 
-        // Transition to home view
-        if (activeView) {
+        if (isInBrowseView) {
+            // In browse view - go to home
+            var activeView = E.viewBrowse;
+
+            // Transition to home view
             activeView.classList.remove('active');
             activeView.classList.add('pop-exit');
+
+            E.viewHome.classList.add('pop-enter');
+            void E.viewHome.offsetWidth;
+            E.viewHome.classList.add('active');
+            E.viewHome.classList.remove('pop-enter');
+
+            setTimeout(function() {
+                activeView.classList.remove('pop-exit');
+                sTab('home');
+                S.isNavigating = false;
+            }, 400);
+        } else {
+            // In SOP view without history - go to browse view (SOP overview)
+            var activeView = null;
+            var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
+            for (var i = 0; i < views.length; i++) {
+                if (E[views[i]] && E[views[i]].classList.contains('active')) {
+                    activeView = E[views[i]];
+                    break;
+                }
+            }
+
+            if (activeView) {
+                activeView.classList.remove('active');
+                activeView.classList.add('pop-exit');
+            }
+
+            E.viewBrowse.classList.add('pop-enter');
+            void E.viewBrowse.offsetWidth;
+            E.viewBrowse.classList.add('active');
+            E.viewBrowse.classList.remove('pop-enter');
+
+            setTimeout(function() {
+                if (activeView) activeView.classList.remove('pop-exit');
+                rBrowse();
+                sTab('browse');
+                S.isNavigating = false;
+            }, 400);
         }
-
-        E.viewHome.classList.add('pop-enter');
-        void E.viewHome.offsetWidth;
-        E.viewHome.classList.add('active');
-        E.viewHome.classList.remove('pop-enter');
-
-        setTimeout(function() {
-            if (activeView) activeView.classList.remove('pop-exit');
-            sTab('home');
-            S.isNavigating = false;
-        }, 400);
     }
 
     function animatePush(callback) {
@@ -376,8 +404,8 @@
     }
 
     function handleTouchStart(e) {
-        if (S.tab !== 'sop') return;
-        if (S.navStack.length === 0) return;
+        // Only handle swipe back in SOP view with history or in browse view
+        if (S.tab !== 'sop' && S.tab !== 'browse') return;
 
         var touch = e.touches[0];
         swipeData.startX = touch.clientX;
@@ -407,12 +435,12 @@
         if (swipeData.isSwiping && deltaX > 0) {
             // Only prevent default if we're actually swiping back
             e.preventDefault();
-            
+
             swipeData.currentX = touch.clientX;
 
             // Apply visual feedback with transform
             var progress = Math.min(deltaX / window.innerWidth, 1);
-            
+
             var activeView = null;
             var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
 
@@ -438,12 +466,12 @@
 
         var deltaX = swipeData.currentX - swipeData.startX;
         var deltaY = e.changedTouches ? Math.abs(e.changedTouches[0].clientY - swipeData.startY) : 0;
-        
+
         // Calculate velocity for better detection
         var duration = e.timeStamp - (swipeData.startTime || e.timeStamp);
         var velocity = deltaX / duration;
-        
-        var shouldPop = deltaX > SWIPE_THRESHOLD || 
+
+        var shouldPop = deltaX > SWIPE_THRESHOLD ||
                        (deltaX > SWIPE_THRESHOLD * 0.5 && velocity > SWIPE_VELOCITY);
 
         // Reset view position with smooth transition
@@ -567,7 +595,7 @@
 
         document.body.style.overflow = '';
 
-        // Check if dragged farenough to close
+        // Check if dragged far enough to close
         var maxHeight = parseFloat(getComputedStyle(sheet).maxHeight);
         if (maxHeight < window.innerHeight * 0.3) {
             cPk();
@@ -916,7 +944,7 @@
             'background: var(--surface);' +
             'border: 1px solid var(--border);' +
             'border-radius: var(--radius-md);' +
-            'box-shadow: var(--shadow-lg);' +
+            'box-shadow: var(--shadow-lg);'+
             'z-index: 100;' +
             'animation: slideUpFade 0.4s var(--ease-out-cubic) both;' +
             '}' +
@@ -1349,6 +1377,10 @@
             E.mobileTitle.textContent = 'SOPs';
             var bb = E.bottomNav.querySelector('[data-tab="browse"]');
             if (bb) bb.classList.add('active');
+            // Show back button in browse view for navigation back to home
+            if (S.navStack.length === 0) {
+                E.backBtn.classList.add('show');
+            }
         } else if (t === 'search') {
             E.viewSearch.classList.add('active');
             rSearch();
@@ -1376,7 +1408,7 @@
                 var cn = CATS[d.category] ? CATS[d.category].name : '';
                 E.mobileTitle.textContent = d.name || '';
                 rBC([
-                    { label: 'SOPs', click: function() { S.sopId = null; S.navStack = []; sTab('browse'); } },
+                    { label: 'SOPs', click: function() { S.sopId = null; sTab('browse'); } },
                     { label: d.name || '' }
                 ]);
             }
@@ -1512,14 +1544,14 @@
         }
 
         var gh = '';
-        
-        // Add "Alle SOPs" card at the beginning
+
+        // Add "Alle SOPs" card at the beginning - styled like category cards
         gh += '<div class="cat-card cat-card-all" data-cat="all" style="--cat-color:var(--primary)">';
         gh += '<i class="fa-solid fa-list cat-card-icon" style="color:var(--primary)"></i>';
         gh += '<span class="cat-card-name">Alle SOPs</span>';
         gh += '<span class="cat-card-count">' + S.data.length + ' Pfade</span>';
         gh += '</div>';
-        
+
         // Add category cards
         for (var i = 0; i < keys.length; i++) {
             if (counts[keys[i]] > 0) {
@@ -1543,15 +1575,6 @@
                     sTab('browse');
                 });
             })(cards[i]);
-        }
-        
-        // Add specific handler for "Alle SOPs" card to ensure it works
-        var allCard = E.catGrid.querySelector('.cat-card-all');
-        if (allCard) {
-            allCard.addEventListener('click', function() {
-                S.catB = 'all';
-                sTab('browse');
-            });
         }
 
         E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>' +
