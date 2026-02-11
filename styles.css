@@ -431,14 +431,27 @@ mark {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 7px 10px;
+    padding: 10px 12px;
     border-radius: var(--radius);
     text-decoration: none;
     color: var(--text);
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     transition: all 0.2s var(--ease-out-cubic);
     line-height: 1.35;
-    min-height: 40px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.sidebar-nav li a:hover {
+    background: var(--hover);
+    transform: translateX(2px);
+}
+
+.sidebar-nav li a:active {
+    background: var(--active);
+    transform: scale(0.98);
+    transition-duration: 0.1s;
 }
 
 .sidebar-nav li a:hover {
@@ -1037,16 +1050,19 @@ mark {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 20px 14px;
+    padding: 16px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
     transition: all 0.3s var(--ease-out-cubic);
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-xs);
+    min-height: 100px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .cat-card::before {
@@ -1071,6 +1087,7 @@ mark {
 .cat-card:active {
     transform: translateY(-1px) scale(0.98);
     transition-duration: 0.1s;
+    background: var(--active);
 }
 
 .cat-card-icon {
@@ -1290,8 +1307,8 @@ mark {
 .browse-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
+    gap: 12px;
+    padding: 14px 16px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -1299,6 +1316,8 @@ mark {
     transition: all 0.25s var(--ease-out-cubic);
     min-height: 60px;
     box-shadow: var(--shadow-xs);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .browse-item:hover {
@@ -1440,6 +1459,9 @@ mark {
     cursor: pointer;
     transition: all 0.25s var(--ease-out-cubic);
     box-shadow: var(--shadow-xs);
+    min-height: 72px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .search-result:hover {
@@ -1451,6 +1473,7 @@ mark {
 .search-result:active {
     transform: translateY(0) scale(0.99);
     transition-duration: 0.1s;
+    background: var(--active);
 }
 
 .search-result h4 {
@@ -1504,7 +1527,7 @@ mark {
 .sop-header-top {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 12px;
     flex-wrap: wrap;
 }
@@ -1512,21 +1535,26 @@ mark {
 .sop-cat-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
+    gap: 5px;
+    padding: 5px 10px;
     border-radius: 20px;
     color: #fff;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sop-cat-badge i {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
+    flex-shrink: 0;
 }
 
 .sop-title {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
     font-weight: 700;
     line-height: 1.3;
     margin-bottom: 10px;
@@ -1537,8 +1565,8 @@ mark {
 .sop-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
-    font-size: 0.78rem;
+    gap: 12px;
+    font-size: 0.75rem;
     color: var(--text3);
 }
 
@@ -1552,7 +1580,7 @@ mark {
     font-size: 0.72rem;
 }
 
-/* Segmented Control */
+/* Segmented Control - Scrollable on Mobile */
 .segmented-control {
     display: flex;
     background: var(--surface2);
@@ -1564,6 +1592,9 @@ mark {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     box-shadow: var(--shadow-xs);
+    scroll-snap-type: x mandatory;
+    -webkit-scroll-snap-type: x mandatory;
+    touch-action: pan-x;
 }
 
 .segmented-control::-webkit-scrollbar {
@@ -1571,24 +1602,39 @@ mark {
 }
 
 .segmented-btn {
-    flex: 1;
-    min-width: 80px;
+    flex: 0 0 auto;
+    min-width: 60px;
+    max-width: 100px;
     padding: 10px 12px;
     border: none;
     background: transparent;
     color: var(--text2);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
     border-radius: var(--radius-xs);
-    transition: all 0.25s var(--ease-out-cubic);
+    transition: all 0.2s var(--ease-out-cubic);
     white-space: nowrap;
-    min-height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 44px;
+    scroll-snap-align: start;
+    -webkit-scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.segmented-btn i {
+    font-size: 0.7rem;
+    flex-shrink: 0;
 }
 
 .segmented-btn:hover {
     color: var(--text);
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .segmented-btn.active {
@@ -1599,6 +1645,12 @@ mark {
 
 .segmented-btn.active i {
     color: var(--primary);
+}
+
+/* Touch feedback for segmented buttons */
+.segmented-btn:active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
 }
 
 /* SOP Sections - Card Style */
@@ -1643,11 +1695,22 @@ mark {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 16px 18px;
     cursor: pointer;
     transition: background 0.2s;
     user-select: none;
-    min-height: 52px;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.sop-section-head:hover {
+    background: var(--hover);
+}
+
+.sop-section-head:active {
+    background: var(--active);
+    transition-duration: 0.1s;
 }
 
 .sop-section-head:hover {

@@ -2,6 +2,11 @@
     'use strict';
 
     // ============================================
+    // APP VERSION - Für Update-Erkennung
+    // ============================================
+    var APP_VERSION = '1.0.0';
+
+    // ============================================
     // KATEGORIEN KONFIGURATION
     // ============================================
     var CATS = {
@@ -219,31 +224,54 @@
     }
 
     function popNav() {
-        if (S.isNavigating || S.navStack.length === 0) {
-            // If no history, go home
-            if (!S.sopId) {
-                sTab('home');
-                return;
-            }
-            S.isNavigating = true;
+        if (S.isNavigating) return;
 
-            // Just go home without animation
-            S.sopId = null;
-            S.navStack = [];
-            sTab('home');
-            S.isNavigating = false;
+        // If we have previous states in the stack, go back to previous SOP
+        if (S.navStack.length > 0) {
+            S.isNavigating = true;
+            var prevState = S.navStack.pop();
+
+            // Animate back to previous SOP
+            animatePop(function() {
+                S.sopId = prevState.sopId;
+                S.tab = prevState.tab || 'sop';
+                sTab('sop');
+                S.isNavigating = false;
+            });
             return;
         }
 
+        // No history - go to browse view (not home) for better UX
         S.isNavigating = true;
-        var prevState = S.navStack.pop();
+        S.sopId = null;
+        S.navStack = [];
 
-        // Animate back
-        animatePop(function() {
-            S.sopId = prevState.sopId;
-            sTab('sop');
+        // Determine if we came from browse or search for appropriate animation
+        var activeView = null;
+        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
+        for (var i = 0; i < views.length; i++) {
+            if (E[views[i]] && E[views[i]].classList.contains('active')) {
+                activeView = E[views[i]];
+                break;
+            }
+        }
+
+        // Simple transition to browse
+        if (activeView) {
+            activeView.classList.remove('active');
+            activeView.classList.add('pop-exit');
+        }
+
+        E.viewBrowse.classList.add('pop-enter');
+        void E.viewBrowse.offsetWidth;
+        E.viewBrowse.classList.add('active');
+        E.viewBrowse.classList.remove('pop-enter');
+
+        setTimeout(function() {
+            if (activeView) activeView.classList.remove('pop-exit');
+            sTab('browse');
             S.isNavigating = false;
-        });
+        }, 400);
     }
 
     function animatePush(callback) {
@@ -815,6 +843,136 @@
     }
 
     // ============================================
+    // VERSION CHECK & UPDATE NOTIFICATION
+    // ============================================
+    function checkForUpdate() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'version.json?_=' + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var serverData = JSON.parse(xhr.responseText);
+                        var serverVersion = serverData.version || '0.0.0';
+                        var localVersion = localStorage.getItem('sop-app-version') || APP_VERSION;
+
+                        // If server version is different, notify user
+                        if (serverVersion !== localVersion) {
+                            showUpdateNotification(serverData);
+                        }
+
+                        // Store current version
+                        localStorage.setItem('sop-app-version', APP_VERSION);
+                    } catch (e) {
+                        console.log('Version check failed:', e);
+                    }
+                }
+            }
+        };
+        xhr.onerror = function() {
+            console.log('Version check network error');
+        };
+        xhr.send();
+    }
+
+    function showUpdateNotification(serverData) {
+        var existing = document.getElementById('updateNotification');
+        if (existing) existing.remove();
+
+        var notification = document.createElement('div');
+        notification.id = 'updateNotification';
+        notification.innerHTML =
+            '<div class="update-notif-content">' +
+            '<i class="fa-solid fa-cloud-arrow-down"></i>' +
+            '<div class="update-notif-text">' +
+            '<strong>Neue Version verfügbar</strong>' +
+            '<p>Tippen zum Aktualisieren</p>' +
+            '</div>' +
+            '<button id="updateNotifDismiss"><i class="fa-solid fa-xmark"></i></button>' +
+            '</div>';
+
+        var style = document.createElement('style');
+        style.textContent =
+            '#updateNotification {' +
+            'position: fixed;' +
+            'bottom: calc(var(--btm-h) + 80px + env(safe-area-inset-bottom, 0px));' +
+            'left: 16px;' +
+            'right: 16px;' +
+            'background: var(--surface);' +
+            'border: 1px solid var(--border);' +
+            'border-radius: var(--radius-md);' +
+            'box-shadow: var(--shadow-lg);' +
+            'z-index: 100;' +
+            'animation: slideUpFade 0.4s var(--ease-out-cubic) both;' +
+            '}' +
+            '@keyframes slideUpFade {' +
+            'from { opacity: 0; transform: translateY(20px); }' +
+            'to { opacity: 1; transform: translateY(0); }' +
+            '}' +
+            '.update-notif-content {' +
+            'display: flex;' +
+            'align-items: center;' +
+            'gap: 12px;' +
+            'padding: 14px 16px;' +
+            '}' +
+            '.update-notif-content > i {' +
+            'font-size: 1.4rem;' +
+            'color: var(--primary);' +
+            'flex-shrink: 0;' +
+            '}' +
+            '.update-notif-text {' +
+            'flex: 1;' +
+            '}' +
+            '.update-notif-text strong {' +
+            'display: block;' +
+            'font-size: 0.9rem;' +
+            'color: var(--text);' +
+            'margin-bottom: 2px;' +
+            '}' +
+            '.update-notif-text p {' +
+            'font-size: 0.75rem;' +
+            'color: var(--text3);' +
+            'margin: 0;' +
+            '}' +
+            '#updateNotifDismiss {' +
+            'background: none;' +
+            'border: none;' +
+            'color: var(--text3);' +
+            'font-size: 1rem;' +
+            'padding: 6px;' +
+            'cursor: pointer;' +
+            'border-radius: var(--radius);' +
+            'min-width: 36px;' +
+            'min-height: 36px;' +
+            'display: flex;' +
+            'align-items: center;' +
+            'justify-content: center;' +
+            '}' +
+            '#updateNotifDismiss:hover {' +
+            'background: var(--hover);' +
+            'color: var(--text);' +
+            '}';
+
+        document.head.appendChild(style);
+        document.body.appendChild(notification);
+
+        notification.addEventListener('click', function(e) {
+            if (e.target.closest('#updateNotifDismiss')) return;
+            // Trigger page reload to get new version
+            window.location.reload(true);
+        });
+
+        document.getElementById('updateNotifDismiss').addEventListener('click', function(e) {
+            e.stopPropagation();
+            notification.style.animation = 'slideDownFade 0.3s ease forwards';
+            setTimeout(function() {
+                notification.remove();
+                style.remove();
+            }, 300);
+        });
+    }
+
+    // ============================================
     // INITIALIZATION
     // ============================================
     function init() {
@@ -869,6 +1027,11 @@
         // Initialize advanced features
         initSwipeGestures();
         initDraggablePicker();
+
+        // Check for updates (only in web context, not local file)
+        if (window.location.protocol !== 'file:') {
+            setTimeout(checkForUpdate, 1000);
+        }
     }
 
     // ============================================
