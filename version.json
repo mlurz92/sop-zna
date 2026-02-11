@@ -1,5 +1,5 @@
 {
-    "version": "2.2.1",
-    "lastUpdated": "2026-02-11T17:19:00Z",
-    "changelog": "Intelligente Drei-Stufen-Navigation, einheitliches Karten-Design, optimiertes Responsive Design für mobile Geräte"
+    "version": "2.2.2",
+    "lastUpdated": "2026-02-11T13:30:00Z",
+    "changelog": "Fix für Bottom Navigation auf iPhone 14 Pro Max, Optimierte Safe Area Unterstützung, Anpassung FAB-Positionierung"
 }
