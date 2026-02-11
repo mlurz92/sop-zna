@@ -52,7 +52,7 @@
     var FSN = 13, FSX = 20, FSD = 15;
 
     // Touch-Gesten Konstanten - Optimiert für iOS
-    var EDGE_MARGIN = 20;
+    var EDGE_MARGIN = 35;  // Erhöht für bessere Erkennung außerhalb der Browser-Edge-Zone
     var SWIPE_THRESHOLD = 60;
     var SWIPE_VELOCITY = 0.3;
     var HORIZONTAL_THRESHOLD = 8;
@@ -390,7 +390,8 @@
         startY: 0,
         currentX: 0,
         isSwiping: false,
-        canSwipe: false
+        canSwipe: false,
+        startTime: 0
     };
 
     function initSwipeGestures() {
@@ -413,6 +414,7 @@
         swipeData.currentX = touch.clientX;
         swipeData.isSwiping = false;
         swipeData.canSwipe = false;
+        swipeData.startTime = e.timeStamp;
 
         // Check if touch is in left edge zone
         if (touch.clientX < EDGE_MARGIN) {
@@ -423,19 +425,20 @@
     function handleTouchMove(e) {
         if (!swipeData.canSwipe) return;
 
+        // SOFORT preventDefault aufrufen, um Browser-Edge-Swipe zu verhindern
+        // Muss VOR jeder Bewegungserkennung stehen, da OS-Level-Gesten sonst priorisiert werden
+        e.preventDefault();
+
         var touch = e.touches[0];
         var deltaX = touch.clientX - swipeData.startX;
         var deltaY = touch.clientY - swipeData.startY;
 
-        // Check if horizontal swipe dominates - lower threshold for faster detection
-        if (!swipeData.isSwiping && Math.abs(deltaX) > HORIZONTAL_THRESHOLD) {
+        // Check if horizontal swipe dominates
+        if (Math.abs(deltaX) > HORIZONTAL_THRESHOLD) {
             swipeData.isSwiping = true;
         }
 
         if (swipeData.isSwiping && deltaX > 0) {
-            // Only prevent default if we're actually swiping back
-            e.preventDefault();
-
             swipeData.currentX = touch.clientX;
 
             // Apply visual feedback with transform

@@ -46,7 +46,7 @@ Die SOP-Sektionsüberschriften wurden für mobile Geräte angepasst. Auf schmale
 
 Die Swipe-to-Back Geste am linken Bildschirmrand reagiert jetzt kontextabhängig. In der SOP-Ansicht führt die Geste zurück zur Übersicht, in der Übersicht zurück zum Home-Bildschirm. Die Erkennungsschwellen wurden für schnellere Reaktion optimiert:
 
-Der `EDGE_MARGIN` von 20 Pixeln definiert den aktiven Bereichfür die Wischgeste am linken Rand. Der `SWIPE_THRESHOLD` von 60 Pixeln löst die Zurück-Navigation bereits nach einer kurzen Bewegung aus. Der `HORIZONTAL_THRESHOLD` von 8 Pixeln ermöglicht frühe Erkennung der Wischrichtung.
+Der `EDGE_MARGIN` von 35 Pixeln definiert den aktiven Bereich für die Wischgeste am linken Rand. Dieser erhöhte Wert stellt sicher, dass die Geste zuverlässig außerhalb der Browser-Edge-Zone erkannt wird und verhindert, dass der Browser zur vorherigen Website navigiert statt die app-interne `popNav()`-Funktion aufzurufen. Der `SWIPE_THRESHOLD` von 60 Pixeln löst die Zurück-Navigation bereits nach einer kurzen Bewegung aus. Der `HORIZONTAL_THRESHOLD` von 8 Pixeln ermöglicht frühe Erkennung der Wischrichtung.
 
 Die visuelle Rückmeldung während des Wischens wurde intensiviert. Die Opacity-Abnahme geht von 1 auf 0,6 für deutlicheres Feedback. Die Verschiebung von 50 Pixeln und ein leichter Scale-Effekt von 2% suggerieren die Tiefe der Navigation. Das Haptic-Feedback nutzt ein zweistufiges Vibrationsmuster für natürliche taktile Rückmeldung.
 
@@ -68,9 +68,9 @@ Die Animationen nutzen kubische Bézier-Kurven für organische, natürlich wirke
 
 ### Swipe-to-Back Gestensteuerung
 
-Für mobile Geräte wurde eine vollständige Wischgeste am linken Bildschirmrand implementiert. Berührungen im 20-Pixel-Randbereich werden als potenzielle Wischgeste erkannt. Horizontale Bewegungen dominieren über vertikale, um versehentliches Auslösen zu vermeiden. Während des Wischens wird der aktuelle View transparenter und verschiebt sich leicht nach rechts für visuelles Feedback. Mindestens 60 Pixel位移 oder entsprechende Geschwindigkeit löst die Zurück-Navigation aus. Auf unterstützten Geräten erfolgt Vibration (Haptic Feedback) bei erfolgreicher Geste.
+Für mobile Geräte wurde eine vollständige Wischgeste am linken Bildschirmrand implementiert. Berührungen im 35-Pixel-Randbereich werden als potenzielle Wischgeste erkannt. Dieser erhöhte Erkennungsbereich stellt sicher, dass die Geste zuverlässig außerhalb der Browser-Edge-Zone erkannt wird und verhindert, dass der Browser zur vorherigen Website navigiert. Horizontale Bewegungen dominieren über vertikale, um versehentliches Auslösen zu vermeiden. Während des Wischens wird der aktuelle View transparenter und verschiebt sich leicht nach rechts für visuelles Feedback. Mindestens 60 Pixel Bewegung oder entsprechende Geschwindigkeit löst die Zurück-Navigation aus. Auf unterstützten Geräten erfolgt Vibration (Haptic Feedback) bei erfolgreicher Geste.
 
-Diese Funktion ermöglicht die Einhandbedienung ohne Daumen zum oberen Bildschirmrand strecken zu müssen. Die Wischgeste ist konsistent mit dem Back-Button und der Breadcrumb-Navigation.
+Diese Funktion ermöglicht die Einhandbedienung ohne Daumen zum oberen Bildschirmrand strecken zu müssen. Die Wischgeste ist konsistent mit dem Back-Button und der Breadcrumb-Navigation. Die Geste funktioniert nur im mobilen Modus (Bildschirmbreite < 1024px) und ruft die app-interne `popNav()`-Funktion auf, um eine Ebene zurück zu navigieren.
 
 ### Interaktives Draggable Bottom Sheet
 
@@ -134,7 +134,9 @@ Die Implementierung nutzt einen internen History-Stack, der die Navigationshiera
 
 ### Touch-Gesten
 
-Das Touch-Event-System unterscheidet zwischen verschiedenen Gesten: Swipe-to-Back am linken Rand (20px), Pull-to-Refresh am oberen Rand des Scroll-Bereichs, Draggable-Bottom-Sheet am Picker-Handle. Die Bewegungserkennung nutzt Delta-Berechnungen für X und Y, um die dominante Richtung zu bestimmen. Die Schwellenwerte sind für schnelle Reaktion optimiert: 8px für Richtungserkennung, 60px für vollständiges Swipe-Back.
+Das Touch-Event-System unterscheidet zwischen verschiedenen Gesten: Swipe-to-Back am linken Rand (35px Erkennungszone), Pull-to-Refresh am oberen Rand des Scroll-Bereichs, Draggable-Bottom-Sheet am Picker-Handle. Die Bewegungserkennung nutzt Delta-Berechnungen für X und Y, um die dominante Richtung zu bestimmen. Die Schwellenwerte sind für schnelle Reaktion optimiert: 8px für Richtungserkennung, 60px für vollständiges Swipe-Back.
+
+Die erhöhte Edge-Margin von 35 Pixeln (statt vorher 20px) stellt sicher, dass die Swipe-Geste zuverlässig außerhalb der Browser-Edge-Zone erkannt wird. Zusätzlich wird `preventDefault()` sofort nach der `canSwipe`-Prüfung aufgerufen, um zu verhindern, dass der Browser zur vorherigen Website navigiert statt die app-interne `popNav()`-Funktion auszuführen.
 
 ### Version-Check-System
 
