@@ -386,4 +386,16 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: Februar 2026*  
-*Version: 2.2.2*
+*Version: 2.2.4*
+
+---
+
+## Versionshistorie
+
+| Version | Datum | Änderungen |
+|---------|-------|------------|
+| **v2.2.4** | Feb 2026 | Robuste iOS PWA Bottom-Navbar Positionierung + "Stand: Datum/Uhrzeit" von Startseite entfernt |
+| **v2.2.3** | Feb 2026 | Erste iOS PWA Bottom-Navbar Lösung (funktionierte nicht) |
+| **v2.2.2** | Feb 2026 | Fix: Update-Benachrichtigung Endlosschleife verhindert |
+
+---

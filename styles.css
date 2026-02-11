@@ -734,7 +734,10 @@ mark {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
-    padding-bottom: calc(var(--btm-h) + var(--sab) + 30px);
+    padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
+    
+    /* Robuste Safe Area Handhabung für Content */
+    padding-bottom: max(calc(var(--btm-h) + 20px), calc(var(--btm-h) + var(--sab) + 20px));
 }
 
 .view-container {
@@ -877,7 +880,7 @@ mark {
 }
 
 .v-sop {
-    padding: 28px 28px 120px;
+    padding: 28px 28px calc(var(--btm-h) + var(--sab) + 20px);
     background: var(--bg);
 }
 
@@ -1995,9 +1998,6 @@ mark {
 
 .btm-nav {
     display: none;
-    /* Remove fixed height to allow padding to handle safe areas */
-    height: auto;
-    min-height: 64px;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -2008,23 +2008,50 @@ mark {
     align-items: flex-start;
     justify-content: space-around;
     flex-shrink: 0;
-    
-    /* Critical Safe Area Handling */
-    padding-top: 8px;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-    
     z-index: 40;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
     background: rgba(var(--surface-rgb, 255, 255, 255), 0.95);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, background-color 0.3s ease;
+    
+    /* Robuste Safe Area Handhabung für iOS PWA */
+    padding-bottom: max(var(--sab), 20px);
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+    padding-top: 8px;
+    min-height: calc(var(--btm-h) + var(--sab));
+    height: max(64px, calc(64px + var(--sab)));
+    box-sizing: content-box;
 }
 
 [data-theme="dark"] .btm-nav {
     background: rgba(var(--surface-rgb, 30, 41, 59), 0.95);
+}
+
+/* Robuste Safe Area via @supports */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .btm-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+        min-height: calc(var(--btm-h) + env(safe-area-inset-bottom));
+        height: max(64px, calc(64px + env(safe-area-inset-bottom)));
+    }
+}
+
+@supports (padding: max(0px)) {
+    .btm-nav {
+        padding-bottom: max(20px, var(--sab));
+        height: max(64px, calc(64px + var(--sab)));
+        min-height: max(64px, calc(64px + var(--sab)));
+    }
+    
+    @supports (padding: env(safe-area-inset-bottom)) {
+        .btm-nav {
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            height: max(64px, calc(64px + env(safe-area-inset-bottom)));
+            min-height: max(64px, calc(64px + env(safe-area-inset-bottom)));
+        }
+    }
 }
 
 .btm-btn {
@@ -2590,7 +2617,7 @@ mark {
         padding: 18px;
         padding-left: calc(18px + var(--sal));
         padding-right: calc(18px + var(--sar));
-        padding-bottom: 100px;
+        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
     }
     
     .hero {
@@ -2753,7 +2780,7 @@ mark {
         padding: 14px;
         padding-left: calc(14px + var(--sal));
         padding-right: calc(14px + var(--sar));
-        padding-bottom: 90px;
+        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
     }
     
     .browse-item {
@@ -2927,7 +2954,9 @@ mark {
     
     .btm-nav {
         /* Landscape specific padding override - preserve safe area for iOS PWA */
-        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        padding-bottom: max(20px, var(--sab));
+        height: max(64px, calc(64px + var(--sab)));
+        min-height: max(64px, calc(64px + var(--sab)));
     }
     
     .fab {
@@ -2962,7 +2991,7 @@ mark {
     
     .v-sop {
         padding-top: 14px;
-        padding-bottom: 28px;
+        padding-bottom: calc(var(--btm-h) + var(--sab) + 20px);
     }
     
     .sticky-bar {

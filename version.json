@@ -1,5 +1,5 @@
 {
-    "version": "2.2.3",
-    "lastUpdated": "2026-02-11T14:00:00Z",
-    "changelog": "Fix für iOS PWA Bottom-Navbar Positionierung im Landscape-Modus - Safe Area wird jetzt korrekt berücksichtigt"
+    "version": "2.2.4",
+    "lastUpdated": "2026-02-11T13:24:00Z",
+    "changelog": "Stand: Datum/Uhrzeit von Startseite entfernt"
 }

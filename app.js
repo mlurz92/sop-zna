@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.2.3';
+    var APP_VERSION = '2.2.4';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -1514,13 +1514,6 @@
     }
 
     function rHome() {
-        var now = new Date();
-        var dd = String(now.getDate()).padStart(2, '0');
-        var mm = String(now.getMonth() + 1).padStart(2, '0');
-        var yy = now.getFullYear();
-        var hh = String(now.getHours()).padStart(2, '0');
-        var mi = String(now.getMinutes()).padStart(2, '0');
-
         E.heroArea.innerHTML = '<img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg">' +
             '<h1 class="hero-title">Patientenpfade</h1>' +
             '<p class="hero-subtitle">Zentrale Notaufnahme</p>' +
@@ -1587,8 +1580,7 @@
             })(cards[i]);
         }
 
-        E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>' +
-            '<p>Stand: ' + dd + '.' + mm + '.' + yy + ' ' + hh + ':' + mi + '</p>';
+        E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>';
     }
 
     function rBrowse() {
