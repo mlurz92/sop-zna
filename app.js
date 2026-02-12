@@ -739,6 +739,12 @@
         if (!sopData || !sopData.sections) return '';
 
         var html = '<div class="segmented-control-wrapper" role="group" aria-label="Abschnitts-Navigation">';
+        
+        // Linker Scroll-Pfeil
+        html += '<button class="segmented-scroll-arrow segmented-scroll-left" aria-label="Nach links scrollen" tabindex="-1">';
+        html += '<i class="fa-solid fa-chevron-left"></i>';
+        html += '</button>';
+        
         html += '<div class="segmented-control" role="tablist" aria-label="SOP-Abschnitte">';
 
         // Add "Alle" button
@@ -773,7 +779,14 @@
             html += '</button>';
         }
 
-        html += '</div></div>';
+        html += '</div>';
+        
+        // Rechter Scroll-Pfeil
+        html += '<button class="segmented-scroll-arrow segmented-scroll-right" aria-label="Nach rechts scrollen" tabindex="-1">';
+        html += '<i class="fa-solid fa-chevron-right"></i>';
+        html += '</button>';
+        
+        html += '</div>';
         return html;
     }
 
@@ -881,6 +894,91 @@
                 }
             });
         }
+    }
+
+    // ============================================
+    // SEGMENTED CONTROL SCROLL ARROWS
+    // ============================================
+    
+    // Prüfen ob Scroll möglich ist und Pfeile aktualisieren
+    function checkSegmentedScrollArrows() {
+        var control = document.querySelector('.segmented-control');
+        var leftArrow = document.querySelector('.segmented-scroll-left');
+        var rightArrow = document.querySelector('.segmented-scroll-right');
+        
+        if (!control || !leftArrow || !rightArrow) return;
+        
+        var canScrollLeft = control.scrollLeft > 5;
+        var canScrollRight = control.scrollLeft < (control.scrollWidth - control.clientWidth - 5);
+        var hasOverflow = control.scrollWidth > control.clientWidth;
+        
+        // Pfeile nur anzeigen wenn Overflow vorhanden
+        if (!hasOverflow) {
+            leftArrow.style.opacity = '0';
+            leftArrow.style.pointerEvents = 'none';
+            rightArrow.style.opacity = '0';
+            rightArrow.style.pointerEvents = 'none';
+            return;
+        }
+        
+        leftArrow.style.opacity = canScrollLeft ? '0.5' : '0';
+        leftArrow.style.pointerEvents = canScrollLeft ? 'auto' : 'none';
+        
+        rightArrow.style.opacity = canScrollRight ? '0.5' : '0';
+        rightArrow.style.pointerEvents = canScrollRight ? 'auto' : 'none';
+    }
+    
+    // Scroll-Animation für Pfeile
+    function scrollSegmented(direction) {
+        var control = document.querySelector('.segmented-control');
+        if (!control) return;
+        
+        var scrollAmount = 120; // Pixel
+        control.scrollBy({
+            left: direction === 'left' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+        
+        // Haptic Feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    }
+    
+    // Event-Listener für Scroll-Pfeile initialisieren
+    function initSegmentedScrollArrows() {
+        var control = document.querySelector('.segmented-control');
+        var leftArrow = document.querySelector('.segmented-scroll-left');
+        var rightArrow = document.querySelector('.segmented-scroll-right');
+        
+        if (!control) return;
+        
+        // Scroll-Event für Pfeil-Aktualisierung
+        control.addEventListener('scroll', throttle(checkSegmentedScrollArrows, 50), { passive: true });
+        
+        // Pfeil-Click-Events
+        if (leftArrow) {
+            leftArrow.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollSegmented('left');
+            });
+        }
+        
+        if (rightArrow) {
+            rightArrow.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                scrollSegmented('right');
+            });
+        }
+        
+        // Initialen Zustand prüfen
+        // Kurze Verzögerung für korrekte Breitenberechnung
+        setTimeout(checkSegmentedScrollArrows, 50);
+        
+        // Bei Resize neu prüfen
+        window.addEventListener('resize', debounce(checkSegmentedScrollArrows, 150));
     }
 
     // ============================================
@@ -2159,6 +2257,9 @@
         if (segControl) {
             initSegmentedKeyboardNav(segControl);
         }
+
+        // Initialize scroll arrows for segmented control
+        initSegmentedScrollArrows();
 
         // Add section click handlers
         var heads = E.viewSOP.querySelectorAll('.sop-section-head');

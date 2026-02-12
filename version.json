@@ -1,5 +1,5 @@
 {
-    "version": "2.4.0",
-    "lastUpdated": "2026-02-12T12:15:00Z",
-    "changelog": "Segmented Control Optimierung (Phase 1): Intelligente Titel-Kürzung mit Wort-Erhaltung, Tooltips, ARIA-Attribute für Barrierefreiheit, Tastaturnavigation, Haptic Feedback, Fokus-Styles"
+    "version": "2.4.1",
+    "lastUpdated": "2026-02-12T12:40:00Z",
+    "changelog": "Segmented Control Scroll-Pfeile: Dezent eingeblendete Pfeile bei Overflow, Smooth Scroll-Animation (120px), Automatische Sichtbarkeit basierend auf Scroll-Position, Haptic Feedback bei Klick, Resize-Event-Handling"
 }
