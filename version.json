@@ -1,5 +1,5 @@
 {
-    "version": "2.5.0",
-    "lastUpdated": "2026-02-12T13:35:00Z",
-    "changelog": "Touch-Optimierung für Segmented Control: Tap vs. Scroll Unterscheidung, Ghost Tap Prevention, visuelles Feedback, 300ms Delay entfernt"
+    "version": "2.5.1",
+    "lastUpdated": "2026-02-12T13:50:00Z",
+    "changelog": "Pull-to-Refresh Prevention: overscroll-behavior: contain verhindert versehentliches Aktualisieren beim horizontalen Scrollen"
 }
