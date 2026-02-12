@@ -359,6 +359,26 @@ sop-zna/
 - **Swipe-Gesten:** Edge-Swipe für Zurück-Navigation
 - **Pull-to-Refresh:** Aktualisieren durch Herunterziehen
 
+### iOS PWA Safe-Area-Unterstützung
+
+Die Anwendung nutzt einen JavaScript-basierten Ansatz zur Erkennung der Safe-Area auf iOS-Geräten im PWA-Modus, da die CSS-Funktion `env(safe-area-inset-bottom)` im iOS standalone mode oft `0px` zurückgibt.
+
+**Implementierte Lösung:**
+- Laufzeit-Messung der Safe-Area beim Anwendungsstart
+- iPhone-Screen-Height-Lookup-Table für präzise Erkennung
+- CSS-Variable `--sab-js` wird dynamisch gesetzt
+- Event-Handler für orientationchange und resize
+
+**Unterstützte Geräte:**
+- iPhone X/XS/11 Pro (34px Safe-Area)
+- iPhone XR/11 (34px Safe-Area)
+- iPhone 12/13/14/15 Mini (34px Safe-Area)
+- iPhone 12/13/14/15/16 (34px Safe-Area)
+- iPhone 12/13/14/15/16 Pro (34px Safe-Area)
+- iPhone 12/13/14/15/16 Pro Max (34px Safe-Area)
+- iPhone 14 Pro/15 Pro/16 Pro (59px Dynamic Island)
+- iPhone 14 Pro Max/15 Pro Max/16 Pro Max (59px Dynamic Island)
+
 ### Bekannte Einschränkungen
 
 - **Internet Explorer:** Nicht unterstützt
@@ -386,7 +406,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: Februar 2026*  
-*Version: 2.2.4*
+*Version: 2.3.0*
 
 ---
 
@@ -394,6 +414,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v2.3.0** | Feb 2026 | iOS PWA Safe-Area-Fix mit JavaScript-Laufzeiterkennung und iPhone Screen Height Lookup Table |
 | **v2.2.4** | Feb 2026 | Robuste iOS PWA Bottom-Navbar Positionierung + "Stand: Datum/Uhrzeit" von Startseite entfernt |
 | **v2.2.3** | Feb 2026 | Erste iOS PWA Bottom-Navbar Lösung (funktionierte nicht) |
 | **v2.2.2** | Feb 2026 | Fix: Update-Benachrichtigung Endlosschleife verhindert |

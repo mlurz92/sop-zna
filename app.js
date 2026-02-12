@@ -1022,227 +1022,172 @@
     }
 
     // ============================================
-    // iOS PWA SAFE AREA FIX
+    // SAFE AREA RUNTIME MEASUREMENT
     // ============================================
     // Problem: env(safe-area-inset-bottom) returns 0px in iOS PWA standalone mode
-    // Solution: JavaScript-based detection and dynamic CSS variable setting
+    // Solution: JavaScript-based detection with CSS variable setting (NO inline styles!)
     
-    var PWA_SAFE_AREA = {
+    var SAFE_AREA_RUNTIME = {
+        bottom: 0,
+        top: 0,
         isPWA: false,
-        safeAreaBottom: 0,
-        safeAreaTop: 0,
-        measuredSafeArea: 0
+        isIOS: false,
+        lastMeasurement: 0
     };
     
-    function detectPWAMode() {
-        // Multiple detection methods for maximum compatibility
+    function detectRuntimeEnvironment() {
+        // PWA Detection - multiple methods for maximum compatibility
         var isStandalone = window.matchMedia('(display-mode: standalone)').matches;
         var isIOSStandalone = window.navigator.standalone === true;
         var isAndroidWebApp = document.referrer.indexOf('android-app://') === 0;
         
-        PWA_SAFE_AREA.isPWA = isStandalone || isIOSStandalone || isAndroidWebApp;
+        SAFE_AREA_RUNTIME.isPWA = isStandalone || isIOSStandalone || isAndroidWebApp;
         
-        console.log('[PWA Detection] isStandalone:', isStandalone);
-        console.log('[PWA Detection] isIOSStandalone:', isIOSStandalone);
-        console.log('[PWA Detection] isPWA:', PWA_SAFE_AREA.isPWA);
+        // iOS Detection
+        SAFE_AREA_RUNTIME.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         
-        return PWA_SAFE_AREA.isPWA;
+        console.log('[Safe Area Runtime] isPWA:', SAFE_AREA_RUNTIME.isPWA);
+        console.log('[Safe Area Runtime] isIOS:', SAFE_AREA_RUNTIME.isIOS);
+        
+        return SAFE_AREA_RUNTIME.isPWA;
     }
     
-    function measureActualSafeArea() {
-        // Method 1: Create a full-height element and measure the difference
-        // This works because in PWA mode, the viewport height includes the safe area
-        var testDiv = document.createElement('div');
-        testDiv.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:100vh;visibility:hidden;pointer-events:none;';
-        document.body.appendChild(testDiv);
+    function measureSafeAreaRuntime() {
+        var measuredBottom = 0;
         
-        var vhHeight = testDiv.offsetHeight;
-        var innerHeight = window.innerHeight;
-        
-        document.body.removeChild(testDiv);
-        
-        // Method 2: Use screen height vs viewport height for iOS
-        var screenHeight = window.screen.height;
-        var clientHeight = document.documentElement.clientHeight;
-        
-        // Method 3: Direct env() test with known fallback
-        var envTest = document.createElement('div');
-        envTest.style.cssText = 'position:fixed;bottom:0;left:0;width:1px;height:0;padding-bottom:env(safe-area-inset-bottom, 0px);visibility:hidden;';
-        document.body.appendChild(envTest);
-        var envPadding = parseInt(getComputedStyle(envTest).paddingBottom) || 0;
-        document.body.removeChild(envTest);
-        
-        console.log('[Safe Area Measurement] vhHeight:', vhHeight);
-        console.log('[Safe Area Measurement] innerHeight:', innerHeight);
-        console.log('[Safe Area Measurement] screenHeight:', screenHeight);
-        console.log('[Safe Area Measurement] clientHeight:', clientHeight);
-        console.log('[Safe Area Measurement] env() padding:', envPadding);
-        
-        // Calculate the safe area bottom
-        // For iPhone 14 Pro Max: safe area bottom is typically 34px
-        // For iPhone X/11/12/13: safe area bottom is typically 34px
-        // For iPhone 14 Pro: safe area bottom is typically 34px
-        
-        var calculatedSafeArea = 0;
-        
-        // If env() works, use it
-        if (envPadding > 0) {
-            calculatedSafeArea = envPadding;
-        } else if (PWA_SAFE_AREA.isPWA) {
-            // In PWA mode, if env() returns 0, we need to estimate
-            // Check if this is likely an iPhone with notch/Dynamic Island
-            var isIPhone = /iPhone/.test(navigator.userAgent);
-            var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        // Methode 1: iOS Screen Height Lookup Table
+        // Most reliable for iOS PWA where env() returns 0
+        if (SAFE_AREA_RUNTIME.isIOS && SAFE_AREA_RUNTIME.isPWA) {
+            var screenH = window.screen.height;
             
-            if (isIPhone) {
-                // iPhone with notch/Dynamic Island has 34px bottom safe area
-                // iPhone SE and older have 0px
-                // Detect based on screen height
-                var screenH = window.screen.height;
-                
-                // iPhone 14 Pro Max: 932px screen height
-                // iPhone 14 Pro: 852px screen height
-                // iPhone 13 Pro Max: 926px screen height
-                // iPhone 13/14: 844px screen height
-                // iPhone 13 mini: 812px screen height
-                // iPhone SE: 667px screen height (no safe area)
-                
-                if (screenH >= 812) {
-                    // Modern iPhone with notch/Dynamic Island
-                    calculatedSafeArea = 34;
-                } else if (screenH >= 812 && screenH < 844) {
-                    // iPhone X, 11 Pro, 12 mini, 13 mini
-                    calculatedSafeArea = 34;
+            // iPhone Modelle mit Safe-Area (34px bottom)
+            // Toleranz von +/- 5px für Rundungsunterschiede
+            var iPhoneWithNotch = [
+                812,  // iPhone X, 11 Pro, 12 mini, 13 mini
+                844,  // iPhone 12, 12 Pro, 13, 13 Pro, 14
+                852,  // iPhone 14 Pro
+                896,  // iPhone Xs Max, 11 Pro Max
+                926,  // iPhone 12 Pro Max, 13 Pro Max, 14 Plus
+                932   // iPhone 14 Pro Max
+            ];
+            
+            for (var i = 0; i < iPhoneWithNotch.length; i++) {
+                if (screenH >= iPhoneWithNotch[i] - 5 && screenH <= iPhoneWithNotch[i] + 5) {
+                    measuredBottom = 34;
+                    console.log('[Safe Area Runtime] iPhone with notch detected, screen height:', screenH);
+                    break;
                 }
             }
             
-            // Alternative: Use visualViewport if available
-            if (window.visualViewport && calculatedSafeArea === 0) {
-                var vvHeight = window.visualViewport.height;
-                var diff = innerHeight - vvHeight;
+            // iPad Pro 12.9" hat 20px Safe-Area
+            if (measuredBottom === 0 && screenH >= 1024) {
+                var isIPad = /iPad/.test(navigator.userAgent);
+                if (isIPad) {
+                    measuredBottom = 20;
+                    console.log('[Safe Area Runtime] iPad detected, screen height:', screenH);
+                }
+            }
+        }
+        
+        // Methode 2: Viewport-Differenz (Fallback)
+        if (measuredBottom === 0 && SAFE_AREA_RUNTIME.isPWA) {
+            var viewportDiff = window.screen.height - window.innerHeight;
+            if (viewportDiff > 0 && viewportDiff < 150) {
+                // Bei iOS PWA ist die Differenz oft die Safe-Area
+                if (SAFE_AREA_RUNTIME.isIOS && viewportDiff >= 34) {
+                    measuredBottom = 34;
+                } else if (viewportDiff >= 20 && viewportDiff < 50) {
+                    // Android oder andere Geräte
+                    measuredBottom = viewportDiff;
+                }
+            }
+        }
+        
+        // Methode 3: visualViewport API (falls verfügbar)
+        if (measuredBottom === 0 && window.visualViewport) {
+            var vvHeight = window.visualViewport.height;
+            var innerH = window.innerHeight;
+            if (innerH > vvHeight) {
+                var diff = innerH - vvHeight;
                 if (diff > 0 && diff < 100) {
-                    calculatedSafeArea = diff;
+                    measuredBottom = diff;
+                    console.log('[Safe Area Runtime] visualViewport diff:', diff);
                 }
             }
         }
         
-        PWA_SAFE_AREA.measuredSafeArea = calculatedSafeArea;
-        
-        console.log('[Safe Area] Calculated safe area bottom:', calculatedSafeArea);
-        
-        return calculatedSafeArea;
-    }
-    
-    function applySafeAreaFix() {
-        // Detect PWA mode
-        detectPWAMode();
-        
-        // Measure actual safe area
-        var safeAreaBottom = measureActualSafeArea();
-        
-        // Get current CSS variable values
-        var rootStyles = getComputedStyle(document.documentElement);
-        var currentSAB = rootStyles.getPropertyValue('--sab').trim();
-        var currentSAT = rootStyles.getPropertyValue('--sat').trim();
-        
-        console.log('[Safe Area] Current CSS --sab:', currentSAB);
-        console.log('[Safe Area] Current CSS --sat:', currentSAT);
-        
-        // If env() is working correctly, we don't need to override
-        // But if it's 0px in PWA mode with a known device, we override
-        var envValue = parseInt(currentSAB) || 0;
-        
-        if (PWA_SAFE_AREA.isPWA && envValue === 0 && safeAreaBottom > 0) {
-            // Set CSS variables with measured values
-            document.documentElement.style.setProperty('--sab', safeAreaBottom + 'px');
-            document.documentElement.style.setProperty('--sab-override', safeAreaBottom + 'px');
-            
-            console.log('[Safe Area] Applied override --sab:', safeAreaBottom + 'px');
-            
-            // Also set a class for CSS targeting
-            document.documentElement.classList.add('pwa-safearea-fix');
-            
-            // Store for later use
-            PWA_SAFE_AREA.safeAreaBottom = safeAreaBottom;
-        } else {
-            console.log('[Safe Area] No override needed. env() working or not in PWA mode.');
-        }
-        
-        // Apply to bottom nav directly as well (belt and suspenders)
-        var bottomNav = document.getElementById('bottomNav');
-        if (bottomNav && PWA_SAFE_AREA.isPWA && safeAreaBottom > 0) {
-            // Set explicit padding-bottom
-            bottomNav.style.paddingBottom = safeAreaBottom + 'px';
-            console.log('[Bottom Nav] Applied inline padding-bottom:', safeAreaBottom + 'px');
-        }
-    }
-    
-    function logSafeAreaDiagnostics() {
-        console.log('=== iOS PWA Safe Area Diagnostics ===');
-        
-        // 1. PWA Mode Detection
-        console.log('[PWA Mode] isPWA:', PWA_SAFE_AREA.isPWA);
-        console.log('[PWA Mode] navigator.standalone:', window.navigator.standalone);
-        console.log('[PWA Mode] display-mode standalone:', window.matchMedia('(display-mode: standalone)').matches);
-        
-        // 2. Safe Area CSS Variables
-        var rootStyles = getComputedStyle(document.documentElement);
-        var sabCSS = rootStyles.getPropertyValue('--sab').trim();
-        var satCSS = rootStyles.getPropertyValue('--sat').trim();
-        console.log('[Safe Area] CSS --sab:', sabCSS);
-        console.log('[Safe Area] CSS --sat:', satCSS);
-        
-        // 3. Direct env() measurement via test element
-        var testEl = document.createElement('div');
-        testEl.style.cssText = 'position:fixed;bottom:0;left:0;padding-bottom:env(safe-area-inset-bottom, 999px);visibility:hidden;';
-        document.body.appendChild(testEl);
-        var computedPadding = getComputedStyle(testEl).paddingBottom;
-        console.log('[Safe Area] Direct env() test element padding-bottom:', computedPadding);
-        document.body.removeChild(testEl);
-        
-        // 4. Bottom Navigation computed styles
-        var bottomNav = document.getElementById('bottomNav');
-        if (bottomNav) {
-            var navStyles = getComputedStyle(bottomNav);
-            console.log('[Bottom Nav] padding-bottom:', navStyles.paddingBottom);
-            console.log('[Bottom Nav] padding-top:', navStyles.paddingTop);
-            console.log('[Bottom Nav] height:', navStyles.height);
-            console.log('[Bottom Nav] min-height:', navStyles.minHeight);
-            console.log('[Bottom Nav] position:', navStyles.position);
-            console.log('[Bottom Nav] bottom:', navStyles.bottom);
-            
-            var innerNav = bottomNav.querySelector('.btm-nav-inner');
-            if (innerNav) {
-                var innerStyles = getComputedStyle(innerNav);
-                console.log('[Bottom Nav Inner] padding-bottom:', innerStyles.paddingBottom);
+        // Methode 4: Test-Element mit env() (letzter Fallback)
+        if (measuredBottom === 0) {
+            var testEl = document.createElement('div');
+            testEl.style.cssText = 'position:fixed;bottom:0;left:0;width:1px;height:0;padding-bottom:env(safe-area-inset-bottom,0);visibility:hidden;';
+            document.body.appendChild(testEl);
+            var envValue = parseInt(getComputedStyle(testEl).paddingBottom) || 0;
+            document.body.removeChild(testEl);
+            if (envValue > 0) {
+                measuredBottom = envValue;
+                console.log('[Safe Area Runtime] env() returned:', envValue);
             }
         }
         
-        // 5. Viewport measurements
-        console.log('[Viewport] window.innerHeight:', window.innerHeight);
-        console.log('[Viewport] window.outerHeight:', window.outerHeight);
-        console.log('[Viewport] window.screen.height:', window.screen.height);
-        console.log('[Viewport] document.documentElement.clientHeight:', document.documentElement.clientHeight);
+        // Cache-Wert aktualisieren
+        SAFE_AREA_RUNTIME.bottom = measuredBottom;
+        SAFE_AREA_RUNTIME.lastMeasurement = Date.now();
         
-        // 6. visualViewport API (if available)
-        if (window.visualViewport) {
-            console.log('[Visual Viewport] height:', window.visualViewport.height);
-            console.log('[Visual Viewport] offsetTop:', window.visualViewport.offsetTop);
-            console.log('[Visual Viewport] scale:', window.visualViewport.scale);
+        console.log('[Safe Area Runtime] Measured bottom:', measuredBottom + 'px');
+        
+        return measuredBottom;
+    }
+    
+    function applySafeAreaCSS() {
+        var sab = SAFE_AREA_RUNTIME.bottom;
+        
+        // NUR CSS-Variablen setzen, KEINE inline-Styles!
+        document.documentElement.style.setProperty('--sab-js', sab + 'px');
+        document.documentElement.style.setProperty(
+            '--btm-nav-total', 
+            'calc(56px + ' + sab + 'px)'
+        );
+        
+        // Klasse für CSS-Targeting
+        if (sab > 0) {
+            document.documentElement.classList.add('safe-area-detected');
+        } else {
+            document.documentElement.classList.remove('safe-area-detected');
         }
         
-        // 7. Screen dimensions
-        console.log('[Screen] width:', window.screen.width);
-        console.log('[Screen] height:', window.screen.height);
-        console.log('[Screen] availHeight:', window.screen.availHeight);
+        console.log('[Safe Area Runtime] Applied --sab-js:', sab + 'px');
+    }
+    
+    function initSafeAreaRuntime() {
+        detectRuntimeEnvironment();
+        measureSafeAreaRuntime();
+        applySafeAreaCSS();
         
-        // 8. User Agent for device detection
-        console.log('[UA]', navigator.userAgent);
+        // Event-Listener für Orientation-Change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                measureSafeAreaRuntime();
+                applySafeAreaCSS();
+            }, 100); // Kurze Verzögerung für iOS
+        });
         
-        // 9. Measured safe area
-        console.log('[Safe Area] Measured safe area:', PWA_SAFE_AREA.measuredSafeArea);
+        // Debounced Resize-Handler
+        var resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                measureSafeAreaRuntime();
+                applySafeAreaCSS();
+            }, 150);
+        });
         
-        console.log('=== End Diagnostics ===');
+        // visualViewport-Handler (falls verfügbar)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', function() {
+                measureSafeAreaRuntime();
+                applySafeAreaCSS();
+            });
+        }
     }
 
     // ============================================
@@ -1256,11 +1201,8 @@
         aFs();
         
         // Apply Safe Area Fix for iOS PWA
-        // Run early to prevent layout flash
-        applySafeAreaFix();
-        
-        // Run Safe Area Diagnostics after DOM is ready
-        setTimeout(logSafeAreaDiagnostics, 500);
+        // Run early to prevent layout flash - uses CSS variables only, NO inline styles
+        initSafeAreaRuntime();
 
         // Initialize SOP data
         if (window.SOP_DATA && window.SOP_DATA.length) {
