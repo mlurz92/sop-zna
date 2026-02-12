@@ -1,5 +1,5 @@
 {
-    "version": "2.4.2",
-    "lastUpdated": "2026-02-12T12:55:00Z",
-    "changelog": "Segmented Control Titel-Verbesserung: JavaScript-Kürzung entfernt, CSS-basierte Ellipsis, Responsive Button-Breiten (Desktop: 150px, Mobile: 100px), Tooltip zeigt immer vollständigen Titel bei Hover"
+    "version": "2.5.0",
+    "lastUpdated": "2026-02-12T13:35:00Z",
+    "changelog": "Touch-Optimierung für Segmented Control: Tap vs. Scroll Unterscheidung, Ghost Tap Prevention, visuelles Feedback, 300ms Delay entfernt"
 }

@@ -57,6 +57,10 @@
     var SWIPE_VELOCITY = 0.3;
     var HORIZONTAL_THRESHOLD = 8;
 
+    // Touch-Constants für Segmented Control
+    var SEG_TOUCH_THRESHOLD = 10;  // 10px Bewegung = Scroll
+    var SEG_TAP_TIMEOUT = 300;     // 300ms max Tap-Dauer
+
     // Category Colors
     var CC = {
         'kardio': '#ef4444',
@@ -99,6 +103,15 @@
         bCatOpen: false,
         navStack: [],
         isNavigating: false
+    };
+
+    // Touch-State für Segmented Control
+    var segTouchState = {
+        startX: 0,
+        startY: 0,
+        startTime: 0,
+        hasMoved: false,
+        targetBtn: null
     };
 
     // ============================================
@@ -874,6 +887,53 @@
                 }
             });
         }
+    }
+
+    // === Segmented Control Touch Handler ===
+
+    function handleSegTouchStart(e, d, segIndex) {
+        var touch = e.touches[0];
+        segTouchState.startX = touch.clientX;
+        segTouchState.startY = touch.clientY;
+        segTouchState.startTime = Date.now();
+        segTouchState.hasMoved = false;
+        segTouchState.targetBtn = e.currentTarget;
+        
+        // Visuelles Feedback
+        e.currentTarget.classList.add('tap-active');
+    }
+
+    function handleSegTouchMove(e) {
+        if (!segTouchState.targetBtn) return;
+        
+        var touch = e.touches[0];
+        var deltaX = Math.abs(touch.clientX - segTouchState.startX);
+        var deltaY = Math.abs(touch.clientY - segTouchState.startY);
+        
+        // Bewegung erkannt
+        if (deltaX > SEG_TOUCH_THRESHOLD || deltaY > SEG_TOUCH_THRESHOLD) {
+            segTouchState.hasMoved = true;
+            segTouchState.targetBtn.classList.remove('tap-active');
+        }
+    }
+
+    function handleSegTouchEnd(e, d, segIndex) {
+        // Visuelles Feedback entfernen
+        if (segTouchState.targetBtn) {
+            segTouchState.targetBtn.classList.remove('tap-active');
+        }
+        
+        // Prüfen ob Tap oder Scroll
+        var duration = Date.now() - segTouchState.startTime;
+        
+        if (!segTouchState.hasMoved && duration < SEG_TAP_TIMEOUT) {
+            // Echter Tap - Aktion ausführen
+            handleSegmentedClick(d, segIndex);
+        }
+        
+        // Reset
+        segTouchState.targetBtn = null;
+        segTouchState.hasMoved = false;
     }
 
     // ============================================
@@ -2225,8 +2285,25 @@
         var segButtons = E.viewSOP.querySelectorAll('.segmented-btn');
         for (var i = 0; i < segButtons.length; i++) {
             (function(btn) {
-                btn.addEventListener('click', function() {
-                    var segIndex = btn.getAttribute('data-seg');
+                var segIndex = btn.getAttribute('data-seg');
+                
+                // Touch-Events für mobile Geräte
+                btn.addEventListener('touchstart', function(e) {
+                    handleSegTouchStart(e, d, segIndex);
+                }, { passive: true });
+
+                btn.addEventListener('touchmove', function(e) {
+                    handleSegTouchMove(e);
+                }, { passive: true });
+
+                btn.addEventListener('touchend', function(e) {
+                    handleSegTouchEnd(e, d, segIndex);
+                }, { passive: true });
+
+                // Click-Event für Desktop (nur wenn kein Touch)
+                btn.addEventListener('click', function(e) {
+                    // Verhindern wenn Touch bereits verarbeitet
+                    if (e.detail === 0) return; // Touch-Event
                     handleSegmentedClick(d, segIndex);
                 });
             })(segButtons[i]);
