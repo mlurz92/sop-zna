@@ -1,5 +1,5 @@
 {
-    "version": "2.3.0",
-    "lastUpdated": "2026-02-12T06:00:00Z",
-    "changelog": "iOS PWA Safe-Area-Fix mit JavaScript-Laufzeiterkennung und iPhone Screen Height Lookup Table"
+    "version": "2.3.1",
+    "lastUpdated": "2026-02-12T11:20:00Z",
+    "changelog": "Section Picker Fix: CSS Flexbox-Layout-Problem behoben - picker-list mit min-height:0 für korrektes Overflow-Verhalten"
 }
