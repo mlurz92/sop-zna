@@ -1548,12 +1548,49 @@ mark {
     font-size: 0.72rem;
 }
 
+.segmented-control-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+/* Scroll-Indikation: Fade-Gradienten */
+.segmented-control-wrapper::before,
+.segmented-control-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.segmented-control-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, var(--surface2), transparent);
+}
+
+.segmented-control-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, var(--surface2), transparent);
+}
+
+/* Zeige Fade-Gradienten wenn scrollbar */
+.segmented-control-wrapper.has-overflow-left::before {
+    opacity: 1;
+}
+
+.segmented-control-wrapper.has-overflow-right::after {
+    opacity: 1;
+}
+
 .segmented-control {
     display: flex;
     background: var(--surface2);
     border-radius: var(--radius-md);
     padding: 4px;
-    margin-bottom: 16px;
     gap: 4px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -1597,6 +1634,27 @@ mark {
 .segmented-btn i {
     font-size: 0.7rem;
     flex-shrink: 0;
+}
+
+.segmented-btn .btn-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Fokus-Styles für Tastaturnavigation */
+.segmented-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.segmented-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary), 0 0 0 4px rgba(var(--primary-rgb), 0.3);
+}
+
+/* Tooltip-Styles für gekürzte Titel */
+.segmented-btn.has-tooltip {
+    cursor: help;
 }
 
 .segmented-btn:hover {

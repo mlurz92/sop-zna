@@ -719,14 +719,34 @@
     // ============================================
     // SEGMENTED CONTROL
     // ============================================
+    
+    // Helper: Intelligente Titel-Kürzung
+    function truncateTitle(title, maxLen) {
+        if (!title) return '';
+        if (title.length <= maxLen) return title;
+        
+        // Versuche ganze Wörter zu erhalten
+        var words = title.split(' ');
+        var result = '';
+        for (var i = 0; i < words.length; i++) {
+            if ((result + words[i]).length > maxLen - 2) break;
+            result += (result ? ' ' : '') + words[i];
+        }
+        return result + '…';
+    }
+    
     function renderSegmentedControl(sopData) {
         if (!sopData || !sopData.sections) return '';
 
-        var html = '<div class="segmented-control">';
+        var html = '<div class="segmented-control-wrapper" role="group" aria-label="Abschnitts-Navigation">';
+        html += '<div class="segmented-control" role="tablist" aria-label="SOP-Abschnitte">';
 
         // Add "Alle" button
-        html += '<button class="segmented-btn active" data-seg="all">';
-        html += '<i class="fa-solid fa-list"></i> Alle';
+        html += '<button class="segmented-btn active" ';
+        html += 'role="tab" aria-selected="true" aria-controls="section-all" ';
+        html += 'data-seg="all">';
+        html += '<i class="fa-solid fa-list" aria-hidden="true"></i> ';
+        html += '<span class="btn-text">Alle</span>';
         html += '</button>';
 
         // Add section buttons (all sections, scrollable)
@@ -734,25 +754,45 @@
             var sec = sopData.sections[i];
             var title = sec.title || 'Abschnitt ' + (i + 1);
             var icon = SIC[title] || 'fa-circle';
+            
+            // Intelligente Kürzung mit max 12 Zeichen
+            var displayTitle = title.length > 12 ? truncateTitle(title, 12) : title;
+            var needsTooltip = title !== displayTitle;
 
-            html += '<button class="segmented-btn" data-seg="' + i + '">';
-            html += '<i class="fa-solid ' + icon + '"></i> ' + title.substring(0, 10);
+            html += '<button class="segmented-btn';
+            if (needsTooltip) html += ' has-tooltip';
+            html += '" role="tab" aria-selected="false" ';
+            html += 'aria-controls="section-' + i + '" ';
+            html += 'data-seg="' + i + '"';
+            if (needsTooltip) {
+                html += ' title="' + title.replace(/"/g, '&quot;') + '"';
+            }
+            html += '>';
+            html += '<i class="fa-solid ' + icon + '" aria-hidden="true"></i> ';
+            html += '<span class="btn-text">' + displayTitle + '</span>';
             html += '</button>';
         }
 
-        html += '</div>';
+        html += '</div></div>';
         return html;
     }
 
     function handleSegmentedClick(sopData, segIndex) {
         if (!sopData) return;
 
-        // Update active state
+        // Haptic Feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+
+        // Update active state and ARIA attributes
         var buttons = document.querySelectorAll('.segmented-btn');
         for (var i = 0; i < buttons.length; i++) {
             buttons[i].classList.remove('active');
+            buttons[i].setAttribute('aria-selected', 'false');
             if (buttons[i].getAttribute('data-seg') === String(segIndex)) {
                 buttons[i].classList.add('active');
+                buttons[i].setAttribute('aria-selected', 'true');
             }
         }
 
@@ -783,6 +823,63 @@
                 // Smooth scroll to section
                 targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        }
+    }
+
+    // Tastaturnavigation für Segmented Control
+    function initSegmentedKeyboardNav(container) {
+        if (!container) return;
+        
+        var buttons = container.querySelectorAll('.segmented-btn');
+        if (buttons.length === 0) return;
+        
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener('keydown', function(e) {
+                var currentIndex = -1;
+                var btns = container.querySelectorAll('.segmented-btn');
+                
+                // Find current button index
+                for (var j = 0; j < btns.length; j++) {
+                    if (btns[j] === e.target) {
+                        currentIndex = j;
+                        break;
+                    }
+                }
+                
+                var nextIndex = -1;
+                
+                switch (e.key) {
+                    case 'ArrowRight':
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        nextIndex = (currentIndex + 1) % btns.length;
+                        break;
+                    case 'ArrowLeft':
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        nextIndex = (currentIndex - 1 + btns.length) % btns.length;
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        nextIndex = 0;
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        nextIndex = btns.length - 1;
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        e.preventDefault();
+                        e.target.click();
+                        return;
+                }
+                
+                if (nextIndex >= 0 && nextIndex < btns.length) {
+                    btns[nextIndex].focus();
+                    // Optional: Auto-activate on focus
+                    // btns[nextIndex].click();
+                }
+            });
         }
     }
 
@@ -2055,6 +2152,12 @@
                     handleSegmentedClick(d, segIndex);
                 });
             })(segButtons[i]);
+        }
+
+        // Initialize keyboard navigation for segmented control
+        var segControl = E.viewSOP.querySelector('.segmented-control');
+        if (segControl) {
+            initSegmentedKeyboardNav(segControl);
         }
 
         // Add section click handlers

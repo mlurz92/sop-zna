@@ -1,5 +1,5 @@
 {
-    "version": "2.3.2",
-    "lastUpdated": "2026-02-12T11:45:00Z",
-    "changelog": "Segmented Control Fix: Begrenzung auf 5 Sections aufgehoben - alle Sections sind nun in der horizontalen Button-Leiste sichtbar und bei vielen Sections horizontal scrollbar"
+    "version": "2.4.0",
+    "lastUpdated": "2026-02-12T12:15:00Z",
+    "changelog": "Segmented Control Optimierung (Phase 1): Intelligente Titel-Kürzung mit Wort-Erhaltung, Tooltips, ARIA-Attribute für Barrierefreiheit, Tastaturnavigation, Haptic Feedback, Fokus-Styles"
 }
