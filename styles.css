@@ -1654,7 +1654,7 @@ mark {
 .segmented-btn {
     flex: 0 0 auto;
     min-width: 60px;
-    max-width: 100px;
+    max-width: 150px;
     padding: 10px 12px;
     border: none;
     background: transparent;
@@ -1686,6 +1686,8 @@ mark {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* Erlaubt dem Text zu schrumpfen wenn nötig */
+    min-width: 0;
 }
 
 /* Fokus-Styles für Tastaturnavigation */
@@ -1696,11 +1698,6 @@ mark {
 
 .segmented-btn:focus-visible {
     box-shadow: 0 0 0 2px var(--primary), 0 0 0 4px rgba(var(--primary-rgb), 0.3);
-}
-
-/* Tooltip-Styles für gekürzte Titel */
-.segmented-btn.has-tooltip {
-    cursor: help;
 }
 
 .segmented-btn:hover {
@@ -2929,8 +2926,10 @@ mark {
         padding: 0 14px 16px;
     }
     
+    /* Kleinere Button-Breite auf Mobile für bessere Ellipsis */
     .segmented-btn {
-        min-width: 70px;
+        min-width: 50px;
+        max-width: 100px;
         padding: 8px 10px;
         font-size: 0.75rem;
     }

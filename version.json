@@ -1,5 +1,5 @@
 {
-    "version": "2.4.1",
-    "lastUpdated": "2026-02-12T12:40:00Z",
-    "changelog": "Segmented Control Scroll-Pfeile: Dezent eingeblendete Pfeile bei Overflow, Smooth Scroll-Animation (120px), Automatische Sichtbarkeit basierend auf Scroll-Position, Haptic Feedback bei Klick, Resize-Event-Handling"
+    "version": "2.4.2",
+    "lastUpdated": "2026-02-12T12:55:00Z",
+    "changelog": "Segmented Control Titel-Verbesserung: JavaScript-Kürzung entfernt, CSS-basierte Ellipsis, Responsive Button-Breiten (Desktop: 150px, Mobile: 100px), Tooltip zeigt immer vollständigen Titel bei Hover"
 }

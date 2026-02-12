@@ -720,21 +720,6 @@
     // SEGMENTED CONTROL
     // ============================================
     
-    // Helper: Intelligente Titel-Kürzung
-    function truncateTitle(title, maxLen) {
-        if (!title) return '';
-        if (title.length <= maxLen) return title;
-        
-        // Versuche ganze Wörter zu erhalten
-        var words = title.split(' ');
-        var result = '';
-        for (var i = 0; i < words.length; i++) {
-            if ((result + words[i]).length > maxLen - 2) break;
-            result += (result ? ' ' : '') + words[i];
-        }
-        return result + '…';
-    }
-    
     function renderSegmentedControl(sopData) {
         if (!sopData || !sopData.sections) return '';
 
@@ -750,32 +735,27 @@
         // Add "Alle" button
         html += '<button class="segmented-btn active" ';
         html += 'role="tab" aria-selected="true" aria-controls="section-all" ';
-        html += 'data-seg="all">';
+        html += 'data-seg="all" title="Alle Abschnitte anzeigen">';
         html += '<i class="fa-solid fa-list" aria-hidden="true"></i> ';
         html += '<span class="btn-text">Alle</span>';
         html += '</button>';
 
         // Add section buttons (all sections, scrollable)
+        // CSS übernimmt die Ellipsis - kein JavaScript-Kürzung mehr nötig
         for (var i = 0; i < sopData.sections.length; i++) {
             var sec = sopData.sections[i];
             var title = sec.title || 'Abschnitt ' + (i + 1);
             var icon = SIC[title] || 'fa-circle';
-            
-            // Intelligente Kürzung mit max 12 Zeichen
-            var displayTitle = title.length > 12 ? truncateTitle(title, 12) : title;
-            var needsTooltip = title !== displayTitle;
 
-            html += '<button class="segmented-btn';
-            if (needsTooltip) html += ' has-tooltip';
-            html += '" role="tab" aria-selected="false" ';
+            html += '<button class="segmented-btn" role="tab" aria-selected="false" ';
             html += 'aria-controls="section-' + i + '" ';
-            html += 'data-seg="' + i + '"';
-            if (needsTooltip) {
-                html += ' title="' + title.replace(/"/g, '&quot;') + '"';
-            }
+            html += 'data-seg="' + i + '" ';
+            // Tooltip zeigt immer den vollständigen Titel bei Hover
+            html += 'title="' + title.replace(/"/g, '&quot;') + '"';
             html += '>';
             html += '<i class="fa-solid ' + icon + '" aria-hidden="true"></i> ';
-            html += '<span class="btn-text">' + displayTitle + '</span>';
+            // Vollständiger Titel - CSS kürzt bei Bedarf mit Ellipsis
+            html += '<span class="btn-text">' + title + '</span>';
             html += '</button>';
         }
 
