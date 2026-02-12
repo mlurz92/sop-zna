@@ -729,11 +729,8 @@
         html += '<i class="fa-solid fa-list"></i> Alle';
         html += '</button>';
 
-        // Add section buttons (max 5 for usability)
-        var maxButtons = 5;
-        var count = 0;
-
-        for (var i = 0; i < sopData.sections.length && count < maxButtons; i++) {
+        // Add section buttons (all sections, scrollable)
+        for (var i = 0; i < sopData.sections.length; i++) {
             var sec = sopData.sections[i];
             var title = sec.title || 'Abschnitt ' + (i + 1);
             var icon = SIC[title] || 'fa-circle';
@@ -741,7 +738,6 @@
             html += '<button class="segmented-btn" data-seg="' + i + '">';
             html += '<i class="fa-solid ' + icon + '"></i> ' + title.substring(0, 10);
             html += '</button>';
-            count++;
         }
 
         html += '</div>';
