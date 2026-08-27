@@ -84,19 +84,42 @@
             },
             {
                 title: "Disposition",
-                html: `<ul>
-                    <li><strong>BPH als Ursache des Harnverhalts:</strong>
-                        <ul>
-                            <li>Ambulantes Procedere mit DK (+ Beinbeutel)</li>
-                            <li>+ Alphablocker und Termin bei Urologen ≤ 3 d</li>
+                html: `<p class="dispo-intro">Verbindliche hausinterne Dispositionsrichtlinie der ZNA (Klinikum St. Georg). Die Farbstufe ergibt sich aus Klinik, Vitalparametern und Verlauf &ndash; nicht aus einem Einzelwert.</p>
+                <div class="dispo">
+                    <section class="dispo-card dispo-gruen">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GRÜN &ndash; Ambulanter Verbleib</h3></header>
+                        <dl class="dispo-meta">
+                            <dt>Entscheidung</dt><dd>Behandelnder Arzt ZNA</dd>
+                            <dt>Pfad</dt><dd>Entlassung nach Hause, Anbindung an Hausarzt oder MVZ</dd>
+                        </dl>
+                        <p class="dispo-spec">BPH-bedingter Harnverhalt: DK (+ Beinbeutel), Alphablocker, urologische Vorstellung ≤ 3 Tage.</p>
+                        <p class="dispo-foot">Wiedervorstellung jederzeit bei Verschlechterung anbieten; Kontrollzeitpunkt durch den weiterbehandelnden Arzt festlegen.</p>
+                    </section>
+                    <section class="dispo-card dispo-gelb">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GELB &ndash; Stationäre Aufnahme (Normalstation / ZNA-Station)</h3></header>
+                        <p class="dispo-sub">Regelpfad Fachabteilung</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">Urologie</span><span class="dispo-tel">4079</span></li>
                         </ul>
-                    </li>
-                    <li><strong>Harnverhalt mit akut behandlungsbedürftiger Pathologie:</strong>
-                        <ul>
-                            <li>Stationäre Aufnahme in entsprechende Abteilung erwägen</li>
+                        <p class="dispo-spec">Stationär bei postrenalem Nierenversagen, Makrohämaturie oder Urosepsis.</p>
+                        <div class="dispo-block">
+                            <p class="dispo-sub">Entlassung am Folgetag angestrebt (ZNA-Station / A&amp;B-Station)</p>
+                            <dl class="dispo-meta">
+                                <dt>Indikation</dt><dd>gemäß Statut ZNA und Statut Aufnahme- und Beobachtungsstation</dd>
+                                <dt>Bedingung</dt><dd>nur nach Rücksprache mit Facharzt ZNA / OA ZNA</dd>
+                                <dt>Kontakt</dt><dd>ZNA-Station 4B: 4812 &middot; Bettenmanagement: 4299</dd>
+                            </dl>
+                        </div>
+                    </section>
+                    <section class="dispo-card dispo-rot">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>ROT &ndash; Kritisch / Intensivmedizinische Überwachung</h3></header>
+                        <p class="dispo-sub">Aufnahme ITS / IMC</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">ITS-Koordinator</span><span class="dispo-tel">3008</span><span class="dispo-note">zentraler ITS-Aufnahmekontakt</span></li>
                         </ul>
-                    </li>
-                </ul>`
+                        <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
+                    </section>
+                </div>`
             },
             {
                 title: "Medikamentenliste",

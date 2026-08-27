@@ -1,5 +1,5 @@
 {
-    "version": "2.5.1",
-    "lastUpdated": "2026-02-12T13:50:00Z",
-    "changelog": "Pull-to-Refresh Prevention: overscroll-behavior: contain verhindert versehentliches Aktualisieren beim horizontalen Scrollen"
+    "version": "2.6.0",
+    "lastUpdated": "2026-08-27T00:00:00Z",
+    "changelog": "Dispositionsfeld: Alle 73 SOPs nutzen jetzt die hausinternen Dispositionsrichtlinien der ZNA (Ampelschema GRÜN/GELB/ROT) inkl. fachspezifischer Regelpfade und hinterlegter Telefonnummern"
 }
