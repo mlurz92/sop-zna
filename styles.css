@@ -2971,6 +2971,189 @@ mark {
     }
 }
 
+/* ============================================================
+   Dispositionsfeld – hausinterne Dispositionsrichtlinien (ZNA)
+   ============================================================ */
+
+.sop-section-body .dispo-intro {
+    font-size: 0.84rem;
+    color: var(--text2);
+    margin: 4px 0 14px;
+    line-height: 1.6;
+}
+
+.sop-section-body .dispo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 6px 0 4px;
+}
+
+@media (min-width: 1100px) {
+    .sop-section-body .dispo {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: start;
+    }
+}
+
+.sop-section-body .dispo-card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--dispo-color, var(--border2));
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 14px 16px 16px;
+    box-shadow: var(--shadow-xs);
+    break-inside: avoid;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.sop-section-body .dispo-card:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.sop-section-body .dispo-gruen { --dispo-color: var(--success); --dispo-bg: var(--success-light); }
+.sop-section-body .dispo-gelb  { --dispo-color: var(--warning); --dispo-bg: var(--warning-light); }
+.sop-section-body .dispo-rot   { --dispo-color: var(--danger);  --dispo-bg: var(--danger-light); }
+
+[data-theme="dark"] .sop-section-body .dispo-gruen { --dispo-bg: rgba(34, 197, 94, 0.10); }
+[data-theme="dark"] .sop-section-body .dispo-gelb  { --dispo-bg: rgba(245, 158, 11, 0.10); }
+[data-theme="dark"] .sop-section-body .dispo-rot   { --dispo-bg: rgba(239, 68, 68, 0.10); }
+
+.sop-section-body .dispo-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+}
+
+.sop-section-body .dispo-head h3 {
+    margin: 0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    line-height: 1.35;
+}
+
+.sop-section-body .dispo-dot {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    background: var(--dispo-color);
+    box-shadow: 0 0 0 4px var(--dispo-bg);
+}
+
+.sop-section-body .dispo-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    margin: 0 0 10px;
+    font-size: 0.82rem;
+}
+
+.sop-section-body .dispo-meta dt {
+    font-weight: 600;
+    color: var(--text2);
+    white-space: nowrap;
+}
+
+.sop-section-body .dispo-meta dd {
+    margin: 0;
+    color: var(--text);
+}
+
+.sop-section-body .dispo-sub {
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--dispo-color, var(--text2));
+}
+
+.sop-section-body .dispo-contacts {
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.sop-section-body .dispo-contact {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 4px 10px;
+    padding: 9px 11px;
+    border-radius: var(--radius);
+    background: var(--dispo-bg, var(--surface2));
+    border: 1px solid var(--border);
+    font-size: 0.83rem;
+}
+
+.sop-section-body .dispo-fach {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.sop-section-body .dispo-tel {
+    justify-self: end;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--text);
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    white-space: nowrap;
+}
+
+.sop-section-body .dispo-note {
+    grid-column: 1 / -1;
+    font-size: 0.76rem;
+    color: var(--text2);
+    line-height: 1.5;
+}
+
+.sop-section-body .dispo-spec {
+    margin: 0 0 10px;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.sop-section-body .dispo-block {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border2);
+}
+
+.sop-section-body .dispo-foot {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--text2);
+}
+
+@media print {
+    .sop-section-body .dispo {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .sop-section-body .dispo-card {
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .sop-section-body .dispo-tel {
+        background: transparent !important;
+    }
+}
+
 @media print {
     .sidebar,
     .topbar,

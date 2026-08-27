@@ -145,30 +145,42 @@
             },
             {
                 title: "Disposition",
-                html: `<p><strong>Kriterien für ambulantes Procedere:</strong> Klinische Stabilität, sichere Medikamentenaufnahme, keine neue relevante Organbeeinträchtigung, keine ZNS-/Katheterinfektion, keine Pneumonie, keine Fluorchinolon-Prophylaxe innerhalb der letzten 7 Tage, Unterstützung im sozialen Umfeld & adäquates Follow-up & zeitnahe Erreichbarkeit einer adäquaten Klinik.</p>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Risikoprofil</th>
-                                <th>Empfehlung</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>MASCC ≥ 21 Punkte UND o.g. Kriterien erfüllt UND erwartete Neutropenie ≤ 7 d</td>
-                                <td><strong>Ambulant</strong> in Rücksprache mit Hämato-/Onkologie</td>
-                            </tr>
-                            <tr>
-                                <td>Alle anderen Patienten</td>
-                                <td><strong>Stationäre Aufnahme</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Sepsis</td>
-                                <td><strong>Überwachungsstation (IMC/ICU)</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                html: `<p class="dispo-intro">Verbindliche hausinterne Dispositionsrichtlinie der ZNA (Klinikum St. Georg). Die Farbstufe ergibt sich aus Klinik, Vitalparametern und Verlauf &ndash; nicht aus einem Einzelwert.</p>
+                <div class="dispo">
+                    <section class="dispo-card dispo-gruen">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GRÜN &ndash; Ambulanter Verbleib</h3></header>
+                        <dl class="dispo-meta">
+                            <dt>Entscheidung</dt><dd>Behandelnder Arzt ZNA</dd>
+                            <dt>Pfad</dt><dd>Entlassung nach Hause, Anbindung an Hausarzt oder MVZ</dd>
+                        </dl>
+                        <p class="dispo-spec">Nur in Ausnahmefällen (MASCC ≥ 21) nach Rücksprache mit dem onkologischen Oberarzt.</p>
+                        <p class="dispo-foot">Wiedervorstellung jederzeit bei Verschlechterung anbieten; Kontrollzeitpunkt durch den weiterbehandelnden Arzt festlegen.</p>
+                    </section>
+                    <section class="dispo-card dispo-gelb">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GELB &ndash; Stationäre Aufnahme (Normalstation / ZNA-Station)</h3></header>
+                        <p class="dispo-sub">Regelpfad Fachabteilung</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">Onkologie</span><span class="dispo-tel">4600</span><span class="dispo-note">Onkologischer Oberarzt</span></li>
+                        </ul>
+                        <p class="dispo-spec">Antibiose innerhalb von 60 min &ndash; vor Verlegung applizieren.</p>
+                        <div class="dispo-block">
+                            <p class="dispo-sub">Entlassung am Folgetag angestrebt (ZNA-Station / A&amp;B-Station)</p>
+                            <dl class="dispo-meta">
+                                <dt>Indikation</dt><dd>gemäß Statut ZNA und Statut Aufnahme- und Beobachtungsstation</dd>
+                                <dt>Bedingung</dt><dd>nur nach Rücksprache mit Facharzt ZNA / OA ZNA</dd>
+                                <dt>Kontakt</dt><dd>ZNA-Station 4B: 4812 &middot; Bettenmanagement: 4299</dd>
+                            </dl>
+                        </div>
+                    </section>
+                    <section class="dispo-card dispo-rot">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>ROT &ndash; Kritisch / Intensivmedizinische Überwachung</h3></header>
+                        <p class="dispo-sub">Aufnahme ITS / IMC</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">IMC 2.0 (KAIM, 2 Erd)</span><span class="dispo-tel">4764</span><span class="dispo-note">internistische IMC</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">ITS-Koordinator</span><span class="dispo-tel">3008</span><span class="dispo-note">zentraler ITS-Aufnahmekontakt</span></li>
+                        </ul>
+                        <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
+                    </section>
                 </div>`
             }
         ],

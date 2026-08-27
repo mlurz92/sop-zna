@@ -120,33 +120,44 @@
             },
             {
                 title: "Disposition",
-                html: `<div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Szenario</th>
-                                <th>Empfohlene Disposition</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Niederspannungsunfall + EKG unauffällig + fehlende hs-Troponin-Erhöhung/-Dynamik + keine Begleitverletzung + normale SM/ICD-Funktion + keine Schwangerschaft</td>
-                                <td><strong>Ambulantes Procedere</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Hochspannungs-Unfall ODER initiale Bewusstlosigkeit ODER EKG-Veränderungen ODER signifikante hs-Troponin Erhöhung/-Dynamik</td>
-                                <td><strong>Kardiales Monitoring für mindestens 24 h</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Schwangere Patientinnen</td>
-                                <td><strong>CTG / Gyn-Vorstellung</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Unfallchirurgische Verletzungen / größere Verbrennungen</td>
-                                <td><strong>Verlegung in UCH / Verbrennungszentrum</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                html: `<p class="dispo-intro">Verbindliche hausinterne Dispositionsrichtlinie der ZNA (Klinikum St. Georg). Die Farbstufe ergibt sich aus Klinik, Vitalparametern und Verlauf &ndash; nicht aus einem Einzelwert.</p>
+                <div class="dispo">
+                    <section class="dispo-card dispo-gruen">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GRÜN &ndash; Ambulanter Verbleib</h3></header>
+                        <dl class="dispo-meta">
+                            <dt>Entscheidung</dt><dd>Behandelnder Arzt ZNA</dd>
+                            <dt>Pfad</dt><dd>Entlassung nach Hause, Anbindung an Hausarzt oder MVZ</dd>
+                        </dl>
+                        <p class="dispo-spec">Niedervoltunfall ohne Bewusstlosigkeit, ohne EKG-Veränderungen und ohne Verletzungen; D-Arzt-Verfahren beachten.</p>
+                        <p class="dispo-foot">Wiedervorstellung jederzeit bei Verschlechterung anbieten; Kontrollzeitpunkt durch den weiterbehandelnden Arzt festlegen.</p>
+                    </section>
+                    <section class="dispo-card dispo-gelb">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GELB &ndash; Stationäre Aufnahme (Normalstation / ZNA-Station)</h3></header>
+                        <p class="dispo-sub">Regelpfad Fachabteilung</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">Unfallchirurgie (UCH)</span><span class="dispo-tel">4835 / 4610</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">Plastische Chirurgie (PCH)</span><span class="dispo-tel">4956</span></li>
+                        </ul>
+                        <p class="dispo-spec">Wundversorgung &rarr; PCH; Begleitverletzungen &rarr; UCH; Hochvoltunfall immer stationär.</p>
+                        <div class="dispo-block">
+                            <p class="dispo-sub">Entlassung am Folgetag angestrebt (ZNA-Station / A&amp;B-Station)</p>
+                            <dl class="dispo-meta">
+                                <dt>Indikation</dt><dd>gemäß Statut ZNA und Statut Aufnahme- und Beobachtungsstation</dd>
+                                <dt>Bedingung</dt><dd>nur nach Rücksprache mit Facharzt ZNA / OA ZNA</dd>
+                                <dt>Kontakt</dt><dd>ZNA-Station 4B: 4812 &middot; Bettenmanagement: 4299</dd>
+                            </dl>
+                        </div>
+                    </section>
+                    <section class="dispo-card dispo-rot">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>ROT &ndash; Kritisch / Intensivmedizinische Überwachung</h3></header>
+                        <p class="dispo-sub">Aufnahme ITS / IMC</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">ITS Anästhesie (KAIS, Haus 21)</span><span class="dispo-tel">4054</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">IMC KAIS</span><span class="dispo-tel">4744</span><span class="dispo-note">alternativ 4640</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">ITS-Koordinator</span><span class="dispo-tel">3008</span><span class="dispo-note">zentraler ITS-Aufnahmekontakt</span></li>
+                        </ul>
+                        <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
+                    </section>
                 </div>`
             }
         ],

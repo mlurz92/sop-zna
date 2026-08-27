@@ -153,27 +153,43 @@
             },
             {
                 title: "Disposition",
-                html: `<p><strong>Evaluation des Therapieansprechens nach 30–60 Minuten (Klinik, Symptome, Peak-Flow, SpO₂, BGA):</strong></p>
-                <ul>
-                    <li><strong>Ambulantes Procedere + zeitnahe pneumologische Anbindung:</strong>
-                        <ul>
-                            <li>Gutes Ansprechen auf Therapie.</li>
-                            <li>FEV1 &ge; 70 % des Sollwertes oder PEF &ge; 70 % des pers. Bestwerts über mind. 60 min.</li>
-                            <li>Eupnoe.</li>
-                            <li>Normaler klinischer Befund.</li>
+                html: `<p class="dispo-intro">Verbindliche hausinterne Dispositionsrichtlinie der ZNA (Klinikum St. Georg). Die Farbstufe ergibt sich aus Klinik, Vitalparametern und Verlauf &ndash; nicht aus einem Einzelwert.</p>
+                <div class="dispo">
+                    <section class="dispo-card dispo-gruen">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GRÜN &ndash; Ambulanter Verbleib</h3></header>
+                        <dl class="dispo-meta">
+                            <dt>Entscheidung</dt><dd>Behandelnder Arzt ZNA</dd>
+                            <dt>Pfad</dt><dd>Entlassung nach Hause, Anbindung an Hausarzt oder MVZ</dd>
+                        </dl>
+                        <p class="dispo-spec">Nach Symptomfreiheit und PEF &gt; 70 % des Sollwertes mit Steroidplan und pneumologischer Kontrolle.</p>
+                        <p class="dispo-foot">Wiedervorstellung jederzeit bei Verschlechterung anbieten; Kontrollzeitpunkt durch den weiterbehandelnden Arzt festlegen.</p>
+                    </section>
+                    <section class="dispo-card dispo-gelb">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>GELB &ndash; Stationäre Aufnahme (Normalstation / ZNA-Station)</h3></header>
+                        <p class="dispo-sub">Regelpfad Fachabteilung</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">Pneumologie</span><span class="dispo-tel">4006 / 4933</span><span class="dispo-note">ITS Pneumologie (2.1): 4217</span></li>
                         </ul>
-                    </li>
-                    <li><strong>Überwachungsstation (IMC/ICU):</strong>
-                        <ul>
-                            <li>Verschlechterung der PEF-Werte trotz Therapie.</li>
-                            <li>Persistierende oder zunehmende Hypoxämie.</li>
-                            <li>Hyperkapnie.</li>
-                            <li>Fallender arterieller pH-Wert (Azidose).</li>
-                            <li>Erschöpfung, Bewusstseinsstörung.</li>
-                            <li>Koma oder Atemstillstand.</li>
+                        
+                        <div class="dispo-block">
+                            <p class="dispo-sub">Entlassung am Folgetag angestrebt (ZNA-Station / A&amp;B-Station)</p>
+                            <dl class="dispo-meta">
+                                <dt>Indikation</dt><dd>gemäß Statut ZNA und Statut Aufnahme- und Beobachtungsstation</dd>
+                                <dt>Bedingung</dt><dd>nur nach Rücksprache mit Facharzt ZNA / OA ZNA</dd>
+                                <dt>Kontakt</dt><dd>ZNA-Station 4B: 4812 &middot; Bettenmanagement: 4299</dd>
+                            </dl>
+                        </div>
+                    </section>
+                    <section class="dispo-card dispo-rot">
+                        <header class="dispo-head"><span class="dispo-dot" aria-hidden="true"></span><h3>ROT &ndash; Kritisch / Intensivmedizinische Überwachung</h3></header>
+                        <p class="dispo-sub">Aufnahme ITS / IMC</p>
+                        <ul class="dispo-contacts">
+                        <li class="dispo-contact"><span class="dispo-fach">ITS Pneumologie (2.1)</span><span class="dispo-tel">4217</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">ITS-Koordinator</span><span class="dispo-tel">3008</span><span class="dispo-note">zentraler ITS-Aufnahmekontakt</span></li>
                         </ul>
-                    </li>
-                </ul>`
+                        <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
+                    </section>
+                </div>`
             }
         ],
         stand: "10/24",
