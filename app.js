@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.7.0';
+    var APP_VERSION = '2.8.0';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -629,6 +629,7 @@
     function openSpotlight() {
         if (!E.spotlightOverlay) return;
 
+        rememberFocus();
         E.spotlightOverlay.classList.add('show');
         document.body.style.overflow = 'hidden';
 
@@ -648,6 +649,7 @@
 
         E.spotlightOverlay.classList.remove('show');
         document.body.style.overflow = '';
+        restoreFocus();
 
         if (E.spotlightInput) {
             E.spotlightInput.value = '';
@@ -689,7 +691,7 @@
             var cl = gc(d.category);
             var catName = CATS[d.category] ? CATS[d.category].name : '';
 
-            html += '<div class="spotlight-result" data-id="' + d.id + '">';
+            html += '<div class="spotlight-result" data-id="' + d.id + '" role="option" tabindex="0">';
             html += '<div class="spotlight-result-icon" style="background:' + cl + ';color:#fff">';
             html += '<i class="fa-solid ' + (CATS[d.category] ? CATS[d.category].icon : 'fa-file-medical') + '"></i>';
             html += '</div>';
@@ -749,7 +751,7 @@
 
         // Add "Alle" button
         html += '<button class="segmented-btn active" ';
-        html += 'role="tab" aria-selected="true" aria-controls="section-all" ';
+        html += 'role="tab" aria-selected="true" ';
         html += 'data-seg="all" title="Alle Abschnitte anzeigen">';
         html += '<i class="fa-solid fa-list" aria-hidden="true"></i> ';
         html += '<span class="btn-text">Alle</span>';
@@ -763,7 +765,6 @@
             var icon = SIC[title] || 'fa-circle';
 
             html += '<button class="segmented-btn" role="tab" aria-selected="false" ';
-            html += 'aria-controls="section-' + i + '" ';
             html += 'data-seg="' + i + '" ';
             // Tooltip zeigt immer den vollständigen Titel bei Hover
             html += 'title="' + title.replace(/"/g, '&quot;') + '"';
@@ -1087,6 +1088,9 @@
         if (E.themeToggleIcon) E.themeToggleIcon.className = dk ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         if (E.themeToggleMobileIcon) E.themeToggleMobileIcon.className = dk ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         if (E.themeToggleLabel) E.themeToggleLabel.textContent = dk ? 'Light Mode' : 'Dark Mode';
+        var thLabel = dk ? 'Light Mode einschalten' : 'Dark Mode einschalten';
+        if (E.themeToggle) E.themeToggle.setAttribute('aria-label', thLabel);
+        if (E.themeToggleMobile) E.themeToggleMobile.setAttribute('aria-label', thLabel);
         if (E.metaThemeColor) E.metaThemeColor.setAttribute('content', dk ? '#1e293b' : '#ffffff');
     }
 
@@ -1119,6 +1123,106 @@
             heavy: 50
         };
         navigator.vibrate(patterns[type] || 10);
+    }
+
+    // ============================================
+    // FOKUS-MANAGEMENT FÜR OVERLAYS
+    // ============================================
+    var FOCUS_RETURN = null;
+
+    function focusablesIn(root) {
+        if (!root) return [];
+        var sel = 'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        var all = root.querySelectorAll(sel);
+        var out = [];
+        for (var i = 0; i < all.length; i++) {
+            var r = all[i].getBoundingClientRect();
+            if (r.width > 0 && r.height > 0) out.push(all[i]);
+        }
+        return out;
+    }
+
+    function trapFocus(e) {
+        if (e.key !== 'Tab') return;
+        var root = document.querySelector('.dir-overlay.show .dir-modal, .picker-overlay.show .picker-sheet, .spotlight-overlay.show .spotlight-container');
+        if (!root) return;
+        var f = focusablesIn(root);
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !root.contains(document.activeElement))) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    }
+
+    function rememberFocus() {
+        FOCUS_RETURN = document.activeElement;
+    }
+
+    function restoreFocus() {
+        if (FOCUS_RETURN && FOCUS_RETURN.focus) {
+            try { FOCUS_RETURN.focus(); } catch (e) {}
+        }
+        FOCUS_RETURN = null;
+    }
+
+    // ============================================
+    // ROUTING (History-API, Zurück-Taste, Deep Links)
+    // ============================================
+    var ROUTE_LOCK = false;
+
+    function hashForState() {
+        if (S.tab === 'sop' && S.sopId) return '#sop/' + S.sopId;
+        if (S.tab === 'browse') return '#browse';
+        if (S.tab === 'search') return '#search';
+        return '#home';
+    }
+
+    function syncRoute(replace) {
+        var target = hashForState();
+        if (window.location.hash === target) return;
+        ROUTE_LOCK = true;
+        try {
+            if (replace) history.replaceState({ r: target }, '', target);
+            else history.pushState({ r: target }, '', target);
+        } catch (e) {
+            window.location.hash = target;
+        }
+        setTimeout(function() { ROUTE_LOCK = false; }, 0);
+    }
+
+    function hasSop(id) {
+        for (var i = 0; i < S.data.length; i++) {
+            if (S.data[i].id === id) return true;
+        }
+        return false;
+    }
+
+    // Wendet die aktuelle Adresse an, ohne einen neuen History-Eintrag zu erzeugen
+    function applyRoute() {
+        var h = window.location.hash || '';
+        if (h.indexOf('#sop/') === 0) {
+            var id = h.substring(5);
+            if (hasSop(id)) {
+                S.sopId = id;
+                sTab('sop');
+                return;
+            }
+        }
+        S.sopId = null;
+        if (h === '#browse') sTab('browse');
+        else if (h === '#search') sTab('search');
+        else sTab('home');
+    }
+
+    function onRouteChange() {
+        if (ROUTE_LOCK) return;
+        S.navStack = [];
+        S.isNavigating = false;
+        applyRoute();
     }
 
     // ============================================
@@ -1267,6 +1371,7 @@
 
     function oDir() {
         if (!E.dirOverlay) return;
+        rememberFocus();
         rDir(E.dirInput ? E.dirInput.value : '');
         E.dirOverlay.classList.add('show');
         document.body.classList.add('picker-open');
@@ -1280,6 +1385,7 @@
         if (!E.dirOverlay) return;
         E.dirOverlay.classList.remove('show');
         document.body.classList.remove('picker-open');
+        restoreFocus();
     }
 
     // ============================================
@@ -1537,26 +1643,11 @@
         rHome();
         bind();
 
-        // Handle initial hash
-        var h = window.location.hash;
-        if (h && h.indexOf('#sop/') === 0) {
-            var id = h.substring(5);
-            var found = false;
-            for (var j = 0; j < S.data.length; j++) {
-                if (S.data[j].id === id) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                S.sopId = id;
-                sTab('sop');
-            } else {
-                sTab('home');
-            }
-        } else {
-            sTab('home');
-        }
+        // Adresse anwenden und History-Navigation aktivieren
+        applyRoute();
+        syncRoute(true);
+        window.addEventListener('popstate', onRouteChange);
+        window.addEventListener('hashchange', onRouteChange);
 
         uOff();
 
@@ -1763,6 +1854,20 @@
             });
         }
 
+        // Fokus in geöffneten Overlays halten
+        document.addEventListener('keydown', trapFocus);
+
+        // Enter/Leertaste aktiviert Karten und Listeneinträge (Tastaturbedienung)
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var t = e.target;
+            if (!t || !t.getAttribute) return;
+            var role = t.getAttribute('role');
+            if ((role !== 'button' && role !== 'option') || t.tagName === 'BUTTON' || t.tagName === 'A') return;
+            e.preventDefault();
+            t.click();
+        });
+
         // Keyboard shortcut for spotlight
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
@@ -1946,6 +2051,9 @@
 
         E.contentScroll.scrollTop = 0;
         rNav();
+
+        // Adresse an die aktive Ansicht angleichen (SOP-Route setzt rSOP selbst)
+        if (t !== 'sop') syncRoute(true);
     }
 
     // ============================================
@@ -2067,7 +2175,7 @@
         var gh = '';
 
         // Add "Alle SOPs" card at the beginning - styled like category cards
-        gh += '<div class="cat-card cat-card-all" data-cat="all" style="--cat-color:var(--primary)">';
+        gh += '<div class="cat-card cat-card-all" data-cat="all" role="button" tabindex="0" style="--cat-color:var(--primary)">';
         gh += '<i class="fa-solid fa-list cat-card-icon" style="color:var(--primary)"></i>';
         gh += '<span class="cat-card-name">Alle SOPs</span>';
         gh += '<span class="cat-card-count">' + S.data.length + ' Pfade</span>';
@@ -2078,7 +2186,7 @@
             if (counts[keys[i]] > 0) {
                 var cl = gc(keys[i]);
                 var ic = CATS[keys[i]].icon;
-                gh += '<div class="cat-card" data-cat="' + keys[i] + '" style="--cat-color:' + cl + '">';
+                gh += '<div class="cat-card" data-cat="' + keys[i] + '" role="button" tabindex="0" style="--cat-color:' + cl + '">';
                 gh += '<i class="fa-solid ' + ic + ' cat-card-icon" style="color:' + cl + '"></i>';
                 gh += '<span class="cat-card-name">' + CATS[keys[i]].name + '</span>';
                 gh += '<span class="cat-card-count">' + counts[keys[i]] + ' SOPs</span>';
@@ -2102,11 +2210,12 @@
     }
 
     function rBrowse() {
-        var html = '<div class="browse-bar-top">' +
+        var html = '<h1 class="sr-only">Alle SOPs</h1>' +
+            '<div class="browse-bar-top">' +
             '<div class="browse-search">' +
             '<i class="fa-solid fa-magnifying-glass"></i>' +
             '<input type="text" id="browseSearchInput" placeholder="SOPs filtern..." autocomplete="off" value="' + (S.bQ || '') + '">' +
-            '<button class="browse-search-clear' + (S.bQ ? ' show' : '') + '" id="browseSearchClear"><i class="fa-solid fa-xmark"></i></button>' +
+            '<button class="browse-search-clear' + (S.bQ ? ' show' : '') + '" id="browseSearchClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
             '</div>' +
             '<button class="browse-cat-toggle' + (S.bCatOpen ? ' open' : '') + '" id="browseCatToggle">' +
             '<i class="fa-solid fa-filter"></i> Kategorien' +
@@ -2115,7 +2224,7 @@
             '</button>' +
             '<div class="browse-cats' + (S.bCatOpen ? ' open' : '') + '" id="browseCategoryFilters"></div>' +
             '</div>' +
-            '<div class="browse-list" id="browseList"></div>';
+            '<div class="browse-list" id="browseList" aria-live="polite"></div>';
 
         E.viewBrowse.innerHTML = html;
 
@@ -2222,11 +2331,11 @@
             var cn = CATS[d.category] ? CATS[d.category].name : '';
             var nm = S.bQ ? hl(d.name || '', S.bQ) : (d.name || '');
 
-            html += '<div class="browse-item" data-id="' + d.id + '">';
+            html += '<div class="browse-item" data-id="' + d.id + '" role="button" tabindex="0">';
             html += '<span class="bi-dot" style="background:' + cl + '"></span>';
             html += '<span class="bi-name">' + nm + '</span>';
             html += '<span class="bi-cat">' + cn + '</span>';
-            html += '<i class="fa-solid fa-chevron-right bi-arrow"></i>';
+            html += '<i class="fa-solid fa-chevron-right bi-arrow" aria-hidden="true"></i>';
             html += '</div>';
         }
 
@@ -2303,7 +2412,7 @@
             var cl = gc(d.category);
             var cn = CATS[d.category] ? CATS[d.category].name : '';
 
-            html += '<div class="search-result" data-id="' + d.id + '">';
+            html += '<div class="search-result" data-id="' + d.id + '" role="button" tabindex="0">';
             html += '<h4>' + hl(d.name || '', S.sQ) + '</h4>';
             if (r.secMatches.length > 0) {
                 html += '<p>' + hl(r.secMatches[0].snippet, S.sQ) + '</p>';
@@ -2347,7 +2456,7 @@
         // Build header
         var html = '<div class="sop-header">' +
             '<div class="sop-header-top">' +
-            '<span class="sop-cat-badge" style="background:' + cl + '"><i class="fa-solid ' + ci + '"></i> ' + cn + '</span>' +
+            '<span class="sop-cat-badge" style="--cat-color:' + cl + '"><i class="fa-solid ' + ci + '" aria-hidden="true"></i> ' + cn + '</span>' +
             (d.stand ? '<span class="sop-meta-item"><i class="fa-solid fa-calendar"></i> Stand: ' + d.stand + '</span>' : '') +
             '</div>' +
             '<h1 class="sop-title">' + d.name + '</h1>' +
@@ -2369,9 +2478,9 @@
                 var op = S.allO || isAO;
 
                 html += '<div class="sop-section" data-sec="' + i + '" style="animation-delay:' + (i * 0.05) + 's">';
-                html += '<div class="sop-section-head" data-idx="' + i + '">';
+                html += '<div class="sop-section-head" data-idx="' + i + '" role="button" tabindex="0" aria-expanded="' + (op ? 'true' : 'false') + '">';
                 html += '<i class="fa-solid ' + ic + ' sec-icon" style="color:' + cl + '"></i>';
-                html += '<span class="sec-title">' + secTitle + '</span>';
+                html += '<span class="sec-title" role="heading" aria-level="2">' + secTitle + '</span>';
                 html += '<i class="fa-solid fa-chevron-down sec-toggle' + (op ? ' open' : '') + '"></i>';
                 html += '</div>';
                 html += '<div class="sop-section-body' + (op ? ' open' : '') + '">' + secHtml + '</div>';
@@ -2382,9 +2491,9 @@
         // Sources section
         if (d.sources) {
             html += '<div class="sop-section" style="animation-delay:' + (secCount * 0.05) + 's">';
-            html += '<div class="sop-section-head" data-idx="sources">';
+            html += '<div class="sop-section-head" data-idx="sources" role="button" tabindex="0" aria-expanded="false">';
             html += '<i class="fa-solid fa-quote-right sec-icon" style="color:' + cl + '"></i>';
-            html += '<span class="sec-title">Quellen</span>';
+            html += '<span class="sec-title" role="heading" aria-level="2">Quellen</span>';
             html += '<i class="fa-solid fa-chevron-down sec-toggle"></i>';
             html += '</div>';
             html += '<div class="sop-section-body">';
@@ -2448,6 +2557,8 @@
                         bd.classList.add('open');
                         tg.classList.add('open');
                     }
+
+                    hd.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
                 });
             })(heads[i]);
         }
@@ -2455,9 +2566,7 @@
         rPk();
         rNav();
 
-        if (!S.navStack.length || S.navStack[S.navStack.length - 1].sopId !== S.sopId) {
-            history.replaceState(null, null, '#sop/' + S.sopId);
-        }
+        syncRoute(false);
     }
 
     function rBC(items) {
@@ -2560,9 +2669,13 @@
     function oPk() {
         if (!E.sectionPickerOverlay) return;
 
+        rememberFocus();
         E.sectionPickerOverlay.classList.add('show');
         document.body.classList.add('picker-open');
         haptic('light');
+        setTimeout(function() {
+            if (E.sectionPickerClose) E.sectionPickerClose.focus();
+        }, 260);
     }
 
     function cPk() {
@@ -2570,6 +2683,7 @@
 
         E.sectionPickerOverlay.classList.remove('show');
         document.body.classList.remove('picker-open');
+        restoreFocus();
     }
 
     // ============================================

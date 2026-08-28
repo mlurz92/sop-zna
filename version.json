@@ -1,5 +1,5 @@
 {
-    "version": "2.7.0",
-    "lastUpdated": "2026-08-28T00:00:00Z",
-    "changelog": "Stilles Auto-Update ohne Hinweisbanner, neues Telefonverzeichnis-Modal und überarbeitetes Dispositionsfeld mit Direktkontakten"
+    "version": "2.8.0",
+    "lastUpdated": "2026-08-28T12:00:00Z",
+    "changelog": "UI/UX-Überarbeitung: echte Zurück-Navigation über die History-API, vollständige Tastatur- und Screenreader-Bedienung (WCAG 2.1 AA), größere Touch-Ziele, kompaktere Startseite und SOP-Liste, Schriftgröße im Inhalts-Sheet, entfernte Bootstrap-Abhängigkeit"
 }

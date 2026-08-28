@@ -14,8 +14,8 @@
     --surface3: #e2e8f0;
     --text: #0f172a;
     --text2: #475569;
-    --text3: #94a3b8;
-    --text4: #cbd5e1;
+    --text3: #64748b;
+    --text4: #94a3b8;
     --border: #e2e8f0;
     --border2: #cbd5e1;
     --hover: #f1f5f9;
@@ -70,8 +70,8 @@
     --surface3: #334155;
     --text: #f1f5f9;
     --text2: #94a3b8;
-    --text3: #64748b;
-    --text4: #475569;
+    --text3: #94a3b8;
+    --text4: #64748b;
     --border: #334155;
     --border2: #475569;
     --hover: #334155;
@@ -429,8 +429,12 @@ mark {
 
 .sidebar-nav li a.active {
     background: var(--primary-light);
-    color: var(--primary);
-    font-weight: 500;
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .sidebar-nav li a.active {
+    color: #bfdbfe;
 }
 
 .sidebar-nav li a .nav-dot {
@@ -936,7 +940,7 @@ mark {
 
 .hero-org {
     font-size: 0.88rem;
-    color: var(--text3);
+    color: var(--text2);
     font-weight: 400;
     margin-bottom: 24px;
 }
@@ -1334,7 +1338,7 @@ mark {
 
 .bi-cat {
     font-size: 0.72rem;
-    color: var(--text3);
+    color: var(--text2);
     white-space: nowrap;
     background: var(--surface2);
     padding: 4px 10px;
@@ -1503,13 +1507,14 @@ mark {
 .sop-cat-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: #fff;
-    font-size: 0.72rem;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--cat-color, var(--primary)) 14%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--cat-color, var(--primary)) 40%, transparent);
+    color: var(--text);
+    font-size: 0.74rem;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1517,8 +1522,9 @@ mark {
 }
 
 .sop-cat-badge i {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     flex-shrink: 0;
+    color: var(--cat-color, var(--primary));
 }
 
 .sop-title {
@@ -1535,7 +1541,7 @@ mark {
     flex-wrap: wrap;
     gap: 12px;
     font-size: 0.75rem;
-    color: var(--text3);
+    color: var(--text2);
 }
 
 .sop-meta-item {
@@ -2171,7 +2177,7 @@ mark {
     gap: 4px;
     background: none;
     border: none;
-    color: var(--text3);
+    color: var(--text2);
     font-size: 0.65rem;
     font-weight: 500;
     cursor: pointer;
@@ -2402,7 +2408,7 @@ mark {
 
 .spotlight-hint {
     font-size: 0.78rem;
-    color: var(--text3);
+    color: var(--text2);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -2411,7 +2417,7 @@ mark {
 .spotlight-cancel {
     background: none;
     border: none;
-    color: var(--primary);
+    color: var(--primary-dark);
     font-size: 0.92rem;
     font-weight: 500;
     font-family: inherit;
@@ -2573,7 +2579,7 @@ mark {
 }
 
 .picker-list li.active {
-    color: var(--primary);
+    color: var(--primary-dark);
     font-weight: 600;
     background: var(--primary-light);
 }
@@ -2590,10 +2596,36 @@ mark {
 }
 
 .picker-foot {
-    padding: 14px 18px;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--border);
     flex-shrink: 0;
     background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.picker-font {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.picker-font button {
+    width: 48px;
+    min-height: 44px;
+    padding: 0;
+    font-weight: 600;
+}
+
+.picker-font .topbar-font-val {
+    min-width: 32px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
 }
 
 .picker-foot button {
@@ -3012,13 +3044,13 @@ mark {
     box-shadow: var(--shadow-sm);
 }
 
-.sop-section-body .dispo-gruen { --dispo-color: var(--success); --dispo-bg: var(--success-light); }
-.sop-section-body .dispo-gelb  { --dispo-color: var(--warning); --dispo-bg: var(--warning-light); }
-.sop-section-body .dispo-rot   { --dispo-color: var(--danger);  --dispo-bg: var(--danger-light); }
+.sop-section-body .dispo-gruen { --dispo-color: var(--success); --dispo-bg: var(--success-light); --dispo-ink: #15803d; }
+.sop-section-body .dispo-gelb  { --dispo-color: var(--warning); --dispo-bg: var(--warning-light); --dispo-ink: #b45309; }
+.sop-section-body .dispo-rot   { --dispo-color: var(--danger);  --dispo-bg: var(--danger-light);  --dispo-ink: #b91c1c; }
 
-[data-theme="dark"] .sop-section-body .dispo-gruen { --dispo-bg: rgba(34, 197, 94, 0.10); }
-[data-theme="dark"] .sop-section-body .dispo-gelb  { --dispo-bg: rgba(245, 158, 11, 0.10); }
-[data-theme="dark"] .sop-section-body .dispo-rot   { --dispo-bg: rgba(239, 68, 68, 0.10); }
+[data-theme="dark"] .sop-section-body .dispo-gruen { --dispo-bg: rgba(34, 197, 94, 0.10); --dispo-ink: #86efac; }
+[data-theme="dark"] .sop-section-body .dispo-gelb  { --dispo-bg: rgba(245, 158, 11, 0.10); --dispo-ink: #fcd34d; }
+[data-theme="dark"] .sop-section-body .dispo-rot   { --dispo-bg: rgba(239, 68, 68, 0.10);  --dispo-ink: #fca5a5; }
 
 .sop-section-body .dispo-head {
     display: flex;
@@ -3070,7 +3102,7 @@ mark {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--dispo-color, var(--text2));
+    color: var(--dispo-ink, var(--text2));
 }
 
 .sop-section-body .dispo-contacts {
@@ -3146,11 +3178,12 @@ mark {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 14px;
+    padding: 10px 16px;
+    min-height: 40px;
     font-family: inherit;
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--primary);
+    color: var(--primary-dark);
     background: var(--primary-light);
     border: 1px solid transparent;
     border-radius: var(--radius-full);
@@ -3420,7 +3453,7 @@ mark {
     display: block;
     margin-top: 2px;
     font-size: 0.74rem;
-    color: var(--text3);
+    color: var(--text2);
     line-height: 1.45;
 }
 
@@ -3455,12 +3488,320 @@ mark {
 }
 
 .dir-foot {
-    padding: 11px 20px;
+    padding: 11px 20px calc(11px + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--border);
     background: var(--surface2);
     font-size: 0.74rem;
-    color: var(--text3);
+    color: var(--text2);
     text-align: center;
+}
+
+/* ============================================================
+   UI-Feinschliff: Fokus, Touch-Ziele, Lesbarkeit, Motion
+   ============================================================ */
+
+/* Sprunglink für Tastatur- und Screenreader-Nutzung */
+.skip-link {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2000;
+    padding: 10px 16px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transform: translateY(-160%);
+    transition: transform 0.2s ease;
+}
+
+.skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--surface);
+    outline-offset: 2px;
+}
+
+/* Einheitlicher, sichtbarer Tastaturfokus (Maus-Klicks bleiben unverändert) */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+}
+
+.cat-card:focus-visible,
+.browse-item:focus-visible,
+.nav-item:focus-visible,
+.sop-section-head:focus-visible {
+    outline-offset: -2px;
+}
+
+/* Touch-Ziele: mindestens 44 px auf Zeigegeräten ohne Feinsteuerung */
+.topbar-btn,
+.topbar-back,
+.btm-btn,
+#dirClose,
+#sectionPickerClose {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.sidebar-search-clear,
+.search-clear,
+.spotlight-clear,
+#dirClear {
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.sidebar-font button,
+#fontDecDesktop,
+#fontIncDesktop {
+    min-width: 44px;
+    min-height: 40px;
+}
+
+@media (pointer: coarse) {
+    .sidebar-font button,
+    .sidebar-search-clear,
+    .search-clear,
+    .spotlight-clear,
+    #dirClear {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+.bc-home,
+.bc-link {
+    padding: 4px 6px;
+    border-radius: var(--radius-xs);
+}
+
+/* Lesbare Zeilenlänge auf großen Bildschirmen */
+@media (min-width: 1280px) {
+    .v {
+        padding-inline: max(28px, calc((100% - 1180px) / 2));
+    }
+}
+
+/* Weniger Bewegung, wenn das System es verlangt */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Dezente Scrollbalken (Desktop) */
+@media (pointer: fine) {
+    .scroll-area,
+    .sidebar-nav,
+    .dir-body,
+    .picker-list {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border2) transparent;
+    }
+
+    .scroll-area::-webkit-scrollbar,
+    .sidebar-nav::-webkit-scrollbar,
+    .dir-body::-webkit-scrollbar,
+    .picker-list::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb,
+    .sidebar-nav::-webkit-scrollbar-thumb,
+    .dir-body::-webkit-scrollbar-thumb,
+    .picker-list::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border: 3px solid transparent;
+        background-clip: content-box;
+        border-radius: var(--radius-full);
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover,
+    .sidebar-nav::-webkit-scrollbar-thumb:hover,
+    .dir-body::-webkit-scrollbar-thumb:hover,
+    .picker-list::-webkit-scrollbar-thumb:hover {
+        background: var(--text3);
+        background-clip: content-box;
+    }
+}
+
+/* Sehr schmale Geräte (<= 360 px): Kopfzeile bleibt umbruchfrei */
+@media (max-width: 360px) {
+    .topbar {
+        padding-left: 8px;
+        padding-right: 8px;
+        gap: 4px;
+    }
+
+    .topbar-actions {
+        gap: 0;
+    }
+
+    .topbar-title {
+        font-size: 0.9rem;
+    }
+}
+
+/* Breadcrumb-Links im Dark Mode mit ausreichendem Kontrast */
+[data-theme="dark"] .bc-home,
+[data-theme="dark"] .bc-link,
+[data-theme="dark"] .sop-section-body .dispo-dir-btn {
+    color: #bfdbfe;
+}
+
+/* ============================================================
+   Dichte & Rhythmus: mehr Inhalt oberhalb der Falz
+   ============================================================ */
+
+/* Startseite: kompakterer Kopfbereich auf Mobilgeräten */
+@media (max-width: 640px) {
+    .hero {
+        padding: 20px 16px 18px;
+    }
+
+    .hero-logo {
+        width: 150px;
+        margin-bottom: 12px;
+    }
+
+    .hero-title {
+        font-size: 1.28rem;
+        margin-bottom: 2px;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .hero-org {
+        font-size: 0.8rem;
+        margin-bottom: 16px;
+    }
+
+    .cat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .cat-card {
+        min-height: 92px;
+        padding: 14px 10px;
+        gap: 6px;
+    }
+}
+
+/* Sehr schmale Geräte: Karten bleiben zweispaltig und lesbar */
+@media (max-width: 360px) {
+    .cat-grid {
+        gap: 8px;
+    }
+
+    .cat-card {
+        min-height: 86px;
+        padding: 12px 8px;
+    }
+
+    .cat-card-name {
+        font-size: 0.76rem;
+    }
+}
+
+/* Sehr breite Bildschirme: Kartenraster bleibt greifbar statt ausgedünnt */
+@media (min-width: 1600px) {
+    .cat-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+/* Nur für Screenreader sichtbar */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Restliche Touch-Ziele auf Mindestmaß bringen */
+.browse-search-clear {
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.desk-toc-btn {
+    min-height: 40px;
+}
+
+.segmented-scroll-arrow {
+    min-width: 32px;
+    min-height: 32px;
+}
+
+@media (pointer: coarse) {
+    .browse-search-clear {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Auf Touchgeräten wird gewischt statt geklickt */
+    .segmented-scroll-arrow {
+        display: none !important;
+    }
+}
+
+/* Lesbare Zeilenlänge im SOP-Text; Tabellen und Bilder bleiben voll breit */
+@media (min-width: 1100px) {
+    .sop-section-body > p,
+    .sop-section-body > ul,
+    .sop-section-body > ol,
+    .sop-section-body > h3,
+    .sop-section-body > .callout,
+    .sop-section-body > .dispo-intro {
+        max-width: 92ch;
+    }
+}
+
+/* Desktop: Inhaltsverzeichnis liegt bereits in der Kopfzeile - FAB entfällt */
+@media (min-width: 1024px) {
+    .fab {
+        display: none !important;
+    }
+}
+
+/* Übersichtsliste: kompaktere Zeilen, kurze Blickwege zwischen Name und Kategorie */
+.browse-list {
+    gap: 8px;
+    max-width: 920px;
+}
+
+.browse-bar-top,
+.browse-cats {
+    max-width: 920px;
+}
+
+.browse-item {
+    min-height: 54px;
+    padding: 11px 14px;
+}
+
+@media (min-width: 900px) {
+    .browse-item {
+        min-height: 50px;
+        padding: 10px 14px;
+    }
 }
 
 @media print {
