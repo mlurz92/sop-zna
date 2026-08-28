@@ -64,6 +64,10 @@
                     <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
                     <span id="themeToggleLabel">Dark Mode</span>
                 </button>
+                <button class="sidebar-btn" id="dirBtn">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Telefonverzeichnis</span>
+                </button>
                 <div class="sidebar-font">
                     <i class="fa-solid fa-text-height"></i>
                     <button id="fontDecDesktop">A&minus;</button>
@@ -84,6 +88,9 @@
                     <button id="fontDecMobile" class="topbar-btn-sm">A&minus;</button>
                     <span class="topbar-font-val" id="fontIndicatorMobile">15</span>
                     <button id="fontIncMobile" class="topbar-btn-sm">A+</button>
+                    <button id="dirBtnMobile" class="topbar-btn" aria-label="Telefonverzeichnis">
+                        <i class="fa-solid fa-address-book"></i>
+                    </button>
                     <button id="themeToggleMobile" class="topbar-btn">
                         <i id="themeToggleMobileIcon" class="fa-solid fa-moon"></i>
                     </button>
@@ -180,6 +187,29 @@
             <div class="spotlight-footer">
                 <span class="spotlight-hint"><i class="fa-solid fa-keyboard"></i> Eingabe zur Suche</span>
                 <button class="spotlight-cancel" id="spotlightCancel">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telefonverzeichnis Modal -->
+    <div class="dir-overlay" id="dirOverlay" role="dialog" aria-modal="true" aria-labelledby="dirTitle">
+        <div class="dir-bg" id="dirBackdrop"></div>
+        <div class="dir-modal">
+            <div class="dir-head">
+                <div class="dir-head-text">
+                    <h3 id="dirTitle"><i class="fa-solid fa-address-book"></i> Telefonverzeichnis</h3>
+                    <p>Klinikum St. Georg &middot; Zentrale Notaufnahme</p>
+                </div>
+                <button id="dirClose" aria-label="Schließen"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="dir-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="dirInput" placeholder="Fachbereich oder Nummer suchen..." autocomplete="off">
+                <button id="dirClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="dir-body" id="dirBody"></div>
+            <div class="dir-foot">
+                <span>Interne Nummern &ndash; Vorwahl extern: 0341 909 + Nebenstelle</span>
             </div>
         </div>
     </div>

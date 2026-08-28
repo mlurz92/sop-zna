@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.5.1';
+    var APP_VERSION = '2.7.0';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -135,7 +135,9 @@
             'sidebarCatToggle', 'browseCatToggle', 'viewContainer',
             'spotlightOverlay', 'spotlightBackdrop', 'spotlightContainer', 'spotlightInput',
             'spotlightClear', 'spotlightResults', 'spotlightCancel', 'spotlightBtn',
-            'skeletonOverlay', 'pickerSheet', 'pickerHandle'
+            'skeletonOverlay', 'pickerSheet', 'pickerHandle',
+            'dirBtn', 'dirBtnMobile', 'dirOverlay', 'dirBackdrop', 'dirClose',
+            'dirInput', 'dirClear', 'dirBody'
         ];
         for (var i = 0; i < ids.length; i++) {
             E[ids[i]] = document.getElementById(ids[i]);
@@ -1120,29 +1122,188 @@
     }
 
     // ============================================
-    // VERSION CHECK & UPDATE NOTIFICATION
+    // TELEFONVERZEICHNIS
     // ============================================
+    var PHONE_DIR = [
+        {
+            group: 'Notfall & Externe Kontakte',
+            icon: 'fa-tower-broadcast',
+            items: [
+                { name: 'Leitstelle', tel: '19222', note: '' },
+                { name: 'Polizeirevier Nord', tel: '59350', note: '' },
+                { name: 'Security', tel: '4568', note: '' },
+                { name: 'Dolmetscher', tel: '4530', note: '' }
+            ]
+        },
+        {
+            group: 'ITS & IMC (Disposition ROT)',
+            icon: 'fa-heart-pulse',
+            items: [
+                { name: 'ITS-Koordinator', tel: '3008', note: 'Zentraler ITS-Aufnahmekontakt' },
+                { name: 'ITS Innere', tel: '4488', note: '' },
+                { name: 'ITS Anästhesie (KAIS, 21)', tel: '4054', note: '' },
+                { name: 'ITS Pneumologie (2.1)', tel: '4217', note: '' },
+                { name: 'KEIM ITS (2 Erd)', tel: 'Ziffer 2 ERD', note: '' },
+                { name: 'ITO / Stroke Unit', tel: '4925', note: 'Identisch mit DA Neurologie' },
+                { name: 'IMC 2.0 (2 Erd IMC)', tel: '4764', note: 'Internistische Intensivstation / IMC Station 2 Erd' },
+                { name: 'IMC KAIS', tel: '4744', note: 'Arzt; alternativ 4640' }
+            ]
+        },
+        {
+            group: 'Chirurgische Fächer (Dienstarzt / Konsil)',
+            icon: 'fa-scissors',
+            items: [
+                { name: 'Allgemeinchirurgie (ACH)', tel: '4881', note: 'DA bis 15:30 Uhr: 4004' },
+                { name: 'Unfallchirurgie (UCH)', tel: '4835 / 4610', note: '' },
+                { name: 'Polytrauma', tel: '4499', note: '' },
+                { name: 'Kinderchirurgie (KCH)', tel: '4783 / 4909', note: '4783 (DA), 4909 (IST); Verweis auf Plan' },
+                { name: 'Neurochirurgie (NCH)', tel: '4466', note: '' },
+                { name: 'Gefäßchirurgie (GCH)', tel: '4923 / 2766', note: 'DA über Station 2235, ChA 4923' },
+                { name: 'Plastische Chirurgie (PCH)', tel: '4956', note: '' },
+                { name: 'Thoraxchirurgie (TCH)', tel: 'über Station 2245', note: '' }
+            ]
+        },
+        {
+            group: 'Konservative Fächer & Weitere',
+            icon: 'fa-stethoscope',
+            items: [
+                { name: 'Internist (BVZ)', tel: '4006 / 4933', note: '' },
+                { name: 'Neurologie', tel: '4925', note: '' },
+                { name: 'Apoplex', tel: '4977', note: '' },
+                { name: 'Infektiologie', tel: '4005', note: 'Infektionsambulanz: 4715' },
+                { name: 'Onkologie (OA)', tel: '4600', note: '' },
+                { name: 'Pädiatrie', tel: '4909 / 4040', note: 'Pädiater: 4308, Neo-Pädiatrie: 4949' },
+                { name: 'Anästhesie ZNA', tel: '4441', note: '' },
+                { name: 'Gynäkologie (GYN)', tel: '4912 / 4969', note: '' },
+                { name: 'Urologie (URO)', tel: '4079', note: '' },
+                { name: 'HNO', tel: '2388', note: 'HNO-Station: 2374' },
+                { name: 'MKG', tel: '0172 2992689', note: 'MKG Praxis: 0341 33736925' }
+            ]
+        },
+        {
+            group: 'Diagnostik & Funktionseinheiten',
+            icon: 'fa-microscope',
+            items: [
+                { name: 'Gastroskopie', tel: '2674 / 5663', note: 'Tags: 2674, Dienst: 5663' },
+                { name: 'Bronchoskopie', tel: 'nach Dienstplan', note: '' },
+                { name: 'HKL (Herzkatheter)', tel: '3333', note: '' },
+                { name: 'Dialyse Arzt', tel: '4494', note: '' },
+                { name: 'Radiologie (DA / Ärzte)', tel: '4573', note: 'Radiologie Kinder: 4728' },
+                { name: 'Radiologie (MTR)', tel: '2716 / 2736', note: 'CT: 2716, Konventionell: 2736' },
+                { name: 'Zentrallabor / Gerinnung', tel: '2508 / 2514', note: 'Zusätzliche Labornummer: 2506' }
+            ]
+        },
+        {
+            group: 'Infrastruktur & ZNA-Organisation',
+            icon: 'fa-hospital',
+            items: [
+                { name: 'Bettenmanagement', tel: '4299', note: '' },
+                { name: 'Schockraum / Aufwachraum', tel: '3470 / 1630', note: '' },
+                { name: 'ZNA Triage / Tresen', tel: '4271 / 3404', note: 'ZNA Station 4B: 4812' },
+                { name: 'Krankenträger', tel: '2208', note: '' },
+                { name: 'IT', tel: '4863', note: '' },
+                { name: 'Reinigung', tel: '4415 / 4094', note: 'Ab 19:30 Uhr: 1006' }
+            ]
+        },
+        {
+            group: 'Sprechstunden Ambulanzzentrum (Haus 61, Delitzscher Str. 141)',
+            icon: 'fa-calendar-check',
+            items: [
+                { name: 'Zentraler Tresen / Anmeldung', tel: '0341 909 1810', note: '' },
+                { name: 'D-Arzt / Unfallchirurgie – Fr. Dr. Dietze', tel: '0341 909 1810', note: 'Mi 09-12 & 13-17 Uhr, Fr 09-13 Uhr' },
+                { name: 'D-Ambulanz (Akut) – Fr. Dr. Tiemann', tel: '0341 909 4170', note: 'Täglich 08-09 Uhr; Termin nur via Schw. Sindy' },
+                { name: 'Gipskontrollen (UCH) – CA Dr. Esser', tel: '0341 909 1810', note: 'Mo 12-17 Uhr, Do 09-14 Uhr; ohne Termin möglich' },
+                { name: 'Kinder D-Ambulanz – Fr. Laake', tel: '0341 909 3604', note: 'Mo/Di 09-11:30, Do 12-16 Uhr; Akut Mo-Fr 09-10; online via Doctolib' },
+                { name: 'Plastische Chirurgie', tel: '0341 909 1815', note: 'Mo-Fr 07:30-08:30 Uhr; ambulanz.pch@sanktgeorg.de' },
+                { name: 'Handchirurgie – Fr. Dr. Rothe', tel: '0341 909 1810', note: 'Mo, Di, Do, Fr 08-11 Uhr' },
+                { name: 'Proktologie – OA Dr. Bley', tel: '0341 909 1810', note: 'Di 08-12 & 13-17:30 Uhr' },
+                { name: 'Hernien – OA Dr. Braunert', tel: '0341 909 1810', note: 'Di 12-15 Uhr' },
+                { name: 'CED – CA Dr. Jansen-Winkeln', tel: '0341 909 2200', note: 'Mo 12-16 Uhr; Termin nur via Sekr. Marinak' },
+                { name: 'Gynäkologie (GYN)', tel: '0341 909 3515', note: '' },
+                { name: 'HNO', tel: '0341 909 2383', note: '' }
+            ]
+        }
+    ];
+
+    function esc(t) {
+        return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function rDir(q) {
+        if (!E.dirBody) return;
+        q = (q || '').toLowerCase().trim();
+        var html = '';
+        var hits = 0;
+
+        for (var g = 0; g < PHONE_DIR.length; g++) {
+            var grp = PHONE_DIR[g];
+            var rows = '';
+            for (var i = 0; i < grp.items.length; i++) {
+                var it = grp.items[i];
+                var hay = (it.name + ' ' + it.tel + ' ' + it.note + ' ' + grp.group).toLowerCase();
+                if (q && hay.indexOf(q) === -1) continue;
+                hits++;
+                rows += '<li class="dir-row">' +
+                    '<div class="dir-row-main">' +
+                    '<span class="dir-name">' + esc(it.name) + '</span>' +
+                    (it.note ? '<span class="dir-note">' + esc(it.note) + '</span>' : '') +
+                    '</div>' +
+                    '<span class="dir-tel">' + esc(it.tel) + '</span>' +
+                    '</li>';
+            }
+            if (!rows) continue;
+            html += '<section class="dir-group">' +
+                '<h4><i class="fa-solid ' + grp.icon + '"></i>' + esc(grp.group) + '</h4>' +
+                '<ul class="dir-rows">' + rows + '</ul>' +
+                '</section>';
+        }
+
+        if (!hits) {
+            html = '<div class="dir-empty"><i class="fa-solid fa-magnifying-glass"></i>' +
+                '<p>Kein Eintrag gefunden</p></div>';
+        }
+        E.dirBody.innerHTML = html;
+    }
+
+    function oDir() {
+        if (!E.dirOverlay) return;
+        rDir(E.dirInput ? E.dirInput.value : '');
+        E.dirOverlay.classList.add('show');
+        document.body.classList.add('picker-open');
+        haptic('light');
+        setTimeout(function() {
+            if (E.dirInput && window.innerWidth >= 900) E.dirInput.focus();
+        }, 250);
+    }
+
+    function cDir() {
+        if (!E.dirOverlay) return;
+        E.dirOverlay.classList.remove('show');
+        document.body.classList.remove('picker-open');
+    }
+
+    // ============================================
+    // AUTOMATISCHE AKTUALISIERUNG (ohne Banner)
+    // ============================================
+    // Die App zieht immer den aktuellen Stand vom Server. Weicht die
+    // Serverversion von der geladenen Version ab, werden Caches verworfen
+    // und die Seite genau einmal still neu geladen - ohne Hinweisbanner.
     function checkForUpdate() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'version.json?_=' + new Date().getTime(), true);
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        var serverData = JSON.parse(xhr.responseText);
-                        var serverVersion = serverData.version || '0.0.0';
-                        var localVersion = localStorage.getItem('sop-app-version') || APP_VERSION;
-
-                        // If server version is different, notify user
-                        if (serverVersion !== localVersion) {
-                            showUpdateNotification(serverData);
-                            // Version speichern, damit Notification nicht wieder erscheint
-                            localStorage.setItem('sop-app-version', serverVersion);
-                        }
-                    } catch (e) {
-                        console.log('Version check failed:', e);
-                    }
+            if (xhr.readyState !== 4 || xhr.status !== 200) return;
+            try {
+                var serverData = JSON.parse(xhr.responseText);
+                var serverVersion = serverData.version || APP_VERSION;
+                if (serverVersion === APP_VERSION) {
+                    localStorage.setItem('sop-app-version', serverVersion);
+                    return;
                 }
+                applyUpdate(serverVersion);
+            } catch (e) {
+                console.log('Version check failed:', e);
             }
         };
         xhr.onerror = function() {
@@ -1151,101 +1312,27 @@
         xhr.send();
     }
 
-    function showUpdateNotification(serverData) {
-        var existing = document.getElementById('updateNotification');
-        if (existing) existing.remove();
+    function applyUpdate(serverVersion) {
+        // Reload-Schleife verhindern: pro Version nur ein Neuladeversuch
+        var guardKey = 'sop-reload-for';
+        var already;
+        try { already = sessionStorage.getItem(guardKey); } catch (e) { already = null; }
+        if (already === serverVersion) return;
+        try { sessionStorage.setItem(guardKey, serverVersion); } catch (e) {}
+        try { localStorage.setItem('sop-app-version', serverVersion); } catch (e) {}
 
-        var notification = document.createElement('div');
-        notification.id = 'updateNotification';
-        notification.innerHTML =
-            '<div class="update-notif-content">' +
-            '<i class="fa-solid fa-cloud-arrow-down"></i>' +
-            '<div class="update-notif-text">' +
-            '<strong>Neue Version verfügbar</strong>' +
-            '<p>Tippen zum Aktualisieren</p>' +
-            '</div>' +
-            '<button id="updateNotifDismiss"><i class="fa-solid fa-xmark"></i></button>' +
-            '</div>';
+        var reload = function() {
+            var u = window.location.href.split('#')[0].split('?')[0];
+            window.location.replace(u + '?v=' + encodeURIComponent(serverVersion) + window.location.hash);
+        };
 
-        var style = document.createElement('style');
-        style.textContent =
-            '#updateNotification {' +
-            'position: fixed;' +
-            'bottom: calc(var(--btm-h) + 80px + env(safe-area-inset-bottom, 0px));' +
-            'left: 16px;' +
-            'right: 16px;' +
-            'background: var(--surface);' +
-            'border: 1px solid var(--border);' +
-            'border-radius: var(--radius-md);' +
-            'box-shadow: var(--shadow-lg);'+
-            'z-index: 100;' +
-            'animation: slideUpFade 0.4s var(--ease-out-cubic) both;' +
-            '}' +
-            '@keyframes slideUpFade {' +
-            'from { opacity: 0; transform: translateY(20px); }' +
-            'to { opacity: 1; transform: translateY(0); }' +
-            '}' +
-            '.update-notif-content {' +
-            'display: flex;' +
-            'align-items: center;' +
-            'gap: 12px;' +
-            'padding: 14px 16px;' +
-            '}' +
-            '.update-notif-content > i {' +
-            'font-size: 1.4rem;' +
-            'color: var(--primary);' +
-            'flex-shrink: 0;' +
-            '}' +
-            '.update-notif-text {' +
-            'flex: 1;' +
-            '}' +
-            '.update-notif-text strong {' +
-            'display: block;' +
-            'font-size: 0.9rem;' +
-            'color: var(--text);' +
-            'margin-bottom: 2px;' +
-            '}' +
-            '.update-notif-text p {' +
-            'font-size: 0.75rem;' +
-            'color: var(--text3);' +
-            'margin: 0;' +
-            '}' +
-            '#updateNotifDismiss {' +
-            'background: none;' +
-            'border: none;' +
-            'color: var(--text3);' +
-            'font-size: 1rem;' +
-            'padding: 6px;' +
-            'cursor: pointer;' +
-            'border-radius: var(--radius);' +
-            'min-width: 36px;' +
-            'min-height: 36px;' +
-            'display: flex;' +
-            'align-items: center;' +
-            'justify-content: center;' +
-            '}' +
-            '#updateNotifDismiss:hover {' +
-            'background: var(--hover);' +
-            'color: var(--text);' +
-            '}';
-
-        document.head.appendChild(style);
-        document.body.appendChild(notification);
-
-        notification.addEventListener('click', function(e) {
-            if (e.target.closest('#updateNotifDismiss')) return;
-            // Trigger page reload to get new version
-            window.location.reload(true);
-        });
-
-        document.getElementById('updateNotifDismiss').addEventListener('click', function(e) {
-            e.stopPropagation();
-            notification.style.animation = 'slideDownFade 0.3s ease forwards';
-            setTimeout(function() {
-                notification.remove();
-                style.remove();
-            }, 300);
-        });
+        if (window.caches && caches.keys) {
+            caches.keys().then(function(names) {
+                return Promise.all(names.map(function(n) { return caches.delete(n); }));
+            }).then(reload, reload);
+        } else {
+            reload();
+        }
     }
 
     // ============================================
@@ -1498,6 +1585,34 @@
             aTh();
         });
 
+        // Telefonverzeichnis
+        if (E.dirBtn) E.dirBtn.addEventListener('click', oDir);
+        if (E.dirBtnMobile) E.dirBtnMobile.addEventListener('click', oDir);
+        if (E.dirClose) E.dirClose.addEventListener('click', cDir);
+        if (E.dirBackdrop) E.dirBackdrop.addEventListener('click', cDir);
+        if (E.dirInput) {
+            E.dirInput.addEventListener('input', function() {
+                rDir(E.dirInput.value);
+                if (E.dirClear) E.dirClear.classList.toggle('show', !!E.dirInput.value);
+            });
+        }
+        if (E.dirClear) {
+            E.dirClear.addEventListener('click', function() {
+                E.dirInput.value = '';
+                E.dirClear.classList.remove('show');
+                rDir('');
+                E.dirInput.focus();
+            });
+        }
+        // Verweise aus dem Dispositionsfeld auf das Telefonverzeichnis
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest ? e.target.closest('[data-dir-open]') : null;
+            if (trigger) {
+                e.preventDefault();
+                oDir();
+            }
+        });
+
         // Sidebar search
         E.searchInput.addEventListener('input', function() {
             S.hQ = this.value;
@@ -1656,6 +1771,9 @@
                 }
                 if (E.sectionPickerOverlay && E.sectionPickerOverlay.classList.contains('show')) {
                     cPk();
+                }
+                if (E.dirOverlay && E.dirOverlay.classList.contains('show')) {
+                    cDir();
                 }
             }
 

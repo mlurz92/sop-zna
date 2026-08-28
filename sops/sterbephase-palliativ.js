@@ -149,7 +149,8 @@
                         </ul>
                         <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
                     </section>
-                </div>`
+                </div>
+                <p class="dispo-actions"><button type="button" class="dispo-dir-btn" data-dir-open><i class="fa-solid fa-address-book"></i> Vollständiges Telefonverzeichnis öffnen</button></p>`
             }
         ],
         sources: `Bausewein C et al. Atemnot und Husten bei Palliativpatienten. Dtsch Arztebl Int 2013; 110(33-34): 563-72.<br>
