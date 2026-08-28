@@ -26,6 +26,7 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Spotlight-Suche** | Schnellsuche mit Tastenkürzel `Strg/Cmd + K` |
 | **Volltextsuche** | Durchsucht alle SOP-Inhalte mit Snippet-Vorschau |
 | **Deep Linking** | Direkte Links zu einzelnen SOPs via URL-Hash |
+| **Verlaufsnavigation** | Zurück-Taste von Browser und Android navigiert in der App |
 
 ### Benutzeroberfläche
 
@@ -35,6 +36,7 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Dark/Light Mode** | Automatische Systemerkennung + manueller Toggle |
 | **Schriftgröße** | Einstellbar (13–20px) für bessere Lesbarkeit |
 | **Touch-Gesten** | Swipe-to-Back auf iOS/Android |
+| **Barrierefreiheit** | WCAG 2.1 AA: Tastaturbedienung, Fokusführung, geprüfte Kontraste |
 | **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche |
 
 ### SOP-Darstellung
@@ -75,6 +77,8 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 |-----------|-------|
 | **Font Awesome 6.5.1** | Icons (CDN) |
 | **Inter Font** | Typografie (Google Fonts) |
+
+Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), alle SOP-Skripte und `app.js` werden mit `defer` geladen und blockieren das Rendern nicht.
 
 ### Architektur-Prinzipien
 
@@ -210,6 +214,55 @@ Neben dem Dark-/Light-Mode-Umschalter (Sidebar und mobile Kopfzeile) öffnet der
 - Sprechstunden des Ambulanzzentrums
 
 Ein Suchfeld filtert live über Fachbereich, Nummer und Zusatzhinweis; `Esc` schließt das Modal. Gepflegt wird die Liste im Array `PHONE_DIR` in [`app.js`](app.js).
+
+---
+
+## Navigation, Bedienung & Barrierefreiheit
+
+### Routing und Verlauf
+
+Die Ansichten sind adressierbar und über den Verlauf navigierbar:
+
+| Adresse | Ansicht |
+|---------|---------|
+| `#home` | Startseite |
+| `#browse` | SOP-Übersicht |
+| `#search` | Volltextsuche |
+| `#sop/<id>` | Einzelne SOP |
+
+Das Öffnen einer SOP erzeugt einen History-Eintrag (`pushState`), Ansichtswechsel ersetzen ihn (`replaceState`). `popstate` und `hashchange` werden ausgewertet – die Zurück-Taste des Browsers bzw. des Android-Geräts führt damit zurück in die App statt aus ihr heraus, und Deep Links funktionieren sowohl beim Laden als auch zur Laufzeit.
+
+### Tastaturbedienung
+
+| Taste | Funktion |
+|-------|----------|
+| `Strg/Cmd + K` | Spotlight-Suche öffnen |
+| `Tab` / `Umschalt + Tab` | Fokus bewegen; in geöffneten Overlays wird der Fokus gehalten |
+| `Enter` / `Leertaste` | Kategorie-Karte, Listeneintrag oder Abschnitt aktivieren |
+| `Esc` | Spotlight, Inhalts-Sheet oder Telefonverzeichnis schließen |
+
+Beim Schließen eines Overlays kehrt der Fokus auf das auslösende Element zurück. Ein Sprunglink („Zum Inhalt springen") ist die erste fokussierbare Stelle der Seite.
+
+### Barrierefreiheit (WCAG 2.1 AA)
+
+- **Automatisiert geprüft:** axe-core meldet auf Start-, Übersichts-, Such- und SOP-Ansicht sowie in allen Overlays (Spotlight, Inhalts-Sheet, Telefonverzeichnis) in hellem und dunklem Design **keine Verstöße** – inklusive der Best-Practice-Regeln.
+- **Kontraste:** Sekundärtexte, Breadcrumbs, Kategorie-Badges und die Farbstufen des Dispositionsfeldes erfüllen mindestens 4,5:1; die Ampelfarben tragen zusätzlich Text („GRÜN/GELB/ROT"), Farbe ist nie alleiniger Informationsträger.
+- **Semantik:** je Ansicht genau eine `<h1>`, Abschnittsköpfe als Ebene 2, `aria-expanded` an aufklappbaren Abschnitten, `aria-live` für Suchergebnisse, beschriftete Icon-Schaltflächen, dekorative Icons mit `aria-hidden`.
+- **Bewegung:** `prefers-reduced-motion: reduce` deaktiviert Animationen und Übergänge.
+- **Fokus:** einheitlicher, sichtbarer Fokusring (`:focus-visible`), der bei Mausklicks nicht stört.
+
+### Responsives Verhalten
+
+Geprüft bei 320, 390, 768, 1024 und 1440 px – ohne horizontales Überlaufen:
+
+| Breite | Verhalten |
+|--------|-----------|
+| ≤ 360 px | Kompakte Kopfzeile, zweispaltiges Kartenraster mit reduzierten Abständen |
+| ≤ 640 px | Kompakter Hero-Bereich, Bottom-Navigation, Inhalts-Sheet als Bottom-Sheet |
+| ≥ 900 px | Sidebar-Navigation, Breadcrumbs, Inhalts-Button in der Kopfzeile |
+| ≥ 1024 px | FAB entfällt (Inhalt liegt in der Kopfzeile) |
+| ≥ 1280 px | Inhaltsbreite auf 1180 px begrenzt, Fließtext auf 92 Zeichen |
+| ≥ 1600 px | Sechsspaltiges Kategorie-Raster |
 
 ---
 
@@ -372,9 +425,12 @@ sop-zna/
 ### Mobile Optimierung
 
 - **iOS Safe Areas:** Berücksichtigt Notch und Home Indicator
-- **Touch-Optimierung:** 44px Mindestgröße für Touch-Targets
+- **Touch-Optimierung:** 44 px Mindestgröße für Touch-Targets auf Touchgeräten (`pointer: coarse`)
 - **Swipe-Gesten:** Edge-Swipe für Zurück-Navigation
+- **Zurück-Taste:** Hardware-/Browser-Zurück navigiert innerhalb der App (History-API)
 - **Pull-to-Refresh:** Aktualisieren durch Herunterziehen
+- **Zoom erlaubt:** Kein `user-scalable=no` – Pinch-to-Zoom bleibt möglich (WCAG 1.4.4)
+- **Kompakte Kopfbereiche:** Startseite zeigt mehr Kategorien oberhalb der Falz; die Schriftgrößen-Steuerung liegt im Inhalts-Sheet
 
 ### iOS PWA Safe-Area-Unterstützung
 
@@ -431,6 +487,9 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v2.8.0** | Aug 2026 | **UI/UX- und Barrierefreiheits-Überarbeitung**: echte Verlaufsnavigation über die History-API (`pushState`/`popstate`/`hashchange`), Tastaturbedienung für Karten, Listen und Abschnitte, Fokusfalle und Fokusrückgabe in allen Overlays, Sprunglink, `aria`-Auszeichnung und Überschriftenstruktur, kontrastgeprüfte Farbtokens (axe-core: 0 Verstöße in beiden Designs), größere Touch-Ziele, kein `user-scalable=no`, kompaktere Startseite und SOP-Liste, Schriftgrößen-Steuerung im Inhalts-Sheet, Bootstrap entfernt, Skripte mit `defer`, `prefers-reduced-motion` |
+| **v2.7.0** | Aug 2026 | Stilles Auto-Update ohne Hinweisbanner, Telefonverzeichnis-Modal, Verweis darauf im Dispositionsfeld |
+| **v2.6.0** | Aug 2026 | Dispositionsfeld aller 73 SOPs auf die hausinternen Dispositionsrichtlinien (Ampelschema GRÜN/GELB/ROT) umgestellt |
 | **v2.5.0** | Feb 2026 | **Touch-Optimierung für Segmented Control**: Tap vs. Scroll Unterscheidung durch Bewegungserkennung (10px Schwelle), Ghost Tap Prevention - keine unbeabsichtigten Aktionen mehr beim Scrollen, visuelles Feedback bei Touch mit `.tap-active` Klasse, 300ms Click-Delay entfernt durch `touch-action: manipulation`, Passive Event Listeners für optimale Scroll-Performance, iOS PWA standalone mode vollständig unterstützt |
 | **v2.4.2** | Feb 2026 | **Segmented Control Titel-Verbesserung**: JavaScript-Kürzung entfernt, CSS-basierte Ellipsis, Responsive Button-Breiten (Desktop: 150px, Mobile: 100px), Tooltip zeigt immer vollständigen Titel bei Hover |
 | **v2.4.1** | Feb 2026 | **Segmented Control Scroll-Pfeile**: Dezent eingeblendete Pfeile bei Overflow, Smooth Scroll-Animation (120px), Automatische Sichtbarkeit basierend auf Scroll-Position, Haptic Feedback bei Klick, Resize-Event-Handling |
