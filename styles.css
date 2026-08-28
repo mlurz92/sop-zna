@@ -3138,6 +3138,338 @@ mark {
     color: var(--text2);
 }
 
+.sop-section-body .dispo-actions {
+    margin: 14px 0 0;
+}
+
+.sop-section-body .dispo-dir-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.sop-section-body .dispo-dir-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.sop-section-body .dispo-dir-btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================================
+   Telefonverzeichnis-Modal
+   ============================================================ */
+
+.dir-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    display: none;
+    pointer-events: none;
+}
+
+.dir-overlay.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.dir-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.dir-overlay.show .dir-bg {
+    opacity: 1;
+}
+
+.dir-modal {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: min(720px, 100%);
+    max-height: min(86vh, 900px);
+    transform: translate(-50%, 100%);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    transition: transform 0.35s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.dir-overlay.show .dir-modal {
+    transform: translate(-50%, 0);
+}
+
+@media (min-width: 900px) {
+    .dir-modal {
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, -46%) scale(0.98);
+        opacity: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        transition: transform 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)), opacity 0.25s ease;
+    }
+
+    .dir-overlay.show .dir-modal {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.dir-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dir-head-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.dir-head h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.dir-head h3 i {
+    color: var(--primary);
+}
+
+.dir-head p {
+    margin: 3px 0 0;
+    font-size: 0.76rem;
+    color: var(--text3);
+}
+
+#dirClose {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--text2);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#dirClose:hover {
+    background: var(--hover);
+    color: var(--text);
+}
+
+.dir-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 14px 20px 6px;
+}
+
+.dir-search > i {
+    position: absolute;
+    left: 13px;
+    font-size: 0.82rem;
+    color: var(--text3);
+    pointer-events: none;
+}
+
+.dir-search input {
+    width: 100%;
+    padding: 11px 38px 11px 36px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dir-search input:focus {
+    border-color: var(--primary);
+    background: var(--surface);
+}
+
+#dirClear {
+    position: absolute;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    border-radius: var(--radius-full);
+}
+
+#dirClear.show {
+    display: flex;
+}
+
+.dir-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 20px 16px;
+}
+
+.dir-group + .dir-group {
+    margin-top: 18px;
+}
+
+.dir-group h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text2);
+}
+
+.dir-group h4 i {
+    color: var(--primary);
+    font-size: 0.8rem;
+}
+
+.dir-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.dir-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 13px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    transition: background 0.15s;
+}
+
+.dir-row:last-child {
+    border-bottom: none;
+}
+
+.dir-row:nth-child(even) {
+    background: var(--surface2);
+}
+
+.dir-row:hover {
+    background: var(--hover);
+}
+
+.dir-row-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.dir-name {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.35;
+}
+
+.dir-note {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.74rem;
+    color: var(--text3);
+    line-height: 1.45;
+}
+
+.dir-tel {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text);
+    padding: 4px 11px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.dir-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+}
+
+.dir-empty i {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.dir-empty p {
+    margin: 0;
+    font-size: 0.86rem;
+}
+
+.dir-foot {
+    padding: 11px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 0.74rem;
+    color: var(--text3);
+    text-align: center;
+}
+
+@media print {
+    .dir-overlay,
+    .sop-section-body .dispo-actions {
+        display: none !important;
+    }
+}
+
 @media print {
     .sop-section-body .dispo {
         grid-template-columns: repeat(3, 1fr);

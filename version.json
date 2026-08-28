@@ -1,5 +1,5 @@
 {
-    "version": "2.6.0",
-    "lastUpdated": "2026-08-27T00:00:00Z",
-    "changelog": "Dispositionsfeld: Alle 73 SOPs nutzen jetzt die hausinternen Dispositionsrichtlinien der ZNA (Ampelschema GRÜN/GELB/ROT) inkl. fachspezifischer Regelpfade und hinterlegter Telefonnummern"
+    "version": "2.7.0",
+    "lastUpdated": "2026-08-28T00:00:00Z",
+    "changelog": "Stilles Auto-Update ohne Hinweisbanner, neues Telefonverzeichnis-Modal und überarbeitetes Dispositionsfeld mit Direktkontakten"
 }

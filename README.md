@@ -35,6 +35,7 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Dark/Light Mode** | Automatische Systemerkennung + manueller Toggle |
 | **Schriftgröße** | Einstellbar (13–20px) für bessere Lesbarkeit |
 | **Touch-Gesten** | Swipe-to-Back auf iOS/Android |
+| **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche |
 
 ### SOP-Darstellung
 
@@ -45,6 +46,7 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Sticky Section Bar** | Aktueller Abschnitt bleibt sichtbar beim Scrollen |
 | **Inhaltsverzeichnis** | Floating Action Button für schnellen Zugriff |
 | **Druckfunktion** | Optimierte Druckansicht aller Abschnitte |
+| **Dispositionsfeld** | Hausinterne Dispositionsrichtlinien im Ampelschema mit Direktkontakten |
 
 ### Offline-Fähigkeit
 
@@ -53,6 +55,7 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Offline-Banner** | Anzeige bei fehlender Netzverbindung |
 | **Cache-Strategie** | Anwendung bleibt ohne Internet nutzbar |
 | **Pull-to-Refresh** | Manuelles Aktualisieren der Inhalte |
+| **Auto-Update** | Stiller Abgleich mit `version.json`, kein Update-Banner |
 
 ---
 
@@ -129,70 +132,84 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 
 ### Funktionsweise
 
-Die Anwendung prüft bei jedem Seitenaufruf automatisch auf Updates:
+Die Anwendung nutzt **immer automatisch den aktuellen Stand vom Server** &ndash; ohne Hinweisbanner und ohne Zutun der Nutzer:
 
-1. **Version-Check:** Beim Laden wird [`version.json`](version.json) vom Server abgerufen
-2. **Vergleich:** Die Server-Version wird mit der lokal gespeicherten Version verglichen
-3. **Benachrichtigung:** Bei Unterschied erscheint eine Update-Benachrichtigung
-4. **Aktualisierung:** Nutzer tippt auf die Benachrichtigung → Seite wird neu geladen
+1. **Version-Check:** Beim Laden wird [`version.json`](version.json) mit Cache-Busting vom Server abgerufen
+2. **Vergleich:** Die Server-Version wird mit der geladenen `APP_VERSION` verglichen
+3. **Stille Aktualisierung:** Bei Abweichung werden alle Caches verworfen und die Seite genau einmal automatisch neu geladen
+4. **Schleifenschutz:** Ein Marker im `sessionStorage` sorgt dafür, dass pro Version höchstens ein Reload erfolgt
+
+Zusätzlich werden Service Worker beim Start abgemeldet und alle Cache-Storage-Einträge gelöscht ([`index.html`](index.html)); `Cache-Control`-Meta-Tags verhindern das Ausliefern veralteter HTML-Dateien.
 
 ### Implementierung
-
-Der Update-Mechanismus ist in [`checkForUpdate()`](app.js:894) implementiert:
 
 ```javascript
 function checkForUpdate() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'version.json?_=' + new Date().getTime(), true);
+    xhr.setRequestHeader('Cache-Control', 'no-cache');
     xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var serverData = JSON.parse(xhr.responseText);
-            var serverVersion = serverData.version;
-            var localVersion = localStorage.getItem('sop-app-version') || APP_VERSION;
-
-            // Benachrichtigung bei Versionsunterschied
-            if (serverVersion !== localVersion) {
-                showUpdateNotification(serverData);
-            }
-
-            // Version nur speichern wenn sie mit Server übereinstimmt
-            // Dies verhindert Endlosschleifen nach dem Update
-            if (serverVersion === APP_VERSION) {
-                localStorage.setItem('sop-app-version', APP_VERSION);
-            }
+        if (xhr.readyState !== 4 || xhr.status !== 200) return;
+        var serverVersion = JSON.parse(xhr.responseText).version || APP_VERSION;
+        if (serverVersion === APP_VERSION) {
+            localStorage.setItem('sop-app-version', serverVersion);
+            return;
         }
+        applyUpdate(serverVersion);   // Caches leeren + einmaliger Reload
     };
     xhr.send();
 }
 ```
 
-### Wichtiger Fix (Version 2.2.2)
-
-**Problem:** Nach dem Aktualisieren der `version.json` erschien die Update-Benachrichtigung immer wieder, auch nach dem Neuladen.
-
-**Ursache:** Die lokale `APP_VERSION` wurde immer im localStorage gespeichert, unabhängig davon, ob sie mit der Server-Version übereinstimmte.
-
-**Lösung:** Die Version wird jetzt nur dann im localStorage gespeichert, wenn `APP_VERSION === serverVersion`. Dadurch wird die Benachrichtigung nach erfolgreichem Update nicht mehr angezeigt.
+`applyUpdate()` löscht alle Cache-Storage-Einträge, merkt sich die Zielversion im `sessionStorage` und lädt die Seite mit dem Parameter `?v=<version>` neu. Ein Update-Banner existiert nicht mehr.
 
 ### Update durchführen
 
 1. **Neue Version in `app.js` eintragen:**
    ```javascript
-   var APP_VERSION = '2.2.3';
+   var APP_VERSION = '2.7.1';
    ```
 
 2. **`version.json` aktualisieren:**
    ```json
    {
-       "version": "2.2.3",
-       "lastUpdated": "2026-02-15T10:00:00Z",
+       "version": "2.7.1",
+       "lastUpdated": "2026-08-28T10:00:00Z",
        "changelog": "Beschreibung der Änderungen"
    }
    ```
 
-3. **Dateien auf Server deployen**
+3. **Dateien auf Server deployen** &ndash; offene Sitzungen aktualisieren sich beim nächsten Version-Check selbst.
 
-4. **Nutzer erhalten beim nächsten Aufruf die Update-Benachrichtigung**
+---
+
+## Dispositionsfeld & Telefonverzeichnis
+
+### Dispositionsfeld (alle 73 SOPs)
+
+Jede SOP enthält den Abschnitt **Disposition** mit den verbindlichen hausinternen Dispositionsrichtlinien der ZNA im Ampelschema:
+
+| Stufe | Inhalt |
+|-------|--------|
+| 🟢 **GRÜN** | Ambulanter Verbleib: Entscheidung durch behandelnden Arzt ZNA, Pfad Hausarzt/MVZ, SOP-spezifische Entlasskriterien |
+| 🟡 **GELB** | Stationäre Aufnahme: krankheitsbildspezifischer Regelpfad (Fachabteilung inkl. Telefonnummer) sowie ZNA-/A&B-Station mit Indikation und Bedingung |
+| 🔴 **ROT** | Kritisch: passende Intensivbereiche (ITS-Koordinator, KAIM-/KAIS-IMC, ITS Pneumologie, ITO/Stroke Unit, HKL) |
+
+Die Karten sind farbcodiert, auf Desktop dreispaltig, auf Mobilgeräten einspaltig und für den Druck optimiert. Jede Kontaktzeile zeigt Fachbereich, Durchwahl und einen Zusatzhinweis (z. B. abweichende Dienstzeiten). Am Ende jedes Dispositionsfeldes öffnet ein Button das vollständige Telefonverzeichnis.
+
+### Telefonverzeichnis
+
+Neben dem Dark-/Light-Mode-Umschalter (Sidebar und mobile Kopfzeile) öffnet der Button **Telefonverzeichnis** ein Modal mit allen internen und externen Nummern der ZNA:
+
+- Notfall & externe Kontakte
+- ITS & IMC (Disposition ROT)
+- Chirurgische Fächer
+- Konservative Fächer & Weitere
+- Diagnostik & Funktionseinheiten
+- Infrastruktur & ZNA-Organisation
+- Sprechstunden des Ambulanzzentrums
+
+Ein Suchfeld filtert live über Fachbereich, Nummer und Zusatzhinweis; `Esc` schließt das Modal. Gepflegt wird die Liste im Array `PHONE_DIR` in [`app.js`](app.js).
 
 ---
 

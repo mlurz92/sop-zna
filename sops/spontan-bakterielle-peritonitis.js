@@ -152,7 +152,8 @@
                         </ul>
                         <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>
                     </section>
-                </div>`
+                </div>
+                <p class="dispo-actions"><button type="button" class="dispo-dir-btn" data-dir-open><i class="fa-solid fa-address-book"></i> Vollständiges Telefonverzeichnis öffnen</button></p>`
             }
         ],
         sources: `Gerbes AL et al. S2k-Leitlinie der DGVS „Komplikationen der Leberzirrhose“. Z Gastroenterol 2019.<br>
