@@ -266,7 +266,7 @@
                         <p class="dispo-sub">Aufnahme ITS / IMC</p>
                         <ul class="dispo-contacts">
                         <li class="dispo-contact"><span class="dispo-fach">ITS Anästhesie (KAIS, Haus 21)</span><span class="dispo-tel">4054</span></li>
-                        <li class="dispo-contact"><span class="dispo-fach">IMC KAIS</span><span class="dispo-tel">4744</span><span class="dispo-note">alternativ 4640</span></li>
+                        <li class="dispo-contact"><span class="dispo-fach">IMC KAIS</span><span class="dispo-tel">4644</span><span class="dispo-note">alternativ 4640</span></li>
                         <li class="dispo-contact"><span class="dispo-fach">ITS-Koordinator</span><span class="dispo-tel">3008</span><span class="dispo-note">zentraler ITS-Aufnahmekontakt</span></li>
                         </ul>
                         <p class="dispo-foot">Anmeldung immer über den ITS-Koordinator (3008); Transport erst nach Stabilisierung und mit ärztlicher Begleitung.</p>

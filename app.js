@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.8.0';
+    var APP_VERSION = '2.8.1';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -1250,7 +1250,7 @@
                 { name: 'KEIM ITS (2 Erd)', tel: 'Ziffer 2 ERD', note: '' },
                 { name: 'ITO / Stroke Unit', tel: '4925', note: 'Identisch mit DA Neurologie' },
                 { name: 'IMC 2.0 (2 Erd IMC)', tel: '4764', note: 'Internistische Intensivstation / IMC Station 2 Erd' },
-                { name: 'IMC KAIS', tel: '4744', note: 'Arzt; alternativ 4640' }
+                { name: 'IMC KAIS', tel: '4644', note: 'Arzt; alternativ 4640' }
             ]
         },
         {
