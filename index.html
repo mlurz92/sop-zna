@@ -45,10 +45,10 @@
                 </a>
                 <div class="sidebar-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="SOP suchen..." autocomplete="off">
+                    <input type="search" id="searchInput" placeholder="SOP suchen..." aria-label="SOP in der Seitenleiste suchen" autocomplete="off">
                     <button class="sidebar-search-clear" id="searchClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
-                <button class="sidebar-cat-toggle" id="sidebarCatToggle">
+                <button class="sidebar-cat-toggle" id="sidebarCatToggle" type="button" aria-expanded="false" aria-controls="categoryFilters">
                     <i class="fa-solid fa-filter"></i> Kategorien
                     <i class="fa-solid fa-chevron-down toggle-icon"></i>
                 </button>
@@ -127,7 +127,7 @@
                         <div class="search-bar">
                             <div class="search-input-wrap">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="text" id="searchViewInput" placeholder="Volltextsuche..." autocomplete="off">
+                                <input type="search" id="searchViewInput" placeholder="Volltextsuche..." aria-label="Volltextsuche über alle Patientenpfade" autocomplete="off">
                                 <button class="search-clear" id="searchViewClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                             </div>
                         </div>
@@ -140,17 +140,17 @@
             </div>
 
             <!-- Modern Bottom Navigation with Bootstrap 5 -->
-            <nav class="btm-nav fixed-bottom" id="bottomNav">
+            <nav class="btm-nav fixed-bottom" id="bottomNav" aria-label="Hauptnavigation">
                 <div class="btm-nav-inner">
-                    <button class="btm-btn" data-tab="home">
+                    <button type="button" class="btm-btn" data-tab="home">
                         <i class="fa-solid fa-house"></i>
                         <span class="btm-btn-label">Start</span>
                     </button>
-                    <button class="btm-btn" data-tab="browse">
+                    <button type="button" class="btm-btn" data-tab="browse">
                         <i class="fa-solid fa-book-medical"></i>
                         <span class="btm-btn-label">SOPs</span>
                     </button>
-                    <button class="btm-btn" data-tab="search">
+                    <button type="button" class="btm-btn" data-tab="search">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span class="btm-btn-label">Suche</span>
                     </button>
@@ -158,6 +158,9 @@
             </nav>
         </main>
     </div>
+
+    <!-- Kurzhinweis (z.B. "Nummer kopiert") -->
+    <div class="toast" id="toastHost" role="status" aria-live="polite"></div>
 
     <!-- Ladeindikator (stiller Versionswechsel) -->
     <div class="app-progress" id="appProgress" aria-hidden="true"></div>
@@ -168,17 +171,17 @@
     </button>
 
     <!-- Spotlight Search Modal -->
-    <div class="spotlight-overlay" id="spotlightOverlay">
+    <div class="spotlight-overlay" id="spotlightOverlay" role="dialog" aria-modal="true" aria-label="Schnellsuche">
         <div class="spotlight-backdrop" id="spotlightBackdrop"></div>
         <div class="spotlight-container" id="spotlightContainer">
             <div class="spotlight-search">
                 <i class="fa-solid fa-magnifying-glass spotlight-icon"></i>
-                <input type="text" id="spotlightInput" placeholder="SOP suchen..." autocomplete="off" autofocus>
+                <input type="search" id="spotlightInput" placeholder="SOP suchen..." aria-label="Schnellsuche" role="combobox" aria-expanded="true" aria-controls="spotlightResults" autocomplete="off">
                 <button class="spotlight-clear" id="spotlightClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
-            <div class="spotlight-results" id="spotlightResults"></div>
+            <div class="spotlight-results" id="spotlightResults" role="listbox" aria-label="Suchergebnisse"></div>
             <div class="spotlight-footer">
-                <span class="spotlight-hint"><i class="fa-solid fa-keyboard"></i> Eingabe zur Suche</span>
+                <span class="spotlight-hint"><i class="fa-solid fa-keyboard" aria-hidden="true"></i> ↑↓ wählen · ↵ öffnen</span>
                 <button class="spotlight-cancel" id="spotlightCancel">Abbrechen</button>
             </div>
         </div>
@@ -197,7 +200,7 @@
             </div>
             <div class="dir-search">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="dirInput" placeholder="Fachbereich oder Nummer suchen..." autocomplete="off">
+                <input type="search" id="dirInput" placeholder="Fachbereich oder Nummer suchen..." aria-label="Telefonverzeichnis durchsuchen" autocomplete="off">
                 <button id="dirClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="dir-body" id="dirBody" tabindex="0"></div>
@@ -208,12 +211,12 @@
     </div>
 
     <!-- Section Picker Bottom Sheet (Draggable) -->
-    <div class="picker-overlay" id="sectionPickerOverlay">
+    <div class="picker-overlay" id="sectionPickerOverlay" role="dialog" aria-modal="true" aria-labelledby="sectionPickerTitle">
         <div class="picker-bg" id="sectionPickerBackdrop"></div>
         <div class="picker-sheet" id="pickerSheet">
             <div class="picker-handle" id="pickerHandle"></div>
             <div class="picker-head">
-                <h3>Inhalt</h3>
+                <h3 id="sectionPickerTitle">Inhalt</h3>
                 <button id="sectionPickerClose" aria-label="Schließen"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             <ul class="picker-list" id="sectionPickerList" tabindex="0"></ul>
@@ -302,7 +305,17 @@
     <script defer src="sops/vorhofflimmern.js"></script>
     <script defer src="sops/zerebrale-metastasen.js"></script>
     <script defer src="sops/zerebrale-venen-sinusthrombose.js"></script>
-    <script defer src="app.js"></script>
+    <!-- Anwendung: zehn Module, in dieser Reihenfolge geladen -->
+    <script defer src="js/core.js"></script>
+    <script defer src="js/motion.js"></script>
+    <script defer src="js/platform.js"></script>
+    <script defer src="js/router.js"></script>
+    <script defer src="js/views.js"></script>
+    <script defer src="js/lists.js"></script>
+    <script defer src="js/segmented.js"></script>
+    <script defer src="js/sop.js"></script>
+    <script defer src="js/overlays.js"></script>
+    <script defer src="js/main.js"></script>
     <script>
         // Service Worker deaktivieren und Caches löschen
         if ('serviceWorker' in navigator) {

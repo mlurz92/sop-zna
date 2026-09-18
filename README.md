@@ -23,8 +23,8 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | Feature | Beschreibung |
 |---------|--------------|
 | **Kategorie-Navigation** | 11 medizinische Fachgebiete mit Farbcodierung |
-| **Spotlight-Suche** | Schnellsuche mit Tastenkürzel `Strg/Cmd + K` |
-| **Volltextsuche** | Durchsucht alle SOP-Inhalte mit Snippet-Vorschau |
+| **Spotlight-Suche** | Schnellsuche mit Tastenkürzel `Strg/Cmd + K` oder `/`; Auswahl mit den Pfeiltasten, Öffnen mit `Enter` |
+| **Volltextsuche** | Durchsucht alle SOP-Inhalte mit Snippet-Vorschau, Trefferanzahl und Angabe des Abschnitts; aus der Schnellsuche direkt erreichbar |
 | **Deep Linking** | Direkte Links zu einzelnen SOPs via URL-Hash |
 | **Verlaufsnavigation** | Zurück-Taste von Browser und Android navigiert in der App |
 
@@ -38,15 +38,15 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Touch-Gesten** | Wischen zum Zurückgehen – die Ansicht folgt dem Finger und wird bei Abbruch zurückgefedert |
 | **Bewegung** | Alle Wechsel laufen als Transform-/Opacity-Animation auf dem Compositor (60 fps und mehr) |
 | **Barrierefreiheit** | WCAG 2.1 AA: Tastaturbedienung, Fokusführung, geprüfte Kontraste |
-| **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche |
+| **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche; ein Tipp auf die Zeile legt die Nummer in die Zwischenablage |
 
 ### SOP-Darstellung
 
 | Feature | Beschreibung |
 |---------|--------------|
-| **Segmented Control** | Schnellnavigation zwischen SOP-Abschnitten |
+| **Kapitelleiste** | Schnellnavigation zwischen den Abschnitten einer SOP, inklusive Quellen |
 | **Akkordeon-Sections** | Auf-/Zuklappen von Diagnostik, Therapie etc. mit animierter Höhe |
-| **Gleitende Markierung** | Die aktive Schaltfläche des Segmented Control wird von einer mitlaufenden Pille hinterlegt |
+| **Gleitende Markierung** | Die getroffene Auswahl wird von einer mitlaufenden Pille hinterlegt – sie erscheint erst, wenn wirklich eine Auswahl besteht |
 | **Kapitelleiste bleibt oben** | Die Abschnittsleiste heftet sich beim Scrollen an den oberen Rand und bleibt bedienbar; das gerade sichtbare Kapitel wird darin markiert |
 | **Inhaltsverzeichnis** | Floating Action Button für schnellen Zugriff |
 | **Druckfunktion** | Optimierte Druckansicht aller Abschnitte |
@@ -86,14 +86,29 @@ Zur Laufzeit werden **keine** externen Adressen angefragt. Zuvor kamen Schrift u
 
 Mitgeliefert wird bewusst nur der Solid-Stil von Font Awesome, weil ausschließlich dieser verwendet wird. Wer Symbole aus `fa-regular` oder `fa-brands` einsetzen möchte, muss die zugehörige `.woff2` und den `@font-face`-Block in [`vendor/fontawesome/all.min.css`](vendor/fontawesome/all.min.css) ergänzen.
 
-Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), alle SOP-Skripte und `app.js` werden mit `defer` geladen und blockieren das Rendern nicht.
+Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), alle SOP-Skripte und die zehn Anwendungsmodule werden mit `defer` geladen und blockieren das Rendern nicht.
 
 ### Architektur-Prinzipien
 
 - **Single-Page Application (SPA)** ohne Framework-Abhängigkeiten
 - **Modulare SOP-Dateien** – jede SOP ist eine separate `.js`-Datei
-- **IIFE-Pattern** für Kapselung des Anwendungscodes
+- **Zehn Anwendungsmodule** in [`js/`](js/) statt einer einzelnen Datei; jedes Modul ist eine IIFE, die ihre öffentlichen Funktionen an den gemeinsamen Namensraum `window.SOPApp` hängt
 - **CSS Custom Properties** für konsistentes Theming
+
+Die Reihenfolge der Module ist die Ladereihenfolge in [`index.html`](index.html) – jedes Modul darf nur Zustand aus bereits geladenen Modulen zum Ladezeitpunkt lesen; Funktionsaufrufe laufen zur Laufzeit stets über `App.<name>()` und sind damit von der Reihenfolge unabhängig.
+
+| Modul | Inhalt |
+|-------|--------|
+| [`js/core.js`](js/core.js) | Version, Kategorien, Zustand `S`, DOM-Puffer `E`, Text- und Datenhilfen, Kurzhinweis |
+| [`js/motion.js`](js/motion.js) | Bewegungsdauern, `requestAnimationFrame`-Helfer, weiches Scrollen, gestaffelter Auftritt, Tipp-Feedback |
+| [`js/platform.js`](js/platform.js) | Theme, Schriftgröße, Safe-Area, Offline-Anzeige, stiller Versionswechsel |
+| [`js/router.js`](js/router.js) | Adresse, Verlauf, Öffnen und Zurück |
+| [`js/views.js`](js/views.js) | Ansichtswechsel, Tab-Steuerung, Kopfzeile, Breadcrumb, Scroll-Reaktionen |
+| [`js/lists.js`](js/lists.js) | Seitenleiste, Startseite, Übersicht, Volltextsuche |
+| [`js/segmented.js`](js/segmented.js) | Angeheftete Kapitelleiste inkl. Markierung, Pfeilen und Tastaturbedienung |
+| [`js/sop.js`](js/sop.js) | Aufbau einer SOP, Akkordeon, Abschnittspositionen, Scroll-Spy, Drucken |
+| [`js/overlays.js`](js/overlays.js) | Fokusverwaltung, Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis |
+| [`js/main.js`](js/main.js) | Gesten, Ereignisbindung, Start |
 
 ---
 
@@ -147,7 +162,7 @@ Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), al
 Die Anwendung nutzt **immer automatisch den aktuellen Stand vom Server** &ndash; ohne Hinweisbanner und ohne Zutun der Nutzer:
 
 1. **Version-Check:** Beim Laden wird [`version.json`](version.json) mit Cache-Busting vom Server abgerufen
-2. **Vergleich:** Die Server-Version wird mit der geladenen `APP_VERSION` verglichen
+2. **Vergleich:** Die Server-Version wird mit der geladenen `App.VERSION` aus [`js/core.js`](js/core.js) verglichen
 3. **Stille Aktualisierung:** Bei Abweichung werden alle Caches verworfen und die Seite genau einmal automatisch neu geladen
 4. **Schleifenschutz:** Ein Marker im `sessionStorage` sorgt dafür, dass pro Version höchstens ein Reload erfolgt
 
@@ -162,8 +177,8 @@ function checkForUpdate() {
     xhr.setRequestHeader('Cache-Control', 'no-cache');
     xhr.onreadystatechange = function() {
         if (xhr.readyState !== 4 || xhr.status !== 200) return;
-        var serverVersion = JSON.parse(xhr.responseText).version || APP_VERSION;
-        if (serverVersion === APP_VERSION) {
+        var serverVersion = JSON.parse(xhr.responseText).version || App.VERSION;
+        if (serverVersion === App.VERSION) {
             localStorage.setItem('sop-app-version', serverVersion);
             return;
         }
@@ -177,16 +192,16 @@ function checkForUpdate() {
 
 ### Update durchführen
 
-1. **Neue Version in `app.js` eintragen:**
+1. **Neue Version in [`js/core.js`](js/core.js) eintragen:**
    ```javascript
-   var APP_VERSION = '2.7.1';
+   App.VERSION = '3.0.1';
    ```
 
 2. **`version.json` aktualisieren:**
    ```json
    {
-       "version": "2.7.1",
-       "lastUpdated": "2026-08-28T10:00:00Z",
+       "version": "3.0.1",
+       "lastUpdated": "2026-09-18T12:00:00Z",
        "changelog": "Beschreibung der Änderungen"
    }
    ```
@@ -221,7 +236,7 @@ Neben dem Dark-/Light-Mode-Umschalter (Sidebar und mobile Kopfzeile) öffnet der
 - Infrastruktur & ZNA-Organisation
 - Sprechstunden des Ambulanzzentrums
 
-Ein Suchfeld filtert live über Fachbereich, Nummer und Zusatzhinweis; `Esc` schließt das Modal. Gepflegt wird die Liste im Array `PHONE_DIR` in [`app.js`](app.js).
+Ein Suchfeld filtert live über Fachbereich, Nummer und Zusatzhinweis; `Esc` schließt das Modal. Ein Tipp auf eine Zeile legt die Nummer in die Zwischenablage und bestätigt das mit einem Kurzhinweis – im Klinikbetrieb wird meist am Stationstelefon gewählt, `tel:`-Links helfen dort nicht weiter. Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.js).
 
 ---
 
@@ -246,10 +261,14 @@ Jeder Eintrag trägt einen laufenden Index. Beim `popstate`-Ereignis zeigt der V
 
 | Taste | Funktion |
 |-------|----------|
-| `Strg/Cmd + K` | Spotlight-Suche öffnen |
-| `Tab` / `Umschalt + Tab` | Fokus bewegen; in geöffneten Overlays wird der Fokus gehalten |
+| `Strg/Cmd + K` oder `/` | Schnellsuche öffnen |
+| `↑` / `↓` | In den Ergebnissen der Schnellsuche wählen |
+| `Enter` | Gewähltes Ergebnis öffnen |
+| `Tab` / `Umschalt + Tab` | Fokus bewegen; in geöffneten Overlays wird der Fokus gehalten – maßgeblich ist das zuletzt geöffnete |
 | `Enter` / `Leertaste` | Kategorie-Karte, Listeneintrag oder Abschnitt aktivieren |
-| `Esc` | Spotlight, Inhalts-Sheet oder Telefonverzeichnis schließen |
+| `←` / `→` / `Pos1` / `Ende` | In der Kapitelleiste einer SOP bewegen |
+| `Rücktaste` | Eine Ebene zurück (außerhalb von Eingabefeldern) |
+| `Esc` | Oberstes Overlay schließen |
 
 Beim Schließen eines Overlays kehrt der Fokus auf das auslösende Element zurück. Ein Sprunglink („Zum Inhalt springen") ist die erste fokussierbare Stelle der Seite.
 
@@ -257,7 +276,8 @@ Beim Schließen eines Overlays kehrt der Fokus auf das auslösende Element zurü
 
 - **Automatisiert geprüft:** axe-core meldet auf Start-, Übersichts-, Such- und SOP-Ansicht sowie in allen Overlays (Spotlight, Inhalts-Sheet, Telefonverzeichnis) in hellem und dunklem Design **keine Verstöße** – inklusive der Best-Practice-Regeln.
 - **Kontraste:** Sekundärtexte, Breadcrumbs, Kategorie-Badges und die Farbstufen des Dispositionsfeldes erfüllen mindestens 4,5:1; die Ampelfarben tragen zusätzlich Text („GRÜN/GELB/ROT"), Farbe ist nie alleiniger Informationsträger.
-- **Semantik:** je Ansicht genau eine `<h1>`, Abschnittsköpfe als Ebene 2, `aria-expanded` an aufklappbaren Abschnitten, `aria-live` für Suchergebnisse, beschriftete Icon-Schaltflächen, dekorative Icons mit `aria-hidden`.
+- **Semantik:** je Ansicht genau eine `<h1>`, Abschnittsköpfe als `<h2>` mit enthaltener Schaltfläche (Standardmuster für Akkordeons), `aria-expanded` und `aria-controls` an aufklappbaren Abschnitten, `aria-live` für Suchergebnisse, beschriftete Icon-Schaltflächen, dekorative Icons mit `aria-hidden`.
+- **Echte Bedienelemente:** Karten, Listeneinträge, Filterchips und Abschnittsköpfe sind `<button>`-Elemente statt `div` mit `role="button"` – Tastaturbedienung, Fokus und Hilfstechnologien funktionieren damit ohne Zusatzlogik. Die Kapitelleiste ist eine Werkzeugleiste (`role="toolbar"`, `aria-pressed`), kein Registerkartensatz: die Abschnitte bleiben untereinander lesbar.
 - **Bewegung:** `prefers-reduced-motion: reduce` deaktiviert Animationen und Übergänge – in CSS wie in JavaScript (siehe Abschnitt „Darstellung & Bewegung“).
 - **Fokus:** einheitlicher, sichtbarer Fokusring (`:focus-visible`), der bei Mausklicks nicht stört.
 
@@ -367,15 +387,15 @@ In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Ra
 
 3. **In `index.html` einbinden:**
    
-   Script-Tag vor [`app.js`](index.html:291) hinzufügen:
+   Script-Tag vor den Anwendungsmodulen hinzufügen:
    ```html
-   <script src="sops/neue-sop.js"></script>
-   <script src="app.js"></script>
+   <script defer src="sops/neue-sop.js"></script>
+   <!-- ... danach erst js/core.js bis js/main.js -->
    ```
 
 4. **Kategorie prüfen:**
    
-   Sicherstellen, dass die Kategorie in [`CATS`](app.js:12) definiert ist:
+   Sicherstellen, dass die Kategorie in `CATS` in [`js/core.js`](js/core.js) definiert ist:
    ```javascript
    var CATS = {
        'kardio': { name: 'Kardiologie', icon: 'fa-heart-pulse' },
@@ -401,7 +421,7 @@ In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Ra
 
 ### Neue Kategorie hinzufügen
 
-In [`app.js`](app.js:12) zwei Objekte erweitern:
+In [`js/core.js`](js/core.js) zwei Objekte erweitern:
 
 ```javascript
 // Kategorien
@@ -441,8 +461,18 @@ Die Anwendung ist dann unter `http://localhost:8080` erreichbar.
 ```
 sop-zna/
 ├── index.html              # Einstiegspunkt, HTML-Struktur
-├── app.js                  # Hauptanwendungslogik (~2900 Zeilen)
-├── styles.css              # Vollständiges Stylesheet (~4300 Zeilen)
+├── js/                     # Anwendungslogik in zehn Modulen
+│   ├── core.js                 # Konfiguration, Zustand, DOM-Puffer, Hilfsfunktionen
+│   ├── motion.js               # Bewegungssteuerung
+│   ├── platform.js             # Theme, Schrift, Safe-Area, Offline, Versionswechsel
+│   ├── router.js               # Adresse, Verlauf, Öffnen und Zurück
+│   ├── views.js                # Ansichtswechsel, Tabs, Kopfzeile, Breadcrumb
+│   ├── lists.js                # Seitenleiste, Startseite, Übersicht, Volltextsuche
+│   ├── segmented.js            # Angeheftete Kapitelleiste
+│   ├── sop.js                  # SOP-Ansicht, Akkordeon, Scroll-Spy, Drucken
+│   ├── overlays.js             # Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis
+│   └── main.js                 # Gesten, Ereignisbindung, Start
+├── styles.css              # Vollständiges Stylesheet (~4700 Zeilen)
 ├── version.json            # Versionsdatei für Update-Check
 ├── AGENTS.md               # Technische Dokumentation für KI-Agenten
 ├── README.md               # Diese Datei
@@ -463,16 +493,18 @@ sop-zna/
 | Datei | Zweck |
 |-------|-------|
 | [`index.html`](index.html) | DOM-Struktur, Script-Einbindung |
-| [`app.js`](app.js) | State Management, Rendering, Navigation |
+| [`js/`](js/) | Anwendungslogik: Zustand, Rendering, Navigation, Overlays (zehn Module, siehe „Architektur-Prinzipien") |
 | [`styles.css`](styles.css) | Theming, Layout, Animationen |
 | [`version.json`](version.json) | Update-Erkennung |
 | [`AGENTS.md`](AGENTS.md) | Detaillierte Architektur-Dokumentation |
 
 ### Debugging
 
-- **Console:** `S` Objekt für State-Inspektion
-- **DOM Cache:** `E` Objekt für Element-Referenzen
-- **SOP-Daten:** `SOP_DATA` Array im globalen Scope
+- **Namensraum:** `window.SOPApp` bündelt alle Module
+- **Zustand:** `SOPApp.S` für State-Inspektion
+- **DOM-Puffer:** `SOPApp.E` für Element-Referenzen
+- **SOP-Daten:** `SOP_DATA` Array im globalen Scope, normalisiert in `SOPApp.S.data`
+- **Nachladen:** `window.registerSOP({...})` fügt eine SOP zur Laufzeit hinzu
 
 ---
 
@@ -546,7 +578,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: September 2026*  
-*Version: 2.10.0*
+*Version: 3.0.0*
 
 ---
 
@@ -554,6 +586,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v3.0.0** | Sep 2026 | **Anwendungslogik in zehn Module aufgeteilt.** `app.js` (3.495 Zeilen) ist zugunsten von [`js/core.js`](js/core.js) bis [`js/main.js`](js/main.js) entfallen; die Module teilen sich den Namensraum `window.SOPApp`, der Funktionsumfang bleibt vollständig erhalten. Behoben: das Suchfeld der Startseite reichte die Eingabe zeichenweise an die Schnellsuche weiter und verlor bei schnellem Tippen den Suchbegriff (jetzt eine Schaltfläche, die die Schnellsuche öffnet); der Filterbegriff der Übersicht wurde unmaskiert in ein HTML-Attribut geschrieben, ein Anführungszeichen zerlegte damit die Ansicht; SOP-Namen und Textausschnitte wurden ohne Maskierung eingebaut; die Schaltfläche „Alle" der Kapitelleiste war beim Öffnen einer SOP markiert, obwohl nur Diagnostik und Therapie offen standen, und blieb es auch nach dem Zuklappen eines Abschnitts; die Fokusfalle wählte das im Dokument erste statt das oberste Overlay, und beim Schließen eines von zwei Overlays verlor der Hintergrund seine Sperre; die Safe-Area wurde beim Aufziehen der Bildschirmtastatur neu vermessen und ließ das Layout springen; die Quellen einer SOP waren über die Kapitelleiste nicht erreichbar; `Enter` in der Schnellsuche blieb ohne Wirkung, obwohl die Fußzeile es ankündigte. Neu: Tastaturauswahl in der Schnellsuche samt direktem Einstieg in die Volltextsuche, Trefferanzahl und Abschnittsangabe in Such- und Übersichtsliste, Zurücksetzen leerer Filterergebnisse, Telefonnummern per Tipp in die Zwischenablage mit Kurzhinweis, `/` und `Rücktaste` als Tastenkürzel, Abschnittsköpfe als `<h2>` mit `aria-controls`, echte `<button>`-Elemente statt `div` mit `role="button"`, Schriftgrößen-Schaltflächen am Anschlag abgeschaltet, Seitentitel folgt der geöffneten SOP |
 | **v2.10.0** | Sep 2026 | **Kapitelleiste bleibt oben.** Die Abschnittsleiste einer geöffneten SOP heftet sich beim Scrollen an den oberen Rand und wird nicht mehr durch eine separate Abschnittsleiste ersetzt; das gerade sichtbare Kapitel wird darin markiert, Sprungziele landen darunter. Behoben: der Spotlight teilte sich den Suchbegriff mit der Volltextsuche und löschte beim Schließen deren Ergebnisse, während im Eingabefeld weiter Text stand; das Zurückgehen legte einen zusätzlichen Verlaufseintrag an, sodass die Zurück-Taste des Browsers anschließend wieder vorwärts führte; die Volltextsuche parste bei jedem Tastendruck das HTML aller 73 SOPs; der Druck baute die Ansicht zweimal neu auf und verlor dabei die Scrollposition. Aufgeräumt: Schrift und Symbole liegen im Projekt statt auf zwei CDNs, Abschnittswahl läuft über einen einzigen Ereignispfad statt über touch plus nachgereichtes click, der parallele Navigationsstapel und ein redundanter IntersectionObserver entfallen, tote Regeln und Markup entfernt |
 | **v2.9.0** | Sep 2026 | **Darstellung und Bewegung überarbeitet.** Behoben: Ansichtswechsel liefen nie an (Enter-Klasse wurde im selben Frame entfernt, abgehende Ansicht stand auf `display:none`); Zurück-Pfeil und alle Such-Leeren-Knöpfe waren wegen doppelter `display`-Deklaration dauerhaft sichtbar; Overlays sprangen auf, statt einzufahren; senkrechtes Scrollen am linken Rand war durch die Wischgeste blockiert; Auswahl im Segmented Control löste auf Touch doppelt aus; die Verlaufskanten des Segmented Control wurden nie geschaltet; jeder SOP-Aufbau legte einen weiteren `resize`-Listener an; Trefferhervorhebung war im Dunkelmodus praktisch unlesbar; der Druck konnte Abschnitte leer ausgeben, weil die Auftrittsanimation noch lief. Neu: durchgängige Push-/Pop-/Fade-Übergänge, animiertes Akkordeon, gleitende Abschnittsmarkierung, fingerfolgende Wischgeste, Bottom-Sheet und Pull-to-Refresh auf `transform` umgestellt, gestaffelter Listenauftritt, Ripple-Feedback, Theme-Wechsel als Kreisblende, ein gemeinsamer `requestAnimationFrame`-Scroll-Handler mit gepufferten Abschnittspositionen, toter Skeleton-Code entfernt |
 | **v2.8.1** | Sep 2026 | Korrektur Telefonverzeichnis: IMC KAIS (Arzt) lautet 4644 statt 4744 |
