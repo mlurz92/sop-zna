@@ -25,6 +25,9 @@ sop-zna/
 │   ├── Patientenpfade.png
 │   └── ZNA/
 │       └── *.png           # SOP-spezifische Abbildungen
+├── vendor/                 # Schrift und Symbole, lokal eingebunden
+│   ├── fontawesome/        # all.min.css + fa-solid-900.woff2
+│   └── inter/              # inter.css + latin/latin-ext woff2
 └── sops/
     └── *.js                # 73 einzelne SOP-Module
 ```
@@ -54,24 +57,23 @@ Das View-Management erfolgt über `sTab(t, mode, done)`:
 - `mode` – `'push'`, `'pop'`, `'fade'` oder `null` für einen sofortigen Wechsel
 - `done` – optionaler Rückruf nach Abschluss der Bewegung
 
-Der Ablauf ist fest: Zielinhalt rendern → `uChrome()` für Kopfzeile, Breadcrumb, Bottom-Navigation und FAB → `switchView()` für die Bewegung → Nacharbeiten (Beobachter, Abschnittspositionen, Adresse). `switchView()` räumt die Animationsklassen erst nach dem `animationend`-Ereignis auf; ein Zeitlimit dient als Sicherheitsnetz.
+Der Ablauf ist fest: Zielinhalt rendern → `uChrome()` für Kopfzeile, Breadcrumb, Bottom-Navigation und FAB → `switchView()` für die Bewegung → Nacharbeiten (Abschnittspositionen, Kapitelleiste, Adresse). `switchView()` räumt die Animationsklassen erst nach dem `animationend`-Ereignis auf; ein Zeitlimit dient als Sicherheitsnetz.
 
 **Wichtig:** Die abgehende Ansicht wird während des Wechsels über `style.top = -scrollTop` optisch festgehalten, damit das Zurücksetzen der Scrollposition keinen Sprung erzeugt.
 
-### Navigation Stack
+### Navigationstiefe
 
-Das Herzstück der Navigation ist der `S.navStack` Array, der die Navigationshistorie verwaltet:
+Es gibt **keinen** eigenen Navigationsstapel in der Anwendung. Die Tiefe steckt allein im Browser-Verlauf – Einzelheiten im Abschnitt „Verlauf und Routing".
 
 ```javascript
-// Push: Aktuellen Zustand speichern
-S.navStack.push({ sopId: S.sopId, tab: S.tab });
+// Oeffnen: legt einen Verlaufseintrag an
+pushNav(sopId);
 
-// Pop: Vorherigen Zustand wiederherstellen
-var prevState = S.navStack.pop();
-S.sopId = prevState.sopId;
+// Zurueck: der Browser liefert das Ziel, popstate wendet es an
+popNav();   // -> history.back(), sonst Ersatzroute
 ```
 
-**Wichtig:** Bei leerem Stack navigiert `popNav()` zum Home-Bildschirm, nicht zur Browse-Ansicht.
+**Wichtig:** Ein zweiter Stapel neben dem Verlauf driftet unweigerlich auseinander – genau daran scheiterte die frühere Lösung, bei der auch das Zurückgehen einen neuen Eintrag anlegte.
 
 ### State Management
 
@@ -90,7 +92,7 @@ Der globale State `S` (Store) enthält alle anwendungsweiten Variablen:
 | `S.theme` | String | Theme (`light` oder `dark`) |
 | `S.fs` | Number | Schriftgröße (13-20px) |
 | `S.mob` | Boolean | Mobile Breakpoint (width < 1024px) |
-| `S.navStack` | Array | Navigationshistorie |
+| `S.spotQ` | String | Suchbegriff des Spotlights (getrennt von `S.sQ`) |
 
 ### DOM Element Cache
 
@@ -113,12 +115,27 @@ Die Funktion `cache()` initialisiert das `E` Objekt mit Referenzen auf alle wich
 | `rSearch()` | Führt Volltextsuche durch | Zeigt Snippets und Highlights |
 | `rSOP()` | Rendert vollständige SOP | Komplexeste Funktion |
 
+### Angeheftete Kapitelleiste
+
+Das Segmented Control steckt in einem Rahmen `.sop-seg-sticky`, der über `position: sticky` am oberen Rand des Inhaltsbereichs stehen bleibt. Der vollflächige Hintergrund kommt aus einem `::before`, das seitlich über die Polsterung der Ansicht hinausragt; `.scroll-area` beschneidet den Überstand.
+
+`uSticky(y)` ist der Scroll-Spy: Er setzt `.is-stuck` am Rahmen, markiert das gerade sichtbare Kapitel mit `.is-current` (an Schaltfläche **und** Abschnitt) und aktualisiert das Inhaltsverzeichnis. Ein zusätzlicher `IntersectionObserver` dafür existiert bewusst nicht mehr – eine Quelle, zwei Anzeigen.
+
+**Wichtig:** `.is-current` (Scrollposition) und `.active` (getroffene Auswahl, hinterlegte Pille) sind getrennte Zustände und dürfen nicht vermischt werden.
+
+**Fallstrick:** Bei `position: sticky` enthält `offsetTop` in Chrome die Klebeverschiebung. Die Ruheposition wird deshalb in `sectionOffsets()` nur übernommen, solange `segStuck` falsch ist.
+
+### Verlauf und Routing
+
+Der Browser-Verlauf ist die einzige Quelle der Navigationstiefe – einen `S.navStack` gibt es nicht mehr. `syncRoute(replace)` schreibt in jeden Eintrag einen laufenden Index (`{ r, i }`); `onPopState` vergleicht ihn mit `routeIndex` und leitet daraus die Richtung (`push`/`pop`) für die Animation ab. `popNav()` ruft `history.back()`, sofern `hasRouteHistory()` zutrifft, sonst greift die Ersatzroute (SOP → Übersicht → Start).
+
 ### Navigation und Animation
 
 | Funktion | Beschreibung | Dauer |
 |----------|--------------|-------|
-| `pushNav(id)` | Legt den aktuellen Zustand auf den Stack und öffnet die SOP | 360 ms |
-| `popNav()` | Holt den vorherigen Zustand oder wechselt zu Übersicht/Start | 360 ms |
+| `pushNav(id)` | Öffnet eine SOP und legt einen Verlaufseintrag an | 360 ms |
+| `popNav()` | `history.back()`, sonst Ersatzroute zu Übersicht/Start | 360 ms |
+| `uSticky(y)` | Scroll-Spy für Kapitelleiste, Abschnitte und Inhaltsverzeichnis | – |
 | `switchView(from, to, mode, done)` | Führt den Ansichtswechsel aus und räumt danach auf | `--dur-view` |
 | `setSectionOpen(sec, open, animate)` | Klappt einen Abschnitt mit animierter Höhe auf/zu | `--dur-section` |
 | `updateSegmentedPill(animate)` | Setzt die gleitende Markierung auf die aktive Schaltfläche | 380 ms |
@@ -307,6 +324,16 @@ Die Konvention folgt dem IIFE-Pattern mit `'use strict'`:
 
 ## Bekannte Eigenheiten und Fallstricke
 
+### Ein Ereignispfad je Bedienelement
+
+Die Abschnitts-Schaltflächen werden ausschließlich über `click` ausgelöst (`bindSegmentedButton`). Das deckt Maus, Tippen, Tastatur und Hilfstechnologien gleichermaßen ab. Die Pointer-Ereignisse dienen nur dazu, ein Wischen zum Scrollen der Leiste zu erkennen und den darauf folgenden `click` zu verwerfen.
+
+**Nicht wieder einführen:** ein zweiter Pfad über `touchend`, der zusätzlich zum nachgereichten `click` feuert. Das löste jede Auswahl doppelt aus und ließ sich nur mit einem globalen Zeitstempel notdürftig abfangen.
+
+### Gepufferte Textsuche
+
+`secTextLower(sec)` und `sourcesTextLower(d)` lösen den Volltext einmalig aus dem HTML und legen ihn am SOP-Objekt ab (`_text`, `_textLower`, `_srcLower`). Ohne diesen Puffer wurde bei jedem Tastendruck das HTML aller 73 SOPs neu geparst.
+
 ### Dynamische Element-Referenzen
 
 Elemente, die durch `innerHTML` erstellt werden, existieren nicht im DOM-Cache `E`. Nach `rBrowse()` müssen Referenzen wie `E.browseSearchInput` neu gesetzt werden:
@@ -329,9 +356,9 @@ Spotlight, Inhalts-Sheet und Telefonverzeichnis wechseln nicht mehr zwischen `di
 
 `sectionOffsets()` liefert die Positionen der SOP-Abschnitte aus einem Cache. Nach jeder Änderung, die Höhen beeinflusst (Aufklappen, Neuaufbau, Größenänderung), muss `invalidateSectionOffsets()` aufgerufen werden.
 
-### View-Stack bei Tab-Wechsel
+### Verlauf bei Tab-Wechsel
 
-Wenn Nutzer zwischen Tabs wechseln (z.B. Home zu Browse), wird `S.navStack` geleert. Dies ist beabsichtigt, da Tab-Wechsel keine Hierarchiebeziehung darstellen. Nur SOP-zu-SOP Navigation nutzt den Stack.
+Tabwechsel **ersetzen** den Verlaufseintrag (`replaceState`), da sie keine Hierarchiebeziehung darstellen. Nur das Öffnen einer SOP legt einen neuen Eintrag an. Die Bewegungsrichtung des Wechsels leitet sich aus der Reihenfolge Start → SOPs → Suche ab und ist unabhängig davon, was im Verlauf passiert.
 
 ### Safe Area auf iOS
 
@@ -391,4 +418,4 @@ Bei Fragen zur Architektur oder neuen Features kann diese Datei als Referenz die
 ---
 
 *Letzte Aktualisierung: September 2026*
-*Version 2.3 – Optimiert für KI-Agenten*
+*Version 2.4 – Optimiert für KI-Agenten*

@@ -47,19 +47,21 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Segmented Control** | Schnellnavigation zwischen SOP-Abschnitten |
 | **Akkordeon-Sections** | Auf-/Zuklappen von Diagnostik, Therapie etc. mit animierter Höhe |
 | **Gleitende Markierung** | Die aktive Schaltfläche des Segmented Control wird von einer mitlaufenden Pille hinterlegt |
-| **Sticky Section Bar** | Aktueller Abschnitt bleibt sichtbar beim Scrollen – überlagernd, ohne Layoutsprung |
+| **Kapitelleiste bleibt oben** | Die Abschnittsleiste heftet sich beim Scrollen an den oberen Rand und bleibt bedienbar; das gerade sichtbare Kapitel wird darin markiert |
 | **Inhaltsverzeichnis** | Floating Action Button für schnellen Zugriff |
 | **Druckfunktion** | Optimierte Druckansicht aller Abschnitte |
 | **Dispositionsfeld** | Hausinterne Dispositionsrichtlinien im Ampelschema mit Direktkontakten |
 
-### Offline-Fähigkeit
+### Netzverhalten und Aktualisierung
 
 | Feature | Beschreibung |
 |---------|--------------|
-| **Offline-Banner** | Anzeige bei fehlender Netzverbindung |
-| **Cache-Strategie** | Anwendung bleibt ohne Internet nutzbar |
+| **Offline-Banner** | Anzeige, sobald die Netzverbindung wegbricht |
+| **Keine externen Abhängigkeiten** | Schrift und Symbole liegen im Projekt – die Anwendung bleibt vollständig dargestellt, auch wenn ein CDN nicht erreichbar ist |
 | **Pull-to-Refresh** | Manuelles Aktualisieren der Inhalte |
 | **Auto-Update** | Stiller Abgleich mit `version.json`, kein Update-Banner |
+
+> **Zur Offline-Nutzung:** Eine bereits geöffnete Sitzung läuft ohne Netz vollständig weiter – alle 73 SOPs sind im Speicher, und seit Version 2.10 stammen auch Schrift und Symbole aus dem Projekt. Ein **Neuladen** ohne Netzverbindung funktioniert dagegen nicht: Die Anwendung meldet beim Start bewusst alle Service Worker ab und löscht sämtliche Caches ([`index.html`](index.html)), damit im Klinikbetrieb niemals ein veralteter Behandlungspfad ausgeliefert wird. Aktualität hat hier Vorrang vor Offline-Start.
 
 ---
 
@@ -73,12 +75,16 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **CSS** | Custom Properties, Flexbox, Grid |
 | **HTML5** | Semantische Struktur |
 
-### Externe Ressourcen
+### Mitgelieferte Ressourcen
 
-| Ressource | Zweck |
-|-----------|-------|
-| **Font Awesome 6.5.1** | Icons (CDN) |
-| **Inter Font** | Typografie (Google Fonts) |
+| Ressource | Ablage | Lizenz |
+|-----------|--------|--------|
+| **Font Awesome Free 6.5.1** (nur `fa-solid`) | [`vendor/fontawesome/`](vendor/fontawesome/) | CC BY 4.0 (Icons), SIL OFL 1.1 (Schrift), MIT (Code) |
+| **Inter** (variabel, 300–800, latin + latin-ext) | [`vendor/inter/`](vendor/inter/) | SIL OFL 1.1 |
+
+Zur Laufzeit werden **keine** externen Adressen angefragt. Zuvor kamen Schrift und Symbole von `cdnjs.cloudflare.com` und `fonts.googleapis.com`; war eines davon nicht erreichbar, verlor die Anwendung sämtliche Symbole und ihre Typografie – im Klinikbetrieb ein reales Ausfallrisiko. Außerdem verlässt so kein Aufruf mehr das Haus.
+
+Mitgeliefert wird bewusst nur der Solid-Stil von Font Awesome, weil ausschließlich dieser verwendet wird. Wer Symbole aus `fa-regular` oder `fa-brands` einsetzen möchte, muss die zugehörige `.woff2` und den `@font-face`-Block in [`vendor/fontawesome/all.min.css`](vendor/fontawesome/all.min.css) ergänzen.
 
 Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), alle SOP-Skripte und `app.js` werden mit `defer` geladen und blockieren das Rendern nicht.
 
@@ -232,7 +238,9 @@ Die Ansichten sind adressierbar und über den Verlauf navigierbar:
 | `#search` | Volltextsuche |
 | `#sop/<id>` | Einzelne SOP |
 
-Das Öffnen einer SOP erzeugt einen History-Eintrag (`pushState`), Ansichtswechsel ersetzen ihn (`replaceState`). `popstate` und `hashchange` werden ausgewertet – die Zurück-Taste des Browsers bzw. des Android-Geräts führt damit zurück in die App statt aus ihr heraus, und Deep Links funktionieren sowohl beim Laden als auch zur Laufzeit.
+Der Browser-Verlauf ist die **einzige** Quelle der Navigationstiefe; einen zweiten Stapel in der Anwendung gibt es nicht mehr. Das Öffnen einer SOP erzeugt einen Eintrag (`pushState`), Tabwechsel ersetzen ihn (`replaceState`). Die Zurück-Schaltfläche der App ruft `history.back()` auf – Zurückgehen legt damit keinen neuen Eintrag an.
+
+Jeder Eintrag trägt einen laufenden Index. Beim `popstate`-Ereignis zeigt der Vergleich mit dem aktuellen Index die Richtung an, sodass vorwärts und rückwärts unterschiedlich animiert werden. Die Zurück-Taste des Browsers bzw. des Android-Geräts führt damit zurück in die App statt aus ihr heraus, und Deep Links funktionieren sowohl beim Laden als auch zur Laufzeit. Wird die Anwendung direkt über einen Deep Link geöffnet, gibt es keinen eigenen Eintrag – dann führt die Zurück-Schaltfläche in die Übersicht und von dort zur Startseite.
 
 ### Tastaturbedienung
 
@@ -285,11 +293,22 @@ Animiert werden ausschließlich `transform`, `opacity` und `clip-path`. Diese Ei
 | Tabwechsel | Richtung folgt der Reihenfolge Start → SOPs → Suche | 360 ms |
 | SOP → SOP | Kurzer seitlicher Austausch innerhalb derselben Ansicht | 360 ms |
 | Abschnitt auf-/zuklappen | Animierte Höhe plus Einblendung, danach wird die Höhe wieder freigegeben | 320 ms |
+| Kapitelleiste heftet an | Beim Erreichen des oberen Randes setzt sich die Leiste mit einer weichen Kante ab | 280 ms |
 | Abschnittswahl | Gleitende Pille wandert auf die aktive Schaltfläche | 380 ms |
 | Listen und Kacheln | Gestaffelter Auftritt, Verzögerung bei 14 Elementen gedeckelt | 420 ms |
 | Overlays | Bottom-Sheet, Spotlight und Telefonverzeichnis fahren ein statt zu erscheinen | 260–420 ms |
 | Theme-Wechsel | Kreisförmige Blende vom auslösenden Knopf (View Transition API, mit Rückfallebene) | 480 ms |
 | Tipp-Feedback | Ripple am Berührungspunkt, Karten senken sich kurz ab | 180–560 ms |
+
+### Angeheftete Kapitelleiste
+
+In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Rand stehen (`position: sticky`) und ist dort jederzeit bedienbar. Sie wird **nicht** durch eine andere Leiste ersetzt.
+
+- Beim Anheften setzt sich die Leiste mit einer dezenten Kante vom Inhalt ab (`.is-stuck`).
+- Das Kapitel, das gerade unter der Leiste steht, wird darin mit einem Strich markiert (`.is-current`). Diese Markierung ist bewusst von der Auswahl (`.active`, hinterlegte Pille) unterschieden: die eine zeigt die Scrollposition, die andere die getroffene Wahl.
+- Liegt das markierte Kapitel außerhalb des sichtbaren Ausschnitts, scrollt die Leiste es waagerecht heran – nur beim Wechsel, damit sie nicht unter dem Finger wegwandert.
+- Sprungziele (Kapitelwahl, Inhaltsverzeichnis) landen unterhalb der Leiste; ihre Höhe wird vom Zielpunkt abgezogen.
+- Das Inhaltsverzeichnis im Bottom-Sheet markiert denselben Abschnitt – beide werden aus einer Quelle gespeist.
 
 ### Gesten
 
@@ -300,7 +319,8 @@ Animiert werden ausschließlich `transform`, `opacity` und `clip-path`. Diese Ei
 ### Bildrate und Scrollverhalten
 
 - Scroll-Reaktionen (eingeblendeter FAB, Abschnittsleiste) laufen in **einem** `requestAnimationFrame`-getakteten Handler statt in mehreren gedrosselten Listenern.
-- Die Positionen der SOP-Abschnitte werden gepuffert und nur bei echten Änderungen neu vermessen – das Scrollen erzwingt damit kein Layout mehr pro Frame.
+- Die Positionen der SOP-Abschnitte sowie Höhe und Ruheposition der Kapitelleiste werden gepuffert und nur bei echten Änderungen neu vermessen – das Scrollen erzwingt damit kein Layout mehr pro Frame.
+- Der Volltext jedes Abschnitts wird einmalig aus dem HTML gelöst und gepuffert; die Suche entprellt Eingaben. Zuvor wurde bei **jedem Tastendruck** der HTML-Inhalt aller 73 SOPs neu geparst.
 - Weiches Scrollen läuft über eine eigene `requestAnimationFrame`-Schleife mit einheitlicher Kurve, statt über das global gesetzte `scroll-behavior: smooth` (das zuvor auch jeden Positions-Reset animierte).
 - Auf Zeigegeräten reserviert `scrollbar-gutter: stable` den Platz des Scrollbalkens, sodass beim Ansichtswechsel keine Breite springt.
 
@@ -431,6 +451,9 @@ sop-zna/
 │   ├── Patientenpfade.png      # App-Icon
 │   └── ZNA/
 │       └── *.png               # SOP-spezifische Abbildungen
+├── vendor/                 # Schrift und Symbole (keine CDN-Abhängigkeit)
+│   ├── fontawesome/            # all.min.css + fa-solid-900.woff2
+│   └── inter/                  # inter.css + latin/latin-ext woff2
 └── sops/
     └── *.js                # 73 einzelne SOP-Module
 ```
@@ -523,7 +546,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: September 2026*  
-*Version: 2.9.0*
+*Version: 2.10.0*
 
 ---
 
@@ -531,6 +554,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v2.10.0** | Sep 2026 | **Kapitelleiste bleibt oben.** Die Abschnittsleiste einer geöffneten SOP heftet sich beim Scrollen an den oberen Rand und wird nicht mehr durch eine separate Abschnittsleiste ersetzt; das gerade sichtbare Kapitel wird darin markiert, Sprungziele landen darunter. Behoben: der Spotlight teilte sich den Suchbegriff mit der Volltextsuche und löschte beim Schließen deren Ergebnisse, während im Eingabefeld weiter Text stand; das Zurückgehen legte einen zusätzlichen Verlaufseintrag an, sodass die Zurück-Taste des Browsers anschließend wieder vorwärts führte; die Volltextsuche parste bei jedem Tastendruck das HTML aller 73 SOPs; der Druck baute die Ansicht zweimal neu auf und verlor dabei die Scrollposition. Aufgeräumt: Schrift und Symbole liegen im Projekt statt auf zwei CDNs, Abschnittswahl läuft über einen einzigen Ereignispfad statt über touch plus nachgereichtes click, der parallele Navigationsstapel und ein redundanter IntersectionObserver entfallen, tote Regeln und Markup entfernt |
 | **v2.9.0** | Sep 2026 | **Darstellung und Bewegung überarbeitet.** Behoben: Ansichtswechsel liefen nie an (Enter-Klasse wurde im selben Frame entfernt, abgehende Ansicht stand auf `display:none`); Zurück-Pfeil und alle Such-Leeren-Knöpfe waren wegen doppelter `display`-Deklaration dauerhaft sichtbar; Overlays sprangen auf, statt einzufahren; senkrechtes Scrollen am linken Rand war durch die Wischgeste blockiert; Auswahl im Segmented Control löste auf Touch doppelt aus; die Verlaufskanten des Segmented Control wurden nie geschaltet; jeder SOP-Aufbau legte einen weiteren `resize`-Listener an; Trefferhervorhebung war im Dunkelmodus praktisch unlesbar; der Druck konnte Abschnitte leer ausgeben, weil die Auftrittsanimation noch lief. Neu: durchgängige Push-/Pop-/Fade-Übergänge, animiertes Akkordeon, gleitende Abschnittsmarkierung, fingerfolgende Wischgeste, Bottom-Sheet und Pull-to-Refresh auf `transform` umgestellt, gestaffelter Listenauftritt, Ripple-Feedback, Theme-Wechsel als Kreisblende, ein gemeinsamer `requestAnimationFrame`-Scroll-Handler mit gepufferten Abschnittspositionen, toter Skeleton-Code entfernt |
 | **v2.8.1** | Sep 2026 | Korrektur Telefonverzeichnis: IMC KAIS (Arzt) lautet 4644 statt 4744 |
 | **v2.8.0** | Aug 2026 | **UI/UX- und Barrierefreiheits-Überarbeitung**: echte Verlaufsnavigation über die History-API (`pushState`/`popstate`/`hashchange`), Tastaturbedienung für Karten, Listen und Abschnitte, Fokusfalle und Fokusrückgabe in allen Overlays, Sprunglink, `aria`-Auszeichnung und Überschriftenstruktur, kontrastgeprüfte Farbtokens (axe-core: 0 Verstöße in beiden Designs), größere Touch-Ziele, kein `user-scalable=no`, kompaktere Startseite und SOP-Liste, Schriftgrößen-Steuerung im Inhalts-Sheet, Bootstrap entfernt, Skripte mit `defer`, `prefers-reduced-motion` |

@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.9.0';
+    var APP_VERSION = '2.10.0';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -57,9 +57,8 @@
     var SWIPE_VELOCITY = 0.3;
     var HORIZONTAL_THRESHOLD = 8;
 
-    // Touch-Constants für Segmented Control
-    var SEG_TOUCH_THRESHOLD = 10;  // 10px Bewegung = Scroll
-    var SEG_TAP_TIMEOUT = 300;     // 300ms max Tap-Dauer
+    // Schwelle für Segmented Control: ab hier gilt es als Wischen, nicht Tippen
+    var SEG_TOUCH_THRESHOLD = 10;
 
     // Category Colors
     var CC = {
@@ -87,16 +86,15 @@
         catB: 'all',
         bQ: '',
         sQ: '',
+        spotQ: '',
         hQ: '',
         theme: 'light',
         fs: FSD,
         mob: window.innerWidth < 1024,
-        allO: false,
         off: !navigator.onLine,
         ts: null,
         sCatOpen: false,
         bCatOpen: false,
-        navStack: [],
         isNavigating: false
     };
 
@@ -104,8 +102,6 @@
     var segTouchState = {
         startX: 0,
         startY: 0,
-        startTime: 0,
-        hasMoved: false,
         targetBtn: null
     };
 
@@ -124,7 +120,6 @@
             'browseCategoryFilters', 'browseList', 'searchViewInput', 'searchViewClear', 'searchResultsArea',
             'fabAction', 'bottomNav', 'metaThemeColor', 'sectionPickerOverlay', 'sectionPickerBackdrop',
             'sectionPickerClose', 'sectionPickerList', 'sectionPickerPrint', 'offlineBanner', 'offlineTimestamp',
-            'stickySectionBar', 'stickySectionIcon', 'stickySectionTitle', 'stickySopName',
             'fontDecMobile', 'fontIncMobile', 'fontIndicatorMobile',
             'fontDecDesktop', 'fontIncDesktop', 'fontIndicatorDesktop', 'pullIndicator',
             'sidebarCatToggle', 'browseCatToggle', 'viewContainer',
@@ -159,10 +154,28 @@
         return CC[k] || '#64748b';
     }
 
+    var stripNode = null;
+
     function strip(html) {
-        var d = document.createElement('div');
-        d.innerHTML = html;
-        return d.textContent || d.innerText || '';
+        if (!stripNode) stripNode = document.createElement('div');
+        stripNode.innerHTML = html;
+        return stripNode.textContent || stripNode.innerText || '';
+    }
+
+    // Reintext eines Abschnitts - einmal ermitteln, danach aus dem Puffer.
+    function secText(sec) {
+        if (sec._text === undefined) sec._text = strip(sec.html || '');
+        return sec._text;
+    }
+
+    function secTextLower(sec) {
+        if (sec._textLower === undefined) sec._textLower = secText(sec).toLowerCase();
+        return sec._textLower;
+    }
+
+    function sourcesTextLower(d) {
+        if (d._srcLower === undefined) d._srcLower = strip(d.sources || '').toLowerCase();
+        return d._srcLower;
     }
 
     function hl(text, query) {
@@ -319,8 +332,10 @@
     // mit Platz fuer die eingeblendete Abschnittsleiste.
     function scrollElementIntoView(el, offset) {
         if (!el || !E.contentScroll) return;
-        var top = el.offsetTop - (offset === undefined ? 54 : offset);
-        smoothScrollTo(E.contentScroll, top);
+        // Die angeheftete Kapitelleiste verdeckt den oberen Rand -
+        // ihre Hoehe wird beim Sprungziel abgezogen.
+        var pad = (offset === undefined) ? stickyOffset() + 12 : offset;
+        smoothScrollTo(E.contentScroll, el.offsetTop - pad);
     }
 
     // Gestaffelter Auftritt: Verzoegerung wird gedeckelt, damit auch
@@ -368,7 +383,6 @@
         span.style.left = (x - size / 2) + 'px';
         span.style.top = (y - size / 2) + 'px';
 
-        host.classList.add('ripple-host');
         host.appendChild(span);
 
         afterMotion(span, 'animationend', 620, function() {
@@ -376,20 +390,23 @@
         });
     }
 
+    var pressedHost = null;
+
     function initRipples() {
         document.addEventListener('pointerdown', function(e) {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             var host = e.target && e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
             if (!host) return;
             spawnRipple(host, e.clientX, e.clientY);
+            if (pressedHost) pressedHost.classList.remove('is-pressed');
+            pressedHost = host;
             host.classList.add('is-pressed');
         }, { passive: true });
 
-        var release = function(e) {
-            var host = e.target && e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
-            if (host) host.classList.remove('is-pressed');
-            var pressed = document.querySelectorAll('.is-pressed');
-            for (var i = 0; i < pressed.length; i++) pressed[i].classList.remove('is-pressed');
+        var release = function() {
+            if (!pressedHost) return;
+            pressedHost.classList.remove('is-pressed');
+            pressedHost = null;
         };
 
         document.addEventListener('pointerup', release, { passive: true });
@@ -519,16 +536,10 @@
     // ============================================
     function pushNav(newSopId) {
         if (S.isNavigating) return;
-        if (!newSopId || newSopId === S.sopId) {
-            if (newSopId === S.sopId && S.tab === 'sop') return;
-        }
+        if (!newSopId) return;
+        if (newSopId === S.sopId && S.tab === 'sop') return;
 
         S.isNavigating = true;
-
-        if (S.sopId) {
-            S.navStack.push({ sopId: S.sopId, tab: S.tab });
-        }
-
         S.sopId = newSopId;
         haptic('light');
         sTab('sop', 'push', function() { S.isNavigating = false; });
@@ -537,18 +548,16 @@
     function popNav() {
         if (S.isNavigating) return;
 
-        // Vorherige SOP aus dem Stapel
-        if (S.navStack.length > 0) {
-            S.isNavigating = true;
-            var prevState = S.navStack.pop();
-            S.sopId = prevState.sopId;
-            S.tab = prevState.tab || 'sop';
+        // Gibt es einen eigenen Verlaufseintrag, uebernimmt der Browser.
+        // Der popstate-Handler wendet die Zieladresse an und waehlt
+        // anhand des Eintragsindex die Rueckwaerts-Animation.
+        if (hasRouteHistory()) {
             haptic('light');
-            sTab('sop', 'pop', function() { S.isNavigating = false; });
+            history.back();
             return;
         }
 
-        // Kein Verlauf - Ziel haengt von der aktuellen Ansicht ab
+        // Ohne Verlauf (Deep Link): sinnvolles Ziel aus der Ansicht ableiten
         if (S.tab === 'home') return;
 
         S.isNavigating = true;
@@ -592,7 +601,7 @@
     }
 
     function canGoBack() {
-        if (S.navStack.length > 0) return true;
+        if (hasRouteHistory()) return true;
         return S.tab === 'sop' || S.tab === 'browse';
     }
 
@@ -884,10 +893,8 @@
         document.body.classList.remove('picker-open');
         restoreFocus();
 
-        if (E.spotlightInput) {
-            E.spotlightInput.value = '';
-            S.sQ = '';
-        }
+        if (E.spotlightInput) E.spotlightInput.value = '';
+        S.spotQ = '';
         if (E.spotlightClear) E.spotlightClear.classList.remove('show');
 
         renderSpotlightResults();
@@ -896,7 +903,7 @@
     function renderSpotlightResults() {
         if (!E.spotlightResults) return;
 
-        var query = S.sQ.trim().toLowerCase();
+        var query = S.spotQ.trim().toLowerCase();
         var container = E.spotlightResults;
 
         if (!query) {
@@ -961,7 +968,9 @@
     function renderSegmentedControl(sopData) {
         if (!sopData || !sopData.sections) return '';
 
-        var html = '<div class="segmented-control-wrapper" role="group" aria-label="Abschnitts-Navigation">';
+        // Aussenrahmen bleibt beim Scrollen am oberen Rand stehen
+        var html = '<div class="sop-seg-sticky">';
+        html += '<div class="segmented-control-wrapper" role="group" aria-label="Abschnitts-Navigation">';
 
         // Linker Scroll-Pfeil
         html += '<button class="segmented-scroll-arrow segmented-scroll-left" aria-label="Nach links scrollen" tabindex="-1">';
@@ -1006,6 +1015,7 @@
         html += '<i class="fa-solid fa-chevron-right"></i>';
         html += '</button>';
 
+        html += '</div>';
         html += '</div>';
         return html;
     }
@@ -1139,8 +1149,7 @@
                         break;
                     case 'Enter':
                     case ' ':
-                        e.preventDefault();
-                        e.target.click();
+                        // <button> loest dafuer nativ ein click-Ereignis aus
                         return;
                 }
 
@@ -1152,55 +1161,58 @@
         }
     }
 
-    // === Segmented Control Touch Handler ===
-    // Nach einem Tap unterdrueckt SEG_CLICK_BLOCK das vom Browser
-    // nachgereichte click-Event - sonst wurde jede Auswahl doppelt
-    // ausgefuehrt (sichtbar als Doppelsprung beim Scrollen).
-    var SEG_CLICK_BLOCK = 0;
+    // === Aktivierung der Abschnitts-Schaltflaechen ===
+    // Ausgeloest wird ausschliesslich ueber click. Das deckt Maus, Tippen,
+    // Tastatur (Enter/Leertaste loesen bei <button> nativ ein click aus)
+    // und Hilfstechnologien gleichermassen ab - und kann sich nicht mit
+    // einem zweiten Pfad ueberlagern, wie es zuvor bei touchend plus
+    // nachgereichtem click der Fall war.
+    //
+    // Die Pointer-Ereignisse dienen nur der Unterscheidung "Tippen" gegen
+    // "Wischen zum Scrollen der Leiste": wurde gewischt, wird der darauf
+    // folgende click verworfen.
 
-    function handleSegTouchStart(e, d, segIndex) {
-        var touch = e.touches[0];
-        segTouchState.startX = touch.clientX;
-        segTouchState.startY = touch.clientY;
-        segTouchState.startTime = Date.now();
-        segTouchState.hasMoved = false;
-        segTouchState.targetBtn = e.currentTarget;
+    function bindSegmentedButton(btn, sopData, segIndex) {
+        var dragged = false;
 
-        // Visuelles Feedback
-        e.currentTarget.classList.add('tap-active');
-    }
+        btn.addEventListener('pointerdown', function(e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            dragged = false;
+            segTouchState.startX = e.clientX;
+            segTouchState.startY = e.clientY;
+            segTouchState.targetBtn = btn;
+            btn.classList.add('tap-active');
+        });
 
-    function handleSegTouchMove(e) {
-        if (!segTouchState.targetBtn) return;
+        btn.addEventListener('pointermove', function(e) {
+            if (segTouchState.targetBtn !== btn || dragged) return;
+            var dx = Math.abs(e.clientX - segTouchState.startX);
+            var dy = Math.abs(e.clientY - segTouchState.startY);
+            if (dx > SEG_TOUCH_THRESHOLD || dy > SEG_TOUCH_THRESHOLD) {
+                dragged = true;
+                btn.classList.remove('tap-active');
+            }
+        });
 
-        var touch = e.touches[0];
-        var deltaX = Math.abs(touch.clientX - segTouchState.startX);
-        var deltaY = Math.abs(touch.clientY - segTouchState.startY);
+        var settle = function() {
+            btn.classList.remove('tap-active');
+            if (segTouchState.targetBtn === btn) segTouchState.targetBtn = null;
+        };
 
-        // Bewegung erkannt
-        if (deltaX > SEG_TOUCH_THRESHOLD || deltaY > SEG_TOUCH_THRESHOLD) {
-            segTouchState.hasMoved = true;
-            segTouchState.targetBtn.classList.remove('tap-active');
-        }
-    }
+        btn.addEventListener('pointerup', settle);
+        btn.addEventListener('pointercancel', function() {
+            dragged = true;
+            settle();
+        });
+        btn.addEventListener('pointerleave', settle);
 
-    function handleSegTouchEnd(e, d, segIndex) {
-        // Visuelles Feedback entfernen
-        if (segTouchState.targetBtn) {
-            segTouchState.targetBtn.classList.remove('tap-active');
-        }
-
-        // Prüfen ob Tap oder Scroll
-        var duration = Date.now() - segTouchState.startTime;
-
-        if (!segTouchState.hasMoved && duration < SEG_TAP_TIMEOUT) {
-            SEG_CLICK_BLOCK = Date.now();
-            handleSegmentedClick(d, segIndex);
-        }
-
-        // Reset
-        segTouchState.targetBtn = null;
-        segTouchState.hasMoved = false;
+        btn.addEventListener('click', function() {
+            if (dragged) {
+                dragged = false;
+                return;
+            }
+            handleSegmentedClick(sopData, segIndex);
+        });
     }
 
     // ============================================
@@ -1398,7 +1410,7 @@
     // Positionen werden jetzt gepuffert und nur bei echten Änderungen neu
     // vermessen.
 
-    var SEC_CACHE = { list: [], dirty: true };
+    var SEC_CACHE = { list: [], dirty: true, stickyHeight: 0, stickyTop: 0 };
 
     function invalidateSectionOffsets() {
         SEC_CACHE.dirty = true;
@@ -1409,6 +1421,12 @@
 
         var out = [];
         if (E.viewSOP) {
+            var bar = E.viewSOP.querySelector('.sop-seg-sticky');
+            SEC_CACHE.stickyHeight = bar ? (bar.offsetHeight || 0) : 0;
+            // offsetTop enthaelt bei position:sticky die Klebeverschiebung -
+            // der Ruhewert wird deshalb nur im ungeklebten Zustand uebernommen.
+            if (bar && !segStuck) SEC_CACHE.stickyTop = bar.offsetTop || 0;
+
             var secs = E.viewSOP.querySelectorAll('.sop-section');
             for (var i = 0; i < secs.length; i++) {
                 var head = secs[i].querySelector('.sop-section-head');
@@ -1667,7 +1685,18 @@
     // ============================================
     // ROUTING (History-API, Zurück-Taste, Deep Links)
     // ============================================
+    // Der Browser-Verlauf ist die einzige Quelle der Navigationstiefe.
+    // Ein zusaetzlicher App-Stapel wuerde daneben herlaufen und beide
+    // Richtungen auseinanderdriften lassen: frueher legte auch das
+    // Zurueckgehen einen neuen Eintrag an, sodass die Zurueck-Taste des
+    // Browsers anschliessend wieder vorwaerts fuehrte.
+    //
+    // Jeder Eintrag traegt einen laufenden Index. Beim popstate-Ereignis
+    // zeigt der Vergleich mit dem aktuellen Index die Richtung an, sodass
+    // vorwaerts und rueckwaerts unterschiedlich animiert werden koennen.
+
     var ROUTE_LOCK = false;
+    var routeIndex = 0;
 
     function hashForState() {
         if (S.tab === 'sop' && S.sopId) return '#sop/' + S.sopId;
@@ -1678,15 +1707,27 @@
 
     function syncRoute(replace) {
         var target = hashForState();
-        if (window.location.hash === target) return;
+        var state = history.state;
+        if (window.location.hash === target && state && state.r === target) return;
+
         ROUTE_LOCK = true;
+        var next = { r: target, i: replace ? routeIndex : routeIndex + 1 };
+
         try {
-            if (replace) history.replaceState({ r: target }, '', target);
-            else history.pushState({ r: target }, '', target);
+            if (replace) history.replaceState(next, '', target);
+            else history.pushState(next, '', target);
+            routeIndex = next.i;
         } catch (e) {
             window.location.hash = target;
         }
+
         setTimeout(function() { ROUTE_LOCK = false; }, 0);
+    }
+
+    // Gibt es einen eigenen Verlaufseintrag, zu dem zurueckgegangen
+    // werden kann? Bei einem Deep Link ist das nicht der Fall.
+    function hasRouteHistory() {
+        return routeIndex > 0;
     }
 
     function hasSop(id) {
@@ -1713,9 +1754,25 @@
         else sTab('home', mode);
     }
 
-    function onRouteChange() {
+    function onPopState(e) {
         if (ROUTE_LOCK) return;
-        S.navStack = [];
+
+        var idx = (e && e.state && typeof e.state.i === 'number') ? e.state.i : 0;
+        var mode = idx < routeIndex ? 'pop' : 'push';
+        routeIndex = idx;
+
+        S.isNavigating = false;
+        finishActiveTransition();
+        applyRoute(mode);
+    }
+
+    // Manuell geaenderte Adresse (Eingabezeile, externer Link).
+    // popstate deckt Vor/Zurueck bereits ab - hier wird nur gehandelt,
+    // wenn die Ansicht wirklich noch nicht zur Adresse passt.
+    function onHashChange() {
+        if (ROUTE_LOCK) return;
+        if (hashForState() === (window.location.hash || '#home')) return;
+
         S.isNavigating = false;
         finishActiveTransition();
         applyRoute('fade');
@@ -2142,8 +2199,8 @@
         // Adresse anwenden und History-Navigation aktivieren
         applyRoute();
         syncRoute(true);
-        window.addEventListener('popstate', onRouteChange);
-        window.addEventListener('hashchange', onRouteChange);
+        window.addEventListener('popstate', onPopState);
+        window.addEventListener('hashchange', onHashChange);
 
         uOff();
 
@@ -2219,7 +2276,6 @@
             e.preventDefault();
             if (S.isNavigating) return;
             S.sopId = null;
-            S.navStack = [];
             sTab('home', S.tab === 'home' ? null : 'pop');
         });
 
@@ -2233,10 +2289,11 @@
         }
 
         // Search view input
+        var runSearch = debounce(rSearch, 110);
         E.searchViewInput.addEventListener('input', function() {
             S.sQ = this.value;
-            rSearch();
             E.searchViewClear.classList.toggle('show', this.value.length > 0);
+            runSearch();
         });
 
         E.searchViewClear.addEventListener('click', function() {
@@ -2267,23 +2324,7 @@
         E.sectionPickerClose.addEventListener('click', function() { cPk(); });
         E.sectionPickerPrint.addEventListener('click', function() {
             cPk();
-            setTimeout(function() {
-                // Vor dem Druck alle Abschnitte oeffnen. Ohne das Aussetzen
-                // der Auftrittsanimation waeren die spaeteren Abschnitte im
-                // Moment des Drucks noch durchsichtig.
-                var prevReduced = MOTION.reduced;
-                MOTION.reduced = true;
-                S.allO = true;
-                rSOP();
-
-                setTimeout(function() {
-                    window.print();
-                    S.allO = false;
-                    rSOP();
-                    MOTION.reduced = prevReduced;
-                    updateMotionPreference();
-                }, 120);
-            }, MOTION.reduced ? 0 : 220);
+            setTimeout(printSop, MOTION.reduced ? 0 : 220);
         });
 
         // Bottom navigation
@@ -2306,7 +2347,6 @@
                     var mode = TAB_ORDER[t] > TAB_ORDER[S.tab] ? 'push' : 'pop';
 
                     S.sopId = null;
-                    S.navStack = [];
                     if (t === 'browse') {
                         S.catB = 'all';  // Filter zurücksetzen
                         S.bQ = '';       // Suchbegriff zurücksetzen
@@ -2359,7 +2399,7 @@
 
         if (E.spotlightInput) {
             E.spotlightInput.addEventListener('input', function() {
-                S.sQ = this.value;
+                S.spotQ = this.value;
                 E.spotlightClear.classList.toggle('show', this.value.length > 0);
                 renderSpotlightResults();
             });
@@ -2367,13 +2407,12 @@
 
         if (E.spotlightClear) {
             E.spotlightClear.addEventListener('click', function() {
-                if (E.spotlightInput) {
-                    E.spotlightInput.value = '';
-                    S.sQ = '';
-                    E.spotlightClear.classList.remove('show');
-                    renderSpotlightResults();
-                    E.spotlightInput.focus();
-                }
+                if (!E.spotlightInput) return;
+                E.spotlightInput.value = '';
+                S.spotQ = '';
+                E.spotlightClear.classList.remove('show');
+                renderSpotlightResults();
+                E.spotlightInput.focus();
             });
         }
 
@@ -2599,7 +2638,6 @@
         var changed = S.tab !== t;
 
         S.tab = t;
-        dSO();
         stopSmoothScroll();
 
         // 1) Inhalt der Zielansicht aufbauen
@@ -2621,7 +2659,6 @@
         switchView(fromView, toView, effectiveMode, function() {
             if (t === 'sop') {
                 invalidateSectionOffsets();
-                iSO();
                 updateSegmentedPill(false);
                 checkSegmentedScrollArrows();
             }
@@ -2634,9 +2671,9 @@
 
         rNav();
 
-        // 4) Adresse angleichen: SOP-Aufrufe erzeugen einen Verlaufseintrag,
-        //    reine Tabwechsel ersetzen den bestehenden.
-        syncRoute(t !== 'sop');
+        // 4) Adresse angleichen: nur das Oeffnen einer SOP legt einen
+        //    Verlaufseintrag an; Zurueckgehen und Tabwechsel ersetzen ihn.
+        syncRoute(!(t === 'sop' && mode === 'push'));
     }
 
     // Kopf-, Fuss- und Randbedienelemente an den aktuellen Tab anpassen
@@ -2674,7 +2711,7 @@
             if (d) {
                 E.mobileTitle.textContent = d.name || '';
                 rBC([
-                    { label: 'SOPs', click: function() { S.sopId = null; S.navStack = []; sTab('browse', 'pop'); } },
+                    { label: 'SOPs', click: function() { S.sopId = null; sTab('browse', 'pop'); } },
                     { label: d.name || '' }
                 ]);
             }
@@ -2789,7 +2826,7 @@
 
                 // Eingabe an die Spotlight-Suche uebergeben und das Feld
                 // wieder leeren, damit beide Felder nicht auseinanderlaufen.
-                S.sQ = v;
+                S.spotQ = v;
                 this.value = '';
                 if (E.spotlightInput) E.spotlightInput.value = v;
                 if (E.spotlightClear) E.spotlightClear.classList.add('show');
@@ -3016,23 +3053,24 @@
                 for (var j = 0; j < d.sections.length; j++) {
                     var sec = d.sections[j];
                     var secTitle = sec.title || '';
-                    var secHtml = sec.html || '';
-                    var txt = strip(secHtml).toLowerCase();
-                    if (txt.indexOf(q) !== -1 || secTitle.toLowerCase().indexOf(q) !== -1) {
-                        score += 3;
-                        var idx = txt.indexOf(q);
-                        var start = Math.max(0, idx - 60);
-                        var end = Math.min(txt.length, idx + q.length + 60);
-                        var snippet = (start > 0 ? '…' : '') + strip(secHtml).substring(start, end) + (end < txt.length ? '…' : '');
-                        secMatches.push({ title: secTitle, snippet: snippet });
-                    }
+                    var txt = secTextLower(sec);
+                    var idx = txt.indexOf(q);
+                    if (idx === -1 && secTitle.toLowerCase().indexOf(q) === -1) continue;
+
+                    score += 3;
+                    if (idx === -1) idx = 0;
+
+                    var plain = secText(sec);
+                    var start = Math.max(0, idx - 60);
+                    var end = Math.min(plain.length, idx + q.length + 60);
+                    var snippet = (start > 0 ? '…' : '') +
+                        plain.substring(start, end).replace(/\s+/g, ' ').trim() +
+                        (end < plain.length ? '…' : '');
+                    secMatches.push({ title: secTitle, snippet: snippet });
                 }
             }
 
-            if (d.sources) {
-                var srcTxt = strip(d.sources).toLowerCase();
-                if (srcTxt.indexOf(q) !== -1) score += 1;
-            }
+            if (d.sources && sourcesTextLower(d).indexOf(q) !== -1) score += 1;
 
             if (score > 0) {
                 results.push({ sop: d, score: score, nameMatch: nameMatch, secMatches: secMatches });
@@ -3111,8 +3149,7 @@
                 var secTitle = sec.title || 'Abschnitt ' + (i + 1);
                 var secHtml = sec.html || '';
                 var ic = SIC[secTitle] || 'fa-circle-info';
-                var isAO = AO.indexOf(secTitle) !== -1;
-                var op = S.allO || isAO;
+                var op = AO.indexOf(secTitle) !== -1;
 
                 html += '<div class="sop-section" data-sec="' + i + '">';
                 html += '<div class="sop-section-head" data-idx="' + i + '" role="button" tabindex="0" aria-expanded="' + (op ? 'true' : 'false') + '">';
@@ -3144,30 +3181,7 @@
         // Add segmented control handlers
         var segButtons = E.viewSOP.querySelectorAll('.segmented-btn');
         for (var i = 0; i < segButtons.length; i++) {
-            (function(btn) {
-                var segIndex = btn.getAttribute('data-seg');
-
-                // Touch-Events für mobile Geräte
-                btn.addEventListener('touchstart', function(e) {
-                    handleSegTouchStart(e, d, segIndex);
-                }, { passive: true });
-
-                btn.addEventListener('touchmove', function(e) {
-                    handleSegTouchMove(e);
-                }, { passive: true });
-
-                btn.addEventListener('touchend', function(e) {
-                    handleSegTouchEnd(e, d, segIndex);
-                }, { passive: true });
-
-                // Klick auf Zeigegeraeten. Nach einem Tap folgt vom Browser
-                // ein zusaetzliches click-Event - das wird hier verworfen,
-                // damit die Auswahl nicht doppelt ausgefuehrt wird.
-                btn.addEventListener('click', function() {
-                    if (Date.now() - SEG_CLICK_BLOCK < 700) return;
-                    handleSegmentedClick(d, segIndex);
-                });
-            })(segButtons[i]);
+            bindSegmentedButton(segButtons[i], d, segButtons[i].getAttribute('data-seg'));
         }
 
         // Initialize keyboard navigation for segmented control
@@ -3196,10 +3210,34 @@
         applyStagger(sections, 'stagger-in');
 
         invalidateSectionOffsets();
-        stickyCurrentIdx = null;
+        segSpyIdx = null;
+        segStuck = false;
 
         rPk();
         rNav();
+    }
+
+    // Alle Abschnitte oeffnen, drucken, vorherigen Zustand wiederherstellen.
+    function printSop() {
+        if (!E.viewSOP) return;
+
+        var sections = E.viewSOP.querySelectorAll('.sop-section');
+        var wasOpen = [];
+        var i;
+
+        for (i = 0; i < sections.length; i++) {
+            wasOpen.push(isSectionOpen(sections[i]));
+            setSectionOpen(sections[i], true, false);
+        }
+
+        try {
+            window.print();
+        } finally {
+            for (i = 0; i < sections.length; i++) {
+                setSectionOpen(sections[i], wasOpen[i], false);
+            }
+            invalidateSectionOffsets();
+        }
     }
 
     function rBC(items) {
@@ -3222,7 +3260,6 @@
             e.preventDefault();
             if (S.isNavigating) return;
             S.sopId = null;
-            S.navStack = [];
             sTab('home', S.tab === 'home' ? null : 'pop');
         });
 
@@ -3324,22 +3361,55 @@
     }
 
     // ============================================
-    // STICKY SECTION BAR
+    // STICKY ABSCHNITTSLEISTE
     // ============================================
-    var stickyCurrentIdx = null;
+    // Die Leiste mit den Kapiteln bleibt beim Scrollen am oberen Rand
+    // stehen (CSS: position: sticky). Hier wird nur nachgehalten, welches
+    // Kapitel gerade oben steht, damit es in der Leiste markiert werden
+    // kann - und ob die Leiste "angeheftet" ist, um sie dann dezent
+    // abzusetzen.
+
+    var segSpyIdx = null;
+    var segStuck = false;
+
+    function segStickyEl() {
+        return E.viewSOP ? E.viewSOP.querySelector('.sop-seg-sticky') : null;
+    }
+
+    // Hoehe der angehefteten Leiste - Sprungziele muessen darunter landen.
+    // Der Wert kommt aus dem Positions-Cache, damit das Scrollen kein
+    // zusaetzliches Layout erzwingt.
+    function stickyOffset() {
+        if (S.tab !== 'sop') return 0;
+        sectionOffsets();
+        return SEC_CACHE.stickyHeight;
+    }
 
     function uSticky(y) {
-        if (!E.stickySectionBar) return;
-
         if (S.tab !== 'sop') {
-            E.stickySectionBar.classList.remove('show');
-            stickyCurrentIdx = null;
+            segSpyIdx = null;
+            segStuck = false;
             return;
         }
 
+        var sticky = segStickyEl();
+        if (!sticky) return;
+
         var scrollTop = (y === undefined && E.contentScroll) ? E.contentScroll.scrollTop : (y || 0);
+
+        // Alle Messwerte kommen aus dem Puffer - Scrollen erzwingt damit
+        // kein Layout pro Frame.
         var secs = sectionOffsets();
-        var ct = scrollTop + 96;
+        var barHeight = SEC_CACHE.stickyHeight;
+
+        var stuck = scrollTop >= SEC_CACHE.stickyTop;
+        if (stuck !== segStuck) {
+            segStuck = stuck;
+            sticky.classList.toggle('is-stuck', stuck);
+        }
+
+        // Welches Kapitel steht gerade unter der Leiste?
+        var ct = scrollTop + barHeight + 16;
         var cur = null;
 
         for (var i = 0; i < secs.length; i++) {
@@ -3347,27 +3417,48 @@
             else break;
         }
 
-        if (!cur || scrollTop < 40) {
-            E.stickySectionBar.classList.remove('show');
-            stickyCurrentIdx = null;
-            return;
+        var idx = (stuck && cur) ? cur.idx : null;
+        if (idx === segSpyIdx) return;
+        segSpyIdx = idx;
+
+        // DOM nur bei echtem Wechsel anfassen
+        var buttons = E.viewSOP.querySelectorAll('.segmented-btn');
+        var currentBtn = null;
+        for (var j = 0; j < buttons.length; j++) {
+            var isCur = idx !== null && buttons[j].getAttribute('data-seg') === String(idx);
+            buttons[j].classList.toggle('is-current', isCur);
+            if (isCur) currentBtn = buttons[j];
         }
 
-        // DOM nur anfassen, wenn sich der Abschnitt wirklich aendert
-        if (stickyCurrentIdx !== cur.idx) {
-            stickyCurrentIdx = cur.idx;
-            E.stickySectionTitle.textContent = cur.title;
-            E.stickySectionIcon.className = cur.icon;
+        for (var k = 0; k < secs.length; k++) {
+            secs[k].el.classList.toggle('is-current', idx !== null && secs[k].idx === idx);
+        }
 
-            var d = findSop(S.sopId);
-            if (d) E.stickySopName.textContent = d.name || '';
-
-            for (var j = 0; j < secs.length; j++) {
-                secs[j].el.classList.toggle('is-current', secs[j] === cur);
+        // Inhaltsverzeichnis folgt derselben Quelle - ein zweiter
+        // Beobachter dafuer ist nicht noetig.
+        if (E.sectionPickerList) {
+            var lis = E.sectionPickerList.querySelectorAll('li');
+            for (var m = 0; m < lis.length; m++) {
+                lis[m].classList.toggle('active', idx !== null && lis[m].getAttribute('data-idx') === idx);
             }
         }
 
-        E.stickySectionBar.classList.add('show');
+        // Liegt das markierte Kapitel ausserhalb der Leiste, wird es
+        // hereingeholt - aber nur dann, damit die Leiste nicht bei jedem
+        // Scrollen unter dem Finger wegwandert.
+        if (currentBtn) revealSegmentedButtonIfHidden(currentBtn);
+    }
+
+    function revealSegmentedButtonIfHidden(btn) {
+        var control = btn.parentNode;
+        if (!control || control.scrollWidth <= control.clientWidth + 2) return;
+
+        var left = btn.offsetLeft;
+        var right = left + btn.offsetWidth;
+
+        if (left >= control.scrollLeft && right <= control.scrollLeft + control.clientWidth) return;
+
+        revealSegmentedButton(btn);
     }
 
     function findSop(id) {
@@ -3375,48 +3466,6 @@
             if (S.data[i].id === id) return S.data[i];
         }
         return null;
-    }
-
-    // ============================================
-    // INTERSECTION OBSERVER
-    // ============================================
-    var sObs = null;
-    var sSec = '';
-
-    function dSO() {
-        if (sObs) {
-            sObs.disconnect();
-            sObs = null;
-        }
-        sSec = '';
-    }
-
-    function iSO() {
-        if (!('IntersectionObserver' in window)) return;
-
-        dSO();
-
-        var secs = E.viewSOP.querySelectorAll('.sop-section');
-        if (secs.length === 0) return;
-
-        sObs = new IntersectionObserver(function(entries) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) {
-                    var idx = entries[i].target.getAttribute('data-sec') || '';
-                    if (idx !== sSec) {
-                        sSec = idx;
-                        var lis = E.sectionPickerList.querySelectorAll('li');
-                        for (var j = 0; j < lis.length; j++) {
-                            lis[j].classList.toggle('active', lis[j].getAttribute('data-idx') === idx);
-                        }
-                    }
-                }
-            }
-        }, { root: E.contentScroll, threshold: 0.2 });
-
-        for (var i = 0; i < secs.length; i++) {
-            sObs.observe(secs[i]);
-        }
     }
 
     // ============================================

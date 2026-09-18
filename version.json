@@ -1,5 +1,5 @@
 {
-    "version": "2.9.0",
-    "lastUpdated": "2026-09-18T06:00:00Z",
-    "changelog": "Darstellung und Bewegung überarbeitet: funktionierende Ansichtswechsel, animiertes Akkordeon, gleitende Abschnittsmarkierung, flüssiges Scrollen; mehrere Darstellungsfehler behoben"
+    "version": "2.10.0",
+    "lastUpdated": "2026-09-18T09:00:00Z",
+    "changelog": "Kapitelleiste der SOP bleibt beim Scrollen oben stehen; Verlauf, Abschnittswahl und Suche überarbeitet; Schrift und Symbole liegen jetzt im Projekt"
 }
