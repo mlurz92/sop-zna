@@ -6,6 +6,51 @@
     -webkit-touch-callout: none;
 }
 
+
+/* ============================================================
+   Bedienelemente aus <button>: Browservorgaben zuruecknehmen.
+   Steht bewusst weit oben - die spezifischeren Regeln weiter
+   unten (Hintergrund, Rahmen, Layout) behalten Vorrang.
+   ============================================================ */
+.cat-card,
+.browse-item,
+.search-result,
+.sidebar-cat-chip,
+.browse-cat-chip,
+.spotlight-result,
+.segmented-btn,
+.segmented-scroll-arrow,
+.hero-search,
+.sop-section-head,
+.dir-row,
+.empty-reset,
+.btm-btn {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.browse-item,
+.search-result,
+.sop-section-head,
+.dir-row,
+.hero-search {
+    width: 100%;
+}
+
+/* Die Abschnittsueberschrift traegt nur die Semantik, nicht die Optik */
+.sop-section-heading {
+    font: inherit;
+    font-weight: inherit;
+    margin: 0;
+}
+
 :root {
     --bg: #f8fafc;
     --surface: #ffffff;
@@ -4304,4 +4349,280 @@ body.picker-open .fab {
     opacity: 0;
     transform: scale(0.8) translate3d(0, 20px, 0);
     pointer-events: none;
+}
+
+/* ============================================================
+   Ergaenzungen der modularen Fassung
+   ============================================================ */
+
+/* --- Schnellsuche auf der Startseite (Knopf statt Eingabefeld) --- */
+.hero-search {
+    cursor: pointer;
+    max-width: 440px;
+    width: 100%;
+}
+
+.hero-search-label {
+    flex: 1;
+    color: var(--text3);
+    font-size: 0.95rem;
+}
+
+.hero-search-kbd {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+}
+
+.hero-search:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.08), var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.hero-search:hover .hero-search-label {
+    color: var(--text2);
+}
+
+@media (max-width: 480px) {
+    .hero-search-kbd { display: none; }
+}
+
+/* --- Suchfelder: eigene Loesch-Schaltflaeche statt der nativen --- */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* --- Trefferanzahl ueber Listen --- */
+.list-count {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 2px 2px 10px;
+}
+
+/* --- Leere Liste: Filter zuruecksetzen --- */
+.empty-reset {
+    margin-top: 14px;
+    padding: 9px 16px;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.empty-reset:hover { background: var(--primary-dark); }
+.empty-reset:active { transform: scale(0.97); }
+
+/* --- Seitenleiste ohne Treffer --- */
+.nav-empty {
+    list-style: none;
+    padding: 14px 18px;
+    color: var(--text3);
+    font-size: 0.85rem;
+}
+
+/* --- Suchtreffer: Titel und Ausschnitt sind <span> im <button> --- */
+.sr-title {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.sr-snippet {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/* --- Abschnitt in einem Suchtreffer --- */
+.sr-sec {
+    font-weight: 600;
+    color: var(--text2);
+}
+
+.sr-more {
+    color: var(--text3);
+}
+
+/* --- Scroll-Pfeile der Kapitelleiste ---
+   Zustand haengt jetzt an einer Klasse statt an Inline-Styles. */
+.segmented-scroll-arrow.is-available {
+    opacity: 0.65;
+    pointer-events: auto;
+}
+
+.segmented-scroll-arrow:disabled {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+/* --- Kapitelleiste: Auswahl und aktuelle Position sind zwei Zustaende --- */
+.segmented-control:not(.has-pill) .segmented-pill {
+    opacity: 0;
+}
+
+/* --- Schnellsuche: Tastaturauswahl --- */
+.spotlight-result {
+    width: 100%;
+}
+
+/* Die Zeilen bestehen jetzt aus <span> in einem <button> - ohne
+   eigenen Anzeigetyp wuerden Name und Kategorie nebeneinander stehen. */
+.spotlight-result-info {
+    display: block;
+}
+
+.spotlight-result-name,
+.spotlight-result-cat {
+    display: block;
+}
+
+.spotlight-result-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spotlight-result.is-active {
+    background: var(--primary-light);
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+.spotlight-fulltext .spotlight-result-name {
+    font-weight: 600;
+}
+
+/* --- Telefonverzeichnis: Zeile kopiert die Nummer --- */
+.dir-rows > li {
+    list-style: none;
+}
+
+.dir-row {
+    cursor: pointer;
+}
+
+.dir-row-main {
+    display: block;
+}
+
+/* Die Zeile steckt jetzt in einem <li>; der Zebrastreifen richtet sich
+   deshalb nach dem Listeneintrag, nicht mehr nach der Zeile selbst. */
+.dir-row:nth-child(even) {
+    background: var(--surface);
+}
+
+.dir-rows > li:nth-child(even) .dir-row {
+    background: var(--surface2);
+}
+
+.dir-rows > li:last-child .dir-row {
+    border-bottom: none;
+}
+
+.dir-row:hover,
+.dir-rows > li:nth-child(even) .dir-row:hover {
+    background: var(--hover);
+}
+
+.dir-copy {
+    margin-left: 8px;
+    font-size: 0.72rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.dir-row:hover .dir-copy,
+.dir-row:focus-visible .dir-copy {
+    opacity: 0.7;
+}
+
+/* --- Kurzhinweis ("Toast") --- */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(96px + var(--sab-js));
+    transform: translate3d(-50%, 16px, 0);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: min(90vw, 420px);
+    padding: 11px 18px;
+    border-radius: 999px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.22s var(--ease-out-quart),
+                transform 0.32s var(--ease-out-expo),
+                visibility 0s linear 0.32s;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(-50%, 0, 0);
+    transition-delay: 0s;
+}
+
+@media (min-width: 1024px) {
+    .toast { bottom: 32px; }
+}
+
+/* --- Sichtbarer Fokus fuer Tastaturbedienung --- */
+.cat-card:focus-visible,
+.browse-item:focus-visible,
+.search-result:focus-visible,
+.spotlight-result:focus-visible,
+.sidebar-cat-chip:focus-visible,
+.browse-cat-chip:focus-visible,
+.segmented-btn:focus-visible,
+.sop-section-head:focus-visible,
+.dir-row:focus-visible,
+.btm-btn:focus-visible,
+.hero-search:focus-visible,
+.picker-list li:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* --- Schriftgroesse am Anschlag --- */
+.sidebar-font button:disabled,
+.picker-font button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* --- Druck: Kurzhinweis und Kapitelleiste bleiben draussen --- */
+@media print {
+    .toast,
+    .sop-seg-sticky {
+        display: none !important;
+    }
 }

@@ -1,5 +1,5 @@
 {
-    "version": "2.10.0",
-    "lastUpdated": "2026-09-18T09:00:00Z",
-    "changelog": "Kapitelleiste der SOP bleibt beim Scrollen oben stehen; Verlauf, Abschnittswahl und Suche überarbeitet; Schrift und Symbole liegen jetzt im Projekt"
+    "version": "3.0.0",
+    "lastUpdated": "2026-09-18T12:00:00Z",
+    "changelog": "Anwendungslogik in zehn Module aufgeteilt; Schnellsuche mit Tastaturbedienung und Volltext-Einstieg; Kapitelleiste zeigt den tatsächlichen Zustand; Telefonnummern per Tipp kopierbar; Fehlerbehebungen bei Fokus, Safe-Area und Textausgabe"
 }

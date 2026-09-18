@@ -1,0 +1,147 @@
+/* ============================================================
+   router.js - Adresse, Verlauf, Vor- und Zurueck
+   ------------------------------------------------------------
+   Der Browser-Verlauf ist die einzige Quelle der Navigations-
+   tiefe. Ein zusaetzlicher App-Stapel wuerde daneben herlaufen
+   und beide Richtungen auseinanderdriften lassen.
+
+   Jeder Eintrag traegt einen laufenden Index. Beim popstate-
+   Ereignis zeigt der Vergleich mit dem aktuellen Index die
+   Richtung an, sodass vorwaerts und rueckwaerts unterschiedlich
+   animiert werden koennen.
+   ============================================================ */
+(function(App) {
+    'use strict';
+
+    var S = App.S;
+
+    var ROUTE_LOCK = false;
+    var routeIndex = 0;
+
+    function hashForState() {
+        if (S.tab === 'sop' && S.sopId) return '#sop/' + S.sopId;
+        if (S.tab === 'browse') return '#browse';
+        if (S.tab === 'search') return '#search';
+        return '#home';
+    }
+    App.hashForState = hashForState;
+
+    App.syncRoute = function(replace) {
+        var target = hashForState();
+        var state = history.state;
+        if (window.location.hash === target && state && state.r === target) return;
+
+        ROUTE_LOCK = true;
+        var next = { r: target, i: replace ? routeIndex : routeIndex + 1 };
+
+        try {
+            if (replace) history.replaceState(next, '', target);
+            else history.pushState(next, '', target);
+            routeIndex = next.i;
+        } catch (e) {
+            window.location.hash = target;
+        }
+
+        setTimeout(function() { ROUTE_LOCK = false; }, 0);
+    };
+
+    // Gibt es einen eigenen Verlaufseintrag, zu dem zurueckgegangen
+    // werden kann? Bei einem Deep Link ist das nicht der Fall.
+    function hasRouteHistory() {
+        return routeIndex > 0;
+    }
+    App.hasRouteHistory = hasRouteHistory;
+
+    // Wendet die aktuelle Adresse an, ohne einen neuen Eintrag zu erzeugen
+    function applyRoute(mode) {
+        var h = window.location.hash || '';
+        if (h.indexOf('#sop/') === 0) {
+            var id = decodeURIComponent(h.substring(5));
+            if (App.hasSop(id)) {
+                S.sopId = id;
+                App.sTab('sop', mode);
+                return;
+            }
+        }
+        S.sopId = null;
+        if (h === '#browse') App.sTab('browse', mode);
+        else if (h === '#search') App.sTab('search', mode);
+        else App.sTab('home', mode);
+    }
+    App.applyRoute = applyRoute;
+
+    App.onPopState = function(e) {
+        if (ROUTE_LOCK) return;
+
+        var idx = (e && e.state && typeof e.state.i === 'number') ? e.state.i : 0;
+        var mode = idx < routeIndex ? 'pop' : 'push';
+        routeIndex = idx;
+
+        S.isNavigating = false;
+        App.closeAllOverlays();
+        App.finishActiveTransition();
+        applyRoute(mode);
+    };
+
+    // Manuell geaenderte Adresse (Eingabezeile, externer Link).
+    // popstate deckt Vor/Zurueck bereits ab - hier wird nur gehandelt,
+    // wenn die Ansicht wirklich noch nicht zur Adresse passt.
+    App.onHashChange = function() {
+        if (ROUTE_LOCK) return;
+        if (hashForState() === (window.location.hash || '#home')) return;
+
+        S.isNavigating = false;
+        App.finishActiveTransition();
+        applyRoute('fade');
+    };
+
+    // ============================================
+    // OEFFNEN UND ZURUECK
+    // ============================================
+    App.pushNav = function(newSopId) {
+        if (S.isNavigating) return;
+        if (!newSopId) return;
+        if (newSopId === S.sopId && S.tab === 'sop') return;
+
+        S.isNavigating = true;
+        S.sopId = newSopId;
+        App.haptic('light');
+        App.sTab('sop', 'push', function() { S.isNavigating = false; });
+    };
+
+    App.popNav = function() {
+        if (S.isNavigating) return;
+
+        // Gibt es einen eigenen Verlaufseintrag, uebernimmt der Browser.
+        // Der popstate-Handler wendet die Zieladresse an und waehlt
+        // anhand des Eintragsindex die Rueckwaerts-Animation.
+        if (hasRouteHistory()) {
+            App.haptic('light');
+            history.back();
+            return;
+        }
+
+        // Ohne Verlauf (Deep Link): sinnvolles Ziel aus der Ansicht ableiten
+        if (S.tab === 'home') return;
+
+        S.isNavigating = true;
+        S.sopId = null;
+        App.haptic('light');
+
+        var target = (S.tab === 'sop') ? 'browse' : 'home';
+        App.sTab(target, 'pop', function() { S.isNavigating = false; });
+    };
+
+    App.goHome = function() {
+        if (S.isNavigating) return;
+        S.sopId = null;
+        App.sTab('home', S.tab === 'home' ? null : 'pop');
+    };
+
+    // Kann die Wischgeste nach rechts etwas bewirken?
+    App.canGoBack = function() {
+        if (hasRouteHistory()) return true;
+        return S.tab === 'sop' || S.tab === 'browse';
+    };
+
+})(window.SOPApp);
