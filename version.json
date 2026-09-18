@@ -1,5 +1,5 @@
 {
-    "version": "3.1.0",
-    "lastUpdated": "2026-09-18T16:00:00Z",
-    "changelog": "Darstellung, Bedienung und Bewegung überarbeitet: zentrierter Satzspiegel auf allen Geräten, zweispaltige Übersicht ab Tablet, weiche Blende unter der Kapitelleiste, Lesefortschritt, überarbeitetes Inhaltsverzeichnis, gleitende Tab-Markierung; gemessene 60 fps durch Verzicht auf bildschirmfüllende Weichzeichner und durch Ereignisdelegation"
+    "version": "3.2.0",
+    "lastUpdated": "2026-09-18T19:00:00Z",
+    "changelog": "Bewegungen durchgehend flüssig: der Ansichtswechsel startet erst, wenn der neue Inhalt steht, statt mitten in der Strecke einzusetzen; eine animierte Helligkeitsstufe, die die Bildrate halbierte, ist entfallen; die gleitenden Markierungen dehnen sich beim Wandern; Kurven und Dauern neu abgestimmt"
 }

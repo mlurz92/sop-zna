@@ -314,10 +314,31 @@
             App.closePicker();
             App.revealSection(idx);
         });
+
+        markCurrentPickerEntry();
     };
+
+    // Das Kapitel, das gerade oben steht, auch im frisch aufgebauten
+    // Verzeichnis markieren - der Scroll-Spy meldet sich erst wieder,
+    // wenn tatsaechlich gescrollt wird.
+    function markCurrentPickerEntry() {
+        if (!E.sectionPickerList || !E.viewSOP) return;
+
+        var current = E.viewSOP.querySelector('.sop-section.is-current');
+        var idx = current ? current.getAttribute('data-sec') : null;
+        var lis = E.sectionPickerList.querySelectorAll('li');
+
+        for (var i = 0; i < lis.length; i++) {
+            lis[i].classList.toggle('active', idx !== null && lis[i].getAttribute('data-idx') === idx);
+        }
+    }
 
     App.openPicker = function() {
         if (!E.sectionPickerOverlay || E.sectionPickerOverlay.classList.contains('show')) return;
+
+        // Erst jetzt aufbauen: waehrend des Ansichtswechsels waere die
+        // Liste unsichtbar und ihre Erzeugung reine Last zur Unzeit.
+        App.rPk();
 
         pushOverlay(E.sectionPickerOverlay, E.pickerSheet);
         E.sectionPickerOverlay.classList.add('show');

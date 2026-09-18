@@ -10,12 +10,14 @@
 
     var E = App.E;
 
+    // Gespiegelt in styles.css (--dur-view und Geschwister).
+    // Wird eine Dauer geaendert, gehoert die andere Stelle dazu.
     var MOTION = {
         reduced: false,
-        view: 360,        // Dauer eines Ansichtswechsels
-        viewFast: 260,
-        section: 320,     // Dauer des Auf-/Zuklappens
-        micro: 180,
+        view: 340,        // Dauer eines Ansichtswechsels
+        viewFast: 240,
+        section: 300,     // Dauer des Auf-/Zuklappens
+        micro: 170,
         staggerStep: 26,  // Verzoegerung je Listenelement
         staggerMax: 14,   // ... hoechstens fuer so viele Elemente
         staggerLimit: 18  // ... und ueberhaupt nur fuer so viele
@@ -152,6 +154,73 @@
                 });
             })(node, klass);
         }
+    };
+
+    // ---------- Gleitende Markierung ("Pille") ----------
+    // Eine Pille, die von A nach B springt, wirkt mechanisch. Diese hier
+    // dehnt sich zuerst ueber beide Positionen und zieht sich dann auf
+    // das Ziel zusammen - dieselbe Bewegung, die eine Fluessigkeit
+    // machen wuerde. Animiert werden nur transform und width eines
+    // absolut gesetzten Elements; das Layout der Geschwister bleibt
+    // davon unberuehrt.
+    App.movePill = function(pill, left, width, animate) {
+        if (!pill) return;
+
+        var prevLeft = parseFloat(pill.getAttribute('data-left'));
+        var prevWidth = parseFloat(pill.getAttribute('data-width'));
+
+        var settle = function() {
+            pill.style.width = width + 'px';
+            pill.style.transform = 'translate3d(' + left + 'px, 0, 0)';
+        };
+
+        pill.setAttribute('data-left', left);
+        pill.setAttribute('data-width', width);
+
+        var canStretch = animate !== false &&
+            !MOTION.reduced &&
+            !isNaN(prevLeft) && !isNaN(prevWidth) &&
+            Math.abs(prevLeft - left) > 1;
+
+        if (pill._pillTimer) {
+            clearTimeout(pill._pillTimer);
+            pill._pillTimer = null;
+        }
+
+        if (!canStretch) {
+            if (animate === false) {
+                pill.style.transition = 'none';
+                settle();
+                App.reflow(pill);
+                pill.style.transition = '';
+            } else {
+                settle();
+            }
+            return;
+        }
+
+        // Schritt 1: in Laufrichtung dehnen. Die volle Spanne zwischen
+        // beiden Positionen waere bei weiten Spruengen ein Gummiband
+        // ueber die halbe Leiste - deshalb gedeckelt.
+        var from = Math.min(prevLeft, left);
+        var to = Math.max(prevLeft + prevWidth, left + width);
+        var span = to - from;
+        var stretched = Math.min(span, Math.max(prevWidth, width) * 1.5);
+        var stretchLeft = (left > prevLeft) ? from : (to - stretched);
+
+        pill.style.width = stretched + 'px';
+        pill.style.transform = 'translate3d(' + stretchLeft + 'px, 0, 0)';
+
+        // Schritt 2: auf das Ziel zusammenziehen, waehrend Schritt 1 noch
+        // laeuft. Die zweite Transition uebernimmt den gerade erreichten
+        // Zwischenwert - daraus wird eine durchgehende Bewegung statt
+        // zweier Rucke. Zu frueh umgeschaltet bliebe die Dehnung
+        // unsichtbar, zu spaet wirkte die Markierung traege.
+        if (pill._pillTimer) clearTimeout(pill._pillTimer);
+        pill._pillTimer = setTimeout(function() {
+            pill._pillTimer = null;
+            settle();
+        }, Math.round(MOTION.viewFast * 0.34));
     };
 
     // ---------- Tipp-Rueckmeldung ("Ripple") ----------
