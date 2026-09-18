@@ -106,11 +106,12 @@
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
-    /* Bewegungsdauern zentral steuerbar (Reduced Motion setzt sie auf 1ms) */
-    --dur-view: 360ms;
-    --dur-view-fast: 260ms;
-    --dur-section: 320ms;
-    --dur-micro: 180ms;
+    /* Bewegungsdauern zentral steuerbar (Reduced Motion setzt sie auf 1ms).
+       Gespiegelt in MOTION (js/motion.js) - beide Stellen gehoeren zusammen. */
+    --dur-view: 340ms;
+    --dur-view-fast: 240ms;
+    --dur-section: 300ms;
+    --dur-micro: 170ms;
 }
 
 [data-theme="dark"] {
@@ -4645,10 +4646,18 @@ input[type="search"]::-webkit-search-results-decoration {
     --gutter: 28px;
 
     /* Zusaetzliche Bewegungsstufen */
-    --dur-tiny: 120ms;
-    --dur-enter: 420ms;
-    --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.08);
+    --dur-tiny: 110ms;
+    --dur-enter: 400ms;
+
+    /* Kurven mit Aufgabe:
+       ease-view    - Ansichtswechsel: sanft los, langer Auslauf
+       ease-settle  - etwas wandert an seinen Platz und kommt zur Ruhe
+       ease-spring  - etwas erscheint und schwingt einmal leicht nach
+       ease-snap    - kurze Rueckmeldung auf eine Beruehrung */
+    --ease-view: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-spring: cubic-bezier(0.22, 1.12, 0.36, 1);
     --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-snap: cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Farbige Flaechen auf Basis der Kategoriefarbe */
     --tint-weak: 0.08;
@@ -4786,6 +4795,7 @@ input[type="search"]::-webkit-search-results-decoration {
                 opacity var(--dur-micro) ease;
     pointer-events: none;
     z-index: 0;
+    will-change: transform, width;
 }
 
 .btm-nav-pill.ready {
@@ -4825,13 +4835,13 @@ input[type="search"]::-webkit-search-results-decoration {
    Jetzt laeuft er unter einer kurzen Blende aus, und die Leiste
    wird beim Anheften etwas flacher. */
 
+/* Die Hoehe der Leiste bleibt konstant. Eine animierte Polsterung
+   erzwaenge in jedem Frame ein Layout, liesse den Inhalt darunter
+   wandern und machte die gepufferte Leistenhoehe ungueltig, an der
+   alle Sprungziele haengen. Der Zustandswechsel zeigt sich allein
+   ueber Flaeche und Kante. */
 .sop-seg-sticky {
     padding: 10px 0 12px;
-    transition: padding var(--dur-view-fast) var(--ease-out-quart);
-}
-
-.sop-seg-sticky.is-stuck {
-    padding: 7px 0 9px;
 }
 
 .sop-seg-sticky::before {
@@ -4891,11 +4901,14 @@ input[type="search"]::-webkit-search-results-decoration {
     transform: scale(0.96);
 }
 
-/* Die Pille liegt hinter den Schaltflaechen und gleitet mit */
+/* Die Pille liegt hinter den Schaltflaechen und gleitet mit.
+   Die Dehnung entsteht aus zwei Schritten in js/motion.js; damit sie
+   sichtbar wird, muessen Versatz und Breite dieselbe Kurve fahren. */
 .segmented-pill {
     transition: transform var(--dur-view-fast) var(--ease-settle),
                 width var(--dur-view-fast) var(--ease-settle),
                 opacity var(--dur-micro) ease;
+    will-change: transform, width;
 }
 
 /* Das gerade sichtbare Kapitel wird dezent unterstrichen -
@@ -4982,8 +4995,11 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* Der Inhalt zieht beim Aufklappen leicht nach - die Hoehe steuert
-   JavaScript, dieser Versatz ist reine Bewegung auf dem Compositor. */
-.sop-section-body.is-animating > * {
+   JavaScript, dieser Versatz ist reine Bewegung auf dem Compositor.
+   Nur die obersten Bloecke bewegen sich mit: ein langer Abschnitt hat
+   leicht fuenfzig Kinder, und was unterhalb der aufgehenden Kante
+   liegt, sieht ohnehin niemand. */
+.sop-section-body.is-animating > :nth-child(-n+6) {
     animation: sectionContentIn var(--dur-section) var(--ease-out-quart) both;
 }
 
@@ -5301,14 +5317,19 @@ input[type="search"]::-webkit-search-results-decoration {
     to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
+/* Kein filter in diesen Bildfolgen: eine animierte brightness-Stufe
+   zwingt den Compositor, fuer die bildschirmgrosse Ansicht in jedem
+   Frame eine eigene Zeichenflaeche aufzubauen. Gemessen halbierte das
+   die Bildrate des Ansichtswechsels (33,3 statt 16,7 ms je Frame).
+   Die Tiefenwirkung tragen Versatz, Massstab und Deckkraft allein. */
 @keyframes vPushOut {
-    from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
-    to   { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.975); filter: brightness(0.94); }
+    from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    to   { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.972); }
 }
 
 @keyframes vPopIn {
-    from { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.975); filter: brightness(0.94); }
-    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+    from { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.972); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 @keyframes vPopOut {
@@ -5339,8 +5360,10 @@ input[type="search"]::-webkit-search-results-decoration {
 .v.anim-in-push,
 .v.anim-in-pop,
 .v.anim-out-push,
-.v.anim-out-pop {
-    animation-timing-function: var(--ease-emphasized);
+.v.anim-out-pop,
+.v.anim-in-replace,
+.v.anim-in-replace-back {
+    animation-timing-function: var(--ease-view);
 }
 
 /* ============================================================
@@ -5661,6 +5684,11 @@ input[type="search"]::-webkit-search-results-decoration {
         --dur-enter: 1ms;
     }
 
+    .segmented-pill,
+    .btm-nav-pill {
+        transition: none !important;
+    }
+
     .btm-nav-pill,
     .segmented-pill,
     .sop-section::before,
@@ -5681,5 +5709,123 @@ input[type="search"]::-webkit-search-results-decoration {
 
     .search-empty {
         animation: none !important;
+    }
+}
+
+/* ============================================================
+   17  START EINES ANSICHTSWECHSELS
+   ============================================================
+   .is-prepped haelt die Bildfolge im Startzustand an, bis der neue
+   Inhalt angeordnet und gezeichnet ist. Ohne diesen Halt lief die
+   Animationsuhr bereits waehrend des teuersten Frames weiter und die
+   Bewegung setzte mit sichtbarem Versatz ein. */
+
+.v.is-prepped {
+    animation-play-state: paused;
+}
+
+/* ============================================================
+   18  AUFTRITT UND RUECKMELDUNG
+   ============================================================ */
+
+/* Die Startseite baut sich als eine Kaskade auf, statt als Block
+   einzublenden: Logo, Titel, Untertitel, Suchfeld, dann die Kacheln. */
+.hero {
+    animation: none;
+}
+
+.hero > * {
+    animation: heroIn var(--dur-enter) var(--ease-out-expo) both;
+}
+
+.hero > :nth-child(1) { animation-delay: 0ms; }
+.hero > :nth-child(2) { animation-delay: 45ms; }
+.hero > :nth-child(3) { animation-delay: 75ms; }
+.hero > :nth-child(4) { animation-delay: 100ms; }
+.hero > :nth-child(5) { animation-delay: 125ms; }
+
+#catGrid .stagger-item {
+    animation-delay: calc(var(--stagger, 0ms) + 150ms);
+}
+
+/* Das Chevron eines Abschnitts dreht nicht nur, es federt kurz nach */
+.sec-toggle {
+    transition: transform var(--dur-section) var(--ease-spring),
+                color var(--dur-micro) ease;
+}
+
+/* Abschnittskopf: spuerbare, aber ruhige Antwort auf den Finger */
+.sop-section-head {
+    transition: background var(--dur-micro) var(--ease-out-quart);
+}
+
+.sop-section-head:active .sec-icon {
+    transform: scale(0.9);
+}
+
+.sec-icon {
+    transition: transform var(--dur-micro) var(--ease-spring);
+}
+
+.sop-section.is-open > .sop-section-heading .sec-icon {
+    transform: scale(1.06);
+}
+
+/* Listeneintraege im Inhaltsverzeichnis und im Verzeichnis */
+.picker-list li,
+.dir-row,
+.spotlight-result {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-tiny) var(--ease-snap),
+                padding-left var(--dur-micro) var(--ease-out-quart);
+}
+
+/* Kopfzeilen-Schaltflaechen */
+.topbar-btn,
+.topbar-back,
+.desk-toc-btn,
+.sidebar-btn {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-tiny) var(--ease-snap);
+}
+
+.topbar-btn:active,
+.topbar-back:active,
+.desk-toc-btn:active,
+.sidebar-btn:active {
+    transform: scale(0.9);
+}
+
+/* Der Zurueck-Pfeil zeigt die Richtung, in die er fuehrt */
+.topbar-back:active {
+    transform: translate3d(-2px, 0, 0) scale(0.9);
+}
+
+/* Kurzhinweis schwingt einmal leicht nach */
+.toast {
+    transition: opacity var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-view) var(--ease-spring),
+                visibility 0s linear var(--dur-view);
+}
+
+/* Ripple: etwas kuerzer und zurueckhaltender als zuvor */
+.ripple {
+    animation-duration: 0.52s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero > *,
+    #catGrid .stagger-item {
+        animation: none !important;
+    }
+
+    .sec-icon,
+    .sop-section.is-open > .sop-section-heading .sec-icon,
+    .topbar-btn:active,
+    .topbar-back:active,
+    .desk-toc-btn:active,
+    .sidebar-btn:active {
+        transform: none !important;
     }
 }

@@ -245,6 +245,26 @@ Zentrale Tokens dieser Schicht:
 
 Alle drei laufen im gemeinsamen `requestAnimationFrame`-Handler bzw. nach einem Ansichtswechsel – kein zusaetzlicher Scroll-Listener.
 
+### Start eines Ansichtswechsels
+
+`switchView()` versieht beide Ansichten zuerst mit `.is-prepped` (CSS: `animation-play-state: paused`), erzwingt einen Layoutdurchlauf und nimmt die Bremse erst im naechsten Frame heraus (`startWhenPainted`).
+
+**Warum:** Ohne diesen Halt liefen Inhaltsaufbau und Animation im selben Frame. Der Browser musste die gesamte neue Ansicht anordnen und zeichnen, waehrend die Animationsuhr bereits lief - gemessen 83 ms fuer diesen einen Frame. Die Bewegung setzte dadurch erst nach rund einem Fuenftel ihrer Strecke sichtbar ein.
+
+**Nicht entfernen.** Ein Testlauf misst den Versatz der einfahrenden Ansicht im ersten Frame und schlaegt an, sobald er unter 92 % faellt.
+
+### Gleitende Markierungen
+
+`App.movePill(pill, left, width, animate)` (in `js/motion.js`) bewegt die Markierungen in Kapitelleiste und Fussnavigation. Sie springen nicht, sondern dehnen sich in Laufrichtung (gedeckelt auf das 1,5-fache der groesseren Breite), wandern und ziehen sich am Ziel zusammen. Der Umschaltpunkt liegt bei 34 % der Dauer - frueher bliebe die Dehnung unsichtbar, spaeter wirkte die Markierung traege.
+
+Die Funktion merkt sich die letzte Position an `data-left` / `data-width` des Elements. Wird eine Markierung verborgen, muessen diese Attribute entfernt werden, sonst dehnt die naechste Bewegung quer ueber die ganze Leiste.
+
+### Arbeit hinter der Bewegung
+
+`App.afterTransition(fn)` legt Arbeit, die waehrend des Wechsels niemand sieht, in die erste ruhige Luecke (`requestIdleCallback` mit Zeitlimit). So wird die Navigationsliste der Seitenleiste nachgezogen. Das Inhaltsverzeichnis entsteht erst in `openPicker()`.
+
+**Wichtig:** `rSOP()` baut daher weder Navigationsliste noch Inhaltsverzeichnis auf - das uebernimmt der Aufrufer.
+
 ### Bewegungssteuerung
 
 `App.MOTION` (`js/motion.js`) bündelt alle Dauern und die Systemeinstellung `prefers-reduced-motion`:
@@ -259,7 +279,9 @@ App.MOTION.staggerMax   // gedeckelt bei 14 Elementen
 
 Hilfsfunktionen: `App.afterMotion(el, event, dauer, cb)` wartet auf `animationend`/`transitionend` mit Zeitlimit, `App.nextFrame(cb)` überspringt zwei Frames, `App.reflow(el)` erzwingt einen Layoutdurchlauf zwischen Start- und Zielzustand.
 
-**Regel:** Es werden ausschließlich `transform`, `opacity` und `clip-path` animiert. Eigenschaften, die Layout auslösen (`width`, `height`, `top`, `max-height`), gehören nicht in laufende Animationen – die einzige Ausnahme ist die bewusst per JavaScript gesteuerte Höhe des Akkordeons.
+**Regel:** Es werden ausschließlich `transform` und `opacity` animiert (`clip-path` einzig fuer die Kreisblende des Theme-Wechsels).
+
+**`filter` gehoert nicht dazu.** Eine animierte Helligkeitsstufe auf einer bildschirmgrossen Flaeche zwingt den Compositor, in jedem Frame eine eigene Zeichenflaeche aufzubauen; gemessen halbierte das die Bildrate des Ansichtswechsels. Ein Testlauf prueft die Bildfolgen `vPush*`, `vPop*`, `vFade*` und `vReplace*` ausdruecklich darauf. Eigenschaften, die Layout auslösen (`width`, `height`, `top`, `max-height`), gehören nicht in laufende Animationen – die einzige Ausnahme ist die bewusst per JavaScript gesteuerte Höhe des Akkordeons.
 
 ---
 
@@ -482,4 +504,4 @@ Die Anwendung benötigt keinen Build-Prozess. Alle Änderungen sind sofort sicht
 ---
 
 *Letzte Aktualisierung: September 2026*
-*Version 3.1 – Modulare Fassung mit Gestaltungsschicht*
+*Version 3.2 – Modulare Fassung mit Gestaltungsschicht*

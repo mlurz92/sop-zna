@@ -35,7 +35,7 @@
     function clearViewMotion(view) {
         if (!view) return;
         view.classList.remove(
-            'is-anim', 'is-leaving', 'is-dragging',
+            'is-anim', 'is-leaving', 'is-dragging', 'is-prepped',
             'anim-in-push', 'anim-out-push',
             'anim-in-pop', 'anim-out-pop',
             'anim-in-fade', 'anim-out-fade',
@@ -86,8 +86,9 @@
         if (fromView === toView) {
             if (scroller) scroller.scrollTop = 0;
             clearViewMotion(toView);
-            toView.classList.add('active', 'is-anim',
+            toView.classList.add('active', 'is-anim', 'is-prepped',
                 mode === 'pop' ? 'anim-in-replace-back' : 'anim-in-replace');
+            startWhenPainted([toView]);
             activeTransition = App.afterMotion(toView, 'animationend', MOTION.view, function() {
                 clearViewMotion(toView);
                 activeTransition = null;
@@ -110,11 +111,13 @@
 
         fromView.style.top = (-offset) + 'px';
         fromView.classList.remove('active');
-        fromView.classList.add('is-anim', 'is-leaving', 'anim-out-' + mode);
+        fromView.classList.add('is-anim', 'is-leaving', 'is-prepped', 'anim-out-' + mode);
 
-        toView.classList.add('active', 'is-anim', 'anim-in-' + mode);
+        toView.classList.add('active', 'is-anim', 'is-prepped', 'anim-in-' + mode);
 
         if (scroller) scroller.scrollTop = 0;
+
+        startWhenPainted([fromView, toView]);
 
         activeTransition = App.afterMotion(toView, 'animationend', MOTION.view, function() {
             clearViewMotion(fromView);
@@ -125,6 +128,29 @@
         });
     }
     App.switchView = switchView;
+
+    // Die Bewegung beginnt erst, wenn der neue Inhalt steht.
+    //
+    // Zuvor wurden Inhalt und Bewegung im selben Frame angestossen: der
+    // Browser musste die gesamte neue Ansicht anordnen und zeichnen,
+    // waehrend die Animation bereits lief. Gemessen dauerte dieser eine
+    // Frame 83 ms - die Bewegung sprang also mit einem Fuenftel ihrer
+    // Strecke an, statt zu starten.
+    //
+    // Die Ansichten bekommen deshalb zuerst ihre Bildfolge im Zustand
+    // "angehalten" (.is-prepped). Das legt den Startzustand fest, ohne
+    // dass die Uhr laeuft. Ein erzwungener Layoutdurchlauf zieht die
+    // teure Arbeit in diesen Frame; im naechsten faellt die Bremse.
+    function startWhenPainted(views) {
+        var i;
+        for (i = 0; i < views.length; i++) App.reflow(views[i]);
+
+        App.nextFrame(function() {
+            for (var j = 0; j < views.length; j++) {
+                if (views[j]) views[j].classList.remove('is-prepped');
+            }
+        });
+    }
 
     // ============================================
     // TAB-WECHSEL
@@ -170,11 +196,44 @@
             if (done) done();
         });
 
-        App.rNav();
+        // 4) Nacharbeiten, die niemand sofort sieht, laufen erst nach der
+        //    Bewegung. Die Navigationsliste (73 Eintraege) und das
+        //    waehrend der ersten Frames neu aufzubauen kostete genau
+        //    dort Zeit, wo die Bewegung sie braucht.
+        App.afterTransition(App.rNav);
 
-        // 4) Adresse angleichen: nur das Oeffnen einer SOP legt einen
+        // 5) Adresse angleichen: nur das Oeffnen einer SOP legt einen
         //    Verlaufseintrag an; Zurueckgehen und Tabwechsel ersetzen ihn.
         App.syncRoute(!(t === 'sop' && mode === 'push'));
+    };
+
+    // Arbeit hinter die laufende Bewegung legen. requestIdleCallback
+    // nutzt die erste ruhige Luecke, das Zeitlimit ist das Sicherheitsnetz
+    // fuer Browser, die keine ruhige Luecke melden.
+    var pendingIdle = null;
+
+    App.afterTransition = function(fn) {
+        if (pendingIdle) {
+            if (pendingIdle.idle && window.cancelIdleCallback) window.cancelIdleCallback(pendingIdle.id);
+            else clearTimeout(pendingIdle.id);
+            pendingIdle = null;
+        }
+
+        var run = function() {
+            pendingIdle = null;
+            fn();
+        };
+
+        if (App.MOTION.reduced) {
+            run();
+            return;
+        }
+
+        if (window.requestIdleCallback) {
+            pendingIdle = { idle: true, id: window.requestIdleCallback(run, { timeout: App.MOTION.view + 60 }) };
+        } else {
+            pendingIdle = { idle: false, id: setTimeout(run, App.MOTION.view) };
+        }
     };
 
     // Tab ueber die Fussleiste wechseln (Richtung folgt der Reihenfolge)
@@ -359,8 +418,7 @@
         var target = E.bottomNav.querySelector('.btm-btn[data-tab="' + key + '"]');
         if (!target || !target.offsetWidth) return;
 
-        pill.style.width = target.offsetWidth + 'px';
-        pill.style.transform = 'translate3d(' + target.offsetLeft + 'px, 0, 0)';
+        App.movePill(pill, target.offsetLeft, target.offsetWidth, pill.classList.contains('ready'));
         pill.classList.add('ready');
     };
 

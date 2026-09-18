@@ -78,21 +78,14 @@
         if (!active) {
             pill.classList.remove('ready');
             control.classList.remove('has-pill');
+            pill.removeAttribute('data-left');
+            pill.removeAttribute('data-width');
             return;
         }
 
-        var still = animate === false || App.MOTION.reduced;
-        if (still) pill.style.transition = 'none';
-
-        pill.style.width = active.offsetWidth + 'px';
-        pill.style.transform = 'translate3d(' + active.offsetLeft + 'px, 0, 0)';
+        App.movePill(pill, active.offsetLeft, active.offsetWidth, animate);
         pill.classList.add('ready');
         control.classList.add('has-pill');
-
-        if (still) {
-            App.reflow(pill);
-            pill.style.transition = '';
-        }
     };
 
     // Aktive Schaltflaeche in den sichtbaren Bereich holen

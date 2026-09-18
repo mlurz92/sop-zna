@@ -344,8 +344,8 @@
         // nur die Standardabschnitte offen, also ist "Alle" nicht aktiv.
         syncSegmentedWithSections();
 
-        App.rPk();
-        App.rNav();
+        // Inhaltsverzeichnis und Navigationsliste baut der Aufrufer auf,
+        // sobald die Bewegung durch ist - sie sind hier nicht sichtbar.
     };
 
     function sectionMarkup(idx, title, icon, bodyHtml, color, open) {
