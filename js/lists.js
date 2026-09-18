@@ -12,6 +12,20 @@
     var E = App.E;
     var CATS = App.CATS;
 
+    // Ein Listener je Liste statt einer je Zeile. Bei 73 Eintraegen
+    // sparte das 73 Registrierungen pro Aufbau - sie waren ein
+    // spuerbarer Teil des ersten Frames eines Ansichtswechsels.
+    function delegate(container, selector, handler) {
+        if (!container || container._delegated === selector) return;
+        container._delegated = selector;
+        container.addEventListener('click', function(e) {
+            var el = e.target && e.target.closest ? e.target.closest(selector) : null;
+            if (!el || !container.contains(el)) return;
+            handler(el, e);
+        });
+    }
+    App.delegate = delegate;
+
     // ============================================
     // SEITENLEISTE
     // ============================================
@@ -34,22 +48,11 @@
 
         E.categoryFilters.innerHTML = html;
 
-        var chips = E.categoryFilters.querySelectorAll('.sidebar-cat-chip');
-        for (var j = 0; j < chips.length; j++) {
-            (function(ch) {
-                ch.addEventListener('click', function() {
-                    S.catD = ch.getAttribute('data-cat');
-                    var all = E.categoryFilters.querySelectorAll('.sidebar-cat-chip');
-                    for (var k = 0; k < all.length; k++) {
-                        all[k].classList.remove('active');
-                        all[k].setAttribute('aria-pressed', 'false');
-                    }
-                    ch.classList.add('active');
-                    ch.setAttribute('aria-pressed', 'true');
-                    App.rNav();
-                });
-            })(chips[j]);
-        }
+        delegate(E.categoryFilters, '.sidebar-cat-chip', function(ch) {
+            S.catD = ch.getAttribute('data-cat');
+            markActiveChip(E.categoryFilters, '.sidebar-cat-chip', ch);
+            App.rNav();
+        });
 
         App.rNav();
     };
@@ -76,15 +79,10 @@
 
         E.navList.innerHTML = html;
 
-        var links = E.navList.querySelectorAll('a');
-        for (var j = 0; j < links.length; j++) {
-            (function(a) {
-                a.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    App.pushNav(a.getAttribute('data-id'));
-                });
-            })(links[j]);
-        }
+        delegate(E.navList, 'a[data-id]', function(a, e) {
+            e.preventDefault();
+            App.pushNav(a.getAttribute('data-id'));
+        });
 
         // Aktiven Eintrag sanft in den Blick holen
         var act = E.navList.querySelector('a.active');
@@ -139,19 +137,14 @@
 
             E.catGrid.innerHTML = gh;
 
-            var cards = E.catGrid.querySelectorAll('.cat-card');
-            for (var j = 0; j < cards.length; j++) {
-                (function(c) {
-                    c.addEventListener('click', function() {
-                        S.catB = c.getAttribute('data-cat');
-                        S.bQ = '';
-                        App.haptic('light');
-                        App.sTab('browse', 'push');
-                    });
-                })(cards[j]);
-            }
+            delegate(E.catGrid, '.cat-card', function(c) {
+                S.catB = c.getAttribute('data-cat');
+                S.bQ = '';
+                App.haptic('light');
+                App.sTab('browse', 'push');
+            });
 
-            App.applyStagger(cards, 'stagger-item');
+            App.applyStagger(E.catGrid.querySelectorAll('.cat-card'), 'stagger-item');
         }
 
         if (E.homeInfo) {
@@ -233,24 +226,22 @@
 
         E.browseCategoryFilters.innerHTML = html;
 
-        var chips = E.browseCategoryFilters.querySelectorAll('.browse-cat-chip');
-        for (var j = 0; j < chips.length; j++) {
-            (function(ch) {
-                ch.addEventListener('click', function() {
-                    S.catB = ch.getAttribute('data-cat');
-                    var all = E.browseCategoryFilters.querySelectorAll('.browse-cat-chip');
-                    for (var k = 0; k < all.length; k++) {
-                        all[k].classList.remove('active');
-                        all[k].setAttribute('aria-pressed', 'false');
-                    }
-                    ch.classList.add('active');
-                    ch.setAttribute('aria-pressed', 'true');
-                    App.rBrowseList();
-                    updateBrowseToggleLabel();
-                });
-            })(chips[j]);
-        }
+        delegate(E.browseCategoryFilters, '.browse-cat-chip', function(ch) {
+            S.catB = ch.getAttribute('data-cat');
+            markActiveChip(E.browseCategoryFilters, '.browse-cat-chip', ch);
+            App.rBrowseList();
+            updateBrowseToggleLabel();
+        });
     };
+
+    function markActiveChip(container, selector, chosen) {
+        var all = container.querySelectorAll(selector);
+        for (var i = 0; i < all.length; i++) {
+            var on = all[i] === chosen;
+            all[i].classList.toggle('active', on);
+            all[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+    }
 
     function updateBrowseToggleLabel() {
         if (!E.browseCatToggle) return;
@@ -309,16 +300,11 @@
             });
         }
 
-        var items = E.browseList.querySelectorAll('.browse-item');
-        for (var j = 0; j < items.length; j++) {
-            (function(it) {
-                it.addEventListener('click', function() {
-                    App.pushNav(it.getAttribute('data-id'));
-                });
-            })(items[j]);
-        }
+        delegate(E.browseList, '.browse-item', function(it) {
+            App.pushNav(it.getAttribute('data-id'));
+        });
 
-        App.applyStagger(items, 'stagger-item');
+        App.applyStagger(E.browseList.querySelectorAll('.browse-item'), 'stagger-item');
     };
 
     // ============================================
@@ -425,16 +411,11 @@
 
         E.searchResultsArea.innerHTML = html;
 
-        var items = E.searchResultsArea.querySelectorAll('.search-result');
-        for (var j = 0; j < items.length; j++) {
-            (function(it) {
-                it.addEventListener('click', function() {
-                    App.pushNav(it.getAttribute('data-id'));
-                });
-            })(items[j]);
-        }
+        delegate(E.searchResultsArea, '.search-result', function(it) {
+            App.pushNav(it.getAttribute('data-id'));
+        });
 
-        App.applyStagger(items, 'stagger-item');
+        App.applyStagger(E.searchResultsArea.querySelectorAll('.search-result'), 'stagger-item');
     };
 
 })(window.SOPApp);

@@ -17,7 +17,8 @@
         section: 320,     // Dauer des Auf-/Zuklappens
         micro: 180,
         staggerStep: 26,  // Verzoegerung je Listenelement
-        staggerMax: 14    // ... hoechstens fuer so viele Elemente
+        staggerMax: 14,   // ... hoechstens fuer so viele Elemente
+        staggerLimit: 18  // ... und ueberhaupt nur fuer so viele
     };
     App.MOTION = MOTION;
 
@@ -125,20 +126,27 @@
         App.smoothScrollTo(E.contentScroll, el.offsetTop - pad);
     };
 
-    // Gestaffelter Auftritt: Verzoegerung wird gedeckelt, damit auch
-    // lange Listen (73 SOPs) sofort vollstaendig sichtbar werden.
+    // Gestaffelter Auftritt. Zwei Deckel halten den Aufwand klein:
+    // die Verzoegerung waechst nur bis staggerMax, und ueberhaupt
+    // animiert werden nur die Elemente, die anfangs sichtbar sein
+    // koennen. Bei 73 Eintraegen sparte das 57 Animationen samt
+    // Ereignis-Listenern - genau die Arbeit, die den ersten Frame
+    // eines Ansichtswechsels kostete.
     App.applyStagger = function(nodes, cls) {
         if (!nodes || !nodes.length) return;
         if (MOTION.reduced) return;
 
         var klass = cls || 'stagger-item';
-        for (var i = 0; i < nodes.length; i++) {
+        var count = Math.min(nodes.length, MOTION.staggerLimit);
+        var timeout = 500 + MOTION.staggerMax * MOTION.staggerStep;
+
+        for (var i = 0; i < count; i++) {
             var node = nodes[i];
             var delay = Math.min(i, MOTION.staggerMax) * MOTION.staggerStep;
             node.style.setProperty('--stagger', delay + 'ms');
             node.classList.add(klass);
             (function(n, k) {
-                App.afterMotion(n, 'animationend', 500 + MOTION.staggerMax * MOTION.staggerStep, function() {
+                App.afterMotion(n, 'animationend', timeout, function() {
                     n.classList.remove(k);
                     n.style.removeProperty('--stagger');
                 });

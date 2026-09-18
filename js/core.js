@@ -8,7 +8,7 @@
     'use strict';
 
     // ---------- Version (muss zu version.json passen) ----------
-    App.VERSION = '3.0.0';
+    App.VERSION = '3.1.0';
 
     // ---------- Kategorien ----------
     var CATS = {
@@ -120,6 +120,7 @@
         'fontDecMobile', 'fontIncMobile', 'fontIndicatorMobile',
         'fontDecDesktop', 'fontIncDesktop', 'fontIndicatorDesktop', 'pullIndicator',
         'sidebarCatToggle', 'browseCatToggle', 'viewContainer', 'toastHost',
+        'readProgress', 'sectionPickerSubtitle',
         'spotlightOverlay', 'spotlightBackdrop', 'spotlightContainer', 'spotlightInput',
         'spotlightClear', 'spotlightResults', 'spotlightCancel', 'spotlightBtn',
         'pickerSheet', 'pickerHandle', 'appProgress',

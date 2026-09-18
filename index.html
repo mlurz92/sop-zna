@@ -105,6 +105,8 @@
                 </button>
             </div>
 
+            <div class="read-progress" id="readProgress" aria-hidden="true"><span></span></div>
+
             <div class="scroll-area" id="contentScroll" tabindex="-1">
                 <div class="pull-ind" id="pullIndicator">
                     <i class="fa-solid fa-arrow-rotate-right"></i>
@@ -142,6 +144,7 @@
             <!-- Modern Bottom Navigation with Bootstrap 5 -->
             <nav class="btm-nav fixed-bottom" id="bottomNav" aria-label="Hauptnavigation">
                 <div class="btm-nav-inner">
+                    <span class="btm-nav-pill" aria-hidden="true"></span>
                     <button type="button" class="btm-btn" data-tab="home">
                         <i class="fa-solid fa-house"></i>
                         <span class="btm-btn-label">Start</span>
@@ -213,10 +216,13 @@
     <!-- Section Picker Bottom Sheet (Draggable) -->
     <div class="picker-overlay" id="sectionPickerOverlay" role="dialog" aria-modal="true" aria-labelledby="sectionPickerTitle">
         <div class="picker-bg" id="sectionPickerBackdrop"></div>
-        <div class="picker-sheet" id="pickerSheet">
+        <div class="picker-sheet" id="pickerSheet" tabindex="-1">
             <div class="picker-handle" id="pickerHandle"></div>
             <div class="picker-head">
-                <h3 id="sectionPickerTitle">Inhalt</h3>
+                <div class="picker-head-text">
+                    <h3 id="sectionPickerTitle">Inhalt</h3>
+                    <p class="picker-subtitle" id="sectionPickerSubtitle"></p>
+                </div>
                 <button id="sectionPickerClose" aria-label="Schließen"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             <ul class="picker-list" id="sectionPickerList" tabindex="0"></ul>

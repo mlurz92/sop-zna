@@ -4626,3 +4626,1060 @@ input[type="search"]::-webkit-search-results-decoration {
         display: none !important;
     }
 }
+
+/* ============================================================================
+   GESTALTUNGSSCHICHT
+   ============================================================================
+   Eine zusammenhaengende Schicht fuer Rhythmus, Tiefe und Bewegung.
+   Sie steht am Ende der Datei und hat damit im Zweifel Vorrang.
+
+   Grundsatz der Bewegung: animiert werden ausschliesslich transform,
+   opacity und filter. Jede Dauer kommt aus einem Token, jede Kurve aus
+   einem Easing-Token. "Reduzierte Bewegung" schaltet beides zentral ab.
+   ============================================================================ */
+
+:root {
+    /* Inhaltsbreiten: eine Quelle fuer alle Ansichten */
+    --content-max: 1120px;
+    --content-narrow: 940px;
+    --gutter: 28px;
+
+    /* Zusaetzliche Bewegungsstufen */
+    --dur-tiny: 120ms;
+    --dur-enter: 420ms;
+    --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.08);
+    --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Farbige Flaechen auf Basis der Kategoriefarbe */
+    --tint-weak: 0.08;
+    --tint-strong: 0.16;
+}
+
+[data-theme="dark"] {
+    --tint-weak: 0.16;
+    --tint-strong: 0.26;
+}
+
+/* ============================================================
+   1  RHYTHMUS UND BREITE
+   ============================================================
+   Alle Ansichten teilen sich denselben zentrierten Satzspiegel.
+   Auf dem Tablet stand der Inhalt bisher linksbuendig in einer
+   sehr breiten Spalte - jetzt sitzt er mittig und ruhig. */
+
+.v {
+    padding-left: max(calc(var(--gutter) + var(--sal)), calc((100% - var(--content-max)) / 2));
+    padding-right: max(calc(var(--gutter) + var(--sar)), calc((100% - var(--content-max)) / 2));
+}
+
+.v-sop {
+    padding-left: max(calc(var(--gutter) + var(--sal)), calc((100% - var(--content-max)) / 2));
+    padding-right: max(calc(var(--gutter) + var(--sar)), calc((100% - var(--content-max)) / 2));
+}
+
+/* Listen sitzen mittig in ihrer Spalte, nicht am linken Rand */
+.browse-list,
+.browse-bar-top,
+.browse-cats,
+.search-results,
+.search-bar,
+.list-count,
+.home-info {
+    max-width: var(--content-narrow);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cat-grid {
+    max-width: var(--content-max);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 767px) {
+    :root { --gutter: 18px; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    :root { --gutter: 32px; }
+}
+
+/* ============================================================
+   2  KOPFZEILE UND LESEFORTSCHRITT
+   ============================================================ */
+
+/* Kopfzeile ohne Dauerlinie: die Kante erscheint erst, wenn Inhalt
+   darunter wegwandert. Das haelt den Ruhezustand leicht. */
+.topbar,
+.desk-bar {
+    border-bottom-color: transparent;
+    transition: border-color var(--dur-micro) var(--ease-out-quart),
+                box-shadow var(--dur-view-fast) var(--ease-out-quart);
+}
+
+#app.is-scrolled .topbar,
+#app.is-scrolled .desk-bar {
+    border-bottom-color: var(--border);
+    box-shadow: 0 4px 16px -12px rgba(15, 23, 42, 0.5);
+}
+
+[data-theme="dark"] #app.is-scrolled .topbar,
+[data-theme="dark"] #app.is-scrolled .desk-bar {
+    box-shadow: 0 4px 18px -10px rgba(0, 0, 0, 0.7);
+}
+
+.topbar-title {
+    font-weight: 650;
+    letter-spacing: -0.011em;
+}
+
+/* Fortschritt durch die geoeffnete SOP - zwei Pixel, die zeigen,
+   wie viel des Pfads noch kommt. */
+.read-progress {
+    position: relative;
+    height: 2px;
+    flex-shrink: 0;
+    background: transparent;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--dur-view-fast) var(--ease-out-quart);
+    z-index: 25;
+}
+
+.read-progress.show {
+    opacity: 1;
+}
+
+.read-progress > span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: transform var(--dur-tiny) linear;
+}
+
+/* ============================================================
+   3  FUSSNAVIGATION
+   ============================================================ */
+
+.btm-nav-inner {
+    position: relative;
+    max-width: 560px;
+    gap: 4px;
+}
+
+/* Die Markierung gleitet auf den aktiven Tab, statt hart umzuspringen */
+.btm-nav-pill {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 40px;
+    margin-top: -21px;
+    border-radius: var(--radius-full);
+    background: var(--primary-light);
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                width var(--dur-view-fast) var(--ease-settle),
+                opacity var(--dur-micro) ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.btm-nav-pill.ready {
+    opacity: 1;
+}
+
+.btm-btn {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    transition: color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.btm-btn:active {
+    transform: scale(0.94);
+}
+
+.btm-btn i {
+    transition: transform var(--dur-view-fast) var(--ease-spring);
+}
+
+.btm-btn.active i {
+    transform: translate3d(0, -1px, 0) scale(1.08);
+}
+
+/* Der frühere Unterstrich entfällt - die Pille übernimmt die Anzeige */
+.btm-btn.active::after,
+.btm-btn::after {
+    display: none !important;
+}
+
+/* ============================================================
+   4  ANGEHEFTETE KAPITELLEISTE
+   ============================================================
+   Bisher wurde der Text vom opaken Balken hart abgeschnitten.
+   Jetzt laeuft er unter einer kurzen Blende aus, und die Leiste
+   wird beim Anheften etwas flacher. */
+
+.sop-seg-sticky {
+    padding: 10px 0 12px;
+    transition: padding var(--dur-view-fast) var(--ease-out-quart);
+}
+
+.sop-seg-sticky.is-stuck {
+    padding: 7px 0 9px;
+}
+
+.sop-seg-sticky::before {
+    left: -100vw;
+    right: -100vw;
+    background: var(--bg);
+    transition: box-shadow var(--dur-view-fast) var(--ease-out-cubic);
+}
+
+/* Auslaufende Blende unter der Leiste: der Text verschwindet weich,
+   statt mitten im Buchstaben zu enden. */
+.sop-seg-sticky::after {
+    content: '';
+    position: absolute;
+    left: -100vw;
+    right: -100vw;
+    top: 100%;
+    height: 18px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--bg), transparent);
+    opacity: 0;
+    transition: opacity var(--dur-view-fast) var(--ease-out-quart);
+}
+
+.sop-seg-sticky.is-stuck::after {
+    opacity: 1;
+}
+
+.sop-seg-sticky.is-stuck::before {
+    box-shadow: none;
+}
+
+.segmented-control {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+.segmented-control::-webkit-scrollbar {
+    display: none;
+}
+
+/* Die Blenden an den Raendern folgen der Flaeche der Leiste */
+.segmented-control-wrapper::before {
+    background: linear-gradient(to right, var(--surface2), rgba(0, 0, 0, 0));
+}
+
+.segmented-control-wrapper::after {
+    background: linear-gradient(to left, var(--surface2), rgba(0, 0, 0, 0));
+}
+
+.segmented-btn {
+    transition: color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.segmented-btn:active {
+    transform: scale(0.96);
+}
+
+/* Die Pille liegt hinter den Schaltflaechen und gleitet mit */
+.segmented-pill {
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                width var(--dur-view-fast) var(--ease-settle),
+                opacity var(--dur-micro) ease;
+}
+
+/* Das gerade sichtbare Kapitel wird dezent unterstrichen -
+   getrennt von der getroffenen Auswahl (.active). */
+.segmented-btn.is-current:not(.active) {
+    color: var(--primary);
+}
+
+/* ============================================================
+   5  ABSCHNITTE EINER SOP
+   ============================================================ */
+
+.sop-section {
+    border-radius: var(--radius-lg);
+    margin-bottom: 10px;
+    scroll-margin-top: 86px;
+    transition: box-shadow var(--dur-view-fast) var(--ease-out-cubic),
+                border-color var(--dur-view-fast) var(--ease-out-cubic),
+                transform var(--dur-view-fast) var(--ease-out-cubic);
+}
+
+.sop-section.is-open {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Das Kapitel, das gerade oben steht, bekommt einen kurzen Streifen am
+   Kopf - kein umlaufend eingefaerbter Rahmen. Der frühere Rahmen zog
+   eine zweite blaue Linie auf der Gegenseite. */
+.sop-section {
+    position: relative;
+}
+
+.sop-section.is-current {
+    border-color: var(--border);
+}
+
+.sop-section::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 58px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(to bottom, var(--primary), rgba(0, 0, 0, 0));
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+    opacity: 0;
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                opacity var(--dur-micro) ease;
+    pointer-events: none;
+}
+
+.sop-section.is-current::before {
+    transform: scaleY(1);
+    opacity: 1;
+}
+
+.sop-section-head {
+    padding: 15px 18px;
+    min-height: 58px;
+    gap: 13px;
+    transition: background var(--dur-micro) var(--ease-out-quart);
+}
+
+.sop-section-head .sec-title {
+    font-weight: 620;
+    letter-spacing: -0.009em;
+}
+
+.sec-toggle {
+    color: var(--text3);
+    transition: transform var(--dur-section) var(--ease-settle),
+                color var(--dur-micro) ease;
+}
+
+.sec-toggle.open {
+    transform: rotate(180deg);
+    color: var(--primary);
+}
+
+.sop-section-head:hover .sec-toggle {
+    color: var(--text2);
+}
+
+/* Der Inhalt zieht beim Aufklappen leicht nach - die Hoehe steuert
+   JavaScript, dieser Versatz ist reine Bewegung auf dem Compositor. */
+.sop-section-body.is-animating > * {
+    animation: sectionContentIn var(--dur-section) var(--ease-out-quart) both;
+}
+
+@keyframes sectionContentIn {
+    from { opacity: 0; transform: translate3d(0, 6px, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Auftritt der Abschnittskarten */
+.sop-section.stagger-in {
+    animation: sectionIn var(--dur-enter) var(--ease-out-expo) both;
+    animation-delay: var(--stagger, 0ms);
+}
+
+/* Kopfbereich der SOP */
+.sop-title {
+    letter-spacing: -0.021em;
+    line-height: 1.2;
+}
+
+.sop-header {
+    animation: headerIn var(--dur-enter) var(--ease-out-expo) both;
+}
+
+@keyframes headerIn {
+    from { opacity: 0; transform: translate3d(0, 10px, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+.sop-cat-badge {
+    transition: transform var(--dur-micro) var(--ease-out-quart);
+}
+
+/* ============================================================
+   6  KARTEN UND LISTEN
+   ============================================================
+   Ruhiger Grundzustand, klare Reaktion auf Zeigegeraet und Finger. */
+
+.cat-card {
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                box-shadow var(--dur-view-fast) var(--ease-out-cubic),
+                border-color var(--dur-micro) var(--ease-out-quart);
+}
+
+.cat-card:hover {
+    transform: translate3d(0, -3px, 0);
+    box-shadow: var(--shadow-md);
+}
+
+.cat-card:active {
+    transform: translate3d(0, -1px, 0) scale(0.985);
+    transition-duration: var(--dur-tiny);
+}
+
+.cat-card-icon {
+    transition: transform var(--dur-view-fast) var(--ease-spring);
+}
+
+.cat-card:hover .cat-card-icon {
+    transform: scale(1.12) translate3d(0, -1px, 0);
+}
+
+.browse-item,
+.search-result {
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                box-shadow var(--dur-view-fast) var(--ease-out-cubic),
+                border-color var(--dur-micro) var(--ease-out-quart);
+}
+
+.browse-item:hover {
+    transform: translate3d(3px, 0, 0);
+}
+
+.browse-item:active {
+    transform: translate3d(1px, 0, 0) scale(0.994);
+    transition-duration: var(--dur-tiny);
+}
+
+.bi-arrow {
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                opacity var(--dur-micro) ease;
+    opacity: 0.45;
+}
+
+.browse-item:hover .bi-arrow {
+    transform: translate3d(3px, 0, 0);
+    opacity: 1;
+}
+
+.search-result:hover {
+    transform: translate3d(0, -2px, 0);
+}
+
+.search-result:active {
+    transform: none;
+    transition-duration: var(--dur-tiny);
+}
+
+/* Gestaffelter Auftritt: knapper Weg, weiche Kurve */
+@keyframes staggerIn {
+    from { opacity: 0; transform: translate3d(0, 12px, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes staggerInX {
+    from { opacity: 0; transform: translate3d(-10px, 0, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+.stagger-item {
+    animation: staggerIn var(--dur-enter) var(--ease-out-expo) both;
+    animation-delay: var(--stagger, 0ms);
+}
+
+.stagger-item-x {
+    animation: staggerInX 0.32s var(--ease-out-quart) both;
+    animation-delay: var(--stagger, 0ms);
+}
+
+/* ============================================================
+   7  STARTSEITE
+   ============================================================ */
+
+.hero {
+    padding: 40px 0 28px;
+    animation: heroIn 0.55s var(--ease-out-expo) both;
+}
+
+@keyframes heroIn {
+    from { opacity: 0; transform: translate3d(0, 16px, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+.hero-logo {
+    width: 178px;
+    margin-bottom: 16px;
+}
+
+.hero-title {
+    letter-spacing: -0.024em;
+}
+
+.hero-search {
+    transition: transform var(--dur-view-fast) var(--ease-settle),
+                border-color var(--dur-micro) var(--ease-out-quart),
+                box-shadow var(--dur-view-fast) var(--ease-out-cubic);
+}
+
+.hero-search:active {
+    transform: scale(0.99);
+    transition-duration: var(--dur-tiny);
+}
+
+.home-info {
+    padding-top: 6px;
+}
+
+@media (min-width: 768px) {
+    .hero {
+        padding: 44px 0 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 26px 0 20px;
+    }
+
+    .hero-logo {
+        width: 148px;
+        margin-bottom: 12px;
+    }
+}
+
+/* ============================================================
+   8  OVERLAYS
+   ============================================================ */
+
+/* Der Hintergrund hinter einem Overlay wird abgedunkelt, nicht
+   weichgezeichnet. Eine bildschirmfuellende backdrop-filter-Flaeche
+   muss in jedem Frame neu gerechnet werden und kostete gemessen zwei
+   Drittel der Bildrate beim Oeffnen der Schnellsuche - der Verlauf
+   erzielt dieselbe Tiefenwirkung zum Nulltarif. */
+.spotlight-backdrop,
+.dir-bg,
+.picker-bg {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: radial-gradient(130% 90% at 50% 0%,
+        rgba(15, 23, 42, 0.34),
+        rgba(15, 23, 42, 0.62));
+    transition: opacity var(--dur-view-fast) var(--ease-out-quart);
+}
+
+[data-theme="dark"] .spotlight-backdrop,
+[data-theme="dark"] .dir-bg,
+[data-theme="dark"] .picker-bg {
+    background: radial-gradient(130% 90% at 50% 0%,
+        rgba(2, 6, 23, 0.52),
+        rgba(2, 6, 23, 0.76));
+}
+
+.spotlight-container {
+    transition: transform var(--dur-view) var(--ease-spring),
+                opacity var(--dur-view-fast) var(--ease-out-quart);
+}
+
+.picker-sheet {
+    transition: transform var(--dur-view) var(--ease-spring);
+    outline: none;
+}
+
+.picker-sheet.is-dragging {
+    transition: none;
+}
+
+/* Inhaltsverzeichnis: dichtere Zeilen, aktuelles Kapitel sichtbar */
+.picker-head-text h3 {
+    line-height: 1.25;
+}
+
+.picker-subtitle {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    color: var(--text3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.picker-list li {
+    padding: 11px 18px;
+    min-height: 46px;
+    font-size: 0.9rem;
+    position: relative;
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                padding-left var(--dur-micro) var(--ease-out-quart);
+}
+
+.picker-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--primary);
+    transform: scaleY(0);
+    transition: transform var(--dur-micro) var(--ease-settle);
+}
+
+.picker-list li.active {
+    background: var(--primary-light);
+}
+
+.picker-list li.active::before {
+    transform: scaleY(1);
+}
+
+.picker-list li:active {
+    transform: none;
+    padding-left: 21px;
+}
+
+/* Telefonverzeichnis */
+.dir-row {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.dir-row:active {
+    transform: scale(0.995);
+}
+
+.dir-group {
+    animation: staggerIn 0.34s var(--ease-out-quart) both;
+    animation-delay: var(--stagger, 0ms);
+}
+
+/* Schnellsuche */
+.spotlight-result {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.spotlight-result:active {
+    transform: scale(0.99);
+}
+
+/* ============================================================
+   9  SCHWEBENDE SCHALTFLAECHE
+   ============================================================ */
+
+.fab {
+    transition: transform var(--dur-view) var(--ease-spring),
+                opacity var(--dur-view-fast) var(--ease-out-quart),
+                box-shadow var(--dur-view-fast) var(--ease-out-cubic),
+                visibility 0s linear var(--dur-view);
+}
+
+.fab.show:active {
+    transform: scale(0.88);
+    transition-duration: var(--dur-tiny);
+}
+
+/* ============================================================
+   10  ANSICHTSWECHSEL
+   ============================================================
+   Die abgehende Ansicht weicht nur ein Stueck zurueck und dunkelt
+   leicht ab - so entsteht Tiefe statt eines harten Schnitts. */
+
+@keyframes vPushIn {
+    from { opacity: 0.4; transform: translate3d(100%, 0, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes vPushOut {
+    from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+    to   { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.975); filter: brightness(0.94); }
+}
+
+@keyframes vPopIn {
+    from { opacity: 0; transform: translate3d(-22%, 0, 0) scale(0.975); filter: brightness(0.94); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: brightness(1); }
+}
+
+@keyframes vPopOut {
+    from { opacity: 1; transform: translate3d(0, 0, 0); }
+    to   { opacity: 0.4; transform: translate3d(100%, 0, 0); }
+}
+
+@keyframes vFadeIn {
+    from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.995); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes vFadeOut {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: translate3d(0, -8px, 0) scale(0.995); }
+}
+
+@keyframes vReplaceIn {
+    from { opacity: 0; transform: translate3d(28px, 0, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes vReplaceBackIn {
+    from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+    to   { opacity: 1; transform: none; }
+}
+
+.v.anim-in-push,
+.v.anim-in-pop,
+.v.anim-out-push,
+.v.anim-out-pop {
+    animation-timing-function: var(--ease-emphasized);
+}
+
+/* ============================================================
+   11  REDUZIERTE BEWEGUNG
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .hero,
+    .sop-header,
+    .sop-section.stagger-in,
+    .stagger-item,
+    .stagger-item-x,
+    .dir-group,
+    .sop-section-body.is-animating > * {
+        animation: none !important;
+    }
+
+    .cat-card:hover,
+    .browse-item:hover,
+    .search-result:hover,
+    .cat-card:active,
+    .browse-item:active {
+        transform: none !important;
+    }
+
+    .read-progress > span {
+        transition: none;
+    }
+}
+
+/* ============================================================
+   12  NACHSCHAERFUNG
+   ============================================================ */
+
+/* Kopfzeile und Breadcrumb tragen dieselbe Flaeche wie der Inhalt -
+   der frühere Farbsprung zwischen Leiste und Seite entfaellt. */
+.topbar,
+.desk-bar {
+    background: var(--bg);
+}
+
+/* Scroll-Pfeile der Kapitelleiste sitzen buendig am Rand und bringen
+   ihre eigene Blende mit. Vorher schwebte ein runder Knopf ueber der
+   letzten Schaltflaeche. */
+@media (hover: hover) and (pointer: fine) {
+    .segmented-scroll-arrow {
+        top: 0;
+        bottom: 0;
+        height: auto;
+        width: 52px;
+        transform: none;
+        border: none;
+        box-shadow: none;
+        color: var(--text2);
+        opacity: 0;
+        transition: opacity var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .segmented-scroll-left {
+        left: 0;
+        justify-content: flex-start;
+        padding-left: 8px;
+        border-radius: var(--radius-md) 0 0 var(--radius-md);
+        background: linear-gradient(to right, var(--surface2) 58%, rgba(0, 0, 0, 0));
+    }
+
+    .segmented-scroll-right {
+        right: 0;
+        justify-content: flex-end;
+        padding-right: 8px;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        background: linear-gradient(to left, var(--surface2) 58%, rgba(0, 0, 0, 0));
+    }
+
+    .segmented-scroll-arrow.is-available {
+        opacity: 1;
+    }
+
+    .segmented-scroll-arrow:hover {
+        opacity: 1 !important;
+        color: var(--primary);
+        background-image: linear-gradient(to left, var(--surface3) 58%, rgba(0, 0, 0, 0));
+    }
+
+    .segmented-scroll-left:hover {
+        background-image: linear-gradient(to right, var(--surface3) 58%, rgba(0, 0, 0, 0));
+    }
+
+    .segmented-scroll-arrow:active {
+        transform: none;
+    }
+
+    /* Die Pfeile blenden bereits ab - die zweite Blende entfaellt */
+    .segmented-control-wrapper::before,
+    .segmented-control-wrapper::after {
+        display: none;
+    }
+}
+
+/* Uebersicht: ab Tablet zwei Spalten. 73 Pfade in einer einzigen
+   langen Spalte kosten auf grossen Flaechen zu viel Weg. */
+@media (min-width: 768px) {
+    .browse-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-content: start;
+    }
+
+    .browse-list .search-empty {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 768px) {
+    .search-results {
+        max-width: var(--content-narrow);
+    }
+}
+
+/* Seitenleiste: ruhigere Trennung, weiche Auswahl */
+.sidebar {
+    background: var(--surface);
+}
+
+.sidebar-nav a {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.sidebar-nav a:hover {
+    transform: translate3d(2px, 0, 0);
+}
+
+.nav-dot {
+    transition: transform var(--dur-view-fast) var(--ease-spring);
+}
+
+.sidebar-nav a.active .nav-dot,
+.sidebar-nav a:hover .nav-dot {
+    transform: scale(1.25);
+}
+
+/* Filterchips */
+.sidebar-cat-chip,
+.browse-cat-chip {
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                color var(--dur-micro) var(--ease-out-quart),
+                border-color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.sidebar-cat-chip:active,
+.browse-cat-chip:active {
+    transform: scale(0.96);
+}
+
+/* Aufklappbare Filterbereiche fahren aus, statt umzuspringen */
+.sidebar-cats,
+.browse-cats {
+    transition: max-height var(--dur-section) var(--ease-out-expo),
+                opacity var(--dur-view-fast) var(--ease-out-quart),
+                margin var(--dur-section) var(--ease-out-expo);
+}
+
+.sidebar-cat-toggle .toggle-icon,
+.browse-cat-toggle .toggle-icon {
+    transition: transform var(--dur-section) var(--ease-settle);
+}
+
+/* Suchfelder */
+.browse-search,
+.search-input-wrap,
+.sidebar-search,
+.dir-search {
+    transition: border-color var(--dur-micro) var(--ease-out-quart),
+                box-shadow var(--dur-view-fast) var(--ease-out-cubic);
+}
+
+/* Abschnitt "kein Treffer": ruhiger Auftritt statt hartem Umschlag */
+.search-empty {
+    animation: staggerIn 0.34s var(--ease-out-quart) both;
+}
+
+/* ============================================================
+   13  INHALTSVERZEICHNIS UND STARTKACHEL
+   ============================================================ */
+
+/* Mehr Platz fuer die Kapitelliste: bei einer SOP mit zehn Abschnitten
+   war bisher die Haelfte unsichtbar, ohne dass es auffiel. */
+.picker-sheet {
+    max-height: min(78vh, 720px);
+}
+
+/* Auslaufende Kante, die zeigt, dass die Liste weitergeht */
+.picker-list {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+}
+
+/* Fusszeile in einer Zeile: Schriftgroesse links, Drucken rechts */
+.picker-foot {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: calc(12px + var(--sab-js));
+}
+
+.picker-font {
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.picker-font button {
+    width: 44px;
+}
+
+.picker-foot > button {
+    width: auto;
+    flex: 1;
+    justify-content: center;
+    padding: 12px 14px;
+    transition: background var(--dur-micro) var(--ease-out-quart),
+                border-color var(--dur-micro) var(--ease-out-quart),
+                transform var(--dur-micro) var(--ease-out-quart);
+}
+
+.picker-foot > button:active {
+    transform: scale(0.98);
+}
+
+/* Die Kachel "Alle SOPs" ist der Haupteinstieg und darf das zeigen */
+.cat-card-all {
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--primary) 9%, var(--surface)),
+        var(--surface) 70%);
+    border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+}
+
+[data-theme="dark"] .cat-card-all {
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--primary) 20%, var(--surface)),
+        var(--surface) 70%);
+}
+
+/* ============================================================
+   14  DRUCK
+   ============================================================ */
+
+@media print {
+    .read-progress,
+    .btm-nav-pill {
+        display: none !important;
+    }
+
+    .sop-section::before {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   15  ZEICHENAUFWAND LANGER LISTEN
+   ============================================================
+   73 Eintraege bedeuten 73 Layouts und 73 Zeichenvorgaenge, auch
+   fuer alles unterhalb des Sichtfensters. content-visibility
+   ueberlaesst dem Browser die Entscheidung, was davon noetig ist;
+   contain-intrinsic-size haelt die Bildlaufleiste dabei ruhig.
+   Bewusst nicht auf .sop-section - dort wird die Hoehe des Inhalts
+   fuer die Aufklapp-Animation gemessen. */
+
+.browse-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 54px;
+}
+
+.search-result {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 96px;
+}
+
+#navList li {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 40px;
+}
+
+.dir-rows > li {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 52px;
+}
+
+/* ============================================================
+   16  LETZTE ABSTIMMUNG
+   ============================================================ */
+
+/* Auf Touchgeraeten uebernimmt die Blende die Rolle der Pfeile -
+   auf grossen Flaechen darf sie dafuer etwas breiter sein. */
+@media (pointer: coarse) {
+    .segmented-control-wrapper::before,
+    .segmented-control-wrapper::after {
+        width: 52px;
+    }
+}
+
+/* Die Tastaturauswahl der Schnellsuche liegt innerhalb der Kante,
+   statt als outline darueber hinauszuragen. */
+.spotlight-result.is-active {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* Reduzierte Bewegung: auch die zusaetzlichen Stufen stillstellen */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --dur-tiny: 1ms;
+        --dur-enter: 1ms;
+    }
+
+    .btm-nav-pill,
+    .segmented-pill,
+    .sop-section::before,
+    .picker-list li::before,
+    .read-progress,
+    .read-progress > span,
+    .topbar,
+    .desk-bar {
+        transition: none !important;
+    }
+
+    .btm-btn.active i,
+    .cat-card:hover .cat-card-icon,
+    .sidebar-nav a:hover,
+    .browse-item:hover .bi-arrow {
+        transform: none !important;
+    }
+
+    .search-empty {
+        animation: none !important;
+    }
+}
