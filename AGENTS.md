@@ -46,9 +46,17 @@ Die Anwendung nutzt ein View-basiertes System mit vier Hauptansichten:
 | `viewSearch` | Volltextsuche mit Snippets | `#viewSearch` |
 | `viewSOP` | Einzelne SOP mit Segmented Control | `#viewSOP` |
 
-Jede Ansicht ist als DIV mit der Klasse `.v` implementiert, wobei nur die aktive Ansicht die Klasse `.active` trägt. Die View-Transitions werden durch CSS-Animationen mit den Klassen `push-enter`, `push-exit`, `pop-enter` und `pop-exit` gesteuert.
+Jede Ansicht ist als DIV mit der Klasse `.v` implementiert, wobei nur die aktive Ansicht die Klasse `.active` trägt. Während eines Wechsels tragen beide beteiligten Ansichten zusätzlich `.is-anim` (hält sie sichtbar) und eine Richtungsklasse: `anim-in-push` / `anim-out-push`, `anim-in-pop` / `anim-out-pop`, `anim-in-fade` / `anim-out-fade` sowie `anim-in-replace` / `anim-in-replace-back` für den Austausch innerhalb derselben Ansicht (SOP → SOP).
 
-Das View-Management erfolgt über die Funktion `sTab(t)`, wobei `t` den Zieltab bezeichnet (`home`, `browse`, `search` oder `sop`). Diese Funktion aktualisiert den internen State `S.tab`, zeigt die entsprechende Ansicht an und rendert die passenden UI-Komponenten wie Breadcrumbs und Bottom-Navigation.
+Das View-Management erfolgt über `sTab(t, mode, done)`:
+
+- `t` – Zieltab (`home`, `browse`, `search`, `sop`)
+- `mode` – `'push'`, `'pop'`, `'fade'` oder `null` für einen sofortigen Wechsel
+- `done` – optionaler Rückruf nach Abschluss der Bewegung
+
+Der Ablauf ist fest: Zielinhalt rendern → `uChrome()` für Kopfzeile, Breadcrumb, Bottom-Navigation und FAB → `switchView()` für die Bewegung → Nacharbeiten (Beobachter, Abschnittspositionen, Adresse). `switchView()` räumt die Animationsklassen erst nach dem `animationend`-Ereignis auf; ein Zeitlimit dient als Sicherheitsnetz.
+
+**Wichtig:** Die abgehende Ansicht wird während des Wechsels über `style.top = -scrollTop` optisch festgehalten, damit das Zurücksetzen der Scrollposition keinen Sprung erzeugt.
 
 ### Navigation Stack
 
@@ -109,19 +117,40 @@ Die Funktion `cache()` initialisiert das `E` Objekt mit Referenzen auf alle wich
 
 | Funktion | Beschreibung | Dauer |
 |----------|--------------|-------|
-| `pushNav(id)` | Pusht Stack und navigiert zu SOP | 400ms Animation |
-| `popNav()` | Poppt Stack oder navigiert zu Home | 400ms Animation |
-| `animatePush()` | Push-Transition (rechts nach links) | 400ms |
-| `animatePop()` | Pop-Transition (links nach rechts) | 400ms |
+| `pushNav(id)` | Legt den aktuellen Zustand auf den Stack und öffnet die SOP | 360 ms |
+| `popNav()` | Holt den vorherigen Zustand oder wechselt zu Übersicht/Start | 360 ms |
+| `switchView(from, to, mode, done)` | Führt den Ansichtswechsel aus und räumt danach auf | `--dur-view` |
+| `setSectionOpen(sec, open, animate)` | Klappt einen Abschnitt mit animierter Höhe auf/zu | `--dur-section` |
+| `updateSegmentedPill(animate)` | Setzt die gleitende Markierung auf die aktive Schaltfläche | 380 ms |
+| `applyStagger(nodes, cls)` | Gestaffelter Auftritt, Verzögerung bei 14 Elementen gedeckelt | 420 ms |
+| `smoothScrollTo(container, top)` | Weiches Scrollen über eine eigene rAF-Schleife | adaptiv |
 
 ### Touch-Gesten
 
 | Funktion | Beschreibung | Konstanten |
 |----------|--------------|------------|
-| `initSwipeGestures()` | Initialisiert Touch-Event-Listener | `EDGE_MARGIN = 20` |
+| `initSwipeGestures()` | Initialisiert Touch-Event-Listener | `EDGE_MARGIN = 35` |
 | `handleTouchStart()` | Erkennt Swipe-Start im Randbereich | |
-| `handleTouchMove()` | Verarbeitet Swipe-Bewegung | `HORIZONTAL_THRESHOLD = 8` |
-| `handleTouchEnd()` | Beendet Swipe und triggert Aktion | `SWIPE_THRESHOLD = 60` |
+| `handleTouchMove()` | Legt die Richtung einmalig fest und bewegt die Ansicht mit | `HORIZONTAL_THRESHOLD = 8` |
+| `handleTouchEnd()` | Entscheidet über Strecke oder Geschwindigkeit | `SWIPE_THRESHOLD = 60`, `SWIPE_VELOCITY = 0.3` |
+
+**Wichtig:** `preventDefault()` wird erst aufgerufen, nachdem die waagerechte Richtung feststeht. Würde es wie früher sofort erfolgen, wäre senkrechtes Scrollen im linken Randbereich blockiert.
+
+### Bewegungssteuerung
+
+Das Objekt `MOTION` bündelt alle Dauern und die Systemeinstellung `prefers-reduced-motion`:
+
+```javascript
+MOTION.reduced      // true, wenn Bewegung reduziert werden soll
+MOTION.view         // 360 ms – Ansichtswechsel
+MOTION.section      // 320 ms – Akkordeon
+MOTION.staggerStep  // 26 ms je Listenelement
+MOTION.staggerMax   // gedeckelt bei 14 Elementen
+```
+
+Hilfsfunktionen: `afterMotion(el, event, dauer, cb)` wartet auf `animationend`/`transitionend` mit Zeitlimit, `nextFrame(cb)` überspringt zwei Frames, `reflow(el)` erzwingt einen Layoutdurchlauf zwischen Start- und Zielzustand.
+
+**Regel:** Es werden ausschließlich `transform`, `opacity` und `clip-path` animiert. Eigenschaften, die Layout auslösen (`width`, `height`, `top`, `max-height`), gehören nicht in laufende Animationen – die einzige Ausnahme ist die bewusst per JavaScript gesteuerte Höhe des Akkordeons.
 
 ---
 
@@ -290,7 +319,15 @@ E.browseList = document.getElementById('browseList');
 
 ### Animation-Timing
 
-CSS-Animationen dauern 400ms (push/pop) oder 300ms (andere). JavaScript-Callbacks in `setTimeout()` müssen mit diesem Timing synchronisiert sein.
+Dauern stehen als CSS Custom Properties (`--dur-view`, `--dur-view-fast`, `--dur-section`, `--dur-micro`) und gespiegelt im `MOTION`-Objekt. Wird eine Dauer geändert, müssen beide Stellen angepasst werden. Auf Ereignisse wird über `afterMotion()` gewartet, nicht über feste `setTimeout()`-Werte.
+
+### Overlays sind immer im DOM
+
+Spotlight, Inhalts-Sheet und Telefonverzeichnis wechseln nicht mehr zwischen `display:none` und `display:block` – ein Wechsel der `display`-Eigenschaft unterbindet CSS-Transitions. Stattdessen bleiben sie im Layout und werden über `visibility`, `opacity` und `transform` ein- und ausgeblendet.
+
+### Abschnittspositionen sind gepuffert
+
+`sectionOffsets()` liefert die Positionen der SOP-Abschnitte aus einem Cache. Nach jeder Änderung, die Höhen beeinflusst (Aufklappen, Neuaufbau, Größenänderung), muss `invalidateSectionOffsets()` aufgerufen werden.
 
 ### View-Stack bei Tab-Wechsel
 
@@ -353,5 +390,5 @@ Bei Fragen zur Architektur oder neuen Features kann diese Datei als Referenz die
 
 ---
 
-*Letzte Aktualisierung: Februar 2026*
-*Version 2.2 – Optimiert für KI-Agenten*
+*Letzte Aktualisierung: September 2026*
+*Version 2.3 – Optimiert für KI-Agenten*

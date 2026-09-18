@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" id="metaThemeColor" content="#f5f5f5">
-    <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f5f5f5" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" id="metaThemeColor" content="#ffffff">
+    <meta name="theme-color" content="#1e293b" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="color-scheme" content="light dark">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -167,6 +167,9 @@
         </main>
     </div>
 
+    <!-- Ladeindikator (stiller Versionswechsel) -->
+    <div class="app-progress" id="appProgress" aria-hidden="true"></div>
+
     <!-- FAB -->
     <button class="fab" id="fabAction" aria-label="Inhaltsverzeichnis">
         <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
@@ -229,28 +232,6 @@
                     <button id="fontIncMobile" aria-label="Schrift vergrößern">A+</button>
                 </div>
                 <button id="sectionPickerPrint"><i class="fa-solid fa-print" aria-hidden="true"></i> Drucken</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Skeleton Container für SOP Loading -->
-    <div class="skeleton-overlay" id="skeletonOverlay">
-        <div class="skeleton-sop">
-            <div class="skeleton-header">
-                <div class="skeleton skeleton-badge"></div>
-                <div class="skeleton skeleton-title"></div>
-                <div class="skeleton skeleton-meta"></div>
-            </div>
-            <div class="skeleton-segmented">
-                <div class="skeleton skeleton-segment"></div>
-                <div class="skeleton skeleton-segment"></div>
-                <div class="skeleton skeleton-segment"></div>
-                <div class="skeleton skeleton-segment"></div>
-            </div>
-            <div class="skeleton-content">
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
             </div>
         </div>
     </div>
