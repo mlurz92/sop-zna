@@ -1,5 +1,5 @@
 {
-    "version": "2.8.1",
-    "lastUpdated": "2026-09-17T12:00:00Z",
-    "changelog": "Korrektur Telefonverzeichnis: IMC KAIS (Arzt) lautet 4644 statt 4744"
+    "version": "2.9.0",
+    "lastUpdated": "2026-09-18T06:00:00Z",
+    "changelog": "Darstellung und Bewegung überarbeitet: funktionierende Ansichtswechsel, animiertes Akkordeon, gleitende Abschnittsmarkierung, flüssiges Scrollen; mehrere Darstellungsfehler behoben"
 }

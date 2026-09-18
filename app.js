@@ -4,7 +4,7 @@
     // ============================================
     // APP VERSION - Für Update-Erkennung
     // ============================================
-    var APP_VERSION = '2.8.1';
+    var APP_VERSION = '2.9.0';
 
     // ============================================
     // KATEGORIEN KONFIGURATION
@@ -94,11 +94,6 @@
         allO: false,
         off: !navigator.onLine,
         ts: null,
-        pY0: 0,
-        pY: 0,
-        pX0: 0,
-        pull: false,
-        refr: false,
         sCatOpen: false,
         bCatOpen: false,
         navStack: [],
@@ -135,7 +130,7 @@
             'sidebarCatToggle', 'browseCatToggle', 'viewContainer',
             'spotlightOverlay', 'spotlightBackdrop', 'spotlightContainer', 'spotlightInput',
             'spotlightClear', 'spotlightResults', 'spotlightCancel', 'spotlightBtn',
-            'skeletonOverlay', 'pickerSheet', 'pickerHandle',
+            'pickerSheet', 'pickerHandle', 'appProgress',
             'dirBtn', 'dirBtnMobile', 'dirOverlay', 'dirBackdrop', 'dirClose',
             'dirInput', 'dirClear', 'dirBody'
         ];
@@ -183,14 +178,6 @@
         return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
     }
 
-    function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    function easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
-
     function throttle(func, limit) {
         var inThrottle;
         return function() {
@@ -215,198 +202,383 @@
     }
 
     // ============================================
+    // MOTION-WERKZEUGKASTEN
+    // ============================================
+    // Alle Bewegungen laufen ausschliesslich ueber transform/opacity,
+    // werden per requestAnimationFrame getaktet und respektieren die
+    // Systemeinstellung "Bewegung reduzieren".
+
+    var MOTION = {
+        reduced: false,
+        view: 360,        // Dauer eines Ansichtswechsels
+        viewFast: 260,
+        section: 320,     // Dauer des Auf-/Zuklappens
+        micro: 180,
+        staggerStep: 26,  // Verzoegerung je Listenelement
+        staggerMax: 14    // ... hoechstens fuer so viele Elemente
+    };
+
+    function updateMotionPreference() {
+        MOTION.reduced = !!(window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    function initMotionPreference() {
+        updateMotionPreference();
+        if (!window.matchMedia) return;
+        var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (mq.addEventListener) mq.addEventListener('change', updateMotionPreference);
+        else if (mq.addListener) mq.addListener(updateMotionPreference);
+    }
+
+    function raf(fn) {
+        if (window.requestAnimationFrame) return window.requestAnimationFrame(fn);
+        return setTimeout(fn, 16);
+    }
+
+    // Zwei Frames warten: Frame 1 legt den Startzustand fest,
+    // Frame 2 startet die Transition zuverlaessig.
+    function nextFrame(fn) {
+        raf(function() { raf(fn); });
+    }
+
+    function reflow(el) {
+        if (el) return el.offsetHeight;
+        return 0;
+    }
+
+    // Wartet auf das Ende einer Animation/Transition, mit Zeitlimit als
+    // Sicherheitsnetz (falls das Event z.B. im Hintergrund-Tab ausbleibt).
+    function afterMotion(el, eventName, duration, done) {
+        var finished = false;
+        var timer = null;
+
+        function finish() {
+            if (finished) return;
+            finished = true;
+            if (timer) clearTimeout(timer);
+            if (el) el.removeEventListener(eventName, onEvent);
+            done();
+        }
+
+        function onEvent(e) {
+            if (e.target !== el) return;
+            finish();
+        }
+
+        if (!el || MOTION.reduced) {
+            raf(finish);
+            return finish;
+        }
+
+        el.addEventListener(eventName, onEvent);
+        timer = setTimeout(finish, duration + 90);
+        return finish;
+    }
+
+    // Weiches Scrollen im Inhaltsbereich - eigene rAF-Schleife, damit
+    // Dauer und Kurve auf allen Browsern identisch sind.
+    var scrollAnimId = null;
+
+    function stopSmoothScroll() {
+        if (scrollAnimId && window.cancelAnimationFrame) {
+            window.cancelAnimationFrame(scrollAnimId);
+        }
+        scrollAnimId = null;
+    }
+
+    function smoothScrollTo(container, targetTop, duration) {
+        if (!container) return;
+        stopSmoothScroll();
+
+        var max = container.scrollHeight - container.clientHeight;
+        var to = Math.max(0, Math.min(targetTop, max));
+        var from = container.scrollTop;
+        var delta = to - from;
+
+        if (MOTION.reduced || Math.abs(delta) < 2 || !window.requestAnimationFrame) {
+            container.scrollTop = to;
+            return;
+        }
+
+        var dur = duration || Math.min(620, Math.max(260, Math.abs(delta) * 0.6));
+        var start = null;
+
+        function step(ts) {
+            if (start === null) start = ts;
+            var t = Math.min(1, (ts - start) / dur);
+            container.scrollTop = from + delta * easeOutExpo(t);
+            if (t < 1) scrollAnimId = window.requestAnimationFrame(step);
+            else scrollAnimId = null;
+        }
+
+        scrollAnimId = window.requestAnimationFrame(step);
+    }
+
+    // Scrollt ein Element im Inhaltsbereich an den oberen Rand,
+    // mit Platz fuer die eingeblendete Abschnittsleiste.
+    function scrollElementIntoView(el, offset) {
+        if (!el || !E.contentScroll) return;
+        var top = el.offsetTop - (offset === undefined ? 54 : offset);
+        smoothScrollTo(E.contentScroll, top);
+    }
+
+    // Gestaffelter Auftritt: Verzoegerung wird gedeckelt, damit auch
+    // lange Listen (73 SOPs) sofort vollstaendig sichtbar werden.
+    function applyStagger(nodes, cls) {
+        if (!nodes || !nodes.length) return;
+        if (MOTION.reduced) return;
+
+        var klass = cls || 'stagger-item';
+        for (var i = 0; i < nodes.length; i++) {
+            var node = nodes[i];
+            var delay = Math.min(i, MOTION.staggerMax) * MOTION.staggerStep;
+            node.style.setProperty('--stagger', delay + 'ms');
+            node.classList.add(klass);
+            (function(n, k) {
+                afterMotion(n, 'animationend', 500 + MOTION.staggerMax * MOTION.staggerStep, function() {
+                    n.classList.remove(k);
+                    n.style.removeProperty('--stagger');
+                });
+            })(node, klass);
+        }
+    }
+
+    // ============================================
+    // RIPPLE (Tipp-Feedback)
+    // ============================================
+    var RIPPLE_SELECTOR = '.cat-card, .browse-item, .search-result, .btm-btn,' +
+        ' .picker-list li, .spotlight-result, .sidebar-nav a, .browse-cat-chip,' +
+        ' .sidebar-cat-chip, .segmented-btn';
+
+    function spawnRipple(host, clientX, clientY) {
+        if (MOTION.reduced || !host) return;
+
+        var rect = host.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        var x = (clientX === undefined ? rect.left + rect.width / 2 : clientX) - rect.left;
+        var y = (clientY === undefined ? rect.top + rect.height / 2 : clientY) - rect.top;
+        var size = Math.max(rect.width, rect.height) * 2.2;
+
+        var span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.width = size + 'px';
+        span.style.height = size + 'px';
+        span.style.left = (x - size / 2) + 'px';
+        span.style.top = (y - size / 2) + 'px';
+
+        host.classList.add('ripple-host');
+        host.appendChild(span);
+
+        afterMotion(span, 'animationend', 620, function() {
+            if (span.parentNode) span.parentNode.removeChild(span);
+        });
+    }
+
+    function initRipples() {
+        document.addEventListener('pointerdown', function(e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var host = e.target && e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
+            if (!host) return;
+            spawnRipple(host, e.clientX, e.clientY);
+            host.classList.add('is-pressed');
+        }, { passive: true });
+
+        var release = function(e) {
+            var host = e.target && e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
+            if (host) host.classList.remove('is-pressed');
+            var pressed = document.querySelectorAll('.is-pressed');
+            for (var i = 0; i < pressed.length; i++) pressed[i].classList.remove('is-pressed');
+        };
+
+        document.addEventListener('pointerup', release, { passive: true });
+        document.addEventListener('pointercancel', release, { passive: true });
+    }
+
+    // ============================================
+    // ANSICHTSWECHSEL (Push / Pop / Fade / Replace)
+    // ============================================
+    // Frueher wurden die Enter-Klassen im selben Frame wieder entfernt und
+    // die abgehende Ansicht auf display:none gesetzt - dadurch lief keine
+    // einzige Uebergangsanimation. Der folgende Motor haelt beide Ansichten
+    // waehrend des Wechsels sichtbar und raeumt erst nach dem
+    // animationend-Event (mit Zeitlimit als Fallback) auf.
+
+    var VIEW_IDS = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
+    var VIEW_OF_TAB = {
+        home: 'viewHome',
+        browse: 'viewBrowse',
+        search: 'viewSearch',
+        sop: 'viewSOP'
+    };
+
+    var activeTransition = null;
+
+    function currentView() {
+        for (var i = 0; i < VIEW_IDS.length; i++) {
+            var v = E[VIEW_IDS[i]];
+            if (v && v.classList.contains('active')) return v;
+        }
+        return null;
+    }
+
+    function clearViewMotion(view) {
+        if (!view) return;
+        view.classList.remove(
+            'is-anim', 'is-leaving', 'is-dragging',
+            'anim-in-push', 'anim-out-push',
+            'anim-in-pop', 'anim-out-pop',
+            'anim-in-fade', 'anim-out-fade',
+            'anim-in-replace', 'anim-in-replace-back'
+        );
+        view.style.top = '';
+        view.style.transform = '';
+        view.style.opacity = '';
+        view.style.willChange = '';
+    }
+
+    function finishActiveTransition() {
+        if (activeTransition) {
+            var t = activeTransition;
+            activeTransition = null;
+            t();
+        }
+    }
+
+    // mode: 'push' | 'pop' | 'fade' | null (sofortiger Wechsel)
+    function switchView(fromView, toView, mode, done) {
+        if (!toView) {
+            if (done) done();
+            return;
+        }
+
+        finishActiveTransition();
+
+        var scroller = E.contentScroll;
+
+        // Sofortwechsel: gleiche Ansicht, kein Modus oder Bewegungsreduktion
+        if (!fromView || !mode || MOTION.reduced) {
+            if (fromView && fromView !== toView) {
+                fromView.classList.remove('active');
+                clearViewMotion(fromView);
+            }
+            toView.classList.add('active');
+            clearViewMotion(toView);
+            if (scroller) scroller.scrollTop = 0;
+            if (done) done();
+            return;
+        }
+
+        // Gleiche Ansicht mit neuem Inhalt (SOP -> SOP): kurzer Austausch,
+        // dessen Richtung der Navigationsrichtung folgt
+        if (fromView === toView) {
+            if (scroller) scroller.scrollTop = 0;
+            clearViewMotion(toView);
+            toView.classList.add('active', 'is-anim',
+                mode === 'pop' ? 'anim-in-replace-back' : 'anim-in-replace');
+            activeTransition = afterMotion(toView, 'animationend', MOTION.view, function() {
+                clearViewMotion(toView);
+                activeTransition = null;
+                if (done) done();
+            });
+            return;
+        }
+
+        // Die abgehende Ansicht wird optisch an ihrer Scrollposition
+        // festgehalten, damit der Reset auf scrollTop 0 nicht springt.
+        var offset = scroller ? scroller.scrollTop : 0;
+
+        if (scroller) {
+            scroller.classList.add('is-transitioning');
+            stopSmoothScroll();
+        }
+
+        clearViewMotion(fromView);
+        clearViewMotion(toView);
+
+        fromView.style.top = (-offset) + 'px';
+        fromView.classList.remove('active');
+        fromView.classList.add('is-anim', 'is-leaving', 'anim-out-' + mode);
+
+        toView.classList.add('active', 'is-anim', 'anim-in-' + mode);
+
+        if (scroller) scroller.scrollTop = 0;
+
+        activeTransition = afterMotion(toView, 'animationend', MOTION.view, function() {
+            clearViewMotion(fromView);
+            clearViewMotion(toView);
+            if (scroller) scroller.classList.remove('is-transitioning');
+            activeTransition = null;
+            if (done) done();
+        });
+    }
+
+    // ============================================
     // PUSH/POP NAVIGATION
     // ============================================
     function pushNav(newSopId) {
         if (S.isNavigating) return;
-        S.isNavigating = true;
-
-        // Push current state to stack
-        if (S.sopId) {
-            S.navStack.push({
-                sopId: S.sopId,
-                tab: S.tab
-            });
+        if (!newSopId || newSopId === S.sopId) {
+            if (newSopId === S.sopId && S.tab === 'sop') return;
         }
 
-        // Navigate to new SOP
-        S.sopId = newSopId;
+        S.isNavigating = true;
 
-        // Animate views
-        animatePush(function() {
-            sTab('sop');
-            S.isNavigating = false;
-        });
+        if (S.sopId) {
+            S.navStack.push({ sopId: S.sopId, tab: S.tab });
+        }
+
+        S.sopId = newSopId;
+        haptic('light');
+        sTab('sop', 'push', function() { S.isNavigating = false; });
     }
 
     function popNav() {
         if (S.isNavigating) return;
 
-        // If we have previous states in the stack, go back to previous SOP
+        // Vorherige SOP aus dem Stapel
         if (S.navStack.length > 0) {
             S.isNavigating = true;
             var prevState = S.navStack.pop();
-
-            // Animate back to previous SOP
-            animatePop(function() {
-                S.sopId = prevState.sopId;
-                S.tab = prevState.tab || 'sop';
-                sTab('sop');
-                S.isNavigating = false;
-            });
+            S.sopId = prevState.sopId;
+            S.tab = prevState.tab || 'sop';
+            haptic('light');
+            sTab('sop', 'pop', function() { S.isNavigating = false; });
             return;
         }
 
-        // No history - determine where to go based on current view
+        // Kein Verlauf - Ziel haengt von der aktuellen Ansicht ab
+        if (S.tab === 'home') return;
+
         S.isNavigating = true;
         S.sopId = null;
+        haptic('light');
 
-        // Check which view is currently active
-        var isInBrowseView = E.viewBrowse.classList.contains('active');
-        var isInHomeView = E.viewHome.classList.contains('active');
-
-        if (isInHomeView) {
-            // Already at home, nothing to do
-            S.isNavigating = false;
-            return;
-        }
-
-        if (isInBrowseView) {
-            // In browse view - go to home
-            var activeView = E.viewBrowse;
-
-            // Transition to home view
-            activeView.classList.remove('active');
-            activeView.classList.add('pop-exit');
-
-            E.viewHome.classList.add('pop-enter');
-            void E.viewHome.offsetWidth;
-            E.viewHome.classList.add('active');
-            E.viewHome.classList.remove('pop-enter');
-
-            setTimeout(function() {
-                activeView.classList.remove('pop-exit');
-                sTab('home');
-                S.isNavigating = false;
-            }, 400);
-        } else {
-            // In SOP view without history - go to browse view (SOP overview)
-            var activeView = null;
-            var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-            for (var i = 0; i < views.length; i++) {
-                if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                    activeView = E[views[i]];
-                    break;
-                }
-            }
-
-            if (activeView) {
-                activeView.classList.remove('active');
-                activeView.classList.add('pop-exit');
-            }
-
-            E.viewBrowse.classList.add('pop-enter');
-            void E.viewBrowse.offsetWidth;
-            E.viewBrowse.classList.add('active');
-            E.viewBrowse.classList.remove('pop-enter');
-
-            setTimeout(function() {
-                if (activeView) activeView.classList.remove('pop-exit');
-                rBrowse();
-                sTab('browse');
-                S.isNavigating = false;
-            }, 400);
-        }
-    }
-
-    function animatePush(callback) {
-        var viewContainer = E.viewContainer;
-        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-
-        // Find active view and next view
-        var activeView = null;
-        var nextView = E.viewSOP;
-
-        for (var i = 0; i < views.length; i++) {
-            if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                activeView = E[views[i]];
-                break;
-            }
-        }
-
-        if (activeView && activeView !== nextView) {
-            // Add exit class to current view
-            activeView.classList.remove('active');
-            activeView.classList.add('push-exit');
-
-            // Prepare next view
-            nextView.classList.add('push-enter');
-
-            // Force reflow
-            void nextView.offsetWidth;
-
-            // Activate next view and remove animation classes
-            nextView.classList.add('active');
-            nextView.classList.remove('push-enter');
-
-            // Remove exit class after animation
-            setTimeout(function() {
-                activeView.classList.remove('push-exit');
-                if (callback) callback();
-            }, 400);
-        } else {
-            if (callback) callback();
-        }
-    }
-
-    function animatePop(callback) {
-        var viewContainer = E.viewContainer;
-        var nextView = E.viewSOP;
-        var activeView = null;
-        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-
-        for (var i = 0; i < views.length; i++) {
-            if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                activeView = E[views[i]];
-                break;
-            }
-        }
-
-        if (activeView && activeView !== nextView) {
-            // Add exit class to current view
-            activeView.classList.remove('active');
-            activeView.classList.add('pop-exit');
-
-            // Prepare next view
-            nextView.classList.add('pop-enter');
-
-            // Force reflow
-            void nextView.offsetWidth;
-
-            // Activate next view
-            nextView.classList.add('active');
-            nextView.classList.remove('pop-enter');
-
-            // Remove exit class after animation
-            setTimeout(function() {
-                activeView.classList.remove('pop-exit');
-                if (callback) callback();
-            }, 400);
-        } else {
-            if (callback) callback();
-        }
+        var target = (S.tab === 'sop') ? 'browse' : 'home';
+        sTab(target, 'pop', function() { S.isNavigating = false; });
     }
 
     // ============================================
-    // SWIPE TO BACK GESTURE
+    // WISCHGESTE "ZURUECK" (folgt dem Finger)
     // ============================================
+    // Die Ansicht wird waehrend der Geste live mitbewegt; erst beim
+    // Loslassen entscheidet Strecke oder Geschwindigkeit ueber Abschluss
+    // oder Zuruecksetzen. Beides laeuft als reine Transform-Animation.
+
     var swipeData = {
         startX: 0,
         startY: 0,
         currentX: 0,
+        lastX: 0,
+        lastT: 0,
+        velocity: 0,
         isSwiping: false,
         canSwipe: false,
-        startTime: 0
+        locked: false,
+        view: null,
+        frame: null,
+        pending: 0
     };
 
     function initSwipeGestures() {
@@ -419,122 +591,164 @@
         scrollArea.addEventListener('touchcancel', handleTouchEnd, { passive: true });
     }
 
+    function canGoBack() {
+        if (S.navStack.length > 0) return true;
+        return S.tab === 'sop' || S.tab === 'browse';
+    }
+
     function handleTouchStart(e) {
-        // Only handle swipe back in SOP view with history or in browse view
-        if (S.tab !== 'sop' && S.tab !== 'browse') return;
+        swipeData.isSwiping = false;
+        swipeData.canSwipe = false;
+        swipeData.locked = false;
+        swipeData.velocity = 0;
+
+        if (S.isNavigating || !canGoBack()) return;
+        if (e.touches.length !== 1) return;
 
         var touch = e.touches[0];
         swipeData.startX = touch.clientX;
         swipeData.startY = touch.clientY;
         swipeData.currentX = touch.clientX;
-        swipeData.isSwiping = false;
-        swipeData.canSwipe = false;
-        swipeData.startTime = e.timeStamp;
+        swipeData.lastX = touch.clientX;
+        swipeData.lastT = e.timeStamp;
 
-        // Check if touch is in left edge zone
-        if (touch.clientX < EDGE_MARGIN) {
-            swipeData.canSwipe = true;
-        }
+        if (touch.clientX < EDGE_MARGIN) swipeData.canSwipe = true;
+    }
+
+    function renderSwipeFrame() {
+        swipeData.frame = null;
+        var view = swipeData.view;
+        if (!view) return;
+
+        var progress = Math.max(0, Math.min(swipeData.pending / window.innerWidth, 1));
+        // Leichter Widerstand am Ende der Strecke
+        var shift = swipeData.pending * (1 - progress * 0.35);
+
+        view.style.transform = 'translate3d(' + shift + 'px, 0, 0) scale(' + (1 - progress * 0.03) + ')';
+        view.style.opacity = String(1 - progress * 0.35);
     }
 
     function handleTouchMove(e) {
-        if (!swipeData.canSwipe) return;
-
-        // SOFORT preventDefault aufrufen, um Browser-Edge-Swipe zu verhindern
-        // Muss VOR jeder Bewegungserkennung stehen, da OS-Level-Gesten sonst priorisiert werden
-        e.preventDefault();
+        if (!swipeData.canSwipe || e.touches.length !== 1) return;
 
         var touch = e.touches[0];
         var deltaX = touch.clientX - swipeData.startX;
         var deltaY = touch.clientY - swipeData.startY;
 
-        // Check if horizontal swipe dominates
-        if (Math.abs(deltaX) > HORIZONTAL_THRESHOLD) {
-            swipeData.isSwiping = true;
-        }
-
-        if (swipeData.isSwiping && deltaX > 0) {
-            swipeData.currentX = touch.clientX;
-
-            // Apply visual feedback with transform
-            var progress = Math.min(deltaX / window.innerWidth, 1);
-
-            var activeView = null;
-            var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-
-            for (var i = 0; i < views.length; i++) {
-                if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                    activeView = E[views[i]];
-                    break;
+        // Richtung erst festlegen, danach nicht mehr wechseln. So bleibt
+        // senkrechtes Scrollen am linken Rand weiterhin moeglich.
+        if (!swipeData.isSwiping && !swipeData.locked) {
+            if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > HORIZONTAL_THRESHOLD) {
+                swipeData.locked = true;
+                swipeData.canSwipe = false;
+                return;
+            }
+            if (deltaX > HORIZONTAL_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
+                swipeData.isSwiping = true;
+                swipeData.view = currentView();
+                if (swipeData.view) {
+                    swipeData.view.classList.add('is-dragging');
+                    if (E.contentScroll) E.contentScroll.classList.add('is-swiping');
                 }
-            }
-
-            if (activeView) {
-                // More pronounced visual feedback
-                activeView.style.opacity = 1 - (progress * 0.4);
-                activeView.style.transform = 'translateX(' + (progress * 50) + 'px) scale(' + (1 - progress * 0.02) + ')';
-                activeView.style.transition = 'none';
-                activeView.style.willChange = 'transform, opacity';
+            } else {
+                return;
             }
         }
+
+        if (!swipeData.isSwiping) return;
+
+        // Erst jetzt den Browser-Rueckwaertswisch unterbinden
+        if (e.cancelable) e.preventDefault();
+
+        var now = e.timeStamp;
+        var dt = now - swipeData.lastT;
+        if (dt > 0) {
+            swipeData.velocity = (touch.clientX - swipeData.lastX) / dt;
+            swipeData.lastX = touch.clientX;
+            swipeData.lastT = now;
+        }
+
+        swipeData.currentX = touch.clientX;
+        swipeData.pending = Math.max(0, deltaX);
+
+        if (!swipeData.frame) swipeData.frame = raf(renderSwipeFrame);
+    }
+
+    function releaseSwipeView(view, complete) {
+        if (!view) return;
+
+        view.classList.remove('is-dragging');
+        if (E.contentScroll) E.contentScroll.classList.remove('is-swiping');
+
+        if (complete) {
+            // Der Ansichtswechsel uebernimmt die weitere Bewegung
+            view.style.transform = '';
+            view.style.opacity = '';
+            return;
+        }
+
+        view.style.transition = 'transform 0.32s var(--ease-out-expo), opacity 0.28s ease';
+        view.style.transform = 'translate3d(0, 0, 0)';
+        view.style.opacity = '1';
+
+        afterMotion(view, 'transitionend', 340, function() {
+            view.style.transition = '';
+            view.style.transform = '';
+            view.style.opacity = '';
+            view.style.willChange = '';
+        });
     }
 
     function handleTouchEnd(e) {
-        if (!swipeData.canSwipe) return;
+        var wasSwiping = swipeData.isSwiping;
+        var view = swipeData.view;
 
-        var deltaX = swipeData.currentX - swipeData.startX;
-        var deltaY = e.changedTouches ? Math.abs(e.changedTouches[0].clientY - swipeData.startY) : 0;
-
-        // Calculate velocity for better detection
-        var duration = e.timeStamp - (swipeData.startTime || e.timeStamp);
-        var velocity = deltaX / duration;
-
-        var shouldPop = deltaX > SWIPE_THRESHOLD ||
-                       (deltaX > SWIPE_THRESHOLD * 0.5 && velocity > SWIPE_VELOCITY);
-
-        // Reset view position with smooth transition
-        var activeView = null;
-        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-
-        for (var i = 0; i < views.length; i++) {
-            if (E[views[i]] && E[views[i]].classList.contains('active')) {
-                activeView = E[views[i]];
-                break;
-            }
-        }
-
-        if (activeView) {
-            activeView.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            activeView.style.opacity = '';
-            activeView.style.transform = '';
-            activeView.style.willChange = '';
-        }
-
-        if (shouldPop) {
-            // Trigger haptic feedback with pattern for better feedback
-            if (navigator.vibrate) {
-                navigator.vibrate(15);
-                setTimeout(function() {
-                    navigator.vibrate(10);
-                }, 30);
-            }
-            popNav();
-        }
-
-        // Reset swipe state
         swipeData.isSwiping = false;
         swipeData.canSwipe = false;
+        swipeData.view = null;
+
+        if (swipeData.frame && window.cancelAnimationFrame) {
+            window.cancelAnimationFrame(swipeData.frame);
+        }
+        swipeData.frame = null;
+
+        if (!wasSwiping) {
+            swipeData.pending = 0;
+            return;
+        }
+
+        var deltaX = swipeData.pending;
+        swipeData.pending = 0;
+
+        var shouldPop = deltaX > SWIPE_THRESHOLD ||
+            (deltaX > SWIPE_THRESHOLD * 0.4 && swipeData.velocity > SWIPE_VELOCITY);
+
+        releaseSwipeView(view, shouldPop);
+
+        if (shouldPop) {
+            haptic('light');
+            popNav();
+        }
     }
 
     // ============================================
-    // DRAGGABLE BOTTOM SHEET
+    // ZIEHBARES BOTTOM SHEET
     // ============================================
+    // Frueher wurde die max-height des Sheets veraendert - das erzwingt in
+    // jedem Frame ein neues Layout und ruckelt. Jetzt wird ausschliesslich
+    // translate3d animiert, also rein auf dem Compositor.
+
     var pickerDragData = {
         startY: 0,
-        currentY: 0,
+        lastY: 0,
+        lastT: 0,
+        offset: 0,
+        velocity: 0,
         isDragging: false,
-        startHeight: 0,
-        sheet: null
+        pointerId: null,
+        frame: null,
+        sheet: null,
+        height: 0
     };
 
     function initDraggablePicker() {
@@ -542,85 +756,102 @@
         var sheet = E.pickerSheet;
         var handle = E.pickerHandle;
 
-        if (!sheet) return;
+        if (!sheet || !picker) return;
 
         pickerDragData.sheet = sheet;
 
-        if (handle) {
-            handle.addEventListener('touchstart', handleDragStart, { passive: true });
-            handle.addEventListener('touchmove', handleDragMove, { passive: false });
-            handle.addEventListener('touchend', handleDragEnd, { passive: true });
-            handle.addEventListener('touchcancel', handleDragEnd, { passive: true });
-
-            // Mouse events for desktop
-            handle.addEventListener('mousedown', handleDragStart);
+        var grips = [handle, picker.querySelector('.picker-head')];
+        for (var i = 0; i < grips.length; i++) {
+            if (!grips[i]) continue;
+            grips[i].addEventListener('pointerdown', handleDragStart);
         }
 
-        // Also allow dragging on sheet header
-        var head = picker.querySelector('.picker-head');
-        if (head) {
-            head.addEventListener('touchstart', handleDragStart, { passive: true });
-            head.addEventListener('touchmove', handleDragMove, { passive: false });
-            head.addEventListener('touchend', handleDragEnd, { passive: true });
-            head.addEventListener('touchcancel', handleDragEnd, { passive: true });
-
-            head.addEventListener('mousedown', handleDragStart);
-        }
+        sheet.addEventListener('pointermove', handleDragMove);
+        sheet.addEventListener('pointerup', handleDragEnd);
+        sheet.addEventListener('pointercancel', handleDragEnd);
     }
 
     function handleDragStart(e) {
         var sheet = pickerDragData.sheet;
-        if (!sheet) return;
+        if (!sheet || pickerDragData.isDragging) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
 
         pickerDragData.isDragging = true;
-        pickerDragData.startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-        pickerDragData.startHeight = sheet.offsetHeight;
+        pickerDragData.pointerId = e.pointerId;
+        pickerDragData.startY = e.clientY;
+        pickerDragData.lastY = e.clientY;
+        pickerDragData.lastT = (e.timeStamp || Date.now());
+        pickerDragData.offset = 0;
+        pickerDragData.velocity = 0;
+        pickerDragData.height = sheet.offsetHeight || 1;
 
-        sheet.style.transition = 'none';
-        sheet.style.cursor = 'grabbing';
+        sheet.classList.add('is-dragging');
+        if (sheet.setPointerCapture) {
+            try { sheet.setPointerCapture(e.pointerId); } catch (err) {}
+        }
+    }
 
-        // Prevent page scroll
-        document.body.style.overflow = 'hidden';
+    function renderDragFrame() {
+        pickerDragData.frame = null;
+        var sheet = pickerDragData.sheet;
+        if (!sheet || !pickerDragData.isDragging) return;
+        sheet.style.transform = 'translate3d(0, ' + pickerDragData.offset + 'px, 0)';
     }
 
     function handleDragMove(e) {
         if (!pickerDragData.isDragging) return;
-        e.preventDefault();
+        if (pickerDragData.pointerId !== null && e.pointerId !== pickerDragData.pointerId) return;
+        if (e.cancelable) e.preventDefault();
 
-        var sheet = pickerDragData.sheet;
-        var currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-        var deltaY = currentY - pickerDragData.startY;
+        var delta = e.clientY - pickerDragData.startY;
+        // Nach oben nur mit deutlichem Widerstand
+        pickerDragData.offset = delta < 0 ? delta * 0.22 : delta;
 
-        // Calculate new height
-        var newHeight = pickerDragData.startHeight - deltaY;
-        var maxHeight = window.innerHeight * 0.7;
+        var now = e.timeStamp || Date.now();
+        var dt = now - pickerDragData.lastT;
+        if (dt > 0) {
+            pickerDragData.velocity = (e.clientY - pickerDragData.lastY) / dt;
+            pickerDragData.lastY = e.clientY;
+            pickerDragData.lastT = now;
+        }
 
-        if (newHeight > maxHeight) newHeight = maxHeight;
-        if (newHeight < 100) newHeight = 100;
-
-        sheet.style.maxHeight = newHeight + 'px';
+        if (!pickerDragData.frame) pickerDragData.frame = raf(renderDragFrame);
     }
 
     function handleDragEnd(e) {
         if (!pickerDragData.isDragging) return;
 
         var sheet = pickerDragData.sheet;
+        pickerDragData.isDragging = false;
+
+        if (pickerDragData.frame && window.cancelAnimationFrame) {
+            window.cancelAnimationFrame(pickerDragData.frame);
+        }
+        pickerDragData.frame = null;
+
+        if (sheet && sheet.releasePointerCapture && pickerDragData.pointerId !== null) {
+            try { sheet.releasePointerCapture(pickerDragData.pointerId); } catch (err) {}
+        }
+        pickerDragData.pointerId = null;
+
         if (!sheet) return;
 
-        pickerDragData.isDragging = false;
-        sheet.style.transition = 'max-height 0.3s ease-out';
-        sheet.style.cursor = '';
+        sheet.classList.remove('is-dragging');
 
-        document.body.style.overflow = '';
+        var shouldClose = pickerDragData.offset > pickerDragData.height * 0.32 ||
+            pickerDragData.velocity > 0.7;
 
-        // Check if dragged far enough to close
-        var maxHeight = parseFloat(getComputedStyle(sheet).maxHeight);
-        if (maxHeight < window.innerHeight * 0.3) {
+        if (shouldClose) {
+            // Das Schliessen uebernimmt die CSS-Transition des Overlays
+            sheet.style.transform = '';
             cPk();
         } else {
-            // Reset to default
-            sheet.style.maxHeight = '70vh';
+            sheet.style.transform = '';
+            haptic('light');
         }
+
+        pickerDragData.offset = 0;
+        pickerDragData.velocity = 0;
     }
 
     // ============================================
@@ -628,33 +859,36 @@
     // ============================================
     function openSpotlight() {
         if (!E.spotlightOverlay) return;
+        if (E.spotlightOverlay.classList.contains('show')) return;
 
         rememberFocus();
         E.spotlightOverlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('picker-open');
+        haptic('light');
 
-        // Focus input
+        // Fokus erst setzen, wenn die Einblendbewegung laeuft - sonst
+        // springt die Tastatur vor der Animation ins Bild.
         setTimeout(function() {
-            if (E.spotlightInput) {
-                E.spotlightInput.focus();
-            }
-        }, 100);
-
-        // Haptic feedback
-        if (navigator.vibrate) navigator.vibrate(10);
+            if (!E.spotlightInput) return;
+            E.spotlightInput.focus();
+            var v = E.spotlightInput.value;
+            try { E.spotlightInput.setSelectionRange(v.length, v.length); } catch (e) {}
+        }, MOTION.reduced ? 0 : 120);
     }
 
     function closeSpotlight() {
         if (!E.spotlightOverlay) return;
+        if (!E.spotlightOverlay.classList.contains('show')) return;
 
         E.spotlightOverlay.classList.remove('show');
-        document.body.style.overflow = '';
+        document.body.classList.remove('picker-open');
         restoreFocus();
 
         if (E.spotlightInput) {
             E.spotlightInput.value = '';
             S.sQ = '';
         }
+        if (E.spotlightClear) E.spotlightClear.classList.remove('show');
 
         renderSpotlightResults();
     }
@@ -716,38 +950,28 @@
                 });
             })(items[j]);
         }
-    }
 
-    // ============================================
-    // SKELETON SCREEN
-    // ============================================
-    function showSkeleton() {
-        if (!E.skeletonOverlay) return;
-        E.skeletonOverlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function hideSkeleton() {
-        if (!E.skeletonOverlay) return;
-        E.skeletonOverlay.classList.remove('show');
-        document.body.style.overflow = '';
+        applyStagger(items, 'stagger-item-x');
     }
 
     // ============================================
     // SEGMENTED CONTROL
     // ============================================
-    
+
     function renderSegmentedControl(sopData) {
         if (!sopData || !sopData.sections) return '';
 
         var html = '<div class="segmented-control-wrapper" role="group" aria-label="Abschnitts-Navigation">';
-        
+
         // Linker Scroll-Pfeil
         html += '<button class="segmented-scroll-arrow segmented-scroll-left" aria-label="Nach links scrollen" tabindex="-1">';
         html += '<i class="fa-solid fa-chevron-left"></i>';
         html += '</button>';
-        
+
         html += '<div class="segmented-control" role="tablist" aria-label="SOP-Abschnitte">';
+
+        // Gleitende Markierung hinter den Schaltflaechen
+        html += '<span class="segmented-pill" aria-hidden="true"></span>';
 
         // Add "Alle" button
         html += '<button class="segmented-btn active" ';
@@ -776,77 +1000,114 @@
         }
 
         html += '</div>';
-        
+
         // Rechter Scroll-Pfeil
         html += '<button class="segmented-scroll-arrow segmented-scroll-right" aria-label="Nach rechts scrollen" tabindex="-1">';
         html += '<i class="fa-solid fa-chevron-right"></i>';
         html += '</button>';
-        
+
         html += '</div>';
         return html;
+    }
+
+    // Gleitende Markierung auf die aktive Schaltflaeche setzen.
+    // Reines transform/width - laeuft auf dem Compositor.
+    function updateSegmentedPill(animate) {
+        var control = E.viewSOP ? E.viewSOP.querySelector('.segmented-control') : null;
+        if (!control) return;
+
+        var pill = control.querySelector('.segmented-pill');
+        var active = control.querySelector('.segmented-btn.active');
+        if (!pill || !active) return;
+
+        if (animate === false || MOTION.reduced) {
+            pill.style.transition = 'none';
+        }
+
+        pill.style.width = active.offsetWidth + 'px';
+        pill.style.transform = 'translate3d(' + active.offsetLeft + 'px, 0, 0)';
+        pill.classList.add('ready');
+        control.classList.add('has-pill');
+
+        if (animate === false || MOTION.reduced) {
+            reflow(pill);
+            pill.style.transition = '';
+        }
+    }
+
+    // Aktive Schaltflaeche in den sichtbaren Bereich holen
+    function revealSegmentedButton(btn) {
+        var control = btn ? btn.parentNode : null;
+        if (!control || control.scrollWidth <= control.clientWidth) return;
+
+        var target = btn.offsetLeft - (control.clientWidth - btn.offsetWidth) / 2;
+        target = Math.max(0, Math.min(target, control.scrollWidth - control.clientWidth));
+
+        if (MOTION.reduced || !control.scrollTo) {
+            control.scrollLeft = target;
+            return;
+        }
+        control.scrollTo({ left: target, behavior: 'smooth' });
     }
 
     function handleSegmentedClick(sopData, segIndex) {
         if (!sopData) return;
 
-        // Haptic Feedback
-        if (navigator.vibrate) {
-            navigator.vibrate(10);
-        }
+        haptic('light');
 
         // Update active state and ARIA attributes
-        var buttons = document.querySelectorAll('.segmented-btn');
+        var buttons = E.viewSOP.querySelectorAll('.segmented-btn');
+        var activeBtn = null;
         for (var i = 0; i < buttons.length; i++) {
-            buttons[i].classList.remove('active');
-            buttons[i].setAttribute('aria-selected', 'false');
-            if (buttons[i].getAttribute('data-seg') === String(segIndex)) {
-                buttons[i].classList.add('active');
-                buttons[i].setAttribute('aria-selected', 'true');
-            }
+            var isTarget = buttons[i].getAttribute('data-seg') === String(segIndex);
+            buttons[i].classList.toggle('active', isTarget);
+            buttons[i].setAttribute('aria-selected', isTarget ? 'true' : 'false');
+            if (isTarget) activeBtn = buttons[i];
         }
 
+        updateSegmentedPill(true);
+        revealSegmentedButton(activeBtn);
+
+        var sections = E.viewSOP.querySelectorAll('.sop-section');
+
         if (segIndex === 'all') {
-            // Open all sections
-            var bodies = E.viewSOP.querySelectorAll('.sop-section-body');
-            var toggles = E.viewSOP.querySelectorAll('.sec-toggle');
-            for (var j = 0; j < bodies.length; j++) {
-                bodies[j].classList.add('open');
-                if (toggles[j]) toggles[j].classList.add('open');
+            for (var j = 0; j < sections.length; j++) {
+                setSectionOpen(sections[j], true, true);
             }
-        } else {
-            // Close all, then open specific
-            var bodies = E.viewSOP.querySelectorAll('.sop-section-body');
-            var toggles = E.viewSOP.querySelectorAll('.sec-toggle');
-            for (var j = 0; j < bodies.length; j++) {
-                bodies[j].classList.remove('open');
-                if (toggles[j]) toggles[j].classList.remove('open');
-            }
+            invalidateSectionOffsets();
+            return;
+        }
 
-            var targetSection = E.viewSOP.querySelector('.sop-section[data-sec="' + segIndex + '"]');
-            if (targetSection) {
-                var body = targetSection.querySelector('.sop-section-body');
-                var toggle = targetSection.querySelector('.sec-toggle');
-                if (body) body.classList.add('open');
-                if (toggle) toggle.classList.add('open');
+        var targetSection = E.viewSOP.querySelector('.sop-section[data-sec="' + segIndex + '"]');
 
-                // Smooth scroll to section
-                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+        for (var k = 0; k < sections.length; k++) {
+            setSectionOpen(sections[k], sections[k] === targetSection, true);
+        }
+
+        invalidateSectionOffsets();
+
+        if (targetSection) {
+            // Erst nach dem Aufklappen scrollen, sonst zielt der Scroll
+            // auf eine Position, die es gleich nicht mehr gibt.
+            setTimeout(function() {
+                invalidateSectionOffsets();
+                scrollElementIntoView(targetSection);
+            }, MOTION.reduced ? 0 : Math.round(MOTION.section * 0.55));
         }
     }
 
     // Tastaturnavigation für Segmented Control
     function initSegmentedKeyboardNav(container) {
         if (!container) return;
-        
+
         var buttons = container.querySelectorAll('.segmented-btn');
         if (buttons.length === 0) return;
-        
+
         for (var i = 0; i < buttons.length; i++) {
             buttons[i].addEventListener('keydown', function(e) {
                 var currentIndex = -1;
                 var btns = container.querySelectorAll('.segmented-btn');
-                
+
                 // Find current button index
                 for (var j = 0; j < btns.length; j++) {
                     if (btns[j] === e.target) {
@@ -854,9 +1115,9 @@
                         break;
                     }
                 }
-                
+
                 var nextIndex = -1;
-                
+
                 switch (e.key) {
                     case 'ArrowRight':
                     case 'ArrowDown':
@@ -882,17 +1143,20 @@
                         e.target.click();
                         return;
                 }
-                
+
                 if (nextIndex >= 0 && nextIndex < btns.length) {
                     btns[nextIndex].focus();
-                    // Optional: Auto-activate on focus
-                    // btns[nextIndex].click();
+                    revealSegmentedButton(btns[nextIndex]);
                 }
             });
         }
     }
 
     // === Segmented Control Touch Handler ===
+    // Nach einem Tap unterdrueckt SEG_CLICK_BLOCK das vom Browser
+    // nachgereichte click-Event - sonst wurde jede Auswahl doppelt
+    // ausgefuehrt (sichtbar als Doppelsprung beim Scrollen).
+    var SEG_CLICK_BLOCK = 0;
 
     function handleSegTouchStart(e, d, segIndex) {
         var touch = e.touches[0];
@@ -901,18 +1165,18 @@
         segTouchState.startTime = Date.now();
         segTouchState.hasMoved = false;
         segTouchState.targetBtn = e.currentTarget;
-        
+
         // Visuelles Feedback
         e.currentTarget.classList.add('tap-active');
     }
 
     function handleSegTouchMove(e) {
         if (!segTouchState.targetBtn) return;
-        
+
         var touch = e.touches[0];
         var deltaX = Math.abs(touch.clientX - segTouchState.startX);
         var deltaY = Math.abs(touch.clientY - segTouchState.startY);
-        
+
         // Bewegung erkannt
         if (deltaX > SEG_TOUCH_THRESHOLD || deltaY > SEG_TOUCH_THRESHOLD) {
             segTouchState.hasMoved = true;
@@ -925,15 +1189,15 @@
         if (segTouchState.targetBtn) {
             segTouchState.targetBtn.classList.remove('tap-active');
         }
-        
+
         // Prüfen ob Tap oder Scroll
         var duration = Date.now() - segTouchState.startTime;
-        
+
         if (!segTouchState.hasMoved && duration < SEG_TAP_TIMEOUT) {
-            // Echter Tap - Aktion ausführen
+            SEG_CLICK_BLOCK = Date.now();
             handleSegmentedClick(d, segIndex);
         }
-        
+
         // Reset
         segTouchState.targetBtn = null;
         segTouchState.hasMoved = false;
@@ -942,64 +1206,65 @@
     // ============================================
     // SEGMENTED CONTROL SCROLL ARROWS
     // ============================================
-    
-    // Prüfen ob Scroll möglich ist und Pfeile aktualisieren
+
+    // Pfeile und Verlaufskanten an den Scrollzustand anpassen
     function checkSegmentedScrollArrows() {
-        var control = document.querySelector('.segmented-control');
-        var leftArrow = document.querySelector('.segmented-scroll-left');
-        var rightArrow = document.querySelector('.segmented-scroll-right');
-        
+        var wrapper = E.viewSOP ? E.viewSOP.querySelector('.segmented-control-wrapper') : null;
+        if (!wrapper) return;
+
+        var control = wrapper.querySelector('.segmented-control');
+        var leftArrow = wrapper.querySelector('.segmented-scroll-left');
+        var rightArrow = wrapper.querySelector('.segmented-scroll-right');
+
         if (!control || !leftArrow || !rightArrow) return;
-        
-        var canScrollLeft = control.scrollLeft > 5;
-        var canScrollRight = control.scrollLeft < (control.scrollWidth - control.clientWidth - 5);
-        var hasOverflow = control.scrollWidth > control.clientWidth;
-        
-        // Pfeile nur anzeigen wenn Overflow vorhanden
-        if (!hasOverflow) {
-            leftArrow.style.opacity = '0';
-            leftArrow.style.pointerEvents = 'none';
-            rightArrow.style.opacity = '0';
-            rightArrow.style.pointerEvents = 'none';
-            return;
-        }
-        
-        leftArrow.style.opacity = canScrollLeft ? '0.5' : '0';
+
+        var hasOverflow = control.scrollWidth > control.clientWidth + 2;
+        var canScrollLeft = hasOverflow && control.scrollLeft > 5;
+        var canScrollRight = hasOverflow &&
+            control.scrollLeft < (control.scrollWidth - control.clientWidth - 5);
+
+        // Verlaufskanten (die zugehoerigen CSS-Klassen wurden bisher nie gesetzt)
+        wrapper.classList.toggle('has-overflow-left', canScrollLeft);
+        wrapper.classList.toggle('has-overflow-right', canScrollRight);
+
+        leftArrow.style.opacity = canScrollLeft ? '0.6' : '0';
         leftArrow.style.pointerEvents = canScrollLeft ? 'auto' : 'none';
-        
-        rightArrow.style.opacity = canScrollRight ? '0.5' : '0';
+
+        rightArrow.style.opacity = canScrollRight ? '0.6' : '0';
         rightArrow.style.pointerEvents = canScrollRight ? 'auto' : 'none';
     }
-    
+
     // Scroll-Animation für Pfeile
     function scrollSegmented(direction) {
-        var control = document.querySelector('.segmented-control');
+        var control = E.viewSOP ? E.viewSOP.querySelector('.segmented-control') : null;
         if (!control) return;
-        
-        var scrollAmount = 120; // Pixel
-        control.scrollBy({
-            left: direction === 'left' ? -scrollAmount : scrollAmount,
-            behavior: 'smooth'
-        });
-        
-        // Haptic Feedback
-        if (navigator.vibrate) {
-            navigator.vibrate(10);
-        }
+
+        var scrollAmount = Math.max(120, Math.round(control.clientWidth * 0.7));
+        var target = control.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
+
+        if (MOTION.reduced || !control.scrollTo) control.scrollLeft = target;
+        else control.scrollTo({ left: target, behavior: 'smooth' });
+
+        haptic('light');
     }
-    
-    // Event-Listener für Scroll-Pfeile initialisieren
+
+    // Event-Listener für Scroll-Pfeile initialisieren.
+    // Wird bei jedem SOP-Aufbau erneut aufgerufen - der globale
+    // resize-Listener darf deshalb nur ein einziges Mal entstehen.
+    var segmentedResizeBound = false;
+
     function initSegmentedScrollArrows() {
-        var control = document.querySelector('.segmented-control');
-        var leftArrow = document.querySelector('.segmented-scroll-left');
-        var rightArrow = document.querySelector('.segmented-scroll-right');
-        
+        var wrapper = E.viewSOP ? E.viewSOP.querySelector('.segmented-control-wrapper') : null;
+        if (!wrapper) return;
+
+        var control = wrapper.querySelector('.segmented-control');
+        var leftArrow = wrapper.querySelector('.segmented-scroll-left');
+        var rightArrow = wrapper.querySelector('.segmented-scroll-right');
+
         if (!control) return;
-        
-        // Scroll-Event für Pfeil-Aktualisierung
-        control.addEventListener('scroll', throttle(checkSegmentedScrollArrows, 50), { passive: true });
-        
-        // Pfeil-Click-Events
+
+        control.addEventListener('scroll', throttle(checkSegmentedScrollArrows, 60), { passive: true });
+
         if (leftArrow) {
             leftArrow.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1007,7 +1272,7 @@
                 scrollSegmented('left');
             });
         }
-        
+
         if (rightArrow) {
             rightArrow.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1015,13 +1280,153 @@
                 scrollSegmented('right');
             });
         }
-        
-        // Initialen Zustand prüfen
-        // Kurze Verzögerung für korrekte Breitenberechnung
-        setTimeout(checkSegmentedScrollArrows, 50);
-        
-        // Bei Resize neu prüfen
-        window.addEventListener('resize', debounce(checkSegmentedScrollArrows, 150));
+
+        // Breiten stehen erst nach dem Layout fest
+        nextFrame(function() {
+            checkSegmentedScrollArrows();
+            updateSegmentedPill(false);
+        });
+
+        if (!segmentedResizeBound) {
+            segmentedResizeBound = true;
+            window.addEventListener('resize', debounce(function() {
+                checkSegmentedScrollArrows();
+                updateSegmentedPill(false);
+            }, 150));
+        }
+    }
+
+    // ============================================
+    // AKKORDEON – ANIMIERTES AUF- UND ZUKLAPPEN
+    // ============================================
+    // Bisher wurde nur display umgeschaltet: der Inhalt sprang ohne
+    // Uebergang auf. Jetzt wird die Hoehe animiert und danach wieder
+    // freigegeben, damit der Abschnitt responsiv bleibt.
+
+    function sectionBody(section) {
+        return section ? section.querySelector('.sop-section-body') : null;
+    }
+
+    function isSectionOpen(section) {
+        var body = sectionBody(section);
+        return !!(body && body.classList.contains('open'));
+    }
+
+    function finishSectionAnimation(body) {
+        if (body._motionStop) {
+            body._motionStop();
+            body._motionStop = null;
+        }
+    }
+
+    function setSectionOpen(section, open, animate) {
+        var body = sectionBody(section);
+        if (!section || !body) return;
+
+        var head = section.querySelector('.sop-section-head');
+        var toggle = section.querySelector('.sec-toggle');
+
+        if (head) head.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (toggle) toggle.classList.toggle('open', open);
+
+        var alreadyOpen = body.classList.contains('open');
+        finishSectionAnimation(body);
+
+        if (!animate || MOTION.reduced) {
+            body.classList.toggle('open', open);
+            body.classList.remove('is-animating');
+            body.style.height = '';
+            body.style.opacity = '';
+            body.style.transition = '';
+            return;
+        }
+
+        if (alreadyOpen === open) {
+            body.style.height = '';
+            body.style.opacity = '';
+            body.style.transition = '';
+            return;
+        }
+
+        var dur = MOTION.section;
+        var trans = 'height ' + dur + 'ms cubic-bezier(0.16, 1, 0.3, 1), opacity ' +
+            Math.round(dur * 0.8) + 'ms ease';
+
+        if (open) {
+            body.classList.add('open', 'is-animating');
+            body.style.transition = 'none';
+            body.style.height = 'auto';
+            var target = body.scrollHeight;
+            body.style.height = '0px';
+            body.style.opacity = '0';
+            reflow(body);
+            body.style.transition = trans;
+            body.style.height = target + 'px';
+            body.style.opacity = '1';
+        } else {
+            body.classList.add('is-animating');
+            body.style.transition = 'none';
+            body.style.height = body.scrollHeight + 'px';
+            body.style.opacity = '1';
+            reflow(body);
+            body.style.transition = trans;
+            body.style.height = '0px';
+            body.style.opacity = '0';
+        }
+
+        body._motionStop = afterMotion(body, 'transitionend', dur, function() {
+            body._motionStop = null;
+            body.classList.remove('is-animating');
+            body.classList.toggle('open', open);
+            body.style.height = '';
+            body.style.opacity = '';
+            body.style.transition = '';
+            invalidateSectionOffsets();
+        });
+    }
+
+    function toggleSection(section) {
+        setSectionOpen(section, !isSectionOpen(section), true);
+        invalidateSectionOffsets();
+    }
+
+    // ============================================
+    // ABSCHNITTS-POSITIONEN (Cache für flüssiges Scrollen)
+    // ============================================
+    // uSticky() las früher bei jedem Scroll-Event offsetTop aller
+    // Abschnitte aus und erzwang damit ein Layout pro Frame. Die
+    // Positionen werden jetzt gepuffert und nur bei echten Änderungen neu
+    // vermessen.
+
+    var SEC_CACHE = { list: [], dirty: true };
+
+    function invalidateSectionOffsets() {
+        SEC_CACHE.dirty = true;
+    }
+
+    function sectionOffsets() {
+        if (!SEC_CACHE.dirty) return SEC_CACHE.list;
+
+        var out = [];
+        if (E.viewSOP) {
+            var secs = E.viewSOP.querySelectorAll('.sop-section');
+            for (var i = 0; i < secs.length; i++) {
+                var head = secs[i].querySelector('.sop-section-head');
+                var title = head ? head.querySelector('.sec-title') : null;
+                var icon = head ? head.querySelector('.sec-icon') : null;
+                out.push({
+                    el: secs[i],
+                    top: secs[i].offsetTop,
+                    idx: secs[i].getAttribute('data-sec') || '',
+                    title: title ? title.textContent : '',
+                    icon: icon ? icon.className : 'fa-solid fa-circle-info'
+                });
+            }
+        }
+
+        SEC_CACHE.list = out;
+        SEC_CACHE.dirty = false;
+        return out;
     }
 
     // ============================================
@@ -1092,6 +1497,96 @@
         if (E.themeToggle) E.themeToggle.setAttribute('aria-label', thLabel);
         if (E.themeToggleMobile) E.themeToggleMobile.setAttribute('aria-label', thLabel);
         if (E.metaThemeColor) E.metaThemeColor.setAttribute('content', dk ? '#1e293b' : '#ffffff');
+    }
+
+    // Weicher Theme-Wechsel: wo die View Transition API verfuegbar ist,
+    // faehrt der neue Zustand als Kreis vom ausloesenden Knopf auf.
+    // Der Zustandswechsel selbst ist davon unabhaengig abgesichert - die
+    // API ueberspringt ihren Rueckruf in manchen Umgebungen (Hintergrund-
+    // Tab, eingebettete Seite), und dann bliebe das Theme sonst haengen.
+    function toggleTheme(originEl) {
+        var next = S.theme === 'dark' ? 'light' : 'dark';
+        var applied = false;
+
+        function apply() {
+            if (applied) return;
+            applied = true;
+            S.theme = next;
+            aTh();
+        }
+
+        haptic('light');
+
+        var canAnimate = !MOTION.reduced &&
+            typeof document.startViewTransition === 'function' &&
+            document.visibilityState === 'visible';
+
+        if (!canAnimate) {
+            apply();
+            return;
+        }
+
+        var cx = window.innerWidth - 40;
+        var cy = 40;
+        if (originEl && originEl.getBoundingClientRect) {
+            var r = originEl.getBoundingClientRect();
+            if (r.width && r.height) {
+                cx = r.left + r.width / 2;
+                cy = r.top + r.height / 2;
+            }
+        }
+
+        var radius = Math.sqrt(
+            Math.pow(Math.max(cx, window.innerWidth - cx), 2) +
+            Math.pow(Math.max(cy, window.innerHeight - cy), 2)
+        );
+
+        var root = document.documentElement;
+        var transition;
+
+        try {
+            root.classList.add('theme-switching');
+            transition = document.startViewTransition(apply);
+        } catch (err) {
+            root.classList.remove('theme-switching');
+            apply();
+            return;
+        }
+
+        // Sicherheitsnetz: wenn der Rueckruf nicht zum Zuge kommt,
+        // wird der Wechsel trotzdem ausgefuehrt.
+        var guard = setTimeout(function() {
+            apply();
+            root.classList.remove('theme-switching');
+        }, 300);
+
+        function done() {
+            clearTimeout(guard);
+            apply();
+            root.classList.remove('theme-switching');
+        }
+
+        if (transition.ready && transition.ready.then) {
+            transition.ready.then(function() {
+                if (!root.animate) return;
+                root.animate({
+                    clipPath: [
+                        'circle(0px at ' + cx + 'px ' + cy + 'px)',
+                        'circle(' + radius + 'px at ' + cx + 'px ' + cy + 'px)'
+                    ]
+                }, {
+                    duration: 480,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    pseudoElement: '::view-transition-new(root)'
+                });
+            })['catch'](function() {});
+        }
+
+        if (transition.finished && transition.finished.then) {
+            transition.finished.then(done)['catch'](done);
+        } else {
+            done();
+        }
     }
 
     function lFs() {
@@ -1202,27 +1697,28 @@
     }
 
     // Wendet die aktuelle Adresse an, ohne einen neuen History-Eintrag zu erzeugen
-    function applyRoute() {
+    function applyRoute(mode) {
         var h = window.location.hash || '';
         if (h.indexOf('#sop/') === 0) {
             var id = h.substring(5);
             if (hasSop(id)) {
                 S.sopId = id;
-                sTab('sop');
+                sTab('sop', mode);
                 return;
             }
         }
         S.sopId = null;
-        if (h === '#browse') sTab('browse');
-        else if (h === '#search') sTab('search');
-        else sTab('home');
+        if (h === '#browse') sTab('browse', mode);
+        else if (h === '#search') sTab('search', mode);
+        else sTab('home', mode);
     }
 
     function onRouteChange() {
         if (ROUTE_LOCK) return;
         S.navStack = [];
         S.isNavigating = false;
-        applyRoute();
+        finishActiveTransition();
+        applyRoute('fade');
     }
 
     // ============================================
@@ -1367,10 +1863,17 @@
                 '<p>Kein Eintrag gefunden</p></div>';
         }
         E.dirBody.innerHTML = html;
+
+        var groups = E.dirBody.querySelectorAll('.dir-group');
+        for (var k = 0; k < groups.length; k++) {
+            groups[k].style.setProperty('--stagger',
+                (Math.min(k, 8) * 45) + 'ms');
+        }
     }
 
     function oDir() {
         if (!E.dirOverlay) return;
+        if (E.dirOverlay.classList.contains('show')) return;
         rememberFocus();
         rDir(E.dirInput ? E.dirInput.value : '');
         E.dirOverlay.classList.add('show');
@@ -1383,6 +1886,7 @@
 
     function cDir() {
         if (!E.dirOverlay) return;
+        if (!E.dirOverlay.classList.contains('show')) return;
         E.dirOverlay.classList.remove('show');
         document.body.classList.remove('picker-open');
         restoreFocus();
@@ -1427,6 +1931,8 @@
         try { sessionStorage.setItem(guardKey, serverVersion); } catch (e) {}
         try { localStorage.setItem('sop-app-version', serverVersion); } catch (e) {}
 
+        if (E.appProgress) E.appProgress.classList.add('show');
+
         var reload = function() {
             var u = window.location.href.split('#')[0].split('?')[0];
             window.location.replace(u + '?v=' + encodeURIComponent(serverVersion) + window.location.hash);
@@ -1466,9 +1972,6 @@
         // iOS Detection
         SAFE_AREA_RUNTIME.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         
-        console.log('[Safe Area Runtime] isPWA:', SAFE_AREA_RUNTIME.isPWA);
-        console.log('[Safe Area Runtime] isIOS:', SAFE_AREA_RUNTIME.isIOS);
-        
         return SAFE_AREA_RUNTIME.isPWA;
     }
     
@@ -1494,7 +1997,6 @@
             for (var i = 0; i < iPhoneWithNotch.length; i++) {
                 if (screenH >= iPhoneWithNotch[i] - 5 && screenH <= iPhoneWithNotch[i] + 5) {
                     measuredBottom = 34;
-                    console.log('[Safe Area Runtime] iPhone with notch detected, screen height:', screenH);
                     break;
                 }
             }
@@ -1504,7 +2006,6 @@
                 var isIPad = /iPad/.test(navigator.userAgent);
                 if (isIPad) {
                     measuredBottom = 20;
-                    console.log('[Safe Area Runtime] iPad detected, screen height:', screenH);
                 }
             }
         }
@@ -1531,7 +2032,6 @@
                 var diff = innerH - vvHeight;
                 if (diff > 0 && diff < 100) {
                     measuredBottom = diff;
-                    console.log('[Safe Area Runtime] visualViewport diff:', diff);
                 }
             }
         }
@@ -1545,15 +2045,12 @@
             document.body.removeChild(testEl);
             if (envValue > 0) {
                 measuredBottom = envValue;
-                console.log('[Safe Area Runtime] env() returned:', envValue);
             }
         }
         
         // Cache-Wert aktualisieren
         SAFE_AREA_RUNTIME.bottom = measuredBottom;
         SAFE_AREA_RUNTIME.lastMeasurement = Date.now();
-        
-        console.log('[Safe Area Runtime] Measured bottom:', measuredBottom + 'px');
         
         return measuredBottom;
     }
@@ -1574,8 +2071,6 @@
         } else {
             document.documentElement.classList.remove('safe-area-detected');
         }
-        
-        console.log('[Safe Area Runtime] Applied --sab-js:', sab + 'px');
     }
     
     function initSafeAreaRuntime() {
@@ -1615,6 +2110,7 @@
     // ============================================
     function init() {
         cache();
+        initMotionPreference();
         lTh();
         aTh();
         lFs();
@@ -1654,6 +2150,7 @@
         // Initialize advanced features
         initSwipeGestures();
         initDraggablePicker();
+        initRipples();
 
         // Check for updates (only in web context, not local file)
         if (window.location.protocol !== 'file:') {
@@ -1666,15 +2163,13 @@
     // ============================================
     function bind() {
         // Theme toggles
-        E.themeToggle.addEventListener('click', function() {
-            S.theme = S.theme === 'dark' ? 'light' : 'dark';
-            aTh();
-        });
+        if (E.themeToggle) {
+            E.themeToggle.addEventListener('click', function() { toggleTheme(E.themeToggle); });
+        }
 
-        E.themeToggleMobile.addEventListener('click', function() {
-            S.theme = S.theme === 'dark' ? 'light' : 'dark';
-            aTh();
-        });
+        if (E.themeToggleMobile) {
+            E.themeToggleMobile.addEventListener('click', function() { toggleTheme(E.themeToggleMobile); });
+        }
 
         // Telefonverzeichnis
         if (E.dirBtn) E.dirBtn.addEventListener('click', oDir);
@@ -1722,9 +2217,10 @@
         // App logo
         E.appLogo.addEventListener('click', function(e) {
             e.preventDefault();
+            if (S.isNavigating) return;
             S.sopId = null;
             S.navStack = [];
-            sTab('home');
+            sTab('home', S.tab === 'home' ? null : 'pop');
         });
 
         // Category toggle
@@ -1772,48 +2268,75 @@
         E.sectionPickerPrint.addEventListener('click', function() {
             cPk();
             setTimeout(function() {
+                // Vor dem Druck alle Abschnitte oeffnen. Ohne das Aussetzen
+                // der Auftrittsanimation waeren die spaeteren Abschnitte im
+                // Moment des Drucks noch durchsichtig.
+                var prevReduced = MOTION.reduced;
+                MOTION.reduced = true;
                 S.allO = true;
                 rSOP();
+
                 setTimeout(function() {
                     window.print();
                     S.allO = false;
                     rSOP();
-                }, 300);
-            }, 200);
+                    MOTION.reduced = prevReduced;
+                    updateMotionPreference();
+                }, 120);
+            }, MOTION.reduced ? 0 : 220);
         });
 
         // Bottom navigation
+        var TAB_ORDER = { home: 0, browse: 1, search: 2, sop: 3 };
         var bns = E.bottomNav.querySelectorAll('.btm-btn');
         for (var i = 0; i < bns.length; i++) {
             (function(bn) {
                 bn.addEventListener('click', function() {
                     var t = bn.getAttribute('data-tab');
-                    if (t) {
-                        S.sopId = null;
-                        S.navStack = [];
-                        if (t === 'browse') {
-                            S.catB = 'all';  // Filter zurücksetzen
-                            S.bQ = '';       // Suchbegriff zurücksetzen
-                        }
-                        sTab(t);
+                    if (!t || S.isNavigating) return;
+                    if (t === S.tab) {
+                        // Erneuter Tipp auf den aktiven Tab: nach oben scrollen
+                        smoothScrollTo(E.contentScroll, 0);
+                        return;
                     }
+
+                    haptic('light');
+
+                    // Bewegungsrichtung folgt der Reihenfolge der Tabs
+                    var mode = TAB_ORDER[t] > TAB_ORDER[S.tab] ? 'push' : 'pop';
+
+                    S.sopId = null;
+                    S.navStack = [];
+                    if (t === 'browse') {
+                        S.catB = 'all';  // Filter zurücksetzen
+                        S.bQ = '';       // Suchbegriff zurücksetzen
+                    }
+                    sTab(t, mode);
                 });
             })(bns[i]);
         }
 
-        // FAB visibility on scroll
-        E.contentScroll.addEventListener('scroll', throttle(handleFabVisibility, 100), { passive: true });
-
-        // Sticky section bar
-        E.contentScroll.addEventListener('scroll', throttle(uSticky, 50), { passive: true });
+        // Ein gemeinsamer, per requestAnimationFrame getakteter Scroll-Handler.
+        // Zuvor liefen zwei gedrosselte Listener nebeneinander und lasen in
+        // jedem Durchlauf Layoutwerte - das kostete Frames beim Scrollen.
+        E.contentScroll.addEventListener('scroll', onScroll, { passive: true });
 
         // Online/Offline
         window.addEventListener('online', function() { S.off = false; uOff(); });
         window.addEventListener('offline', function() { S.off = true; S.ts = new Date(); uOff(); });
 
-        // Resize
-        window.addEventListener('resize', function() {
+        // Resize: Breakpoint merken, gepufferte Positionen verwerfen
+        window.addEventListener('resize', debounce(function() {
+            var wasMobile = S.mob;
             S.mob = window.innerWidth < 1024;
+            invalidateSectionOffsets();
+            updateSegmentedPill(false);
+            if (wasMobile !== S.mob) uChrome();
+        }, 140));
+
+        // Orientierungswechsel: Positionen sind sofort ungültig
+        window.addEventListener('orientationchange', function() {
+            invalidateSectionOffsets();
         });
 
         // Pull to refresh
@@ -1871,14 +2394,13 @@
         // Keyboard shortcut for spotlight
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                if (E.spotlightOverlay && E.spotlightOverlay.classList.contains('show')) {
-                    closeSpotlight();
-                }
-                if (E.sectionPickerOverlay && E.sectionPickerOverlay.classList.contains('show')) {
-                    cPk();
-                }
+                // Nur das oberste Overlay schliessen
                 if (E.dirOverlay && E.dirOverlay.classList.contains('show')) {
                     cDir();
+                } else if (E.spotlightOverlay && E.spotlightOverlay.classList.contains('show')) {
+                    closeSpotlight();
+                } else if (E.sectionPickerOverlay && E.sectionPickerOverlay.classList.contains('show')) {
+                    cPk();
                 }
             }
 
@@ -1891,71 +2413,165 @@
     }
 
     // ============================================
-    // FAB VISIBILITY
+    // SCROLL-REAKTIONEN (FAB + Abschnittsleiste)
     // ============================================
     var lastScrollY = 0;
-    var fabVisible = true;
+    var fabTucked = false;
+    var scrollTicking = false;
 
-    function handleFabVisibility() {
+    function onScroll() {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        raf(onScrollFrame);
+    }
+
+    function onScrollFrame() {
+        scrollTicking = false;
+        var y = E.contentScroll ? E.contentScroll.scrollTop : 0;
+        handleFabVisibility(y);
+        uSticky(y);
+        lastScrollY = y;
+    }
+
+    // Der FAB wird ueber eine Klasse bewegt, nicht mehr ueber Inline-Styles.
+    // So kollidiert er nicht mehr mit den :hover/:active-Transforms.
+    function handleFabVisibility(y) {
         var fab = E.fabAction;
         if (!fab || !fab.classList.contains('show')) return;
 
-        var currentScrollY = E.contentScroll.scrollTop;
-        var scrollDelta = currentScrollY - lastScrollY;
+        var delta = y - lastScrollY;
 
-        if (scrollDelta > 5 && currentScrollY > 100 && fabVisible) {
-            fab.style.transform = 'translateY(100px) scale(0.8)';
-            fab.style.opacity = '0';
-            fabVisible = false;
-        } else if (scrollDelta < -5 && !fabVisible) {
-            fab.style.transform = 'translateY(0) scale(1)';
-            fab.style.opacity = '1';
-            fabVisible = true;
+        if (delta > 6 && y > 120 && !fabTucked) {
+            fab.classList.add('is-tucked');
+            fabTucked = true;
+        } else if ((delta < -6 || y <= 60) && fabTucked) {
+            fab.classList.remove('is-tucked');
+            fabTucked = false;
         }
-
-        lastScrollY = currentScrollY;
     }
 
     // ============================================
     // PULL TO REFRESH
     // ============================================
-    var PTH = 70;
-    var pullStartY = 0;
+    // Gummiband-Charakteristik: der Weg wird gedaempft, das Symbol dreht
+    // sich proportional mit. Gezeichnet wird ausschliesslich per
+    // requestAnimationFrame und transform.
+
+    var PTH = 76;
+    var pullState = {
+        startY: 0,
+        distance: 0,
+        active: false,
+        armed: false,
+        frame: null,
+        refreshing: false
+    };
+
+    function renderPullFrame() {
+        pullState.frame = null;
+        var ind = E.pullIndicator;
+        if (!ind) return;
+
+        var progress = Math.min(pullState.distance / PTH, 1.4);
+        var y = pullState.distance;
+        var rotation = progress * 300;
+        var scale = 0.6 + Math.min(progress, 1) * 0.4;
+
+        ind.style.transform = 'translate3d(0, ' + y + 'px, 0) rotate(' + rotation + 'deg) scale(' + scale + ')';
+        ind.style.opacity = String(Math.min(progress * 1.2, 1));
+        ind.classList.toggle('is-armed', progress >= 1);
+    }
+
+    function resetPullIndicator() {
+        var ind = E.pullIndicator;
+        if (!ind) return;
+        ind.classList.remove('show', 'spin', 'is-dragging', 'is-armed');
+        ind.style.transform = '';
+        ind.style.opacity = '';
+    }
 
     function handlePullStart(e) {
-        if (E.contentScroll.scrollTop !== 0) return;
-        pullStartY = e.touches[0].clientY;
+        pullState.active = false;
+        pullState.armed = false;
+        pullState.distance = 0;
+
+        if (pullState.refreshing || S.isNavigating) return;
+        if (!E.contentScroll || E.contentScroll.scrollTop > 0) return;
+        if (e.touches.length !== 1) return;
+
+        pullState.startY = e.touches[0].clientY;
+        pullState.active = true;
     }
 
     function handlePullMove(e) {
-        if (E.contentScroll.scrollTop !== 0) return;
-        var deltaY = e.touches[0].clientY - pullStartY;
-
-        if (deltaY > 0 && deltaY < PTH) {
-            E.pullIndicator.classList.add('show');
-            E.pullIndicator.style.transform = 'translateX(-50%) translateY(' + (deltaY - 40) + 'px)';
+        if (!pullState.active || e.touches.length !== 1) return;
+        if (E.contentScroll.scrollTop > 0) {
+            pullState.active = false;
+            resetPullIndicator();
+            return;
         }
+
+        var raw = e.touches[0].clientY - pullState.startY;
+        if (raw <= 0) {
+            if (pullState.distance !== 0) {
+                pullState.distance = 0;
+                if (!pullState.frame) pullState.frame = raf(renderPullFrame);
+            }
+            return;
+        }
+
+        // Gummiband: je weiter gezogen, desto zaeher
+        pullState.distance = Math.min(raw * 0.55, PTH * 1.4);
+        pullState.armed = pullState.distance >= PTH * 0.75;
+
+        if (E.pullIndicator) E.pullIndicator.classList.add('show', 'is-dragging');
+        if (!pullState.frame) pullState.frame = raf(renderPullFrame);
     }
 
-    function handlePullEnd(e) {
-        var deltaY = E.contentScroll.scrollTop > 0 ? 0 : (e.changedTouches ? e.changedTouches[0].clientY - pullStartY : 0);
+    function handlePullEnd() {
+        if (!pullState.active) return;
+        pullState.active = false;
 
-        E.pullIndicator.classList.remove('show');
-        E.pullIndicator.style.transform = '';
-
-        if (deltaY > PTH / 2) {
-            E.pullIndicator.classList.add('spin');
-            haptic('medium');
-
-            setTimeout(function() {
-                rHome();
-                rNav();
-                if (S.tab === 'browse') rBrowse();
-                if (S.tab === 'search') rSearch();
-                if (S.tab === 'sop') rSOP();
-                E.pullIndicator.classList.remove('show', 'spin');
-            }, 600);
+        if (pullState.frame && window.cancelAnimationFrame) {
+            window.cancelAnimationFrame(pullState.frame);
         }
+        pullState.frame = null;
+
+        var ind = E.pullIndicator;
+        var shouldRefresh = pullState.armed && !pullState.refreshing;
+        pullState.distance = 0;
+        pullState.armed = false;
+
+        if (!shouldRefresh) {
+            resetPullIndicator();
+            return;
+        }
+
+        pullState.refreshing = true;
+        haptic('medium');
+
+        if (ind) {
+            ind.classList.remove('is-dragging', 'is-armed');
+            ind.classList.add('show', 'spin');
+            ind.style.transform = 'translate3d(0, 24px, 0)';
+            ind.style.opacity = '1';
+        }
+
+        setTimeout(function() {
+            refreshCurrentView();
+            resetPullIndicator();
+            pullState.refreshing = false;
+        }, 620);
+    }
+
+    // Aktuelle Ansicht neu aufbauen, ohne einen Verlaufseintrag zu erzeugen
+    function refreshCurrentView() {
+        rHome();
+        rNav();
+        if (S.tab === 'browse') rBrowse();
+        else if (S.tab === 'search') rSearch();
+        else if (S.tab === 'sop') rSOP();
+        invalidateSectionOffsets();
     }
 
     // ============================================
@@ -1973,87 +2589,96 @@
     // ============================================
     // TAB NAVIGATION
     // ============================================
-    function sTab(t) {
-        S.tab = t;
+    // Ablauf: Zielinhalt rendern -> Bedienleisten aktualisieren ->
+    // Ansicht animiert wechseln -> Nacharbeiten (Beobachter, Adresse).
+    // Der Inhalt steht damit fertig bereit, bevor die Bewegung startet.
 
-        var views = ['viewHome', 'viewBrowse', 'viewSearch', 'viewSOP'];
-        for (var i = 0; i < views.length; i++) {
-            if (E[views[i]]) {
-                E[views[i]].classList.remove('active');
-                E[views[i]].style.opacity = '';
-                E[views[i]].style.transform = '';
-            }
+    function sTab(t, mode, done) {
+        var fromView = currentView();
+        var toView = E[VIEW_OF_TAB[t]] || E.viewHome;
+        var changed = S.tab !== t;
+
+        S.tab = t;
+        dSO();
+        stopSmoothScroll();
+
+        // 1) Inhalt der Zielansicht aufbauen
+        if (t === 'browse') {
+            rBrowse();
+        } else if (t === 'search') {
+            rSearch();
+        } else if (t === 'sop') {
+            rSOP();
         }
+
+        // 2) Rahmen (Titel, Navigation, Breadcrumb, FAB) angleichen
+        uChrome();
+
+        // 3) Ansicht wechseln
+        var effectiveMode = mode;
+        if (!effectiveMode && changed) effectiveMode = 'fade';
+
+        switchView(fromView, toView, effectiveMode, function() {
+            if (t === 'sop') {
+                invalidateSectionOffsets();
+                iSO();
+                updateSegmentedPill(false);
+                checkSegmentedScrollArrows();
+            }
+            uSticky(0);
+            if (t === 'search' && E.searchViewInput) {
+                E.searchViewInput.focus();
+            }
+            if (done) done();
+        });
+
+        rNav();
+
+        // 4) Adresse angleichen: SOP-Aufrufe erzeugen einen Verlaufseintrag,
+        //    reine Tabwechsel ersetzen den bestehenden.
+        syncRoute(t !== 'sop');
+    }
+
+    // Kopf-, Fuss- und Randbedienelemente an den aktuellen Tab anpassen
+    function uChrome() {
+        var t = S.tab;
 
         var bns = E.bottomNav.querySelectorAll('.btm-btn');
         for (var i = 0; i < bns.length; i++) {
-            bns[i].classList.remove('active');
+            bns[i].classList.toggle('active', bns[i].getAttribute('data-tab') === t);
+            bns[i].setAttribute('aria-current', bns[i].getAttribute('data-tab') === t ? 'page' : 'false');
         }
 
         E.backBtn.classList.remove('show');
         E.desktopTocBtn.style.display = 'none';
-        E.fabAction.classList.remove('show');
-        E.stickySectionBar.classList.remove('show');
-
-        dSO();
+        E.fabAction.classList.remove('show', 'is-tucked');
+        fabTucked = false;
 
         if (t === 'home') {
-            E.viewHome.classList.add('active');
             rBC([]);
             E.mobileTitle.textContent = 'Patientenpfade: ZNA';
-            var hb = E.bottomNav.querySelector('[data-tab="home"]');
-            if (hb) hb.classList.add('active');
         } else if (t === 'browse') {
-            E.viewBrowse.classList.add('active');
-            rBrowse();
             rBC([{ label: 'SOPs' }]);
             E.mobileTitle.textContent = 'SOPs';
-            var bb = E.bottomNav.querySelector('[data-tab="browse"]');
-            if (bb) bb.classList.add('active');
-            // Show back button in browse view for navigation back to home
-            if (S.navStack.length === 0) {
-                E.backBtn.classList.add('show');
-            }
+            E.backBtn.classList.add('show');
         } else if (t === 'search') {
-            E.viewSearch.classList.add('active');
-            rSearch();
             rBC([{ label: 'Suche' }]);
             E.mobileTitle.textContent = 'Suche';
-            var sb = E.bottomNav.querySelector('[data-tab="search"]');
-            if (sb) sb.classList.add('active');
-            setTimeout(function() { E.searchViewInput.focus(); }, 100);
+            E.backBtn.classList.add('show');
         } else if (t === 'sop') {
-            E.viewSOP.classList.add('active');
-            rSOP();
             E.backBtn.classList.add('show');
             E.desktopTocBtn.style.display = '';
             E.fabAction.classList.add('show');
 
-            var d = null;
-            for (var i = 0; i < S.data.length; i++) {
-                if (S.data[i].id === S.sopId) {
-                    d = S.data[i];
-                    break;
-                }
-            }
-
+            var d = findSop(S.sopId);
             if (d) {
-                var cn = CATS[d.category] ? CATS[d.category].name : '';
                 E.mobileTitle.textContent = d.name || '';
                 rBC([
-                    { label: 'SOPs', click: function() { S.sopId = null; sTab('browse'); } },
+                    { label: 'SOPs', click: function() { S.sopId = null; S.navStack = []; sTab('browse', 'pop'); } },
                     { label: d.name || '' }
                 ]);
             }
-
-            iSO();
         }
-
-        E.contentScroll.scrollTop = 0;
-        rNav();
-
-        // Adresse an die aktive Ansicht angleichen (SOP-Route setzt rSOP selbst)
-        if (t !== 'sop') syncRoute(true);
     }
 
     // ============================================
@@ -2120,7 +2745,8 @@
             var isAct = S.sopId === d.id && S.tab === 'sop';
             var nm = S.hQ ? hl(d.name || '', S.hQ) : (d.name || '');
 
-            html += '<li><a href="#sop/' + d.id + '" class="' + (isAct ? 'active' : '') + '" data-id="' + d.id + '">';
+            html += '<li><a href="#sop/' + d.id + '" class="' + (isAct ? 'active' : '') + '"' +
+                (isAct ? ' aria-current="page"' : '') + ' data-id="' + d.id + '">';
             html += '<span class="nav-dot" style="background:' + cl + '"></span>';
             html += '<span class="nav-label">' + nm + '</span>';
             html += '</a></li>';
@@ -2136,6 +2762,12 @@
                     pushNav(a.getAttribute('data-id'));
                 });
             })(links[i]);
+        }
+
+        // Aktiven Eintrag sanft in den Blick holen
+        var act = E.navList.querySelector('a.active');
+        if (act && act.scrollIntoView && !MOTION.reduced) {
+            act.scrollIntoView({ block: 'nearest' });
         }
     }
 
@@ -2153,13 +2785,16 @@
         if (hsi) {
             hsi.addEventListener('input', function() {
                 var v = this.value;
-                if (v.length >= 1) {
-                    S.sQ = v;
-                    openSpotlight();
-                    if (E.spotlightInput) E.spotlightInput.value = v;
-                    E.spotlightClear.classList.toggle('show', v.length > 0);
-                    renderSpotlightResults();
-                }
+                if (v.length < 1) return;
+
+                // Eingabe an die Spotlight-Suche uebergeben und das Feld
+                // wieder leeren, damit beide Felder nicht auseinanderlaufen.
+                S.sQ = v;
+                this.value = '';
+                if (E.spotlightInput) E.spotlightInput.value = v;
+                if (E.spotlightClear) E.spotlightClear.classList.add('show');
+                renderSpotlightResults();
+                openSpotlight();
             });
         }
 
@@ -2201,10 +2836,14 @@
             (function(c) {
                 c.addEventListener('click', function() {
                     S.catB = c.getAttribute('data-cat');
-                    sTab('browse');
+                    S.bQ = '';
+                    haptic('light');
+                    sTab('browse', 'push');
                 });
             })(cards[i]);
         }
+
+        applyStagger(cards, 'stagger-item');
 
         E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>';
     }
@@ -2353,6 +2992,8 @@
                 });
             })(items[i]);
         }
+
+        applyStagger(items, 'stagger-item');
     }
 
     function rSearch() {
@@ -2382,7 +3023,7 @@
                         var idx = txt.indexOf(q);
                         var start = Math.max(0, idx - 60);
                         var end = Math.min(txt.length, idx + q.length + 60);
-                        var snippet = (start > 0 ? '...' : '') + strip(secHtml).substring(start, end) + (end < txt.length ? '...' : '');
+                        var snippet = (start > 0 ? '…' : '') + strip(secHtml).substring(start, end) + (end < txt.length ? '…' : '');
                         secMatches.push({ title: secTitle, snippet: snippet });
                     }
                 }
@@ -2401,7 +3042,7 @@
         results.sort(function(a, b) { return b.score - a.score; });
 
         if (results.length === 0) {
-            E.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-circle-xmark"></i><p>Keine Ergebnisse für "' + hl(S.sQ, '') + '"</p></div>';
+            E.searchResultsArea.innerHTML = '<div class="search-empty"><i class="fa-solid fa-circle-xmark"></i><p>Keine Ergebnisse für &bdquo;' + esc(S.sQ) + '&ldquo;</p></div>';
             return;
         }
 
@@ -2415,7 +3056,7 @@
             html += '<div class="search-result" data-id="' + d.id + '" role="button" tabindex="0">';
             html += '<h4>' + hl(d.name || '', S.sQ) + '</h4>';
             if (r.secMatches.length > 0) {
-                html += '<p>' + hl(r.secMatches[0].snippet, S.sQ) + '</p>';
+                html += '<p>' + hl(esc(r.secMatches[0].snippet), S.sQ) + '</p>';
             }
             html += '<span class="sr-cat"><i class="fa-solid fa-circle" style="color:' + cl + ';font-size:.5rem"></i> ' + cn + '</span>';
             html += '</div>';
@@ -2431,16 +3072,12 @@
                 });
             })(items[i]);
         }
+
+        applyStagger(items, 'stagger-item');
     }
 
     function rSOP() {
-        var d = null;
-        for (var i = 0; i < S.data.length; i++) {
-            if (S.data[i].id === S.sopId) {
-                d = S.data[i];
-                break;
-            }
-        }
+        var d = findSop(S.sopId);
 
         if (!d) {
             E.viewSOP.innerHTML = '<div class="search-empty"><p>SOP nicht gefunden.</p></div>';
@@ -2477,7 +3114,7 @@
                 var isAO = AO.indexOf(secTitle) !== -1;
                 var op = S.allO || isAO;
 
-                html += '<div class="sop-section" data-sec="' + i + '" style="animation-delay:' + (i * 0.05) + 's">';
+                html += '<div class="sop-section" data-sec="' + i + '">';
                 html += '<div class="sop-section-head" data-idx="' + i + '" role="button" tabindex="0" aria-expanded="' + (op ? 'true' : 'false') + '">';
                 html += '<i class="fa-solid ' + ic + ' sec-icon" style="color:' + cl + '"></i>';
                 html += '<span class="sec-title" role="heading" aria-level="2">' + secTitle + '</span>';
@@ -2490,7 +3127,7 @@
 
         // Sources section
         if (d.sources) {
-            html += '<div class="sop-section" style="animation-delay:' + (secCount * 0.05) + 's">';
+            html += '<div class="sop-section" data-sec="sources">';
             html += '<div class="sop-section-head" data-idx="sources" role="button" tabindex="0" aria-expanded="false">';
             html += '<i class="fa-solid fa-quote-right sec-icon" style="color:' + cl + '"></i>';
             html += '<span class="sec-title" role="heading" aria-level="2">Quellen</span>';
@@ -2509,7 +3146,7 @@
         for (var i = 0; i < segButtons.length; i++) {
             (function(btn) {
                 var segIndex = btn.getAttribute('data-seg');
-                
+
                 // Touch-Events für mobile Geräte
                 btn.addEventListener('touchstart', function(e) {
                     handleSegTouchStart(e, d, segIndex);
@@ -2523,10 +3160,11 @@
                     handleSegTouchEnd(e, d, segIndex);
                 }, { passive: true });
 
-                // Click-Event für Desktop (nur wenn kein Touch)
-                btn.addEventListener('click', function(e) {
-                    // Verhindern wenn Touch bereits verarbeitet
-                    if (e.detail === 0) return; // Touch-Event
+                // Klick auf Zeigegeraeten. Nach einem Tap folgt vom Browser
+                // ein zusaetzliches click-Event - das wird hier verworfen,
+                // damit die Auswahl nicht doppelt ausgefuehrt wird.
+                btn.addEventListener('click', function() {
+                    if (Date.now() - SEG_CLICK_BLOCK < 700) return;
                     handleSegmentedClick(d, segIndex);
                 });
             })(segButtons[i]);
@@ -2541,32 +3179,27 @@
         // Initialize scroll arrows for segmented control
         initSegmentedScrollArrows();
 
-        // Add section click handlers
-        var heads = E.viewSOP.querySelectorAll('.sop-section-head');
-        for (var i = 0; i < heads.length; i++) {
-            (function(hd) {
-                hd.addEventListener('click', function() {
-                    var bd = hd.nextElementSibling;
-                    var tg = hd.querySelector('.sec-toggle');
-                    var isOpen = bd.classList.contains('open');
-
-                    if (isOpen) {
-                        bd.classList.remove('open');
-                        tg.classList.remove('open');
-                    } else {
-                        bd.classList.add('open');
-                        tg.classList.add('open');
-                    }
-
-                    hd.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        // Abschnitte auf- und zuklappen (animierte Hoehe)
+        var sections = E.viewSOP.querySelectorAll('.sop-section');
+        for (var i = 0; i < sections.length; i++) {
+            (function(section) {
+                var head = section.querySelector('.sop-section-head');
+                if (!head) return;
+                head.addEventListener('click', function() {
+                    haptic('light');
+                    toggleSection(section);
                 });
-            })(heads[i]);
+            })(sections[i]);
         }
+
+        // Gestaffelter Auftritt der Abschnittskarten
+        applyStagger(sections, 'stagger-in');
+
+        invalidateSectionOffsets();
+        stickyCurrentIdx = null;
 
         rPk();
         rNav();
-
-        syncRoute(false);
     }
 
     function rBC(items) {
@@ -2587,9 +3220,10 @@
         var hm = E.breadcrumb.querySelector('.bc-home');
         if (hm) hm.addEventListener('click', function(e) {
             e.preventDefault();
+            if (S.isNavigating) return;
             S.sopId = null;
             S.navStack = [];
-            sTab('home');
+            sTab('home', S.tab === 'home' ? null : 'pop');
         });
 
         var lks = E.breadcrumb.querySelectorAll('.bc-link');
@@ -2639,28 +3273,26 @@
 
         var lis = E.sectionPickerList.querySelectorAll('li');
         for (var i = 0; i < lis.length; i++) {
+            lis[i].style.setProperty('--stagger',
+                (Math.min(i, MOTION.staggerMax) * MOTION.staggerStep) + 'ms');
             (function(li) {
                 li.addEventListener('click', function() {
                     var idx = li.getAttribute('data-idx');
                     cPk();
 
-                    var sec;
-                    if (idx === 'sources') {
-                        var secs = E.viewSOP.querySelectorAll('.sop-section');
-                        sec = secs[secs.length - 1];
-                    } else {
-                        sec = E.viewSOP.querySelector('.sop-section[data-sec="' + idx + '"]');
-                    }
+                    var sec = E.viewSOP.querySelector('.sop-section[data-sec="' + idx + '"]');
+                    if (!sec) return;
 
-                    if (sec) {
-                        var bd = sec.querySelector('.sop-section-body');
-                        var tg = sec.querySelector('.sec-toggle');
-                        if (bd && !bd.classList.contains('open')) {
-                            bd.classList.add('open');
-                            if (tg) tg.classList.add('open');
-                        }
-                        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    var wasClosed = !isSectionOpen(sec);
+                    if (wasClosed) setSectionOpen(sec, true, true);
+                    invalidateSectionOffsets();
+
+                    // Erst scrollen, wenn die Hoehenanimation greift -
+                    // sonst zielt der Scroll auf eine veraltete Position.
+                    setTimeout(function() {
+                        invalidateSectionOffsets();
+                        scrollElementIntoView(sec);
+                    }, MOTION.reduced ? 0 : (wasClosed ? Math.round(MOTION.section * 0.5) : 60));
                 });
             })(lis[i]);
         }
@@ -2668,64 +3300,81 @@
 
     function oPk() {
         if (!E.sectionPickerOverlay) return;
+        if (E.sectionPickerOverlay.classList.contains('show')) return;
 
         rememberFocus();
         E.sectionPickerOverlay.classList.add('show');
         document.body.classList.add('picker-open');
         haptic('light');
+
         setTimeout(function() {
             if (E.sectionPickerClose) E.sectionPickerClose.focus();
-        }, 260);
+        }, MOTION.reduced ? 0 : 280);
     }
 
     function cPk() {
         if (!E.sectionPickerOverlay) return;
+        if (!E.sectionPickerOverlay.classList.contains('show')) return;
 
         E.sectionPickerOverlay.classList.remove('show');
         document.body.classList.remove('picker-open');
+
+        if (E.pickerSheet) E.pickerSheet.style.transform = '';
         restoreFocus();
     }
 
     // ============================================
     // STICKY SECTION BAR
     // ============================================
-    function uSticky() {
+    var stickyCurrentIdx = null;
+
+    function uSticky(y) {
+        if (!E.stickySectionBar) return;
+
         if (S.tab !== 'sop') {
             E.stickySectionBar.classList.remove('show');
+            stickyCurrentIdx = null;
             return;
         }
 
-        var secs = E.viewSOP.querySelectorAll('.sop-section');
-        var ct = E.contentScroll.scrollTop + 120;
+        var scrollTop = (y === undefined && E.contentScroll) ? E.contentScroll.scrollTop : (y || 0);
+        var secs = sectionOffsets();
+        var ct = scrollTop + 96;
         var cur = null;
 
         for (var i = 0; i < secs.length; i++) {
-            if (secs[i].offsetTop <= ct) cur = secs[i];
+            if (secs[i].top <= ct) cur = secs[i];
+            else break;
         }
 
-        if (cur) {
-            var hd = cur.querySelector('.sop-section-head');
-            var ti = hd ? hd.querySelector('.sec-title') : null;
-            var ic = hd ? hd.querySelector('.sec-icon') : null;
-
-            if (ti) {
-                E.stickySectionTitle.textContent = ti.textContent;
-                if (ic) E.stickySectionIcon.className = ic.className;
-
-                var d = null;
-                for (var i = 0; i < S.data.length; i++) {
-                    if (S.data[i].id === S.sopId) {
-                        d = S.data[i];
-                        break;
-                    }
-                }
-
-                if (d) E.stickySopName.textContent = d.name || '';
-                E.stickySectionBar.classList.add('show');
-            }
-        } else {
+        if (!cur || scrollTop < 40) {
             E.stickySectionBar.classList.remove('show');
+            stickyCurrentIdx = null;
+            return;
         }
+
+        // DOM nur anfassen, wenn sich der Abschnitt wirklich aendert
+        if (stickyCurrentIdx !== cur.idx) {
+            stickyCurrentIdx = cur.idx;
+            E.stickySectionTitle.textContent = cur.title;
+            E.stickySectionIcon.className = cur.icon;
+
+            var d = findSop(S.sopId);
+            if (d) E.stickySopName.textContent = d.name || '';
+
+            for (var j = 0; j < secs.length; j++) {
+                secs[j].el.classList.toggle('is-current', secs[j] === cur);
+            }
+        }
+
+        E.stickySectionBar.classList.add('show');
+    }
+
+    function findSop(id) {
+        for (var i = 0; i < S.data.length; i++) {
+            if (S.data[i].id === id) return S.data[i];
+        }
+        return null;
     }
 
     // ============================================
@@ -2777,6 +3426,16 @@
         if (!d || !d.id) return;
         normSop(d);
         S.data.push(d);
+
+        // Nachtraeglich geladene SOPs muessen einsortiert und in den
+        // Listen sichtbar werden - sonst tauchen sie erst nach einem
+        // Neuladen auf.
+        S.data.sort(function(a, b) {
+            return (a.name || '').localeCompare(b.name || '', 'de');
+        });
+
+        if (E.categoryFilters) rSB();
+        if (S.tab === 'browse' && E.browseList) rBrowseList();
     };
 
     if (document.readyState === 'loading') {
