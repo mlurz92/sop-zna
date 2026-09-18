@@ -522,6 +522,7 @@
             S.mob = window.innerWidth < 1024;
             App.invalidateSectionOffsets();
             App.updateSegmentedPill(false);
+            App.updateBottomNavPill();
             if (wasMobile !== S.mob) App.uChrome();
         }, 140));
 

@@ -32,13 +32,14 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 
 | Feature | Beschreibung |
 |---------|--------------|
-| **Responsive Design** | Optimiert für Desktop, Tablet und Smartphone |
+| **Responsive Design** | Drei ausgearbeitete Stufen: Smartphone, Tablet und Desktop – jeweils mit eigenem Satzspiegel, eigener Spaltenzahl und passenden Tippzielen |
 | **Dark/Light Mode** | Automatische Systemerkennung + manueller Toggle |
 | **Schriftgröße** | Einstellbar (13–20px) für bessere Lesbarkeit |
 | **Touch-Gesten** | Wischen zum Zurückgehen – die Ansicht folgt dem Finger und wird bei Abbruch zurückgefedert |
 | **Bewegung** | Alle Wechsel laufen als Transform-/Opacity-Animation auf dem Compositor (60 fps und mehr) |
 | **Barrierefreiheit** | WCAG 2.1 AA: Tastaturbedienung, Fokusführung, geprüfte Kontraste |
 | **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche; ein Tipp auf die Zeile legt die Nummer in die Zwischenablage |
+| **Gleitende Tab-Markierung** | Die Markierung der Fussnavigation wandert auf den gewählten Tab, statt umzuspringen |
 
 ### SOP-Darstellung
 
@@ -47,7 +48,8 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Kapitelleiste** | Schnellnavigation zwischen den Abschnitten einer SOP, inklusive Quellen |
 | **Akkordeon-Sections** | Auf-/Zuklappen von Diagnostik, Therapie etc. mit animierter Höhe |
 | **Gleitende Markierung** | Die getroffene Auswahl wird von einer mitlaufenden Pille hinterlegt – sie erscheint erst, wenn wirklich eine Auswahl besteht |
-| **Kapitelleiste bleibt oben** | Die Abschnittsleiste heftet sich beim Scrollen an den oberen Rand und bleibt bedienbar; das gerade sichtbare Kapitel wird darin markiert |
+| **Kapitelleiste bleibt oben** | Die Abschnittsleiste heftet sich beim Scrollen an den oberen Rand und bleibt bedienbar; das gerade sichtbare Kapitel wird darin markiert. Der Text läuft unter einer weichen Blende aus, statt an der Kante abgeschnitten zu werden |
+| **Lesefortschritt** | Eine zwei Pixel hohe Linie unter der Kopfzeile zeigt, wie viel des Patientenpfads noch kommt |
 | **Inhaltsverzeichnis** | Floating Action Button für schnellen Zugriff |
 | **Druckfunktion** | Optimierte Druckansicht aller Abschnitte |
 | **Dispositionsfeld** | Hausinterne Dispositionsrichtlinien im Ampelschema mit Direktkontakten |
@@ -288,11 +290,15 @@ Geprüft bei 320, 390, 768, 1024 und 1440 px – ohne horizontales Überlaufen:
 | Breite | Verhalten |
 |--------|-----------|
 | ≤ 360 px | Kompakte Kopfzeile, zweispaltiges Kartenraster mit reduzierten Abständen |
-| ≤ 640 px | Kompakter Hero-Bereich, Bottom-Navigation, Inhalts-Sheet als Bottom-Sheet |
+| ≤ 480 px | Schmalerer Seitenrand (18 px), kompakter Hero-Bereich |
+| ≤ 640 px | Bottom-Navigation, Inhalts-Sheet als Bottom-Sheet |
+| ≥ 768 px | **Zweispaltige SOP-Übersicht**, breiterer Seitenrand (32 px) – 73 Pfade in einer Spalte kosteten auf dem Tablet zu viel Weg |
 | ≥ 900 px | Sidebar-Navigation, Breadcrumbs, Inhalts-Button in der Kopfzeile |
 | ≥ 1024 px | FAB entfällt (Inhalt liegt in der Kopfzeile) |
-| ≥ 1280 px | Inhaltsbreite auf 1180 px begrenzt, Fließtext auf 92 Zeichen |
+| ≥ 1120 px | Satzspiegel zentriert und auf 1120 px begrenzt, Listen auf 940 px, Fließtext auf 92 Zeichen |
 | ≥ 1600 px | Sechsspaltiges Kategorie-Raster |
+
+Alle Ansichten teilen sich denselben zentrierten Satzspiegel (`--content-max`, `--content-narrow`, `--gutter`). Vorher stand der Inhalt auf Tablet und breitem Desktop linksbündig in einer sehr breiten Spalte.
 
 ---
 
@@ -302,7 +308,9 @@ Die Oberfläche ist so gebaut, dass jede sichtbare Zustandsänderung eine eigene
 
 ### Grundregel
 
-Animiert werden ausschließlich `transform`, `opacity` und `clip-path`. Diese Eigenschaften verarbeitet der Browser auf dem Compositor, ohne Layout oder Neuzeichnen – dadurch laufen die Übergänge auch auf älteren Mobilgeräten mit voller Bildrate. Alle Dauern sind als Custom Properties zentral hinterlegt (`--dur-view`, `--dur-view-fast`, `--dur-section`, `--dur-micro`).
+Animiert werden ausschließlich `transform`, `opacity` und `filter`. Diese Eigenschaften verarbeitet der Browser auf dem Compositor, ohne Layout oder Neuzeichnen – dadurch laufen die Übergänge auch auf älteren Mobilgeräten mit voller Bildrate. Alle Dauern und Kurven sind als Custom Properties zentral hinterlegt (`--dur-tiny`, `--dur-micro`, `--dur-view-fast`, `--dur-view`, `--dur-section`, `--dur-enter` sowie `--ease-out-expo`, `--ease-settle`, `--ease-spring`, `--ease-emphasized`).
+
+Die Einhaltung wird geprüft, nicht angenommen: ein Testlauf liest alle `@keyframes` der Anwendung aus und schlägt an, sobald darin eine Eigenschaft steht, die Layout auslöst.
 
 ### Übergänge im Überblick
 
@@ -318,7 +326,9 @@ Animiert werden ausschließlich `transform`, `opacity` und `clip-path`. Diese Ei
 | Listen und Kacheln | Gestaffelter Auftritt, Verzögerung bei 14 Elementen gedeckelt | 420 ms |
 | Overlays | Bottom-Sheet, Spotlight und Telefonverzeichnis fahren ein statt zu erscheinen | 260–420 ms |
 | Theme-Wechsel | Kreisförmige Blende vom auslösenden Knopf (View Transition API, mit Rückfallebene) | 480 ms |
-| Tipp-Feedback | Ripple am Berührungspunkt, Karten senken sich kurz ab | 180–560 ms |
+| Tipp-Feedback | Ripple am Berührungspunkt, Karten heben sich an und senken sich beim Drücken | 120–560 ms |
+| Tabwechsel unten | Gleitende Markierung wandert auf den gewählten Tab | 260 ms |
+| Lesefortschritt | Linie unter der Kopfzeile folgt der Scrollposition | 120 ms |
 
 ### Angeheftete Kapitelleiste
 
@@ -336,7 +346,25 @@ In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Ra
 - **Bottom-Sheet:** Das Inhaltsverzeichnis wird über `translate3d` gezogen; über Zugstrecke oder Wischgeschwindigkeit schließt es.
 - **Pull-to-Refresh:** Gummiband-Charakteristik, das Symbol dreht sich proportional zur Zugstrecke.
 
-### Bildrate und Scrollverhalten
+### Gemessene Bildrate
+
+Die Bewegungen werden nicht nur behauptet, sondern gemessen: ein Testlauf zeichnet die Abstände zwischen den Frames auf, während die jeweilige Bewegung läuft.
+
+| Bewegung | Median | Verworfene Frames |
+|----------|--------|-------------------|
+| Scrollen durch eine SOP | 16,7 ms | 0 |
+| Abschnitt auf-/zuklappen | 16,7 ms | 0 |
+| Alle zehn Abschnitte aufklappen | 16,7 ms | 0 |
+| Schnellsuche öffnen | 16,7 ms | 0 |
+
+Zwei Befunde aus diesen Messungen haben die Umsetzung verändert:
+
+- **Kein `backdrop-filter` auf bildschirmfüllenden Flächen.** Der weichgezeichnete Hintergrund hinter Schnellsuche, Inhalts-Sheet und Telefonverzeichnis muss in jedem Frame neu gerechnet werden und drückte das Öffnen der Schnellsuche auf dem Desktop von 60 auf 20 Bilder je Sekunde – unabhängig davon, ob die Transparenz animiert wurde oder nicht. An seine Stelle ist ein radialer Verlauf getreten: dieselbe Tiefenwirkung, gemessen null Zusatzkosten.
+- **Ein Listener je Liste statt einer je Zeile.** Jede der 73 Zeilen bekam beim Aufbau einen eigenen `click`-Listener und eine eigene Auftrittsanimation samt Ereignis-Registrierung. Beides läuft jetzt über Ereignisdelegation, und der gestaffelte Auftritt ist auf die 18 Einträge begrenzt, die überhaupt sichtbar sein können.
+
+Zusätzlich überlässt `content-visibility: auto` dem Browser die Entscheidung, welche Listeneinträge außerhalb des Sichtfensters er überhaupt anordnen und zeichnen muss; `contain-intrinsic-size` hält die Bildlaufleiste dabei ruhig. Für die SOP-Abschnitte wird das bewusst **nicht** gesetzt – dort wird die Höhe des Inhalts für die Aufklapp-Animation gemessen.
+
+### Scrollverhalten
 
 - Scroll-Reaktionen (eingeblendeter FAB, Abschnittsleiste) laufen in **einem** `requestAnimationFrame`-getakteten Handler statt in mehreren gedrosselten Listenern.
 - Die Positionen der SOP-Abschnitte sowie Höhe und Ruheposition der Kapitelleiste werden gepuffert und nur bei echten Änderungen neu vermessen – das Scrollen erzwingt damit kein Layout mehr pro Frame.
@@ -346,7 +374,7 @@ In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Ra
 
 ### Bewegungsreduktion
 
-`prefers-reduced-motion: reduce` wird an einer einzigen Stelle ausgewertet und wirkt auf CSS **und** JavaScript: Dauern fallen auf 1 ms, Ansichten wechseln ohne Übergang, Ripple und Schwebeeffekte entfallen, das Akkordeon schaltet direkt um.
+`prefers-reduced-motion: reduce` wird an einer einzigen Stelle ausgewertet und wirkt auf CSS **und** JavaScript: sämtliche Dauer-Tokens fallen auf 1 ms, Ansichten wechseln ohne Übergang, Ripple, Auftritts- und Schwebeeffekte entfallen, gleitende Markierungen springen, das Akkordeon schaltet direkt um. Ein Testlauf öffnet die Anwendung mit dieser Einstellung und prüft, dass die Bedienung dabei vollständig erhalten bleibt.
 
 ---
 
@@ -578,7 +606,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: September 2026*  
-*Version: 3.0.0*
+*Version: 3.1.0*
 
 ---
 
@@ -586,6 +614,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v3.1.0** | Sep 2026 | **Darstellung, Bedienung und Bewegung überarbeitet.** Layout: alle Ansichten teilen sich einen zentrierten Satzspiegel – vorher stand der Inhalt auf Tablet und breitem Desktop linksbündig in einer sehr breiten Spalte; die SOP-Übersicht ist ab 768 px zweispaltig; Kopfzeile und Breadcrumb tragen dieselbe Fläche wie der Inhalt und setzen sich erst beim Scrollen ab. SOP-Ansicht: der Text läuft unter der angehefteten Kapitelleiste weich aus, statt mitten im Buchstaben abgeschnitten zu werden; die Leiste wird beim Anheften flacher; die Scroll-Pfeile sitzen bündig am Rand und bringen ihre eigene Blende mit, statt über der letzten Schaltfläche zu schweben; das aktuelle Kapitel bekommt einen kurzen Streifen am Kopf statt eines ringsum eingefärbten Rahmens (der eine zweite blaue Linie auf der Gegenseite zog); neu ist eine Fortschrittslinie unter der Kopfzeile. Inhaltsverzeichnis: höheres Blatt (zehn statt sechs sichtbare Kapitel), einzeilige Fußleiste, Name der SOP im Kopf, auslaufende Kante als Hinweis auf mehr Inhalt, und der Fokus landet auf dem Blatt statt mit Fokusring auf der Schließen-Schaltfläche. Bewegung: durchgängige Dauer- und Kurven-Tokens, ruhigere Ein- und Austritte, gleitende Markierung in der Fußnavigation, abgestimmte Zustände für Zeigegerät und Finger. Messbar behoben: der bildschirmfüllende `backdrop-filter` hinter den Overlays drückte das Öffnen der Schnellsuche von 60 auf 20 Bilder je Sekunde und ist einem Verlauf gewichen; die 73 Einzel-Listener je Liste und die 73 Auftrittsanimationen sind Ereignisdelegation und einer Begrenzung auf 18 sichtbare Einträge gewichen; `content-visibility` nimmt dem Browser die Arbeit für alles unterhalb des Sichtfensters ab |
 | **v3.0.0** | Sep 2026 | **Anwendungslogik in zehn Module aufgeteilt.** `app.js` (3.495 Zeilen) ist zugunsten von [`js/core.js`](js/core.js) bis [`js/main.js`](js/main.js) entfallen; die Module teilen sich den Namensraum `window.SOPApp`, der Funktionsumfang bleibt vollständig erhalten. Behoben: das Suchfeld der Startseite reichte die Eingabe zeichenweise an die Schnellsuche weiter und verlor bei schnellem Tippen den Suchbegriff (jetzt eine Schaltfläche, die die Schnellsuche öffnet); der Filterbegriff der Übersicht wurde unmaskiert in ein HTML-Attribut geschrieben, ein Anführungszeichen zerlegte damit die Ansicht; SOP-Namen und Textausschnitte wurden ohne Maskierung eingebaut; die Schaltfläche „Alle" der Kapitelleiste war beim Öffnen einer SOP markiert, obwohl nur Diagnostik und Therapie offen standen, und blieb es auch nach dem Zuklappen eines Abschnitts; die Fokusfalle wählte das im Dokument erste statt das oberste Overlay, und beim Schließen eines von zwei Overlays verlor der Hintergrund seine Sperre; die Safe-Area wurde beim Aufziehen der Bildschirmtastatur neu vermessen und ließ das Layout springen; die Quellen einer SOP waren über die Kapitelleiste nicht erreichbar; `Enter` in der Schnellsuche blieb ohne Wirkung, obwohl die Fußzeile es ankündigte. Neu: Tastaturauswahl in der Schnellsuche samt direktem Einstieg in die Volltextsuche, Trefferanzahl und Abschnittsangabe in Such- und Übersichtsliste, Zurücksetzen leerer Filterergebnisse, Telefonnummern per Tipp in die Zwischenablage mit Kurzhinweis, `/` und `Rücktaste` als Tastenkürzel, Abschnittsköpfe als `<h2>` mit `aria-controls`, echte `<button>`-Elemente statt `div` mit `role="button"`, Schriftgrößen-Schaltflächen am Anschlag abgeschaltet, Seitentitel folgt der geöffneten SOP |
 | **v2.10.0** | Sep 2026 | **Kapitelleiste bleibt oben.** Die Abschnittsleiste einer geöffneten SOP heftet sich beim Scrollen an den oberen Rand und wird nicht mehr durch eine separate Abschnittsleiste ersetzt; das gerade sichtbare Kapitel wird darin markiert, Sprungziele landen darunter. Behoben: der Spotlight teilte sich den Suchbegriff mit der Volltextsuche und löschte beim Schließen deren Ergebnisse, während im Eingabefeld weiter Text stand; das Zurückgehen legte einen zusätzlichen Verlaufseintrag an, sodass die Zurück-Taste des Browsers anschließend wieder vorwärts führte; die Volltextsuche parste bei jedem Tastendruck das HTML aller 73 SOPs; der Druck baute die Ansicht zweimal neu auf und verlor dabei die Scrollposition. Aufgeräumt: Schrift und Symbole liegen im Projekt statt auf zwei CDNs, Abschnittswahl läuft über einen einzigen Ereignispfad statt über touch plus nachgereichtes click, der parallele Navigationsstapel und ein redundanter IntersectionObserver entfallen, tote Regeln und Markup entfernt |
 | **v2.9.0** | Sep 2026 | **Darstellung und Bewegung überarbeitet.** Behoben: Ansichtswechsel liefen nie an (Enter-Klasse wurde im selben Frame entfernt, abgehende Ansicht stand auf `display:none`); Zurück-Pfeil und alle Such-Leeren-Knöpfe waren wegen doppelter `display`-Deklaration dauerhaft sichtbar; Overlays sprangen auf, statt einzufahren; senkrechtes Scrollen am linken Rand war durch die Wischgeste blockiert; Auswahl im Segmented Control löste auf Touch doppelt aus; die Verlaufskanten des Segmented Control wurden nie geschaltet; jeder SOP-Aufbau legte einen weiteren `resize`-Listener an; Trefferhervorhebung war im Dunkelmodus praktisch unlesbar; der Druck konnte Abschnitte leer ausgeben, weil die Auftrittsanimation noch lief. Neu: durchgängige Push-/Pop-/Fade-Übergänge, animiertes Akkordeon, gleitende Abschnittsmarkierung, fingerfolgende Wischgeste, Bottom-Sheet und Pull-to-Refresh auf `transform` umgestellt, gestaffelter Listenauftritt, Ripple-Feedback, Theme-Wechsel als Kreisblende, ein gemeinsamer `requestAnimationFrame`-Scroll-Handler mit gepufferten Abschnittspositionen, toter Skeleton-Code entfernt |

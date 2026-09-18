@@ -71,10 +71,20 @@
         if (!f.length) return;
 
         var first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && (document.activeElement === first || !root.contains(document.activeElement))) {
+        var active = document.activeElement;
+
+        // Liegt der Fokus auf dem Blatt selbst (so wird ein Overlay
+        // geoeffnet), fuehrt Tab nach vorn und Umschalt+Tab nach hinten.
+        if (active === root) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+            return;
+        }
+
+        if (e.shiftKey && (active === first || !root.contains(active))) {
             e.preventDefault();
             last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
+        } else if (!e.shiftKey && active === last) {
             e.preventDefault();
             first.focus();
         }
@@ -196,16 +206,8 @@
 
         container.innerHTML = html;
 
-        var items = container.querySelectorAll('.spotlight-result');
-        for (var k = 0; k < items.length; k++) {
-            (function(item) {
-                item.addEventListener('click', function() {
-                    activateSpotlightItem(item);
-                });
-            })(items[k]);
-        }
-
-        App.applyStagger(items, 'stagger-item-x');
+        App.delegate(container, '.spotlight-result', activateSpotlightItem);
+        App.applyStagger(container.querySelectorAll('.spotlight-result'), 'stagger-item-x');
         highlightSpotlight(0);
     };
 
@@ -273,6 +275,9 @@
         if (!E.sectionPickerList) return;
 
         var d = App.findSop(S.sopId);
+        if (E.sectionPickerSubtitle) {
+            E.sectionPickerSubtitle.textContent = d ? (d.name || '') : '';
+        }
         if (!d) {
             E.sectionPickerList.innerHTML = '';
             return;
@@ -302,14 +307,13 @@
         for (i = 0; i < lis.length; i++) {
             lis[i].style.setProperty('--stagger',
                 (Math.min(i, App.MOTION.staggerMax) * App.MOTION.staggerStep) + 'ms');
-            (function(li) {
-                li.addEventListener('click', function() {
-                    var idx = li.getAttribute('data-idx');
-                    App.closePicker();
-                    App.revealSection(idx);
-                });
-            })(lis[i]);
         }
+
+        App.delegate(E.sectionPickerList, 'li[data-idx]', function(li) {
+            var idx = li.getAttribute('data-idx');
+            App.closePicker();
+            App.revealSection(idx);
+        });
     };
 
     App.openPicker = function() {
@@ -320,7 +324,7 @@
         App.haptic('light');
 
         setTimeout(function() {
-            if (E.sectionPickerClose) E.sectionPickerClose.focus();
+            if (E.pickerSheet) E.pickerSheet.focus();
         }, App.MOTION.reduced ? 0 : 280);
     };
 
@@ -483,14 +487,9 @@
             groups[k].style.setProperty('--stagger', (Math.min(k, 8) * 45) + 'ms');
         }
 
-        var rowsEls = E.dirBody.querySelectorAll('.dir-row');
-        for (var m = 0; m < rowsEls.length; m++) {
-            (function(row) {
-                row.addEventListener('click', function() {
-                    copyPhoneNumber(row.getAttribute('data-tel'));
-                });
-            })(rowsEls[m]);
-        }
+        App.delegate(E.dirBody, '.dir-row', function(row) {
+            copyPhoneNumber(row.getAttribute('data-tel'));
+        });
     };
 
     // Nummer in die Zwischenablage legen. Im Klinikbetrieb wird sie

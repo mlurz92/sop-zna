@@ -159,6 +159,9 @@
                 App.checkSegmentedScrollArrows();
             }
             App.uSticky(0);
+            updateReadProgress(0);
+            setScrolled(false);
+            App.updateBottomNavPill();
             // Beim Zurueckgehen nicht in das Suchfeld springen -
             // sonst faehrt auf dem Telefon jedes Mal die Tastatur auf.
             if (t === 'search' && E.searchViewInput && effectiveMode !== 'pop') {
@@ -208,6 +211,7 @@
                 bns[i].classList.toggle('active', isAct);
                 bns[i].setAttribute('aria-current', isAct ? 'page' : 'false');
             }
+            App.updateBottomNavPill();
         }
 
         if (E.backBtn) E.backBtn.classList.remove('show');
@@ -310,8 +314,21 @@
         var y = E.contentScroll ? E.contentScroll.scrollTop : 0;
         handleFabVisibility(y);
         App.uSticky(y);
+        updateReadProgress(y);
+        setScrolled(y > 4);
         lastScrollY = y;
     }
+
+    // Kopfzeile und Breadcrumb setzen sich ab, sobald der Inhalt darunter
+    // wegwandert - eine Klasse, keine Inline-Styles.
+    var scrolledState = false;
+
+    function setScrolled(on) {
+        if (on === scrolledState) return;
+        scrolledState = on;
+        if (E.app) E.app.classList.toggle('is-scrolled', on);
+    }
+    App.setScrolled = setScrolled;
 
     // Der FAB wird ueber eine Klasse bewegt, nicht ueber Inline-Styles.
     // So kollidiert er nicht mit den :hover/:active-Transforms.
@@ -329,6 +346,45 @@
             fabTucked = false;
         }
     }
+
+    // Die Markierung der Fussnavigation gleitet auf die aktive Schaltflaeche.
+    // Eine SOP gehoert zum Tab "SOPs" - dort bleibt die Markierung stehen.
+    App.updateBottomNavPill = function() {
+        if (!E.bottomNav) return;
+
+        var pill = E.bottomNav.querySelector('.btm-nav-pill');
+        if (!pill) return;
+
+        var key = S.tab === 'sop' ? 'browse' : S.tab;
+        var target = E.bottomNav.querySelector('.btm-btn[data-tab="' + key + '"]');
+        if (!target || !target.offsetWidth) return;
+
+        pill.style.width = target.offsetWidth + 'px';
+        pill.style.transform = 'translate3d(' + target.offsetLeft + 'px, 0, 0)';
+        pill.classList.add('ready');
+    };
+
+    // Lesefortschritt der geoeffneten SOP als feine Linie unter der Kopfzeile
+    function updateReadProgress(y) {
+        var bar = E.readProgress;
+        if (!bar) return;
+
+        if (S.tab !== 'sop' || !E.contentScroll) {
+            bar.classList.remove('show');
+            return;
+        }
+
+        var max = E.contentScroll.scrollHeight - E.contentScroll.clientHeight;
+        if (max < 120) {
+            bar.classList.remove('show');
+            return;
+        }
+
+        bar.classList.add('show');
+        var fill = bar.firstElementChild;
+        if (fill) fill.style.transform = 'scaleX(' + Math.max(0, Math.min(1, y / max)) + ')';
+    }
+    App.updateReadProgress = updateReadProgress;
 
     // Aktuelle Ansicht neu aufbauen, ohne einen Verlaufseintrag zu erzeugen
     App.refreshCurrentView = function() {

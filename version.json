@@ -1,5 +1,5 @@
 {
-    "version": "3.0.0",
-    "lastUpdated": "2026-09-18T12:00:00Z",
-    "changelog": "Anwendungslogik in zehn Module aufgeteilt; Schnellsuche mit Tastaturbedienung und Volltext-Einstieg; Kapitelleiste zeigt den tatsächlichen Zustand; Telefonnummern per Tipp kopierbar; Fehlerbehebungen bei Fokus, Safe-Area und Textausgabe"
+    "version": "3.1.0",
+    "lastUpdated": "2026-09-18T16:00:00Z",
+    "changelog": "Darstellung, Bedienung und Bewegung überarbeitet: zentrierter Satzspiegel auf allen Geräten, zweispaltige Übersicht ab Tablet, weiche Blende unter der Kapitelleiste, Lesefortschritt, überarbeitetes Inhaltsverzeichnis, gleitende Tab-Markierung; gemessene 60 fps durch Verzicht auf bildschirmfüllende Weichzeichner und durch Ereignisdelegation"
 }

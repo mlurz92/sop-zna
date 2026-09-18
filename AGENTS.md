@@ -207,6 +207,44 @@ Alle Gesten liegen in `js/main.js`; die Schwellenwerte stehen zentral in `App.GE
 
 **Wichtig:** `preventDefault()` wird erst aufgerufen, nachdem die waagerechte Richtung feststeht. Würde es wie früher sofort erfolgen, wäre senkrechtes Scrollen im linken Randbereich blockiert.
 
+### Gestaltungsschicht in `styles.css`
+
+Am Ende von `styles.css` steht eine zusammenhaengende Gestaltungsschicht (nummerierte Abschnitte 1–16). Sie enthaelt Rhythmus, Tiefe und Bewegung und hat im Zweifel Vorrang vor den Regeln darueber. Wer an der Darstellung arbeitet, sucht zuerst dort.
+
+Zentrale Tokens dieser Schicht:
+
+| Token | Bedeutung |
+|-------|-----------|
+| `--content-max` / `--content-narrow` | Satzspiegel aller Ansichten bzw. der Listen |
+| `--gutter` | Seitenrand, je Breakpoint gesetzt |
+| `--dur-tiny` … `--dur-enter` | Bewegungsdauern (zusaetzlich zu den bestehenden) |
+| `--ease-settle`, `--ease-spring` | Kurven fuer gleitende Markierungen und Antippen |
+
+**Zwei Regeln aus Messungen, die nicht zurueckgedreht werden sollten:**
+
+1. **Kein `backdrop-filter` auf bildschirmfuellenden Flaechen.** Die Backdrops von Schnellsuche, Inhalts-Sheet und Telefonverzeichnis tragen einen radialen Verlauf, keinen Weichzeichner. Gemessen kostete der Weichzeichner zwei Drittel der Bildrate beim Oeffnen der Schnellsuche – unabhaengig davon, ob die Transparenz animiert wurde. Der kleine Weichzeichner der Fussnavigation ist davon nicht betroffen (schmaler Streifen).
+2. **`content-visibility: auto` nur auf flachen Listeneintraegen** (`.browse-item`, `.search-result`, `#navList li`, `.dir-rows > li`), nie auf `.sop-section`. Dort wird `scrollHeight` des Inhalts fuer die Aufklapp-Animation gemessen; uebersprungene Teilbaeume wuerden falsche Hoehen liefern.
+
+### Ereignisdelegation
+
+`App.delegate(container, selector, handler)` (in `js/lists.js`) haengt **einen** `click`-Listener an die Liste statt einen an jede Zeile und merkt sich das am Element (`_delegated`), damit ein erneuter Aufbau nicht doppelt bindet. So arbeiten Seitenleiste, Uebersicht, Suchtreffer, Kategorie-Chips, Startkacheln, Schnellsuche, Inhaltsverzeichnis und Telefonverzeichnis.
+
+**Wichtig:** Container, die per `innerHTML` neu entstehen (z.B. `E.browseList` nach `rBrowse()`), sind neue Elemente ohne `_delegated` – sie werden korrekt neu gebunden. Container, die bestehen bleiben (`E.navList`, `E.searchResultsArea`, `E.spotlightResults`, `E.sectionPickerList`, `E.dirBody`), werden nur einmal gebunden.
+
+### Auftritt langer Listen
+
+`App.applyStagger` animiert hoechstens `MOTION.staggerLimit` (18) Elemente. Alles darunter erscheint sofort – bei 73 Eintraegen sparte das 57 Animationen samt Ereignis-Listenern, und genau die waren ein spuerbarer Teil des ersten Frames eines Ansichtswechsels.
+
+### Kopfzeile, Fortschritt und Fussnavigation
+
+| Funktion | Modul | Wirkung |
+|----------|-------|---------|
+| `App.setScrolled(bool)` | views.js | setzt `#app.is-scrolled`; Kopfzeile und Breadcrumb bekommen dann Kante und Schatten |
+| `App.updateReadProgress(y)` | views.js | skaliert `#readProgress > span`; nur in der SOP-Ansicht und nur bei nennenswerter Laenge sichtbar |
+| `App.updateBottomNavPill()` | views.js | setzt Breite und Versatz der gleitenden Markierung; eine geoeffnete SOP zaehlt zum Tab „SOPs" |
+
+Alle drei laufen im gemeinsamen `requestAnimationFrame`-Handler bzw. nach einem Ansichtswechsel – kein zusaetzlicher Scroll-Listener.
+
 ### Bewegungssteuerung
 
 `App.MOTION` (`js/motion.js`) bündelt alle Dauern und die Systemeinstellung `prefers-reduced-motion`:
@@ -444,4 +482,4 @@ Die Anwendung benötigt keinen Build-Prozess. Alle Änderungen sind sofort sicht
 ---
 
 *Letzte Aktualisierung: September 2026*
-*Version 3.0 – Modulare Fassung*
+*Version 3.1 – Modulare Fassung mit Gestaltungsschicht*
