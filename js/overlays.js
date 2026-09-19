@@ -150,12 +150,39 @@
     // ============================================
     var spotIndex = -1;
 
+    // Drei feste Beispiele fuer den leeren Zustand - je eines fuer die
+    // drei Wege, auf denen diese Suche etwas findet. Sie sind bewusst
+    // hart hinterlegt und werden vom Testlauf gegen den Bestand
+    // geprueft: ein Beispiel, das nichts findet, waere schlimmer als
+    // gar keines.
+    var SPOT_EXAMPLES = [
+        { q: 'LAE',           kind: 'Abk\u00fcrzung', icon: 'fa-font'  },
+        { q: 'Thoraxschmerz', kind: 'Leitsymptom',  icon: 'fa-heart-pulse' },
+        { q: 'Amiodaron',     kind: 'Wirkstoff',    icon: 'fa-prescription-bottle-medical' }
+    ];
+
+    // Eine Stelle, an der die Anfrage gesetzt wird: Feld, Zustand,
+    // Loesch-Schaltflaeche und Ergebnisliste gehen sonst auseinander.
+    App.setSpotlightQuery = function(q) {
+        S.spotQ = q || '';
+        if (E.spotlightInput) E.spotlightInput.value = S.spotQ;
+        if (E.spotlightClear) E.spotlightClear.classList.toggle('show', S.spotQ.length > 0);
+        App.renderSpotlightResults();
+        if (E.spotlightInput) E.spotlightInput.focus();
+    };
+
     App.openSpotlight = function() {
         if (!E.spotlightOverlay || E.spotlightOverlay.classList.contains('show')) return;
 
         pushOverlay(E.spotlightOverlay, E.spotlightContainer);
         E.spotlightOverlay.classList.add('show');
         App.haptic('light');
+
+        // Ohne diesen Aufruf stand beim ALLERERSTEN Oeffnen nichts im
+        // Ergebnisbereich: gezeichnet wurde bisher nur bei Eingabe und
+        // beim Schliessen. Das Feld schwebte dann ueber einem leeren
+        // weissen Streifen.
+        App.renderSpotlightResults();
 
         setTimeout(function() {
             if (!E.spotlightInput || topOverlayRoot() !== E.spotlightContainer) return;
@@ -191,15 +218,47 @@
         if (E.spotlightInput) E.spotlightInput.setAttribute('aria-activedescendant', '');
 
         if (!query) {
-            container.innerHTML = '<div class="spotlight-empty">' +
-                '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
-                '<p>Pfadname, Abkürzung oder Wirkstoff</p></div>';
+            // Der leere Zustand ist der Zustand, den man am haeufigsten
+            // sieht - jedes Oeffnen beginnt hier. Statt eines Hinweises
+            // ins Leere zeigt er, WAS diese Suche kann, an drei Beispielen
+            // zum Antippen: eine Abkuerzung, ein Leitsymptom, ein
+            // Wirkstoff. Das sind keine gemerkten Eingaben, sondern drei
+            // feste Beispiele - es wird nichts gespeichert.
+            var hints = '';
+            for (var h = 0; h < SPOT_EXAMPLES.length; h++) {
+                hints += '<button type="button" class="spotlight-chip" data-example="' +
+                    App.escAttr(SPOT_EXAMPLES[h].q) + '">' +
+                    '<i class="fa-solid ' + SPOT_EXAMPLES[h].icon + '" aria-hidden="true"></i>' +
+                    '<span class="spotlight-chip-q">' + App.esc(SPOT_EXAMPLES[h].q) + '</span>' +
+                    '<span class="spotlight-chip-kind">' + App.esc(SPOT_EXAMPLES[h].kind) + '</span>' +
+                    '</button>';
+            }
+
+            // Ohne Treffer ist der Bereich keine Auswahlliste: Rolle und
+            // aria-expanded werden abgelegt, sonst meldet der Screenreader
+            // ein leeres Listenfeld.
+            container.removeAttribute('role');
+            if (E.spotlightInput) E.spotlightInput.setAttribute('aria-expanded', 'false');
+
+            container.innerHTML = '<div class="spotlight-intro" role="presentation">' +
+                '<p class="spotlight-intro-lead">' + S.data.length +
+                ' Patientenpfade \u2013 nach Name, Abk\u00fcrzung, Synonym, ' +
+                'Leitsymptom oder Wirkstoff.</p>' +
+                '<div class="spotlight-chips">' + hints + '</div>' +
+                '</div>';
+
+            App.delegate(container, '.spotlight-chip', function(c) {
+                App.setSpotlightQuery(c.getAttribute('data-example') || '');
+            });
             return;
         }
 
         // Dieselbe Abfrage wie die Volltextsuche, nur ohne Textstellen:
         // die Schnellsuche soll Wege oeffnen, nicht Text anzeigen.
         var res = App.query(query, { text: false, fuzzy: true, limit: 8 });
+
+        container.setAttribute('role', 'listbox');
+        if (E.spotlightInput) E.spotlightInput.setAttribute('aria-expanded', 'true');
 
         var html = '';
         var idx = 0;
@@ -251,7 +310,7 @@
             '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
 
         if (!res.sops.length && !res.drugs.length) {
-            html = '<div class="spotlight-empty"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>' +
+            html = '<div class="spotlight-empty" role="presentation"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>' +
                 '<p>Kein Pfad und kein Wirkstoff mit diesem Namen</p></div>' + html;
         }
 

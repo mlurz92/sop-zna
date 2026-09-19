@@ -20,6 +20,9 @@
     12  Telefonverzeichnis mit Dienstzeit       (Vorschlag 29)
     13  Ladezustaende                           (Vorschlag 17)
     14  Bedienmasse                             (Vorschlag 45)
+    15  Kategoriefarbe in den Listen            (Vorschlag 35)
+    16  Satzspiegel
+    17  Schnellsuche
    ============================================================ */
 
 @layer components {
@@ -1351,19 +1354,23 @@
         white-space: nowrap;
     }
 
-    .hero-search-kbd {
+    /* Frueher stand hier "Strg K". Das Kuerzel funktioniert
+       weiterhin, es steht nur nicht mehr im Feld: auf dem Telefon
+       und dem Tablet - also dort, wo die Anwendung vor allem
+       benutzt wird - gibt es keine Steuerungstaste, und auf dem
+       Desktop findet man das Feld auch ohne Beschriftung. An seiner
+       Stelle steht ein Winkel, der zeigt, dass es weitergeht. */
+    .hero-search-go {
         flex: 0 0 auto;
-        font-size: var(--fs-2xs);
-        font-weight: var(--fw-semibold);
+        font-size: var(--fs-sm);
         color: var(--text4);
-        border: 1px solid var(--border2);
-        border-radius: var(--radius-xs);
-        padding: 2px 6px;
-        font-variant-numeric: tabular-nums;
+        transition: transform var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
     }
 
-    @media (pointer: coarse) {
-        .hero-search-kbd { display: none; }
+    .hero-search:hover .hero-search-go {
+        color: var(--primary);
+        transform: translateX(3px);
     }
 
     /* ========================================================
@@ -1669,5 +1676,297 @@
         max-width: var(--content-max);
         margin-left: auto;
         margin-right: auto;
+    }
+
+    /* ========================================================
+       17  SCHNELLSUCHE
+       --------------------------------------------------------
+       Die Schnellsuche war als Blatt gedacht, das von der oberen
+       Fensterkante herunterfaehrt: eckige obere Ecken, Rundung nur
+       unten, Startlage translate3d(0, -110%, 0). Angeheftet war sie
+       aber nie - sie stand 60 px unter der Kante und dazu ganz
+       links (justify-content: flex-start). Das Ergebnis war ein
+       abgerissenes Blatt in der linken oberen Ecke.
+
+       Jetzt ist sie das, was sie tatsaechlich ist: eine Tafel, die
+       ueber allem steht. Waagerecht mittig, ringsum gerundet,
+       mit eigener Kante und Tiefe, und sie tritt aus sich selbst
+       heraus auf statt hereinzufahren.
+       ======================================================== */
+
+    .spotlight-overlay {
+        align-items: flex-start;
+        justify-content: center;
+        padding: calc(var(--sat) + 10vh) var(--sp-3) var(--sp-3);
+    }
+
+    .spotlight-container {
+        width: 100%;
+        max-width: 640px;
+        max-height: min(70vh, 640px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        background: var(--surface);
+        box-shadow: var(--elev-5);
+        overflow: hidden;
+
+        /* Kein Hereinfahren von ausserhalb des Bildes mehr: die Tafel
+           waechst aus ihrer eigenen Lage. Der Weg ist kurz genug, dass
+           auch ein langsames Geraet ihn fluessig zeichnet. */
+        transform: translate3d(0, -12px, 0) scale(0.97);
+        transform-origin: 50% 0;
+    }
+
+    .spotlight-overlay.show .spotlight-container {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    /* --- Eingabezeile ------------------------------------- */
+
+    .spotlight-search {
+        gap: var(--sp-15);
+        padding: var(--sp-2) var(--sp-25);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .spotlight-icon {
+        font-size: var(--fs-lg);
+        color: var(--primary);
+    }
+
+    .spotlight-search input {
+        font-size: var(--fs-xl);
+        line-height: var(--lh-tight);
+        padding: var(--sp-05) 0;
+    }
+
+    .spotlight-clear {
+        border-radius: var(--radius-full);
+        color: var(--text3);
+        transition: background var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    /* --- Ergebnisse ---------------------------------------- */
+
+    .spotlight-results {
+        padding: var(--sp-1);
+        max-height: none;
+        overscroll-behavior: contain;
+    }
+
+    .spotlight-result {
+        width: 100%;
+        gap: var(--sp-15);
+        padding: var(--sp-15) var(--sp-2);
+        border: 1px solid transparent;
+        border-radius: var(--radius-md);
+        background: none;
+        font: inherit;
+        text-align: left;
+        color: inherit;
+        transition: background var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    /* Der Winkel am rechten Rand zeigt nur beim gewaehlten Eintrag
+       nach rechts - sonst haette jede Zeile denselben Nachdruck. */
+    .spotlight-result > i:last-child {
+        flex: 0 0 auto;
+        font-size: var(--fs-xs);
+        color: var(--text4);
+        opacity: 0;
+        transform: translateX(-4px);
+        transition: opacity var(--dur-micro) var(--ease-out-quart),
+                    transform var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .spotlight-result:hover > i:last-child,
+    .spotlight-result.is-active > i:last-child {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .spotlight-result-icon {
+        width: var(--sp-5);
+        height: var(--sp-5);
+        border-radius: var(--radius-md);
+        background: var(--cat-tint, var(--primary-light));
+        color: var(--cat-ink, var(--primary-dark));
+        font-size: var(--fs-sm);
+    }
+
+    .spotlight-result-name {
+        font-size: var(--fs-md);
+        font-weight: var(--fw-semibold);
+        line-height: var(--lh-tight);
+    }
+
+    .spotlight-result-cat {
+        font-size: var(--fs-xs);
+        color: var(--text3);
+    }
+
+    /* Der gewaehlte Eintrag: getoente Flaeche und eine feine Kante.
+       Bisher lag ein 2 px starker Ring innen auf der Zeile - er
+       ueberdeckte die Rundung und war lauter als der Inhalt. */
+    .spotlight-result.is-active {
+        outline: none;
+        box-shadow: none;
+        background: var(--primary-light);
+        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+
+    /* Die Volltextsuche ist kein Pfad, sondern ein Weg weiter - sie
+       steht abgesetzt am Fuss der Liste. Der Trennstrich liegt als
+       eigene Linie DARUEBER, nicht als Rahmen an der Zeile: sonst
+       verlieren ihre oberen Ecken die Rundung. */
+    .spotlight-fulltext {
+        position: relative;
+        margin-top: var(--sp-15);
+        border-top: 0;
+        border-radius: var(--radius-md);
+    }
+
+    .spotlight-fulltext::before {
+        content: "";
+        position: absolute;
+        left: var(--sp-2);
+        right: var(--sp-2);
+        top: calc(var(--sp-1) * -1);
+        height: 1px;
+        background: var(--border);
+    }
+
+    /* Steht die Volltextsuche allein da - kein Pfad, kein Wirkstoff -,
+       dann trennt sie nichts von nichts. */
+    .spotlight-empty + .spotlight-fulltext::before { display: none; }
+
+    .spotlight-icon-full,
+    .spotlight-icon-drug {
+        background: var(--info-tint);
+        color: var(--info-ink);
+    }
+
+    /* --- Leerzustand: drei Einstiege ----------------------- */
+
+    .spotlight-intro {
+        padding: var(--sp-25) var(--sp-2) var(--sp-2);
+    }
+
+    .spotlight-intro-lead {
+        margin: 0 0 var(--sp-2);
+        font-size: var(--fs-sm);
+        line-height: var(--lh-normal);
+        color: var(--text3);
+        text-align: center;
+        text-wrap: balance;
+    }
+
+    .spotlight-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--sp-1);
+    }
+
+    .spotlight-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        min-height: var(--tap-min);
+        padding: var(--sp-1) var(--sp-15);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text);
+        font: inherit;
+        font-size: var(--fs-sm);
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    background var(--dur-micro) var(--ease-out-quart),
+                    transform var(--dur-tiny) var(--ease-settle);
+    }
+
+    .spotlight-chip > i {
+        font-size: var(--fs-xs);
+        color: var(--primary);
+    }
+
+    .spotlight-chip-q { font-weight: var(--fw-semibold); }
+
+    .spotlight-chip-kind {
+        font-size: var(--fs-2xs);
+        color: var(--text4);
+    }
+
+    .spotlight-chip:hover {
+        border-color: var(--primary);
+        background: var(--hover);
+    }
+
+    .spotlight-chip:active { transform: scale(0.97); }
+
+    /* --- Kein Treffer -------------------------------------- */
+
+    .spotlight-empty {
+        padding: var(--sp-4) var(--sp-25);
+        color: var(--text3);
+        font-size: var(--fs-sm);
+    }
+
+    .spotlight-empty i {
+        font-size: var(--fs-2xl);
+        margin-bottom: var(--sp-1);
+        opacity: 0.4;
+    }
+
+    .spotlight-empty p { margin: 0; }
+
+    /* --- Fusszeile ----------------------------------------- */
+
+    .spotlight-footer {
+        padding: var(--sp-1) var(--sp-15) var(--sp-1) var(--sp-25);
+        border-top: 1px solid var(--border);
+        background: var(--surface2);
+    }
+
+    .spotlight-hint {
+        font-size: var(--fs-2xs);
+        color: var(--text4);
+    }
+
+    /* Auf dem Telefon gibt es keine Pfeiltasten und keine
+       Eingabetaste - der Hinweis stuende dort nur im Weg. */
+    @media (pointer: coarse) {
+        .spotlight-hint { display: none; }
+        .spotlight-footer { justify-content: flex-end; }
+    }
+
+    .spotlight-cancel {
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        border-radius: var(--radius-md);
+        min-height: var(--tap-min);
+    }
+
+    /* --- Telefon: naeher an die Kante ---------------------- */
+
+    @media (max-width: 640px) {
+
+        .spotlight-overlay {
+            padding: calc(var(--sat) + var(--sp-1)) var(--sp-1) var(--sp-1);
+        }
+
+        .spotlight-container {
+            max-width: 100%;
+            max-height: calc(100dvh - var(--sat) - var(--sab-js, 0px) - var(--sp-3));
+            border-radius: var(--radius-lg);
+        }
+
+        .spotlight-search { padding: var(--sp-15) var(--sp-2); }
+
+        .spotlight-search input { font-size: var(--fs-lg); }
     }
 }

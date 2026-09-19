@@ -4299,18 +4299,6 @@ body.picker-open .fab {
     font-size: 0.95rem;
 }
 
-.hero-search-kbd {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    color: var(--text3);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 3px 7px;
-    white-space: nowrap;
-}
-
 .hero-search:hover {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.08), var(--shadow-md);
@@ -4319,10 +4307,6 @@ body.picker-open .fab {
 
 .hero-search:hover .hero-search-label {
     color: var(--text2);
-}
-
-@media (max-width: 480px) {
-    .hero-search-kbd { display: none; }
 }
 
 /* --- Suchfelder: eigene Loesch-Schaltflaeche statt der nativen --- */

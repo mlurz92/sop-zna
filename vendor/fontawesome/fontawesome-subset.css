@@ -1,5 +1,5 @@
 /* Font Awesome Free 6.5.1 - Solid, auf den Bestand dieser Anwendung
-   reduziert (91 Symbole). Lizenz: CC BY 4.0 (Symbole), SIL OFL 1.1
+   reduziert (92 Symbole). Lizenz: CC BY 4.0 (Symbole), SIL OFL 1.1
    (Schrift), MIT (Code). Copyright 2023 Fonticons, Inc.
 
    ERZEUGT VON tools/subset-fonts.py - NICHT VON HAND BEARBEITEN.
@@ -66,6 +66,7 @@
 .fa-filter::before{content:"\f0b0"}
 .fa-flag::before{content:"\f024"}
 .fa-flask::before{content:"\f0c3"}
+.fa-font::before{content:"\f031"}
 .fa-hand-dots::before{content:"\f461"}
 .fa-head-side-cough::before{content:"\e061"}
 .fa-heart-pulse::before{content:"\f21e"}

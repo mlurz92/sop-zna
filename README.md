@@ -56,6 +56,14 @@ Die Trefferliste lässt sich auf **Pfadnamen**, **Im Text** oder **Wirkstoffe** 
 
 Kurze Eingaben (unter vier Zeichen) treffen nur an Wortgrenzen. Sonst läge bei `LAE` halb Leipzig in der Liste.
 
+#### Die Schnellsuche
+
+Die Schnellsuche ist eine Tafel, die waagerecht mittig über der Anwendung steht – über `Strg`/`Cmd` + `K`, `/`, das Lupensymbol oder das Suchfeld der Startseite.
+
+Ihr **leerer Zustand** ist der Zustand, den man am häufigsten sieht: jedes Öffnen beginnt dort. Statt eines Hinweises ins Leere zeigt er an drei antippbaren Beispielen, was diese Suche kann – eine Abkürzung (`LAE`), ein Leitsymptom (`Thoraxschmerz`), ein Wirkstoff (`Amiodaron`). Das sind **feste Beispiele, keine gemerkten Eingaben**; es wird nichts gespeichert. Ein Testlauf prüft, dass alle drei im Bestand tatsächlich etwas finden.
+
+Das Suchfeld der Startseite trägt **kein** `Strg K` mehr. Das Kürzel funktioniert weiterhin – es steht nur nicht im Feld, weil es auf Telefon und Tablet keine Steuerungstaste gibt.
+
 ### Lesen
 
 - **Kapitelleiste** heftet sich beim Scrollen an den oberen Rand und markiert, in welchem Kapitel man gerade steht.
@@ -223,7 +231,7 @@ Das ist **Anwendungswissen, kein SOP-Inhalt**. Der Build prüft jede Zuordnung g
 npm run visual
 ```
 
-Fährt 3 Breiten × 2 Themes × 7 Zustände an (42 Bilder) und prüft parallel 28 Funktionsmerkmale: Anzahl der Pfade, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Konsolenfehler.
+Fährt 3 Breiten × 2 Themes × 8 Zustände an (48 Bilder) und prüft parallel 34 Funktionsmerkmale: Anzahl der Pfade, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
 
 Beide Teile sind nötig: ein Bild kann gleich aussehen und die Anwendung trotzdem kaputt sein. Genau das ist beim Umbau der Druckausgabe passiert – der Bildvergleich hat eine um eine Zeile verschobene Glasgow Coma Scale aufgedeckt.
 
