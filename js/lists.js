@@ -105,12 +105,23 @@
     // darueber, aber knapp.
     App.rHome = function() {
         if (E.heroArea) {
+            // Marke und Titel stehen in EINER Zeile nebeneinander -
+            // auf dem Telefon genauso wie auf dem Desktop. Frueher
+            // lag das Logo darueber (Telefon) bzw. frei schwebend in
+            // der Ecke (Desktop); beides sind zwei Loesungen fuer
+            // dieselbe Frage. Die Reihenfolge im Quelltext ist
+            // Titel -> Marke, damit Vorlesewerkzeuge zuerst hoeren,
+            // worum es geht.
             E.heroArea.innerHTML =
-                '<div class="hero-brand">' +
-                '<img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg" width="160" height="40">' +
-                '</div>' +
+                '<div class="hero-head">' +
+                '<div class="hero-heading">' +
                 '<h1 class="hero-title">Patientenpfade</h1>' +
                 '<p class="hero-subtitle">Zentrale Notaufnahme</p>' +
+                '</div>' +
+                '<div class="hero-brand">' +
+                '<img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg" width="160" height="27">' +
+                '</div>' +
+                '</div>' +
                 '<button type="button" class="hero-search" id="heroSearchBtn">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
                 '<span class="hero-search-label">Pfad, Abkürzung oder Wirkstoff suchen&hellip;</span>' +
@@ -161,11 +172,13 @@
         }
 
         if (E.homeInfo) {
-            var meta = App.META || {};
+            // Der Stand der Erzeugung stand hier frueher mit. Er
+            // beantwortet keine Frage am Krankenbett - der fachlich
+            // massgebliche Stand haengt an der einzelnen SOP und wird
+            // dort auch angezeigt. Die Fassung der Anwendung steht
+            // weiterhin in den Einstellungen.
             E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length +
-                ' Patientenpfade · AG Klinische Pfade' +
-                (meta.built ? ' · Stand ' + App.esc(meta.built.split('-').reverse().join('.')) : '') +
-                '</p>';
+                ' Patientenpfade · AG Klinische Pfade</p>';
         }
     };
 
