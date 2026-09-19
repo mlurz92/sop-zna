@@ -282,6 +282,20 @@ Standardmäßig offen: Abschnitte, deren Titel mit `Diagnostik` oder `Therapie` 
 
 ---
 
+## Schnellsuche
+
+Die Tafel steht waagerecht mittig über der Anwendung (`css/components.css`, Abschnitt 17). Sie war früher als Blatt gebaut, das von der oberen Fensterkante herunterfährt – eckige obere Ecken, Rundung nur unten, Startlage `translate3d(0, -110%, 0)`. Angeheftet war sie aber nie: `justify-content: flex-start` klebte sie an den linken Rand, 60 px unter die Kante. Das Ergebnis war ein abgerissenes Blatt in der linken oberen Ecke.
+
+`SPOT_EXAMPLES` in `js/overlays.js` führt die drei Beispiele des leeren Zustands – eine Abkürzung, ein Leitsymptom, ein Wirkstoff.
+
+> **Ein Beispiel, das nichts findet, wäre schlimmer als gar keines.** `npm run visual` ruft jedes der drei gegen `App.query()` auf und fällt, wenn eines leer ausgeht.
+
+`App.setSpotlightQuery(q)` ist die **eine** Stelle, an der die Anfrage gesetzt wird: Feld, `S.spotQ`, Lösch-Schaltfläche und Ergebnisliste gehen sonst auseinander.
+
+Der Ergebnisbereich trägt `role="listbox"` **nur**, solange Einträge darin stehen. Im leeren Zustand wird die Rolle abgelegt und `aria-expanded` auf `false` gesetzt – sonst meldet der Screenreader ein leeres Listenfeld.
+
+---
+
 ## Telefonverzeichnis
 
 `PHONE_DIR` in `js/overlays.js` (56 Einträge in sieben Gruppen). `App.parseShiftWindows(note)` leitet Zeitfenster aus den vorhandenen Notizen ab.
@@ -338,7 +352,7 @@ Der Build bricht ab bei doppelter Kennung, leerem Abschnitt, unauflösbarer Kate
 | `npm run check` | prüfen, ob die Artefakte aktuell sind |
 | `npm run fonts` | Schriften und Symbole reduzieren |
 | `npm run serve` | lokaler Server, Port 8080 |
-| `npm run visual` | 42 Bilder + 28 Funktionsprüfungen gegen den Stand |
+| `npm run visual` | 48 Bilder + 34 Funktionsprüfungen gegen den Stand |
 | `npm run baseline` | Stand neu festlegen |
 | `npm run verify` | `check` + `visual` |
 | `node tools/verify-fold.mjs` | Normalisierung Build gegen Browser |
@@ -382,3 +396,6 @@ Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden 
 | Safe Area auf iOS | `env()` liefert im Standalone-Modus 0; `js/platform.js` misst zur Laufzeit und setzt `--sab-js` |
 | Breakpoints | `breakpointState()` in `js/main.js` verfolgt 1024, 640 und 480 px; ein Wechsel baut die Ansichten neu auf |
 | Ein Ereignispfad | ausgelöst wird über `click`; Pointer-Ereignisse dienen nur der Unterscheidung Tippen/Wischen |
+| Schnellsuche beim ersten Öffnen | `App.openSpotlight()` muss `App.renderSpotlightResults()` rufen; sonst steht beim allerersten Öffnen nichts im Ergebnisbereich |
+| `SPOT_EXAMPLES` | jedes Beispiel muss im Bestand etwas finden – `npm run visual` prüft das |
+| Szenen der Sichtprüfung | laufen nacheinander auf **derselben** Seite; ein Overlay der vorigen Szene erst schliessen |

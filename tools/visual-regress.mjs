@@ -340,6 +340,19 @@ const SCENES = [
         go: async function (page) {
             await page.evaluate(() => window.SOPApp.openDir());
         }
+    },
+    {
+        // Der Zustand, den man am haeufigsten sieht: die Schnellsuche
+        // unmittelbar nach dem Oeffnen, ohne Eingabe.
+        name: 'schnellsuche',
+        go: async function (page) {
+            // Die Szenen laufen nacheinander auf DERSELBEN Seite - das
+            // Telefonverzeichnis davor steht sonst noch offen und liegt
+            // ueber der Schnellsuche.
+            await page.evaluate(() => window.SOPApp.closeDir());
+            await page.waitForTimeout(400);
+            await page.evaluate(() => { window.SOPApp.goHome(); window.SOPApp.openSpotlight(); });
+        }
     }
 ];
 
@@ -519,6 +532,64 @@ async function run() {
         }));
         check('Telefonverzeichnis vollstaendig', dir.rows === 56, dir.rows + ' Zeilen');
         check('Dienstzeiten erkannt', dir.shifts === 9, dir.shifts + ' Kennzeichnungen');
+
+        /* Schnellsuche: Leerzustand, Beispiele, Uebernahme */
+        await probe.evaluate(() => window.SOPApp.closeDir());
+        await probe.waitForTimeout(300);
+        await probe.evaluate(() => window.SOPApp.openSpotlight());
+        await probe.waitForTimeout(300);
+
+        const spotEmpty = await probe.evaluate(() => ({
+            intro: !!document.querySelector('.spotlight-intro'),
+            chips: document.querySelectorAll('.spotlight-chip').length,
+            role: document.getElementById('spotlightResults').getAttribute('role'),
+            // Die Tafel muss waagerecht mittig stehen - der Fehler, der
+            // sie an den linken Rand geklebt hat, war von aussen nur am
+            // Abstand zu erkennen.
+            centered: (function () {
+                var c = document.getElementById('spotlightContainer').getBoundingClientRect();
+                return Math.abs((c.left) - (window.innerWidth - c.right)) <= 2;
+            })()
+        }));
+        check('Schnellsuche zeigt Einstiege statt Leere',
+            spotEmpty.intro && spotEmpty.chips === 3, JSON.stringify(spotEmpty));
+        check('Schnellsuche steht mittig', spotEmpty.centered, JSON.stringify(spotEmpty));
+        check('Leerer Zustand ist kein Listenfeld', spotEmpty.role === null, String(spotEmpty.role));
+
+        // Jedes Beispiel muss auch etwas finden - ein Vorschlag, der ins
+        // Leere fuehrt, waere schlimmer als gar keiner.
+        const spotHits = await probe.evaluate(() => {
+            var out = [];
+            var chips = document.querySelectorAll('.spotlight-chip');
+            for (var i = 0; i < chips.length; i++) {
+                var q = chips[i].getAttribute('data-example');
+                var r = window.SOPApp.query(q, { text: false, fuzzy: true, limit: 8 });
+                out.push({ q: q, n: r.sops.length + r.drugs.length });
+            }
+            return out;
+        });
+        check('Alle drei Beispiele finden etwas',
+            spotHits.length === 3 && spotHits.every(h => h.n > 0), JSON.stringify(spotHits));
+
+        const spotTaken = await probe.evaluate(() => {
+            document.querySelector('.spotlight-chip').click();
+            return {
+                value: document.getElementById('spotlightInput').value,
+                results: document.querySelectorAll('.spotlight-result').length,
+                role: document.getElementById('spotlightResults').getAttribute('role')
+            };
+        });
+        check('Beispiel wird in das Feld uebernommen',
+            spotTaken.value === 'LAE' && spotTaken.results > 1 && spotTaken.role === 'listbox',
+            JSON.stringify(spotTaken));
+
+        check('Kein "Strg K" mehr im Suchfeld',
+            await probe.evaluate(() => !document.querySelector('.hero-search-kbd')
+                && !/Strg/.test(document.querySelector('.hero-search') ? document.querySelector('.hero-search').textContent : '')),
+            'Hero-Suchfeld');
+
+        await probe.evaluate(() => window.SOPApp.closeSpotlight());
+        await probe.waitForTimeout(300);
 
         check('Keine Konsolenfehler', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
         check('Keine fehlgeschlagenen Anfragen', failedRequests.length === 0, failedRequests.slice(0, 3).join(' | '));

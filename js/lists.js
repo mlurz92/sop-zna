@@ -125,7 +125,7 @@
                 '<button type="button" class="hero-search" id="heroSearchBtn">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
                 '<span class="hero-search-label">Pfad, Abkürzung oder Wirkstoff suchen&hellip;</span>' +
-                '<span class="hero-search-kbd" aria-hidden="true">Strg K</span>' +
+                '<i class="fa-solid fa-chevron-right hero-search-go" aria-hidden="true"></i>' +
                 '</button>';
 
             // Ein Knopf statt eines zweiten Eingabefeldes: frueher wurde
