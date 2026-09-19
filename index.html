@@ -14,30 +14,84 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="email=no">
     <meta name="format-detection" content="address=no">
-    <meta name="description" content="Patientenpfade ZNA">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="Patientenpfade der Zentralen Notaufnahme - Klinikum St. Georg Leipzig">
     <meta name="HandheldFriendly" content="true">
     <meta name="MobileOptimized" content="width">
+    <!-- Die frueheren http-equiv-Angaben zu Cache-Control, Pragma und
+         Expires sind entfallen: Browser werten sie in einem Dokument
+         nicht aus. Die Aktualitaet steuert der Abgleich gegen
+         version.json (js/platform.js) zusammen mit dem
+         Fassungsparameter an den nachgeladenen Dateien. -->
     <title>Patientenpfade: ZNA</title>
     <link rel="icon" type="image/png" href="img/Basislogo_farbig.png">
     <link rel="apple-touch-icon" href="img/Patientenpfade.png">
-    <!-- Schrift und Symbole liegen im Projekt: keine Abhängigkeit von
-         einem CDN, das im Klinikbetrieb nicht erreichbar sein kann. -->
-    <link rel="preload" href="vendor/inter/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="vendor/fontawesome/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="vendor/inter/inter.css">
-    <link rel="stylesheet" href="vendor/fontawesome/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+
+    <!-- Schrift und Symbole liegen im Projekt: keine Abhaengigkeit von
+         einem CDN, das im Klinikbetrieb nicht erreichbar sein kann.
+         Beide sind auf den tatsaechlichen Bestand reduziert
+         (tools/subset-fonts.py): 389 KB -> 54 KB. -->
+    <link rel="preload" href="vendor/inter/inter-latin-subset.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="vendor/fontawesome/fa-solid-subset.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="vendor/inter/inter-subset.css">
+    <link rel="stylesheet" href="vendor/fontawesome/fontawesome-subset.css">
+
+    <!-- Formatierung in vier Schichten mit erklaerter Rangfolge:
+             legacy  <  tokens  <  components  <  print
+         Die Reihenfolge steht als @layer-Anweisung am Kopf von
+         css/legacy.css und gilt unabhaengig von der Ladereihenfolge. -->
+    <link rel="stylesheet" href="css/legacy.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/print.css">
+
+    <!-- Metadaten und Suchindex. Klein genug, um den Start nicht zu
+         bremsen; Reintext und Abschnittsinhalte kommen danach. -->
+    <script src="dist/sop-meta.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#contentScroll">Zum Inhalt springen</a>
+    <!-- Druckbogen.
+         Auf dem Bildschirm ist er durchsichtig (display: contents) und
+         beeinflusst das Layout nicht. Im Druck ist er eine ECHTE
+         Tabelle: <thead> und <tfoot> wiederholt der Browser auf jeder
+         Seite.
+
+         Warum echte Tabellenelemente und nicht display: table-* auf
+         <div>? Weil nachgemessen wurde: in Chromium wiederholt sich
+         nur der Kopf einer echten Tabelle. Bei nachgebildeten
+         Tabellenrollen erscheint er ausschliesslich auf der ersten
+         Seite. Und position: fixed beansprucht keinen Platz im Fluss -
+         der Kopf laege dann ueber dem Text.
+
+         role="presentation": die Tabelle ist reines Seitengeruest und
+         hat fuer Hilfstechnologien keine Bedeutung. -->
+    <table class="print-sheet" id="printSheet" role="presentation">
+        <thead class="print-head" aria-hidden="true">
+            <tr><th scope="col">
+                <img class="print-head-logo" src="img/Basislogo_farbig.png" alt="">
+                <span class="print-head-text">
+                    <span class="print-head-title" id="printHeadTitle"></span>
+                    <span class="print-head-sub" id="printHeadSub"></span>
+                </span>
+                <span class="print-head-cat" id="printHeadCat"></span>
+            </th></tr>
+        </thead>
+
+        <tfoot class="print-foot" aria-hidden="true">
+            <tr><td>
+                <span class="print-foot-note" id="printFootNote"></span>
+                <span class="print-foot-meta" id="printFootMeta"></span>
+            </td></tr>
+        </tfoot>
+
+        <tbody class="print-body">
+            <tr><td>
+
     <div id="app">
         <aside class="sidebar" id="sidebar" aria-label="Navigation">
             <div class="sidebar-top">
                 <a class="sidebar-brand" id="appLogo" href="#">
-                    <img src="img/Patientenpfade.png" alt="Patientenpfade">
+                    <img src="img/Patientenpfade.png" alt="Patientenpfade" width="40" height="40">
                     <div class="header-title">
                         <span class="header-main">Patientenpfade</span>
                         <span class="header-sub">Zentrale Notaufnahme</span>
@@ -93,7 +147,7 @@
             </header>
 
             <div class="offline-bar" id="offlineBanner">
-                <i class="fa-solid fa-wifi-slash"></i>
+                <i class="fa-solid fa-plug-circle-xmark"></i>
                 <span>Offline-Modus</span>
                 <span class="offline-ts" id="offlineTimestamp"></span>
             </div>
@@ -125,7 +179,7 @@
 
                     <!-- Search View -->
                     <div class="v" id="viewSearch">
-                        <div class="view-heading"><p class="view-eyebrow">IN ALLEN SOPs SUCHEN</p><h1>Volltextsuche</h1><p>Begriffe in Diagnostik, Therapie und Quellen finden.</p></div>
+                        <div class="view-heading"><p class="view-eyebrow">IN ALLEN SOPs SUCHEN</p><h1>Volltextsuche</h1><p>Pfadnamen, Abkürzungen, Kapitel, Wirkstoffe und Quellen.</p></div>
                         <div class="search-bar">
                             <div class="search-input-wrap">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -133,6 +187,7 @@
                                 <button class="search-clear" id="searchViewClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                             </div>
                         </div>
+                        <div class="search-scope" id="searchScope" role="group" aria-label="Suchbereich eingrenzen"></div>
                         <div class="search-results" id="searchResultsArea" role="region" aria-live="polite" aria-label="Suchergebnisse"></div>
                     </div>
 
@@ -141,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- Modern Bottom Navigation with Bootstrap 5 -->
+            <!-- Modern Bottom Navigation -->
             <nav class="btm-nav fixed-bottom" id="bottomNav" aria-label="Hauptnavigation">
                 <div class="btm-nav-inner">
                     <span class="btm-nav-pill" aria-hidden="true"></span>
@@ -162,6 +217,10 @@
         </main>
     </div>
 
+            </td></tr>
+        </tbody>
+    </table>
+
     <!-- Kurzhinweis (z.B. "Nummer kopiert") -->
     <div class="toast" id="toastHost" role="status" aria-live="polite"></div>
 
@@ -179,7 +238,7 @@
         <div class="spotlight-container" id="spotlightContainer">
             <div class="spotlight-search">
                 <i class="fa-solid fa-magnifying-glass spotlight-icon"></i>
-                <input type="search" id="spotlightInput" placeholder="SOP suchen..." aria-label="Schnellsuche" role="combobox" aria-expanded="true" aria-controls="spotlightResults" autocomplete="off">
+                <input type="search" id="spotlightInput" placeholder="Pfad, Abkürzung oder Wirkstoff..." aria-label="Schnellsuche" role="combobox" aria-expanded="true" aria-controls="spotlightResults" autocomplete="off">
                 <button class="spotlight-clear" id="spotlightClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             <div class="spotlight-results" id="spotlightResults" role="listbox" aria-label="Suchergebnisse"></div>
@@ -197,7 +256,7 @@
             <div class="dir-head">
                 <div class="dir-head-text">
                     <h3 id="dirTitle"><i class="fa-solid fa-address-book"></i> Telefonverzeichnis</h3>
-                    <p>Klinikum St. Georg &middot; Zentrale Notaufnahme</p>
+                    <p>Klinikum St. Georg &middot; Zentrale Notaufnahme &middot; <span class="dir-clock" id="dirClock"></span></p>
                 </div>
                 <button id="dirClose" aria-label="Schließen"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
@@ -206,6 +265,7 @@
                 <input type="search" id="dirInput" placeholder="Fachbereich oder Nummer suchen..." aria-label="Telefonverzeichnis durchsuchen" autocomplete="off">
                 <button id="dirClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            <div class="dir-jump" id="dirJump" role="group" aria-label="Zu einer Gruppe springen"></div>
             <div class="dir-summary"><span id="dirCount" role="status" aria-live="polite"></span><span>Antippen zum Kopieren</span></div>
             <div class="dir-body" id="dirBody" tabindex="0"></div>
             <div class="dir-foot">
@@ -238,81 +298,11 @@
         </div>
     </div>
 
-    <!-- SOP Skripts -->
-    <script defer src="sops/abdominelle-schmerzen.js"></script>
-    <script defer src="sops/aecopd.js"></script>
-    <script defer src="sops/akute-alkoholintoxikation.js"></script>
-    <script defer src="sops/akute-divertikulitis.js"></script>
-    <script defer src="sops/akute-gastroenteritis.js"></script>
-    <script defer src="sops/akute-herzinsuffizienz.js"></script>
-    <script defer src="sops/akute-intoxikation.js"></script>
-    <script defer src="sops/akute-mesenterialischaemie.js"></script>
-    <script defer src="sops/akute-nebenniereninsuffizienz.js"></script>
-    <script defer src="sops/akute-nierenschaedigung.js"></script>
-    <script defer src="sops/akute-pankreatitis.js"></script>
-    <script defer src="sops/akuter-gichtanfall.js"></script>
-    <script defer src="sops/akuter-harnverhalt.js"></script>
-    <script defer src="sops/akutes-aortensyndrom.js"></script>
-    <script defer src="sops/anaemie.js"></script>
-    <script defer src="sops/anaphylaxie.js"></script>
-    <script defer src="sops/asthmaexazerbation.js"></script>
-    <script defer src="sops/bakterielle-meningitis.js"></script>
-    <script defer src="sops/bradykarde-hrst.js"></script>
-    <script defer src="sops/cannabinoid-hyperemesis-syndrom.js"></script>
-    <script defer src="sops/delir.js"></script>
-    <script defer src="sops/diabetische-ketoazidose.js"></script>
-    <script defer src="sops/dyspnoe.js"></script>
-    <script defer src="sops/erbrechen.js"></script>
-    <script defer src="sops/erysipel.js"></script>
-    <script defer src="sops/fieber-in-der-neutropenie.js"></script>
-    <script defer src="sops/fremdkoerperingestion.js"></script>
-    <script defer src="sops/harnwegsinfektion.js"></script>
-    <script defer src="sops/heparininduzierte-thrombozytopenie.js"></script>
-    <script defer src="sops/hepatische-enzephalopathie.js"></script>
-    <script defer src="sops/herz-kreislauf-stillstand.js"></script>
-    <script defer src="sops/hitzschlag.js"></script>
-    <script defer src="sops/hyperkaliaemie.js"></script>
-    <script defer src="sops/hyperkalzaemie.js"></script>
-    <script defer src="sops/hypernatriaemie.js"></script>
-    <script defer src="sops/hyperosmolares-hyperglykaemisches-syndrom.js"></script>
-    <script defer src="sops/hypertensiver-notfall.js"></script>
-    <script defer src="sops/hypoglykaemie.js"></script>
-    <script defer src="sops/hypokaliaemie.js"></script>
-    <script defer src="sops/hypokalzaemie.js"></script>
-    <script defer src="sops/hyponatriaemie.js"></script>
-    <script defer src="sops/ikterus.js"></script>
-    <script defer src="sops/kohlenmonoxidintoxikation.js"></script>
-    <script defer src="sops/kopfschmerzen.js"></script>
-    <script defer src="sops/lungenarterienembolie.js"></script>
-    <script defer src="sops/myxoedemkoma.js"></script>
-    <script defer src="sops/nicht-st-hebungsinfarkt.js"></script>
-    <script defer src="sops/nierenkolik.js"></script>
-    <script defer src="sops/obere-gastrointestinale-blutung.js"></script>
-    <script defer src="sops/oesophageale-bolusimpaktion.js"></script>
-    <script defer src="sops/pleuraerguss.js"></script>
-    <script defer src="sops/pneumonie.js"></script>
-    <script defer src="sops/schock.js"></script>
-    <script defer src="sops/sepsis.js"></script>
-    <script defer src="sops/spontan-bakterielle-peritonitis.js"></script>
-    <script defer src="sops/status-epilepticus.js"></script>
-    <script defer src="sops/sterbephase-palliativ.js"></script>
-    <script defer src="sops/st-hebungsinfarkt.js"></script>
-    <script defer src="sops/stromunfall.js"></script>
-    <script defer src="sops/synkope.js"></script>
-    <script defer src="sops/tachykarde-hrst.js"></script>
-    <script defer src="sops/thoraxschmerzen.js"></script>
-    <script defer src="sops/thrombozytopenie.js"></script>
-    <script defer src="sops/tiefe-venenthrombose.js"></script>
-    <script defer src="sops/tonsillitis.js"></script>
-    <script defer src="sops/transiente-globale-amnesie.js"></script>
-    <script defer src="sops/tumorlysesyndrom.js"></script>
-    <script defer src="sops/unklare-vigilanzminderung.js"></script>
-    <script defer src="sops/untere-gastrointestinale-blutung.js"></script>
-    <script defer src="sops/vena-cava-superior-syndrom.js"></script>
-    <script defer src="sops/vorhofflimmern.js"></script>
-    <script defer src="sops/zerebrale-metastasen.js"></script>
-    <script defer src="sops/zerebrale-venen-sinusthrombose.js"></script>
-    <!-- Anwendung: zehn Module, in dieser Reihenfolge geladen -->
+    <!-- Anwendung: zehn Module, in dieser Reihenfolge geladen.
+         Die SOP-Dateien werden NICHT mehr einzeln eingebunden - sie
+         sind die Quelle, aus der tools/build.mjs die Artefakte unter
+         dist/ erzeugt. Statt 73 Anfragen mit rund 1 MB beim Start
+         laedt die Seite zunaechst nur den Index. -->
     <script defer src="js/core.js"></script>
     <script defer src="js/motion.js"></script>
     <script defer src="js/platform.js"></script>
@@ -324,7 +314,8 @@
     <script defer src="js/overlays.js"></script>
     <script defer src="js/main.js"></script>
     <script>
-        // Service Worker deaktivieren und Caches löschen
+        // Alte Service Worker und Caches aus frueheren Fassungen
+        // abraeumen. Die Anwendung bringt selbst keinen mit.
         if (location.protocol !== 'file:' && 'serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 registrations.forEach(function(registration) {

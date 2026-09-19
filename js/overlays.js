@@ -4,6 +4,14 @@
    Alle Overlays bleiben im DOM und werden ueber visibility,
    opacity und transform ein- und ausgeblendet. Ein Wechsel der
    display-Eigenschaft wuerde jede CSS-Transition unterbinden.
+
+   Neu in dieser Fassung:
+     - Die Schnellsuche nutzt dasselbe Werk wie die Volltextsuche
+       und findet damit Abkuerzungen, Umlautschreibweisen und
+       Tippfehler                           (Vorschlaege 20-22, 24)
+     - Das Telefonverzeichnis liest die Dienstzeiten aus den
+       vorhandenen Notizen und kennzeichnet, was gerade gilt
+                                                   (Vorschlag 29)
    ============================================================ */
 (function(App) {
     'use strict';
@@ -77,8 +85,6 @@
         var first = f[0], last = f[f.length - 1];
         var active = document.activeElement;
 
-        // Liegt der Fokus auf dem Blatt selbst (so wird ein Overlay
-        // geoeffnet), fuehrt Tab nach vorn und Umschalt+Tab nach hinten.
         if (active === root) {
             e.preventDefault();
             (e.shiftKey ? last : first).focus();
@@ -94,22 +100,53 @@
         }
     };
 
-    // Das oberste offene Overlay schliessen. Gibt true zurueck,
-    // wenn tatsaechlich eines geschlossen wurde.
+    /**
+     * Das oberste offene Overlay schliessen.
+     *
+     * Der Zugriff auf E.dirOverlay & Co. war bisher ungeprueft: fehlte
+     * eines der Overlays im DOM, warf bereits ein Druck auf Escape
+     * eine Ausnahme - und riss die gesamte Tastaturbedienung mit
+     * (Vorschlag 9). Jetzt wird die Zuordnung ueber den Stapel selbst
+     * getroffen, in dem ohnehin steht, was offen ist.
+     */
+    var CLOSERS = [];
+
+    function registerCloser(overlayGetter, closeFn) {
+        CLOSERS.push({ get: overlayGetter, close: closeFn });
+    }
+
     App.closeTopOverlay = function() {
         var root = topOverlayRoot();
-        if (root && E.dirOverlay.contains(root)) { App.closeDir(); return true; }
-        if (root && E.spotlightOverlay.contains(root)) { App.closeSpotlight(); return true; }
-        if (root && E.sectionPickerOverlay.contains(root)) { App.closePicker(); return true; }
+        if (!root) return false;
+
+        for (var i = 0; i < CLOSERS.length; i++) {
+            var overlay = CLOSERS[i].get();
+            if (overlay && overlay.contains(root)) {
+                CLOSERS[i].close();
+                return true;
+            }
+        }
+
+        // Unbekanntes Overlay: sauber vom Stapel nehmen, statt haengen
+        // zu bleiben.
+        for (var j = overlayStack.length - 1; j >= 0; j--) {
+            if (overlayStack[j].root === root) {
+                if (overlayStack[j].overlay) overlayStack[j].overlay.classList.remove('show');
+                popOverlay(overlayStack[j].overlay);
+                return true;
+            }
+        }
+
         return false;
     };
 
     App.closeAllOverlays = function() {
-        while (App.closeTopOverlay()) { /* bis keines mehr offen ist */ }
+        var guard = 0;
+        while (App.closeTopOverlay() && guard++ < 10) { /* bis keines mehr offen ist */ }
     };
 
     // ============================================
-    // SPOTLIGHT
+    // SPOTLIGHT (Vorschlaege 21, 22, 24)
     // ============================================
     var spotIndex = -1;
 
@@ -120,8 +157,6 @@
         E.spotlightOverlay.classList.add('show');
         App.haptic('light');
 
-        // Fokus erst setzen, wenn die Einblendbewegung laeuft - sonst
-        // springt die Tastatur vor der Animation ins Bild.
         setTimeout(function() {
             if (!E.spotlightInput || topOverlayRoot() !== E.spotlightContainer) return;
             E.spotlightInput.focus();
@@ -143,6 +178,8 @@
         App.renderSpotlightResults();
     };
 
+    registerCloser(function() { return E.spotlightOverlay; }, function() { App.closeSpotlight(); });
+
     App.renderSpotlightResults = function() {
         if (!E.spotlightResults) return;
 
@@ -156,47 +193,56 @@
         if (!query) {
             container.innerHTML = '<div class="spotlight-empty">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
-                '<p>Namen eines Patientenpfads eingeben</p></div>';
+                '<p>Pfadname, Abkürzung oder Wirkstoff</p></div>';
             return;
         }
 
-        var q = query.toLowerCase();
-        var hits = [];
-        for (var i = 0; i < S.data.length; i++) {
-            var name = (S.data[i].name || '').toLowerCase();
-            var pos = name.indexOf(q);
-            if (pos === -1) continue;
-            hits.push({ sop: S.data[i], pos: pos });
-        }
-
-        // Treffer am Wortanfang zuerst
-        hits.sort(function(a, b) {
-            if (a.pos !== b.pos) return a.pos - b.pos;
-            return (a.sop.name || '').localeCompare(b.sop.name || '', 'de');
-        });
+        // Dieselbe Abfrage wie die Volltextsuche, nur ohne Textstellen:
+        // die Schnellsuche soll Wege oeffnen, nicht Text anzeigen.
+        var res = App.query(query, { text: false, fuzzy: true, limit: 8 });
 
         var html = '';
-        var max = Math.min(hits.length, 10);
+        var idx = 0;
+        var i;
 
-        for (var j = 0; j < max; j++) {
-            var d = hits[j].sop;
-            var cl = App.gc(d.category);
+        for (i = 0; i < res.sops.length; i++) {
+            var d = res.sops[i].sop;
+            var why = res.sops[i].why;
 
-            html += '<button type="button" class="spotlight-result" id="spot-opt-' + j + '" data-id="' +
-                App.escAttr(d.id) + '" role="option" aria-selected="false">' +
-                '<span class="spotlight-result-icon" style="background:' + cl + ';color:#fff">' +
+            html += '<button type="button" class="spotlight-result" id="spot-opt-' + idx +
+                '" data-id="' + App.escAttr(d.id) + '" role="option" aria-selected="false"' +
+                ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+                '<span class="spotlight-result-icon">' +
                 '<i class="fa-solid ' + App.catIcon(d.category) + '" aria-hidden="true"></i></span>' +
                 '<span class="spotlight-result-info">' +
                 '<span class="spotlight-result-name">' + App.sopName(d, query) + '</span>' +
-                '<span class="spotlight-result-cat">' + App.esc(App.catName(d.category)) + '</span>' +
-                '</span>' +
+                '<span class="spotlight-result-cat">' + App.esc(App.catName(d.category)) +
+                (why === 'alias' ? ' · Synonym' : '') +
+                (why === 'fuzzy' ? ' · ähnliche Schreibweise' : '') +
+                '</span></span>' +
                 '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
+            idx++;
+        }
+
+        // Wirkstoffe: direkt zum Pfad mit der Dosierung.
+        for (i = 0; i < res.drugs.length && i < 2; i++) {
+            var drug = res.drugs[i];
+            html += '<button type="button" class="spotlight-result spotlight-drug" id="spot-opt-' + idx +
+                '" data-drug="' + App.escAttr(drug.name) + '" role="option" aria-selected="false">' +
+                '<span class="spotlight-result-icon spotlight-icon-drug">' +
+                '<i class="fa-solid fa-prescription-bottle-medical" aria-hidden="true"></i></span>' +
+                '<span class="spotlight-result-info">' +
+                '<span class="spotlight-result-name">' + App.hl(drug.name, query) + '</span>' +
+                '<span class="spotlight-result-cat">Wirkstoff · ' + drug.sops.length +
+                (drug.sops.length === 1 ? ' Pfad' : ' Pfade') + '</span></span>' +
+                '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
+            idx++;
         }
 
         // Immer erreichbar: die Volltextsuche ueber alle Abschnitte
-        html += '<button type="button" class="spotlight-result spotlight-fulltext" id="spot-opt-' + max +
+        html += '<button type="button" class="spotlight-result spotlight-fulltext" id="spot-opt-' + idx +
             '" data-fulltext="1" role="option" aria-selected="false">' +
-            '<span class="spotlight-result-icon" style="background:var(--primary);color:#fff">' +
+            '<span class="spotlight-result-icon spotlight-icon-full">' +
             '<i class="fa-solid fa-file-lines" aria-hidden="true"></i></span>' +
             '<span class="spotlight-result-info">' +
             '<span class="spotlight-result-name">Volltextsuche nach &bdquo;' + App.esc(query) + '&ldquo;</span>' +
@@ -204,9 +250,9 @@
             '</span>' +
             '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
 
-        if (!hits.length) {
+        if (!res.sops.length && !res.drugs.length) {
             html = '<div class="spotlight-empty"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>' +
-                '<p>Kein Patientenpfad mit diesem Namen</p></div>' + html;
+                '<p>Kein Pfad und kein Wirkstoff mit diesem Namen</p></div>' + html;
         }
 
         container.innerHTML = html;
@@ -219,10 +265,11 @@
     function activateSpotlightItem(item) {
         if (!item) return;
 
-        if (item.getAttribute('data-fulltext')) {
-            var q = S.spotQ;
+        if (item.getAttribute('data-fulltext') || item.getAttribute('data-drug')) {
+            var q = item.getAttribute('data-drug') || S.spotQ;
             App.closeSpotlight();
             S.sQ = q;
+            S.scope = item.getAttribute('data-drug') ? 'drug' : 'all';
             if (E.searchViewInput) E.searchViewInput.value = q;
             if (E.searchViewClear) E.searchViewClear.classList.toggle('show', q.length > 0);
             App.sTab('search', 'fade');
@@ -254,7 +301,6 @@
         }
     }
 
-    // Pfeiltasten und Eingabetaste im Spotlight
     App.onSpotlightKey = function(e) {
         if (!E.spotlightOverlay || !E.spotlightOverlay.classList.contains('show')) return;
 
@@ -288,22 +334,22 @@
             return;
         }
 
-        var cl = App.gc(d.category);
         var html = '';
         var i;
+        var titles = d.secTitles || [];
 
-        if (d.sections) {
-            for (i = 0; i < d.sections.length; i++) {
-                var title = d.sections[i].title || ('Abschnitt ' + (i + 1));
-                html += '<li data-idx="' + i + '" tabindex="0" role="button">' +
-                    '<i class="fa-solid ' + (App.SIC[title] || 'fa-circle-info') + '" style="color:' + cl + '" aria-hidden="true"></i> ' +
-                    App.esc(title) + '</li>';
-            }
+        for (i = 0; i < titles.length; i++) {
+            var title = titles[i] || ('Abschnitt ' + (i + 1));
+            html += '<li data-idx="' + i + '" tabindex="0" role="button"' +
+                ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+                '<i class="fa-solid ' + App.secIcon(title) + '" style="color:var(--cat-color)" aria-hidden="true"></i> ' +
+                App.esc(title) + '</li>';
         }
 
-        if (d.sources) {
-            html += '<li data-idx="sources" tabindex="0" role="button">' +
-                '<i class="fa-solid fa-quote-right" style="color:' + cl + '" aria-hidden="true"></i> Quellen</li>';
+        if (d.hasSources) {
+            html += '<li data-idx="sources" tabindex="0" role="button"' +
+                ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+                '<i class="fa-solid fa-quote-right" style="color:var(--cat-color)" aria-hidden="true"></i> Quellen</li>';
         }
 
         E.sectionPickerList.innerHTML = html;
@@ -323,9 +369,6 @@
         markCurrentPickerEntry();
     };
 
-    // Das Kapitel, das gerade oben steht, auch im frisch aufgebauten
-    // Verzeichnis markieren - der Scroll-Spy meldet sich erst wieder,
-    // wenn tatsaechlich gescrollt wird.
     function markCurrentPickerEntry() {
         if (!E.sectionPickerList || !E.viewSOP) return;
 
@@ -341,8 +384,6 @@
     App.openPicker = function() {
         if (!E.sectionPickerOverlay || E.sectionPickerOverlay.classList.contains('show')) return;
 
-        // Erst jetzt aufbauen: waehrend des Ansichtswechsels waere die
-        // Liste unsichtbar und ihre Erzeugung reine Last zur Unzeit.
         App.rPk();
 
         pushOverlay(E.sectionPickerOverlay, E.pickerSheet);
@@ -361,6 +402,8 @@
         if (E.pickerSheet) E.pickerSheet.style.transform = '';
         popOverlay(E.sectionPickerOverlay);
     };
+
+    registerCloser(function() { return E.sectionPickerOverlay; }, function() { App.closePicker(); });
 
     // ============================================
     // TELEFONVERZEICHNIS
@@ -467,12 +510,244 @@
     ];
     App.PHONE_DIR = PHONE_DIR;
 
+    // ---------- Dienstzeiten (Vorschlag 29) ----------
+    // Die Notizen der Eintraege tragen bereits Zeitangaben:
+    // "DA bis 15:30 Uhr", "Ab 19:30 Uhr", "Mo-Fr 07:30-08:30 Uhr",
+    // "Mi 09-12 & 13-17 Uhr, Fr 09-13 Uhr".
+    //
+    // Sie werden gelesen und in Zeitfenster uebersetzt, damit im
+    // Verzeichnis steht, was JETZT gilt. Die Nummern selbst bleiben
+    // unveraendert - und wer ausserhalb anrufen will, kann das:
+    // ein Eintrag wird gekennzeichnet, nie gesperrt.
+
+    var DAY_TOKENS = {
+        'mo': 1, 'di': 2, 'mi': 3, 'do': 4, 'fr': 5, 'sa': 6, 'so': 0,
+        'montag': 1, 'dienstag': 2, 'mittwoch': 3, 'donnerstag': 4,
+        'freitag': 5, 'samstag': 6, 'sonntag': 0
+    };
+
+    var DAY_NAMES = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+    function minutesOf(h, m) {
+        return h * 60 + (m || 0);
+    }
+
+    /** "09", "09:30", "7.30" -> Minuten seit Mitternacht. */
+    function parseClock(raw) {
+        var m = /^(\d{1,2})(?:[:.](\d{2}))?$/.exec(String(raw).trim());
+        if (!m) return null;
+        var h = parseInt(m[1], 10);
+        var min = m[2] ? parseInt(m[2], 10) : 0;
+        if (h > 24 || min > 59) return null;
+        return minutesOf(h, min);
+    }
+
+    /** Tagesangaben eines Textstuecks: "Mo-Fr", "Mo/Di", "Täglich". */
+    function parseDays(text) {
+        var lower = text.toLowerCase();
+
+        if (/t(ä|ae)glich|jeden tag|rund um die uhr|24\s*h/.test(lower)) {
+            return [0, 1, 2, 3, 4, 5, 6];
+        }
+        if (/werktags/.test(lower)) return [1, 2, 3, 4, 5];
+
+        var days = [];
+        // Bereiche: "Mo-Fr"
+        var range = /\b(mo|di|mi|do|fr|sa|so)\s*[-–]\s*(mo|di|mi|do|fr|sa|so)\b/gi;
+        var m;
+        while ((m = range.exec(lower)) !== null) {
+            var from = DAY_TOKENS[m[1]];
+            var to = DAY_TOKENS[m[2]];
+            var cursor = from;
+            var guard = 0;
+            while (guard++ < 8) {
+                days.push(cursor);
+                if (cursor === to) break;
+                cursor = (cursor + 1) % 7;
+            }
+        }
+
+        // Einzelne Tage: "Mo", "Mo/Di", "Mi &"
+        var single = /\b(mo|di|mi|do|fr|sa|so)\b/gi;
+        while ((m = single.exec(lower)) !== null) {
+            var d = DAY_TOKENS[m[1]];
+            if (days.indexOf(d) === -1) days.push(d);
+        }
+
+        return days;
+    }
+
+    /**
+     * Zeitfenster aus einer Notiz. Rueckgabe: Liste aus
+     * { days: [0..6], from, to } in Minuten.
+     *
+     * BEWUSST ZURUECKHALTEND: ein Fenster entsteht nur, wenn die
+     * Notiz ausdrueckliche Tage nennt ("Mo-Fr", "Di", "Taeglich").
+     *
+     * Der Grund ist ein fachlicher: in Notizen wie
+     *     "DA bis 15:30 Uhr: 4004"   oder   "Ab 19:30 Uhr: 1006"
+     * gilt die Zeit NICHT fuer die Nummer der Zeile, sondern fuer
+     * eine darin genannte Zweitnummer. Wuerde daraus ein Zeitfenster,
+     * stuende neben einer rund um die Uhr erreichbaren Nummer
+     * "ausserhalb der Dienstzeit" - eine Falschaussage, die im
+     * Zweifel einen Anruf verhindert.
+     *
+     * Gekennzeichnet werden dadurch genau die Eintraege, bei denen
+     * die Notiz tatsaechlich eine Sprechzeit beschreibt.
+     */
+    function parseWindows(note) {
+        if (!note) return [];
+
+        var text = String(note);
+        var windows = [];
+
+        // Die Notiz kann mehrere Angaben tragen, getrennt durch
+        // Komma, Semikolon oder "&". Tage stehen dabei oft in einer
+        // eigenen Teilangabe ("Mo, Di, Do, Fr 08-11 Uhr") - sie
+        // werden deshalb mitgefuehrt, bis eine Uhrzeit folgt.
+        var parts = text.split(/[;,]|\s&\s/);
+        var pending = [];
+        var lastDays = null;
+        var i, j;
+
+        for (i = 0; i < parts.length; i++) {
+            var part = parts[i];
+            var days = parseDays(part);
+
+            if (!/\d/.test(part) || !/uhr|\d{1,2}\s*[-\u2013]\s*\d{1,2}|[:.]\d{2}/i.test(part)) {
+                // Keine Uhrzeit in diesem Stueck: Tage vormerken.
+                for (j = 0; j < days.length; j++) {
+                    if (pending.indexOf(days[j]) === -1) pending.push(days[j]);
+                }
+                continue;
+            }
+
+            var useDays = days.slice();
+            for (j = 0; j < pending.length; j++) {
+                if (useDays.indexOf(pending[j]) === -1) useDays.push(pending[j]);
+            }
+
+            // Fortsetzung derselben Angabe: "Di 08-12 & 13-17:30 Uhr"
+            // - der zweite Teil traegt die Tage des ersten.
+            if (!useDays.length && lastDays) useDays = lastDays.slice();
+
+            // Ohne ausdrueckliche Tagesangabe wird nichts behauptet.
+            if (!useDays.length) continue;
+            pending = [];
+            useDays.sort(function(a, b) {
+                // Montag zuerst, Sonntag zuletzt - so wird es gelesen.
+                return ((a + 6) % 7) - ((b + 6) % 7);
+            });
+            lastDays = useDays;
+
+            // "08-09", "07:30-08:30 Uhr", "09-11:30"
+            var rangeRe = /(\d{1,2}(?:[:.]\d{2})?)\s*[-\u2013]\s*(\d{1,2}(?:[:.]\d{2})?)/g;
+            var r;
+            var found = false;
+
+            while ((r = rangeRe.exec(part)) !== null) {
+                var from = parseClock(r[1]);
+                var to = parseClock(r[2]);
+                if (from === null || to === null || to <= from) continue;
+                windows.push({ days: useDays, from: from, to: to });
+                found = true;
+            }
+
+            if (found) continue;
+
+            // "bis 15:30 Uhr" / "ab 19:30 Uhr" - nur mit Tagesangabe.
+            var until = /\bbis\s+(\d{1,2}(?:[:.]\d{2})?)\s*uhr/i.exec(part);
+            if (until) {
+                var t = parseClock(until[1]);
+                if (t !== null) windows.push({ days: useDays, from: 0, to: t });
+                continue;
+            }
+
+            var from2 = /\bab\s+(\d{1,2}(?:[:.]\d{2})?)\s*uhr/i.exec(part);
+            if (from2) {
+                var f = parseClock(from2[1]);
+                if (f !== null) windows.push({ days: useDays, from: f, to: 24 * 60 });
+            }
+        }
+
+        return windows;
+    }
+
+    /** Gilt eines der Fenster gerade? Sonst: wann das naechste beginnt. */
+    function shiftStatus(windows, now) {
+        if (!windows.length) return null;
+
+        var day = now.getDay();
+        var minute = now.getHours() * 60 + now.getMinutes();
+        var i, w;
+
+        for (i = 0; i < windows.length; i++) {
+            w = windows[i];
+            if (w.days.indexOf(day) === -1) continue;
+            if (minute >= w.from && minute < w.to) {
+                return { now: true, until: w.to };
+            }
+        }
+
+        // Naechstes Fenster innerhalb der kommenden sieben Tage
+        var best = null;
+        for (var ahead = 0; ahead < 8; ahead++) {
+            var d = (day + ahead) % 7;
+            for (i = 0; i < windows.length; i++) {
+                w = windows[i];
+                if (w.days.indexOf(d) === -1) continue;
+                if (ahead === 0 && w.from <= minute) continue;
+                var score = ahead * 1440 + w.from;
+                if (!best || score < best.score) {
+                    best = { score: score, day: d, from: w.from, ahead: ahead };
+                }
+            }
+            if (best) break;
+        }
+
+        return { now: false, next: best };
+    }
+
+    function clockText(minutes) {
+        var h = Math.floor(minutes / 60);
+        var m = minutes % 60;
+        return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+
+    function shiftBadge(status) {
+        if (!status) return '';
+
+        if (status.now) {
+            return '<span class="dir-shift dir-shift-now">' +
+                '<i class="fa-solid fa-clock" aria-hidden="true"></i> bis ' +
+                App.esc(clockText(status.until)) + '</span>';
+        }
+
+        if (status.next) {
+            var label = status.next.ahead === 0
+                ? 'ab ' + clockText(status.next.from)
+                : (status.next.ahead === 1 ? 'morgen ' : DAY_NAMES[status.next.day] + ' ')
+                    + clockText(status.next.from);
+            return '<span class="dir-shift dir-shift-off">' +
+                '<i class="fa-solid fa-clock" aria-hidden="true"></i> ' + App.esc(label) + '</span>';
+        }
+
+        return '';
+    }
+
+    // ---------- Aufbau ----------
+    var dirOnlyNow = false;
+
     App.rDir = function(q, animate) {
         if (!E.dirBody) return;
 
         q = (q || '').toLowerCase().trim();
+        var forms = q ? App.queryForms(q) : null;
+        var now = new Date();
+
         var html = '';
         var hits = 0;
+        var hidden = 0;
 
         for (var g = 0; g < PHONE_DIR.length; g++) {
             var grp = PHONE_DIR[g];
@@ -480,36 +755,59 @@
 
             for (var i = 0; i < grp.items.length; i++) {
                 var it = grp.items[i];
-                var hay = (it.name + ' ' + it.tel + ' ' + it.note + ' ' + grp.group).toLowerCase();
-                if (q && hay.indexOf(q) === -1) continue;
+                var hay = App.fold(it.name + ' ' + it.tel + ' ' + it.note + ' ' + grp.group);
+                if (forms && !App.containsAny(hay, forms)) continue;
+
+                var windows = parseWindows(it.note);
+                var status = shiftStatus(windows, now);
+
+                if (dirOnlyNow && status && !status.now) { hidden++; continue; }
+
                 hits++;
 
-                rows += '<li><button type="button" class="dir-row" data-tel="' + App.escAttr(it.tel) +
-                    '" title="Nummer kopieren">' +
+                var dialable = /^[0-9 +\/-]+$/.test(it.tel) && /\d{3}/.test(it.tel);
+                var firstNumber = (it.tel.match(/[0-9][0-9 ]*[0-9]|\d/) || [''])[0].replace(/\s/g, '');
+
+                rows += '<li>' +
+                    '<button type="button" class="dir-row' +
+                    (status && !status.now ? ' is-off' : '') +
+                    '" data-tel="' + App.escAttr(it.tel) + '" title="Nummer kopieren">' +
                     '<span class="dir-row-main">' +
-                    '<span class="dir-name">' + App.hl(App.esc(it.name), q) + '</span>' +
-                    (it.note ? '<span class="dir-note">' + App.hl(App.esc(it.note), q) + '</span>' : '') +
+                    '<span class="dir-name">' + App.hl(it.name, q) + shiftBadge(status) + '</span>' +
+                    (it.note ? '<span class="dir-note">' + App.hl(it.note, q) + '</span>' : '') +
                     '</span>' +
-                    '<span class="dir-tel">' + App.hl(App.esc(it.tel), q) +
+                    '<span class="dir-tel">' + App.hl(it.tel, q) +
                     '<i class="fa-solid fa-copy dir-copy" aria-hidden="true"></i></span>' +
-                    '</button></li>';
+                    '</button>' +
+                    (dialable
+                        ? '<a class="dir-call" href="tel:' + App.escAttr(firstNumber) +
+                          '" aria-label="' + App.escAttr(it.name) + ' anrufen">' +
+                          '<i class="fa-solid fa-phone" aria-hidden="true"></i></a>'
+                        : '') +
+                    '</li>';
             }
 
             if (!rows) continue;
-            html += '<section class="dir-group">' +
+            html += '<section class="dir-group" id="dir-group-' + g + '">' +
                 '<h4><i class="fa-solid ' + grp.icon + '" aria-hidden="true"></i>' + App.esc(grp.group) + '</h4>' +
                 '<ul class="dir-rows">' + rows + '</ul></section>';
         }
 
         if (!hits) {
             html = '<div class="dir-empty"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
-                '<p>Kein Eintrag gefunden</p></div>';
+                '<p>Kein Eintrag gefunden' +
+                (hidden ? ' – ' + hidden + ' außerhalb der Dienstzeit ausgeblendet' : '') +
+                '</p></div>';
         }
 
         E.dirBody.innerHTML = html;
         E.dirBody.classList.toggle('dir-enter', !!animate);
+
         var count = document.getElementById('dirCount');
-        if (count) count.textContent = hits + (hits === 1 ? ' Kontakt' : ' Kontakte');
+        if (count) {
+            count.textContent = hits + (hits === 1 ? ' Kontakt' : ' Kontakte')
+                + (hidden ? ' · ' + hidden + ' ausgeblendet' : '');
+        }
 
         var groups = E.dirBody.querySelectorAll('.dir-group');
         for (var k = 0; k < groups.length; k++) {
@@ -519,7 +817,49 @@
         App.delegate(E.dirBody, '.dir-row', function(row) {
             copyPhoneNumber(row.getAttribute('data-tel'), row);
         });
+
+        renderDirJump(now);
     };
+
+    /** Sprungleiste ueber den Gruppen plus Filter "jetzt erreichbar". */
+    function renderDirJump(now) {
+        var host = E.dirJump || document.getElementById('dirJump');
+        if (!host) return;
+        E.dirJump = host;
+
+        var html = '<button type="button" class="dir-jump-chip' + (dirOnlyNow ? ' is-on' : '') +
+            '" data-only-now="1" aria-pressed="' + dirOnlyNow + '">' +
+            '<i class="fa-solid fa-clock" aria-hidden="true"></i> Jetzt erreichbar</button>';
+
+        var groups = E.dirBody.querySelectorAll('.dir-group');
+        for (var i = 0; i < groups.length; i++) {
+            var heading = groups[i].querySelector('h4');
+            var label = heading ? (heading.textContent || '').trim() : '';
+            // Der erste Bestandteil reicht als Sprungmarke.
+            label = label.split(/[&(]/)[0].trim();
+            html += '<button type="button" class="dir-jump-chip" data-jump="' +
+                App.escAttr(groups[i].id) + '">' + App.esc(label) + '</button>';
+        }
+
+        host.innerHTML = html;
+
+        App.delegate(host, '[data-jump]', function(chip) {
+            var target = document.getElementById(chip.getAttribute('data-jump'));
+            if (!target || !E.dirBody) return;
+            App.smoothScrollTo(E.dirBody, target.offsetTop - 8);
+        });
+
+        App.delegate(host, '[data-only-now]', function() {
+            dirOnlyNow = !dirOnlyNow;
+            App.haptic('light');
+            App.rDir(E.dirInput ? E.dirInput.value : '', true);
+        });
+
+        if (E.dirClock) {
+            E.dirClock.textContent = DAY_NAMES[now.getDay()] + ' ' +
+                now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+        }
+    }
 
     // Nummer in die Zwischenablage legen. Im Klinikbetrieb wird sie
     // meist am Stationstelefon gewaehlt - tel:-Links helfen dort nicht.
@@ -567,13 +907,17 @@
     App.openDir = function() {
         if (!E.dirOverlay || E.dirOverlay.classList.contains('show')) return;
 
-        pushOverlay(E.dirOverlay, E.dirOverlay.querySelector('.dir-modal'));
+        var modal = E.dirOverlay.querySelector('.dir-modal');
+        pushOverlay(E.dirOverlay, modal);
         App.rDir(E.dirInput ? E.dirInput.value : '', true);
         E.dirOverlay.classList.add('show');
         App.haptic('light');
 
         setTimeout(function() {
-            if (E.dirInput && window.innerWidth >= 900 && E.dirOverlay.contains(topOverlayRoot())) E.dirInput.focus();
+            var root = topOverlayRoot();
+            if (E.dirInput && window.innerWidth >= 900 && root && E.dirOverlay.contains(root)) {
+                E.dirInput.focus();
+            }
         }, 250);
     };
 
@@ -582,5 +926,11 @@
         E.dirOverlay.classList.remove('show');
         popOverlay(E.dirOverlay);
     };
+
+    registerCloser(function() { return E.dirOverlay; }, function() { App.closeDir(); });
+
+    // Fuer die Sichtpruefung und die Dokumentation zugaenglich machen.
+    App.parseShiftWindows = parseWindows;
+    App.shiftStatus = shiftStatus;
 
 })(window.SOPApp);

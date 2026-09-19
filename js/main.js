@@ -262,7 +262,15 @@
         if (!sheet) return;
         sheet.classList.remove('is-dragging');
 
-        var shouldClose = drag.offset > drag.height * 0.32 || drag.velocity > 0.7;
+        // Vorschlag 10: Die Schwelle war rein anteilig (32 % der
+        // Blatthoehe). Bei einer SOP mit fuenf Abschnitten ist das
+        // Blatt kurz - dort genuegten schon rund 60 px, und das Blatt
+        // schloss sich beim blossen Scrollen im Verzeichnis.
+        // Jetzt gilt zusaetzlich ein absoluter Mindestweg, und nach
+        // oben ist die Schwelle gedeckelt, damit ein sehr hohes Blatt
+        // nicht unschliessbar wird.
+        var threshold = Math.max(72, Math.min(drag.height * 0.32, 180));
+        var shouldClose = drag.offset > threshold || drag.velocity > 0.7;
 
         // Das Schliessen uebernimmt die CSS-Transition des Overlays
         sheet.style.transform = '';
@@ -513,21 +521,43 @@
         }
 
         // --- Netzstatus ---
-        window.addEventListener('online', function() { S.off = false; App.updateOffline(); });
-        window.addEventListener('offline', function() { S.off = true; S.ts = new Date(); App.updateOffline(); });
+        window.addEventListener('online', function() { App.setOffline(false); });
+        window.addEventListener('offline', function() { App.setOffline(true); });
 
         // --- Groessenaenderung ---
+        // Neben dem Sprung zwischen Telefon- und Desktoplayout zaehlt
+        // auch die Schwelle, ab der Tabellen als Karten laufen (640 px).
+        // Beide werden verfolgt; nur wenn sich wirklich etwas aendert,
+        // wird neu aufgebaut (Vorschlag 11).
+        var lastBreakpoints = breakpointState();
+
         window.addEventListener('resize', App.debounce(function() {
-            var wasMobile = S.mob;
             S.mob = window.innerWidth < 1024;
             App.invalidateSectionOffsets();
+            App.invalidateScrollMetrics();
+
+            var next = breakpointState();
+            if (next !== lastBreakpoints) {
+                lastBreakpoints = next;
+                App.onBreakpointChange();
+                return;
+            }
+
             App.updateSegmentedPill(false);
             App.updateBottomNavPill();
-            if (wasMobile !== S.mob) App.uChrome();
+            App.checkSegmentedScrollArrows();
         }, 140));
 
         window.addEventListener('orientationchange', function() {
             App.invalidateSectionOffsets();
+            App.invalidateScrollMetrics();
+            setTimeout(function() {
+                var next = breakpointState();
+                if (next !== lastBreakpoints) {
+                    lastBreakpoints = next;
+                    App.onBreakpointChange();
+                }
+            }, 180);
         });
 
         // --- Spotlight ---
@@ -561,6 +591,12 @@
 
     function bindClick(el, fn) {
         if (el) el.addEventListener('click', fn);
+    }
+
+    /** Kennung der aktuell geltenden Layoutstufen. */
+    function breakpointState() {
+        var w = window.innerWidth;
+        return (w < 1024 ? 'm' : 'd') + (w <= 640 ? 'c' : 't') + (w <= 480 ? 's' : 'r');
     }
 
     function isTypingTarget(el) {
@@ -620,17 +656,32 @@
         // Frueh ausfuehren, damit das Layout nicht sichtbar springt
         App.initSafeArea();
 
-        // SOP-Daten uebernehmen
-        if (window.SOP_DATA && window.SOP_DATA.length) {
-            for (var i = 0; i < window.SOP_DATA.length; i++) {
-                var d = window.SOP_DATA[i];
-                if (!d || !d.id) continue;
-                if (App.findSop(d.id)) continue;
-                App.normSop(d);
-                S.data.push(d);
-            }
+        // ---------- Daten uebernehmen ----------
+        // Metadaten liegen als dist/sop-meta.js bereits vor (rund 90 KB);
+        // Reintext und Abschnitts-HTML kommen danach (Vorschlag 17).
+        if (!App.initData()) {
+            showDataError();
+            return;
         }
-        App.sortData();
+
+        // Was vor dem Start dieser Datei eingetroffen ist, wartet in
+        // Warteschlangen - jetzt abarbeiten.
+        if (window.__SOP_TEXT__) {
+            App.acceptText(window.__SOP_TEXT__);
+            window.__SOP_TEXT__ = null;
+        }
+        if (window.__SOP_CONTENT__ && window.__SOP_CONTENT__.length) {
+            for (var q = 0; q < window.__SOP_CONTENT__.length; q++) {
+                App.acceptContent(window.__SOP_CONTENT__[q][0], window.__SOP_CONTENT__[q][1]);
+            }
+            window.__SOP_CONTENT__ = [];
+        }
+
+        // Trifft der Reintext spaeter ein, wird eine offene
+        // Volltextsuche nachgezogen - ohne dass jemand erneut tippen muss.
+        App.onTextReady = function() {
+            if (S.tab === 'search' && S.sQ) App.rSearch();
+        };
 
         App.rSB();
         App.rHome();
@@ -642,36 +693,74 @@
         window.addEventListener('popstate', App.onPopState);
         window.addEventListener('hashchange', App.onHashChange);
 
-        App.updateOffline();
+        App.setOffline(!navigator.onLine);
 
         initSwipeGestures();
         initDraggablePicker();
         App.initRipples();
+        App.initScrollObserver();
 
         document.documentElement.classList.add('app-ready');
 
+        // ---------- Nachladen ----------
+        // Erst der Volltext (er macht die Suche vollstaendig), dann
+        // alle Inhaltspakete. Beides nach dem ersten Bild, damit der
+        // Start nicht darauf wartet.
+        //
+        // Das vollstaendige Vorladen ist kein Luxus: ohne Netz liesse
+        // sich sonst keine SOP oeffnen, die noch niemand angefasst hat.
+        whenIdle(function() {
+            loadText();
+            App.prefetchAll();
+        });
+
         // Versionsabgleich nur im Webkontext, nicht bei file://
         if (window.location.protocol !== 'file:') {
-            setTimeout(App.checkForUpdate, 1000);
+            setTimeout(App.checkForUpdate, 2000);
         }
+    }
+
+    function whenIdle(fn) {
+        if (window.requestIdleCallback) window.requestIdleCallback(fn, { timeout: 900 });
+        else setTimeout(fn, 200);
+    }
+
+    function loadText() {
+        if (S.textReady) return;
+        var s = document.createElement('script');
+        s.src = 'dist/sop-text.js?v=' + encodeURIComponent(App.VERSION);
+        s.async = true;
+        s.onerror = function() {
+            // Ohne Volltext bleibt die Suche auf Namen, Synonyme und
+            // Kapitelueberschriften beschraenkt - und sagt das auch.
+            App.S.textReady = false;
+        };
+        document.head.appendChild(s);
+    }
+
+    /** Ohne Metadaten ist die Anwendung leer - das muss man sehen. */
+    function showDataError() {
+        var host = E.viewHome || document.body;
+        host.innerHTML = '<div class="search-empty" role="alert">' +
+            '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>' +
+            '<p><strong>Die Patientenpfade konnten nicht geladen werden.</strong></p>' +
+            '<p>Die Datei <code>dist/sop-meta.js</code> fehlt oder ist nicht erreichbar. ' +
+            'Sie entsteht mit <code>npm run build</code> aus den Dateien in <code>sops/</code>.</p>' +
+            '<button type="button" class="empty-reset" onclick="location.reload()">Neu laden</button>' +
+            '</div>';
+        document.documentElement.classList.add('app-ready');
     }
 
     // ============================================
     // OEFFENTLICHE SCHNITTSTELLE
     // ============================================
-    // Nachtraeglich geladene SOPs einsortieren und sichtbar machen.
-    window.registerSOP = function(d) {
-        if (!d || !d.id) return;
-        if (App.findSop(d.id)) return;
-
-        App.normSop(d);
-        S.data.push(d);
-        App.sortData();
-
-        if (E.categoryFilters) App.rSB();
-        if (E.catGrid) App.rHome();
-        if (S.tab === 'browse' && E.browseList) App.rBrowseList();
-    };
+    // window.registerSOP() ist entfallen. Die SOP-Dateien werden nicht
+    // mehr einzeln in die Seite eingebunden; sie sind die QUELLE, aus
+    // der tools/build.mjs die Artefakte unter dist/ erzeugt. Wer eine
+    // SOP aendert, fuehrt "npm run build" aus.
+    //
+    // Der Weg hinein fuehrt jetzt ueber App.acceptContent() bzw.
+    // App.acceptText(), die genau diese Artefakte entgegennehmen.
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

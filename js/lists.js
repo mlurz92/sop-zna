@@ -1,9 +1,15 @@
 /* ============================================================
    lists.js - Seitenleiste, Startseite, Uebersicht, Volltextsuche
    ------------------------------------------------------------
-   Alle Listenansichten der Anwendung. Namen und Ausschnitte
-   werden vor dem Einbau entschaerft; einzig <mark> kommt aus
-   der Trefferhervorhebung hinzu.
+   Alle Listenansichten der Anwendung.
+
+   Namen, Abschnittstitel und Textausschnitte gehen als ROHTEXT
+   durch App.hl(); die Entschaerfung passiert dort. <mark> ist
+   damit die einzige Auszeichnung, die hinzukommt - und sie kann
+   nicht mehr in einer Entitaet landen (Vorschlag 2).
+
+   Gesucht wird ueberall mit demselben Werk aus js/core.js
+   (Vorschlag 22).
    ============================================================ */
 (function(App) {
     'use strict';
@@ -12,12 +18,12 @@
     var E = App.E;
     var CATS = App.CATS;
 
-    // Ein Listener je Liste statt einer je Zeile. Bei 73 Eintraegen
-    // sparte das 73 Registrierungen pro Aufbau - sie waren ein
-    // spuerbarer Teil des ersten Frames eines Ansichtswechsels.
+    // Ein Listener je Liste statt einer je Zeile.
     function delegate(container, selector, handler) {
-        if (!container || container._delegated === selector) return;
-        container._delegated = selector;
+        if (!container) return;
+        if (container._delegated && container._delegated[selector]) return;
+        container._delegated = container._delegated || {};
+        container._delegated[selector] = true;
         container.addEventListener('click', function(e) {
             var el = e.target && e.target.closest ? e.target.closest(selector) : null;
             if (!el || !container.contains(el)) return;
@@ -42,7 +48,8 @@
         for (var i = 0; i < keys.length; i++) {
             if (!counts[keys[i]]) continue;
             html += '<button type="button" class="sidebar-cat-chip' + (S.catD === keys[i] ? ' active' : '') +
-                '" data-cat="' + keys[i] + '" aria-pressed="' + (S.catD === keys[i]) + '">' +
+                '" data-cat="' + keys[i] + '" aria-pressed="' + (S.catD === keys[i]) +
+                '" style="' + App.escAttr(App.catStyle(keys[i])) + '">' +
                 App.esc(CATS[keys[i]].name) + ' <span class="cat-count">' + counts[keys[i]] + '</span></button>';
         }
 
@@ -84,7 +91,6 @@
             App.pushNav(a.getAttribute('data-id'));
         });
 
-        // Aktiven Eintrag sanft in den Blick holen
         var act = E.navList.querySelector('a.active');
         if (act && act.scrollIntoView && !App.MOTION.reduced) {
             act.scrollIntoView({ block: 'nearest' });
@@ -92,16 +98,23 @@
     };
 
     // ============================================
-    // STARTSEITE
+    // STARTSEITE (Vorschlag 24)
     // ============================================
+    // In der ZNA wird gesucht, nicht geblaettert. Das Suchfeld ist
+    // deshalb das erste und groesste Element - die Marke steht
+    // darueber, aber knapp.
     App.rHome = function() {
         if (E.heroArea) {
-            E.heroArea.innerHTML = '<div class="hero-brand"><img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg"></div>' +
+            E.heroArea.innerHTML =
+                '<div class="hero-brand">' +
+                '<img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg" width="160" height="40">' +
+                '</div>' +
                 '<h1 class="hero-title">Patientenpfade</h1>' +
                 '<p class="hero-subtitle">Zentrale Notaufnahme</p>' +
                 '<button type="button" class="hero-search" id="heroSearchBtn">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
-                '<span class="hero-search-label">SOP schnell finden&hellip;</span>' +
+                '<span class="hero-search-label">Pfad, Abkürzung oder Wirkstoff suchen&hellip;</span>' +
+                '<span class="hero-search-kbd" aria-hidden="true">Strg K</span>' +
                 '</button>';
 
             // Ein Knopf statt eines zweiten Eingabefeldes: frueher wurde
@@ -117,17 +130,18 @@
             var counts = App.categoryCounts();
             var keys = Object.keys(CATS);
 
-            var gh = '<button type="button" class="cat-card cat-card-all" data-cat="all" style="--cat-color:var(--primary)">' +
-                '<i class="fa-solid fa-list cat-card-icon" style="color:var(--primary)" aria-hidden="true"></i>' +
+            var gh = '<button type="button" class="cat-card cat-card-all" data-cat="all"' +
+                ' style="--cat-color:var(--primary);--cat-tint:var(--primary-light);--cat-ink:var(--primary-dark)">' +
+                '<i class="fa-solid fa-list cat-card-icon" aria-hidden="true"></i>' +
                 '<span class="cat-card-name">Alle SOPs</span>' +
                 '<span class="cat-card-count">' + S.data.length + ' Pfade</span>' +
                 '</button>';
 
             for (var i = 0; i < keys.length; i++) {
                 if (!counts[keys[i]]) continue;
-                var cl = App.gc(keys[i]);
-                gh += '<button type="button" class="cat-card" data-cat="' + keys[i] + '" style="--cat-color:' + cl + '">' +
-                    '<i class="fa-solid ' + CATS[keys[i]].icon + ' cat-card-icon" style="color:' + cl + '" aria-hidden="true"></i>' +
+                gh += '<button type="button" class="cat-card" data-cat="' + keys[i] + '"' +
+                    ' style="' + App.escAttr(App.catStyle(keys[i])) + '">' +
+                    '<i class="fa-solid ' + CATS[keys[i]].icon + ' cat-card-icon" aria-hidden="true"></i>' +
                     '<span class="cat-card-name">' + App.esc(CATS[keys[i]].name) + '</span>' +
                     '<span class="cat-card-count">' + counts[keys[i]] + ' SOPs</span>' +
                     '</button>';
@@ -138,6 +152,7 @@
             delegate(E.catGrid, '.cat-card', function(c) {
                 S.catB = c.getAttribute('data-cat');
                 S.bQ = '';
+                App.forgetScroll('#browse');
                 App.haptic('light');
                 App.sTab('browse', 'push');
             });
@@ -146,7 +161,11 @@
         }
 
         if (E.homeInfo) {
-            E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade · AG Klinische Pfade</p>';
+            var meta = App.META || {};
+            E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length +
+                ' Patientenpfade · AG Klinische Pfade' +
+                (meta.built ? ' · Stand ' + App.esc(meta.built.split('-').reverse().join('.')) : '') +
+                '</p>';
         }
     };
 
@@ -156,7 +175,7 @@
     App.rBrowse = function() {
         if (!E.viewBrowse) return;
 
-        E.viewBrowse.innerHTML = '<div class="view-heading"><p class="view-eyebrow">PATIENTENPFADE</p><h1>SOP-Übersicht</h1><p>Nach Titel suchen oder nach Fachgebiet eingrenzen.</p></div>' +
+        E.viewBrowse.innerHTML = '<div class="view-heading"><p class="view-eyebrow">PATIENTENPFADE</p><h1>SOP-Übersicht</h1><p>Nach Titel, Abkürzung oder Fachgebiet eingrenzen.</p></div>' +
             '<div class="browse-bar-top">' +
             '<div class="browse-search">' +
             '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
@@ -173,7 +192,6 @@
             '<p class="list-count" id="browseCount" aria-live="polite"></p>' +
             '<div class="browse-list" id="browseList"></div>';
 
-        // Elemente aus innerHTML stehen nicht im Puffer - neu holen
         E.browseSearchInput = document.getElementById('browseSearchInput');
         E.browseSearchClear = document.getElementById('browseSearchClear');
         E.browseCatToggle = document.getElementById('browseCatToggle');
@@ -218,7 +236,8 @@
         for (var i = 0; i < keys.length; i++) {
             if (!counts[keys[i]]) continue;
             html += '<button type="button" class="browse-cat-chip' + (S.catB === keys[i] ? ' active' : '') +
-                '" data-cat="' + keys[i] + '" aria-pressed="' + (S.catB === keys[i]) + '">' +
+                '" data-cat="' + keys[i] + '" aria-pressed="' + (S.catB === keys[i]) +
+                '" style="' + App.escAttr(App.catStyle(keys[i])) + '">' +
                 App.esc(CATS[keys[i]].name) + ' (' + counts[keys[i]] + ')</button>';
         }
 
@@ -266,8 +285,9 @@
 
         for (var i = 0; i < list.length; i++) {
             var d = list[i];
-            html += '<button type="button" class="browse-item" data-id="' + App.escAttr(d.id) + '">' +
-                '<span class="bi-dot" style="background:' + App.gc(d.category) + '"></span>' +
+            html += '<button type="button" class="browse-item" data-id="' + App.escAttr(d.id) + '"' +
+                ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+                '<span class="bi-dot"></span>' +
                 '<span class="bi-name">' + App.sopName(d, S.bQ) + '</span>' +
                 '<span class="bi-cat">' + App.esc(App.catName(d.category)) + '</span>' +
                 '<i class="fa-solid fa-chevron-right bi-arrow" aria-hidden="true"></i>' +
@@ -306,116 +326,277 @@
     };
 
     // ============================================
-    // VOLLTEXTSUCHE
+    // VOLLTEXTSUCHE (Vorschlaege 22 - 25)
     // ============================================
-    // Liefert bewertete Treffer samt Textausschnitt. Die Reintexte der
-    // Abschnitte stammen aus dem Puffer in core.js - ohne ihn wuerde bei
-    // jedem Tastendruck das HTML aller SOPs neu ausgelesen.
-    App.searchSops = function(query) {
-        var q = (query || '').toLowerCase().trim();
-        var results = [];
-        if (!q) return results;
 
-        for (var i = 0; i < S.data.length; i++) {
-            var d = S.data[i];
-            var score = 0;
-            var name = (d.name || '').toLowerCase();
-
-            if (name === q) score += 30;
-            else if (name.indexOf(q) === 0) score += 20;
-            else if (name.indexOf(q) !== -1) score += 10;
-
-            var secMatches = [];
-            if (d.sections) {
-                for (var j = 0; j < d.sections.length; j++) {
-                    var sec = d.sections[j];
-                    var secTitle = sec.title || '';
-                    var txt = App.secTextLower(sec);
-                    var idx = txt.indexOf(q);
-                    if (idx === -1 && secTitle.toLowerCase().indexOf(q) === -1) continue;
-
-                    score += 3;
-                    if (idx === -1) idx = 0;
-
-                    var plain = App.secText(sec);
-                    var start = Math.max(0, idx - 60);
-                    var end = Math.min(plain.length, idx + q.length + 60);
-                    var snippet = (start > 0 ? '…' : '') +
-                        plain.substring(start, end).replace(/\s+/g, ' ').trim() +
-                        (end < plain.length ? '…' : '');
-                    secMatches.push({ title: secTitle, snippet: snippet, idx: j });
-                }
-            }
-
-            if (d.sources && App.sourcesTextLower(d).indexOf(q) !== -1) score += 1;
-
-            if (score > 0) {
-                results.push({ sop: d, score: score, secMatches: secMatches });
-            }
-        }
-
-        results.sort(function(a, b) {
-            if (b.score !== a.score) return b.score - a.score;
-            return (a.sop.name || '').localeCompare(b.sop.name || '', 'de');
-        });
-
-        return results;
-    };
+    var SCOPES = [
+        { key: 'all', label: 'Alles', icon: 'fa-layer-group' },
+        { key: 'name', label: 'Pfadnamen', icon: 'fa-book-medical' },
+        { key: 'text', label: 'Im Text', icon: 'fa-file-lines' },
+        { key: 'drug', label: 'Wirkstoffe', icon: 'fa-prescription-bottle-medical' }
+    ];
 
     App.rSearch = function() {
         if (!E.searchResultsArea) return;
 
-        if (!S.sQ.trim()) {
+        var query = S.sQ.trim();
+
+        if (!query) {
+            renderScopes(null);
             E.searchResultsArea.innerHTML = '<div class="search-empty">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
-                '<p>Suchbegriff eingeben, um alle Patientenpfade zu durchsuchen.</p></div>';
+                '<p>Suchbegriff eingeben. Abkürzungen (LAE, STEMI, HIT), Umlaut­schreibweisen ' +
+                'und Wirkstoffnamen werden erkannt.</p></div>';
             return;
         }
 
-        var results = App.searchSops(S.sQ);
+        var res = App.query(query, { fuzzy: true });
+        renderScopes(res);
 
-        if (!results.length) {
-            E.searchResultsArea.innerHTML = '<div class="search-empty">' +
+        var html = '';
+
+        // --- Hinweis, solange der Volltext noch unterwegs ist ---
+        if (!res.textSearched) {
+            html += '<div class="search-state" role="status">' +
+                '<i class="fa-solid fa-cloud-arrow-down fa-fw" aria-hidden="true"></i>' +
+                '<span>Der Volltext wird noch geladen. Bis dahin werden Pfadnamen, ' +
+                'Abkürzungen und Kapitelüberschriften durchsucht.</span></div>';
+        }
+
+        // --- Wirkstoffe (Vorschlag 23) ---
+        if ((S.scope === 'all' || S.scope === 'drug') && res.drugs.length) {
+            html += drugPanels(res.drugs, query);
+        }
+
+        // --- Pfade ---
+        var sops = filterByScope(res.sops);
+
+        if (!sops.length && !(S.scope !== 'name' && res.drugs.length)) {
+            html += '<div class="search-empty">' +
                 '<i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>' +
-                '<p>Keine Ergebnisse für &bdquo;' + App.esc(S.sQ) + '&ldquo;</p></div>';
+                '<p>Keine Ergebnisse für &bdquo;' + App.esc(query) + '&ldquo;</p></div>';
+            E.searchResultsArea.innerHTML = html;
             return;
         }
 
-        var html = '<p class="list-count">' +
-            (results.length === 1 ? '1 Treffer' : results.length + ' Treffer') + '</p>';
+        if (sops.length) {
+            html += '<p class="list-count">' +
+                (sops.length === 1 ? '1 Patientenpfad' : sops.length + ' Patientenpfade') +
+                (res.usedFuzzy ? ' · Schreibweise angenähert' : '') + '</p>';
 
-        for (var i = 0; i < results.length; i++) {
-            var r = results[i];
-            var d = r.sop;
-
-            html += '<button type="button" class="search-result" data-id="' + App.escAttr(d.id) + '"' +
-                (r.secMatches.length ? ' data-section="' + r.secMatches[0].idx + '"' : '') + '>' +
-                '<span class="sr-title">' + App.sopName(d, S.sQ) + '</span>';
-
-            if (r.secMatches.length) {
-                html += '<span class="sr-snippet"><span class="sr-sec">' +
-                    App.esc(r.secMatches[0].title) + '</span> ' +
-                    App.hl(App.esc(r.secMatches[0].snippet), S.sQ) + '</span>';
+            for (var i = 0; i < sops.length; i++) {
+                html += resultMarkup(sops[i], query);
             }
-
-            html += '<span class="sr-cat"><i class="fa-solid fa-circle" style="color:' + App.gc(d.category) +
-                ';font-size:.5rem" aria-hidden="true"></i> ' + App.esc(App.catName(d.category));
-
-            if (r.secMatches.length > 1) {
-                html += ' <span class="sr-more">· ' + r.secMatches.length + ' Abschnitte</span>';
-            }
-
-            html += '</span></button>';
         }
 
         E.searchResultsArea.innerHTML = html;
 
-        delegate(E.searchResultsArea, '.search-result', function(it) {
-            var idx = it.getAttribute('data-section');
-            App.pushNav(it.getAttribute('data-id'), idx === null ? undefined : parseInt(idx, 10));
+        delegate(E.searchResultsArea, '.sr-open', function(it) {
+            App.pushNav(it.getAttribute('data-id'));
+        });
+
+        delegate(E.searchResultsArea, '.sr-hit', function(it, e) {
+            e.stopPropagation();
+            var sec = it.getAttribute('data-sec');
+            App.pushNav(it.getAttribute('data-id'), sec === null ? undefined : parseInt(sec, 10));
+        });
+
+        delegate(E.searchResultsArea, '.drug-item', function(it) {
+            var sec = it.getAttribute('data-sec');
+            App.pushNav(it.getAttribute('data-id'), sec === null ? undefined : parseInt(sec, 10));
         });
 
         App.applyStagger(E.searchResultsArea.querySelectorAll('.search-result'), 'stagger-item');
     };
+
+    function filterByScope(list) {
+        if (S.scope === 'all') return list;
+        if (S.scope === 'drug') return [];
+
+        var out = [];
+        for (var i = 0; i < list.length; i++) {
+            var r = list[i];
+            var byName = r.why === 'name' || r.why === 'alias' || r.why === 'fuzzy' || r.why === 'title';
+            if (S.scope === 'name' && byName) out.push(r);
+            else if (S.scope === 'text' && r.hits.length) out.push(r);
+        }
+        return out;
+    }
+
+    // ---------- Bereichswahl ----------
+    function renderScopes(res) {
+        var host = E.searchScope || document.getElementById('searchScope');
+        if (!host) return;
+        E.searchScope = host;
+
+        if (!res) {
+            host.innerHTML = '';
+            return;
+        }
+
+        var counts = {
+            all: res.sops.length + (res.drugs.length ? 1 : 0),
+            name: 0,
+            text: 0,
+            drug: res.drugs.length
+        };
+
+        for (var i = 0; i < res.sops.length; i++) {
+            var r = res.sops[i];
+            if (r.why === 'name' || r.why === 'alias' || r.why === 'fuzzy' || r.why === 'title') counts.name++;
+            if (r.hits.length) counts.text++;
+        }
+
+        // Ein Bereich ohne Treffer waere eine Sackgasse - er wird
+        // erst gar nicht angeboten.
+        if (!counts[S.scope]) S.scope = 'all';
+
+        var html = '';
+        for (var s = 0; s < SCOPES.length; s++) {
+            var sc = SCOPES[s];
+            if (sc.key !== 'all' && !counts[sc.key]) continue;
+            html += '<button type="button" class="scope-chip" data-scope="' + sc.key + '"' +
+                ' aria-pressed="' + (S.scope === sc.key) + '">' +
+                '<i class="fa-solid ' + sc.icon + '" aria-hidden="true"></i> ' + sc.label +
+                ' <span class="scope-chip-count">' + counts[sc.key] + '</span></button>';
+        }
+
+        host.innerHTML = html;
+
+        delegate(host, '.scope-chip', function(chip) {
+            S.scope = chip.getAttribute('data-scope');
+            App.haptic('light');
+            App.rSearch();
+        });
+    }
+
+    // ---------- Ein Treffer ----------
+    function resultMarkup(r, query) {
+        var d = r.sop;
+        var badge = badgeFor(r);
+
+        var html = '<article class="search-result" style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+            '<button type="button" class="sr-open" data-id="' + App.escAttr(d.id) + '">' +
+            '<span class="sr-title">' + App.sopName(d, query) + '</span>' +
+            '<span class="sr-cat">' +
+            '<i class="fa-solid fa-circle" style="color:var(--cat-color);font-size:.5rem" aria-hidden="true"></i> ' +
+            App.esc(App.catName(d.category)) +
+            (badge ? ' ' + badge : '') +
+            '</span></button>';
+
+        if (r.hits.length) {
+            html += '<div class="sr-hits">';
+            for (var i = 0; i < Math.min(r.hits.length, 3); i++) {
+                var h = r.hits[i];
+                html += '<button type="button" class="sr-hit" data-id="' + App.escAttr(d.id) +
+                    '" data-sec="' + h.sec + '">' +
+                    '<span class="sr-hit-sec">' + App.esc(h.title) + '</span>' +
+                    '<span class="sr-hit-text">' + App.hl(h.snippet, query) + '</span>' +
+                    '</button>';
+            }
+            if (r.hits.length > 3) {
+                html += '<span class="sr-hit-more">+ ' + (r.hits.length - 3) + ' weitere Fundstellen</span>';
+            }
+            html += '</div>';
+        }
+
+        return html + '</article>';
+    }
+
+    function badgeFor(r) {
+        if (r.why === 'alias') {
+            return '<span class="sr-badge sr-badge-alias">' +
+                '<i class="fa-solid fa-tag" aria-hidden="true"></i> Synonym</span>';
+        }
+        if (r.why === 'fuzzy') {
+            return '<span class="sr-badge sr-badge-fuzzy">' +
+                '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Schreibweise</span>';
+        }
+        if (r.why === 'title') {
+            return '<span class="sr-badge">Kapitel</span>';
+        }
+        if (r.why === 'text') {
+            return '<span class="sr-badge">Im Text</span>';
+        }
+        if (r.why === 'source') {
+            return '<span class="sr-badge">Quellen</span>';
+        }
+        return '';
+    }
+
+    // ---------- Wirkstoffe (Vorschlag 23) ----------
+    // Der Build hat vermerkt, in welchen SOPs ein Wirkstoff vorkommt.
+    // Die zugehoerige Textstelle wird hier aus dem Reintext geholt -
+    // so steht neben dem Pfadnamen gleich der Satz mit der Dosierung.
+    function drugPanels(drugs, query) {
+        var html = '';
+
+        for (var i = 0; i < drugs.length; i++) {
+            var drug = drugs[i];
+            html += '<section class="drug-panel">' +
+                '<h2 class="drug-head">' +
+                '<i class="fa-solid fa-prescription-bottle-medical" aria-hidden="true"></i> Wirkstoff' +
+                '<span class="drug-name">' + App.hl(drug.name, query) + '</span>' +
+                '</h2><div class="drug-list">';
+
+            var shown = 0;
+            for (var s = 0; s < drug.sops.length && shown < 6; s++) {
+                var d = App.findSop(drug.sops[s]);
+                if (!d) continue;
+                var place = findDrugPlace(d, drug.name);
+                html += '<button type="button" class="drug-item" data-id="' + App.escAttr(d.id) + '"' +
+                    (place ? ' data-sec="' + place.sec + '"' : '') + '>' +
+                    '<span class="drug-item-sop">' + App.esc(d.name) + '</span>' +
+                    '<span class="drug-item-where">' +
+                    (place
+                        ? '<strong>' + App.esc(place.title) + ':</strong> ' + App.hl(place.snippet, drug.name)
+                        : App.esc(App.catName(d.category))) +
+                    '</span></button>';
+                shown++;
+            }
+
+            if (drug.sops.length > shown) {
+                html += '<span class="sr-hit-more">+ ' + (drug.sops.length - shown) + ' weitere Pfade</span>';
+            }
+
+            html += '</div></section>';
+        }
+
+        return html;
+    }
+
+    function findDrugPlace(d, drugName) {
+        if (!d.text || !d.text.s) return null;
+
+        var needle = App.fold(drugName);
+        if (!needle) return null;
+
+        for (var i = 0; i < d.text.s.length; i++) {
+            var folded = App.secTextFolded(d, i);
+            var at = folded.indexOf(needle);
+            if (at === -1) continue;
+
+            var plain = d.text.s[i] || '';
+            var fm = App.foldMap(plain);
+            var srcAt = fm.map[at] !== undefined ? fm.map[at] : 0;
+
+            // Satz bzw. Listenpunkt um die Fundstelle herum.
+            var start = plain.lastIndexOf('. ', srcAt);
+            start = start === -1 ? Math.max(0, srcAt - 80) : start + 2;
+            var end = plain.indexOf('. ', srcAt);
+            end = end === -1 ? Math.min(plain.length, srcAt + 160) : end + 1;
+            if (end - start > 240) end = Math.min(plain.length, srcAt + 160);
+
+            return {
+                sec: i,
+                title: d.secTitles[i] || ('Abschnitt ' + (i + 1)),
+                snippet: (start > 0 ? '…' : '') +
+                    plain.slice(start, end).replace(/\s+/g, ' ').trim() +
+                    (end < plain.length ? '…' : '')
+            };
+        }
+
+        return null;
+    }
 
 })(window.SOPApp);

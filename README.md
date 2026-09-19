@@ -1,135 +1,261 @@
 # SOP-ZNA – Patientenpfade der Zentralen Notaufnahme
 
-> Evidenzbasierte Standard Operating Procedures für die Zentrale Notaufnahme des Klinikums St. Georg Leipzig
+Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentralen Notaufnahme am Klinikum St. Georg Leipzig. Läuft mobil am Bett, am Tablet im Schockraum und stationär am Tresenrechner.
+
+<!-- BUILD:STATS -->
+| Kennzahl | Wert |
+| --- | --- |
+| Fassung | `4.0.0` |
+| Patientenpfade | 73 |
+| Abschnitte | 593 |
+| Eigene Synonyme | 581 |
+| Leitsymptom-Gruppen | 16 |
+| Indizierte Wirkstoffe | 137 |
+| Abbildungen | 2 |
+| Score-Rechner | 11 |
+| Startlast (`dist/sop-meta.js`) | 95 KB |
+| Inhaltspakete | 9 × ~105 KB |
+| Stand der Erzeugung | 2026-09-19 |
+<!-- /BUILD:STATS -->
+
+---
 
 ## Projektübersicht
 
-SOP-ZNA ist eine Progressive Web Application (PWA) zur Darstellung von **73 evidenzbasierten Standard Operating Procedures (SOPs)** in der Zentralen Notaufnahme. Die Anwendung ermöglicht medizinischem Personal schnellen Zugriff auf diagnostische und therapeutische Behandlungspfade – optimiert für Desktop- und mobile Nutzung.
+Eine Single-Page-Anwendung ohne Framework. ES5-kompatibles JavaScript in zehn Modulen, kein Build-Zwang zur Laufzeit, keine Abhängigkeit von einem CDN. Alles, was die Anwendung braucht, liegt im Projekt.
 
-Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzig entwickelt und gepflegt.
+**Die SOPs sind fachlicher Inhalt.** Die Dateien in [`sops/`](sops/) werden nicht verändert – weder Wortlaut noch HTML. Alles, was die Anwendung hinzufügt (Suche, Querverweise, Abbildungen, Score-Rechner, Druckbogen), entsteht aus ihnen, ohne sie anzufassen.
 
 ### Einsatzgebiet
 
-- **Notaufnahme-Teams:** Schneller Zugriff auf Behandlungsstandards
-- **Fortbildung:** Evidenzbasierte Leitlinien für Schulungen
-- **Qualitätssicherung:** Standardisierte Behandlungsabläufe
+| Gerät | Nutzung |
+|---|---|
+| Smartphone | Am Patienten, einhändig, mit Handschuhen |
+| Tablet | Im Schockraum und bei der Visite |
+| Desktop | Am Tresen, beim Diktat, für den Ausdruck |
 
 ---
 
-## Features
+## Was die Anwendung kann
 
-### Neu in Version 3.3
+### Suchen
 
-- Kompakter Kopfbereich mit größerem Kliniklogo, an Hell- und Dunkelmodus angepasster Suchfläche und geringerem Abstand zur Breadcrumb-Navigation.
-- Kategorien mit größeren Symbolen und gestaffeltem Auftritt bei jedem Aufruf der Startseite. Die Suche zeigt keinen Tastenkürzel-Hinweis; `Strg/Cmd + K` funktioniert weiterhin.
-- Telefonverzeichnis mit hervorgehobenen Rufnummern, Kontaktanzahl, animierten Gruppen beim Öffnen und sichtbarer Kopierbestätigung. Beim Filtern bleiben die Ergebnisse ohne erneute Auftrittsanimation direkt bedienbar.
-- Volltexttreffer öffnen den ersten passenden Abschnitt. Inhalt und Druck sind außerdem direkt im SOP-Kopf erreichbar.
-- Korrekturen für schnelle Richtungswechsel im Akkordeon, Dialogreihenfolge und Fokusrückgabe, ungültig kodierte Direktlinks sowie den Start über `file://`.
-- Der Tab „SOPs“ bleibt auch beim Lesen einer SOP sichtbar ausgewählt.
+Ein einziges Suchwerk bedient Seitenleiste, Übersicht, Schnellsuche und Volltextsuche – vorher filterten drei Stellen nach Namen und eine nach Volltext, mit drei verschiedenen Ergebnissen.
 
-Die Anwendung bleibt ein Nachschlagewerk ohne Favoriten, zuletzt geöffnete Listen, Notizen oder Benutzerkonten. **Alle 73 Dateien in `sops/` sind unverändert.**
+| Eingabe | Findet |
+|---|---|
+| `LAE`, `STEMI`, `HIT`, `TVT`, `SBP`, `qSOFA` | über rund 700 gepflegte Synonyme und Abkürzungen |
+| `Oesophageale`, `Osophageale`, `Ösophageale` | dieselbe SOP – Umlaute in jeder Schreibweise |
+| `Hypokaliaemie` | `Hypokaliämie` |
+| `Pankretitis`, `Meningits` | über Tippfehlertoleranz (Damerau-Levenshtein) |
+| `Blutvergiftung`, `Unterzuckerung`, `Krampfanfall` | Umgangssprache |
+| `Noradrenalin`, `Rasburicase`, `Piperacillin` | Wirkstoff-Direktsuche: zeigt jeden Pfad mit der zugehörigen Dosierungsstelle |
+| `CHA2DS2` | auch als `CHA₂DS₂` geschrieben |
 
-### Oberflächenprüfung
+Die Trefferliste lässt sich auf **Pfadnamen**, **Im Text** oder **Wirkstoffe** eingrenzen. Jeder Treffer führt nicht nur zur SOP, sondern direkt zum Abschnitt mit der Fundstelle.
 
-Der Browser-Regressionslauf in `tests/ui-regression.cjs` prüft 320, 390, 768, 1024 und 1440 Pixel Breite in Hell- und Dunkelmodus, Filter, Navigation, schnelle Kapitelwechsel, Dialoge und Fokus, Suchsprünge, Druckvorbereitung und ungültige Direktlinks. Zusätzlich werden Kartenanimation und Telefonverzeichnis geprüft.
+Kurze Eingaben (unter vier Zeichen) treffen nur an Wortgrenzen. Sonst läge bei `LAE` halb Leipzig in der Liste.
 
-Voraussetzungen für den Entwicklungstest: Node.js, das Paket `playwright` und installiertes Microsoft Edge. Ausführen mit `node tests/ui-regression.cjs`; bei zentral installiertem Playwright muss `NODE_PATH` auf dessen Paketverzeichnis zeigen. Screenshots entstehen unter `.checks/`. Die Anwendung selbst benötigt weiterhin keine zusätzlichen Abhängigkeiten.
+### Lesen
 
-Die Prüfung erfolgt in Desktop-Edge mit unterschiedlichen Viewports; sie ersetzt keinen Test auf physischen iOS-/Android-Geräten oder eine vollständige Barrierefreiheitsprüfung.
+- **Kapitelleiste** heftet sich beim Scrollen an den oberen Rand und zeigt, in welchem Kapitel man steht **und wie weit es gelesen ist**.
+- **Hinweisblöcke** in drei Stufen: CAVE (Gefahr), WICHTIG (zentrale Aussage), HINWEIS (Einordnung) – jeweils mit Signalkante, Symbol und eigener Fläche, in hellem und dunklem Modus kontrastgeprüft.
+- **Tabellen** bleiben auf dem Desktop Tabellen, mit klebender Kopfzeile. Unterhalb von 640 px werden sie zu Karten, in denen jede Zelle ihren Spaltenkopf vor sich her trägt.
+- **Querverweise**: Nennt eine SOP eine andere beim Namen, wird daraus ein Sprungziel.
+- **Verwandte Pfade** am Ende jeder SOP, berechnet aus gemeinsamem Wortschatz, Fachgebiet und kuratierten Leitsymptom-Gruppen.
+- **Abbildungen** aus `img/ZNA/` werden am passenden Abschnitt eingeblendet.
+- **Ziffern in Tabellenbreite**: Dosierungen, Zeiten und Grenzwerte stehen stellengenau untereinander.
 
-### Navigation & Suche
+### Rechnen
 
-| Feature | Beschreibung |
-|---------|--------------|
-| **Kategorie-Navigation** | 11 medizinische Fachgebiete mit Farbcodierung |
-| **Spotlight-Suche** | Schnellsuche mit Tastenkürzel `Strg/Cmd + K` oder `/`; Auswahl mit den Pfeiltasten, Öffnen mit `Enter` |
-| **Volltextsuche** | Durchsucht alle SOP-Inhalte mit Snippet-Vorschau, Trefferanzahl und Angabe des Abschnitts; aus der Schnellsuche direkt erreichbar |
-| **Deep Linking** | Direkte Links zu einzelnen SOPs via URL-Hash |
-| **Verlaufsnavigation** | Zurück-Taste von Browser und Android navigiert in der App |
+Elf Score-Rechner entstehen **aus den Tabellen, die ohnehin in den SOPs stehen**:
 
-### Benutzeroberfläche
+| Score | SOP | Maximum |
+|---|---|---|
+| Glasgow Coma Scale | Unklare Vigilanzminderung | 15 |
+| 4T-Score | Heparininduzierte Thrombozytopenie | 8 |
+| Modifizierter Glasgow-Blatchford | Obere Gastrointestinale Blutung | 16 |
+| MASCC | Fieber in der Neutropenie | 26 |
+| CHA₂DS₂-VA | Vorhofflimmern | 9 |
+| Wells-Score | Lungenarterienembolie | 7 |
+| PERC | Lungenarterienembolie | 8 |
+| Wells-Score TVT | Tiefe Venenthrombose | 9 |
+| Gichtrechner | Akuter Gichtanfall | 13 |
+| ADD-RS | Akutes Aortensyndrom | 3 |
+| BISAP | Akute Pankreatitis | 5 |
 
-| Feature | Beschreibung |
-|---------|--------------|
-| **Responsive Design** | Drei ausgearbeitete Stufen: Smartphone, Tablet und Desktop – jeweils mit eigenem Satzspiegel, eigener Spaltenzahl und passenden Tippzielen |
-| **Dark/Light Mode** | Automatische Systemerkennung + manueller Toggle |
-| **Schriftgröße** | Einstellbar (13–20px) für bessere Lesbarkeit |
-| **Touch-Gesten** | Wischen zum Zurückgehen – die Ansicht folgt dem Finger und wird bei Abbruch zurückgefedert |
-| **Bewegung** | Gestaffelte Karten und Verzeichnisgruppen, animierte Ansichtswechsel und Rückmeldungen; berücksichtigt reduzierte Bewegung |
-| **Barrierefreiheit** | Tastaturbedienung, Fokusführung, beschriftete Bedienelemente und einstellbare Schriftgröße |
-| **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche; ein Tipp auf die Zeile legt die Nummer in die Zwischenablage |
-| **Gleitende Tab-Markierung** | Die Markierung der Fußnavigation dehnt sich in Laufrichtung, wandert zum gewählten Tab und zieht sich dort zusammen |
+Die Tabelle **wird** der Rechner: Zeilen bzw. Punktspalten werden anklickbar, darunter läuft die Summe mit. Kriterien, Punktwerte und Auswertungstext stammen wörtlich aus der SOP – es wird nichts erfunden und nichts gespeichert. Es ist ein Rechenschieber, keine Akte.
 
-### SOP-Darstellung
+### Drucken
 
-| Feature | Beschreibung |
-|---------|--------------|
-| **Kapitelleiste** | Schnellnavigation zwischen den Abschnitten einer SOP, inklusive Quellen |
-| **Akkordeon-Sections** | Auf-/Zuklappen von Diagnostik, Therapie etc. mit animierter Höhe |
-| **Gleitende Markierung** | Die getroffene Auswahl wird von einer mitlaufenden Pille hinterlegt – sie erscheint erst, wenn wirklich eine Auswahl besteht |
-| **Kapitelleiste bleibt oben** | Die Abschnittsleiste heftet sich beim Scrollen an den oberen Rand und bleibt bedienbar; das gerade sichtbare Kapitel wird darin markiert. Der Text läuft unter einer weichen Blende aus, statt an der Kante abgeschnitten zu werden |
-| **Lesefortschritt** | Eine zwei Pixel hohe Linie unter der Kopfzeile zeigt, wie viel des Patientenpfads noch kommt |
-| **Inhaltsverzeichnis** | Floating Action Button für schnellen Zugriff |
-| **Druckfunktion** | Optimierte Druckansicht aller Abschnitte |
-| **Dispositionsfeld** | Hausinterne Dispositionsrichtlinien im Ampelschema mit Direktkontakten |
+Der Ausdruck ist ein Dokument für die Übergabemappe, nicht ein Bildschirmfoto:
 
-### Netzverhalten und Aktualisierung
+- A4 mit gesetzten Rändern, laufender Kopf (Logo, Titel, Fachgebiet) und Fuß (Verbindlichkeitshinweis, Abrufdatum, Fassung) **auf jeder Seite**
+- alle Abschnitte werden gedruckt, unabhängig davon, was auf dem Bildschirm auf- oder zugeklappt ist
+- CAVE bleibt CAVE: Fläche, Signalkante und Symbol werden mitgedruckt
+- Tabellenkopfzeilen wiederholen sich, Zeilen werden nicht zerschnitten
+- die Quellen stehen auf jedem Blatt, das die Klinik verlässt
 
-| Feature | Beschreibung |
-|---------|--------------|
-| **Offline-Banner** | Anzeige, sobald die Netzverbindung wegbricht |
-| **Keine externen Abhängigkeiten** | Schrift und Symbole liegen im Projekt – die Anwendung bleibt vollständig dargestellt, auch wenn ein CDN nicht erreichbar ist |
-| **Pull-to-Refresh** | Manuelles Aktualisieren der Inhalte |
-| **Auto-Update** | Stiller Abgleich mit `version.json`, kein Update-Banner |
+### Telefonieren
 
-> **Zur Offline-Nutzung:** Eine bereits geöffnete Sitzung läuft ohne Netz vollständig weiter – alle 73 SOPs sind im Speicher, und seit Version 2.10 stammen auch Schrift und Symbole aus dem Projekt. Ein **Neuladen** ohne Netzverbindung funktioniert dagegen nicht: Die Anwendung meldet beim Start bewusst alle Service Worker ab und löscht sämtliche Caches ([`index.html`](index.html)), damit im Klinikbetrieb niemals ein veralteter Behandlungspfad ausgeliefert wird. Aktualität hat hier Vorrang vor Offline-Start.
+Das Telefonverzeichnis liest die Dienstzeiten aus den vorhandenen Notizen und zeigt, **was jetzt gilt**: neun Sprechstundeneinträge tragen eine Zeitkennung (`bis 12:00` grün, wenn sie gerade gilt; sonst `Di 08:00`). Ein Filter blendet auf Wunsch alles aus, was gerade nicht erreichbar ist. Sprungmarken führen zu den Gruppen. Auf Telefonen steht neben jeder Zeile ein Wählknopf; am Stationsrechner bleibt es beim Kopieren in die Zwischenablage.
+
+Die Erkennung ist bewusst zurückhaltend: Notizen wie `DA bis 15:30 Uhr: 4004` beziehen die Zeit auf eine **Zweitnummer**, nicht auf die Zeile. Solche Einträge bekommen keine Kennzeichnung – eine Falschaussage würde im Zweifel einen Anruf verhindern.
 
 ---
 
-## Technologie-Stack
+## Architektur
 
-### Frontend
+### Auslieferung
 
-| Technologie | Version/Einsatz |
-|-------------|-----------------|
-| **JavaScript** | ES5-kompatibel (keine Frameworks) |
-| **CSS** | Custom Properties, Flexbox, Grid |
-| **HTML5** | Semantische Struktur |
+Die SOP-Dateien werden **nicht mehr einzeln in die Seite eingebunden**. Sie sind die Quelle, aus der [`tools/build.mjs`](tools/build.mjs) die Artefakte unter `dist/` erzeugt:
 
-### Mitgelieferte Ressourcen
+| Datei | Größe | Wann geladen |
+|---|---|---|
+| `dist/sop-meta.js` | ~95 KB | sofort – Titel, Kategorien, Kapitel, Suchindex, Synonyme, Wirkstoffe, Score-Beschreibungen |
+| `dist/sop-text.js` | ~460 KB | nach dem ersten Bild – Reintext für die Volltextsuche, beim Build vorberechnet |
+| `dist/sop-content-01…09.js` | 9 × ~105 KB | auf Abruf beim Öffnen einer SOP, danach vollständig im Hintergrund |
 
-| Ressource | Ablage | Lizenz |
-|-----------|--------|--------|
-| **Font Awesome Free 6.5.1** (nur `fa-solid`) | [`vendor/fontawesome/`](vendor/fontawesome/) | CC BY 4.0 (Icons), SIL OFL 1.1 (Schrift), MIT (Code) |
-| **Inter** (variabel, 300–800, latin + latin-ext) | [`vendor/inter/`](vendor/inter/) | SIL OFL 1.1 |
+Vorher lud die Startseite 73 Skripte mit rund 1 MB, bevor überhaupt etwas zu sehen war.
 
-Zur Laufzeit werden **keine** externen Adressen angefragt. Zuvor kamen Schrift und Symbole von `cdnjs.cloudflare.com` und `fonts.googleapis.com`; war eines davon nicht erreichbar, verlor die Anwendung sämtliche Symbole und ihre Typografie – im Klinikbetrieb ein reales Ausfallrisiko. Außerdem verlässt so kein Aufruf mehr das Haus.
+Das vollständige Vorladen im Hintergrund ist kein Beiwerk: ohne es ließe sich bei abbrechender Verbindung keine SOP mehr öffnen, die noch niemand angefasst hat.
 
-Mitgeliefert wird bewusst nur der Solid-Stil von Font Awesome, weil ausschließlich dieser verwendet wird. Wer Symbole aus `fa-regular` oder `fa-brands` einsetzen möchte, muss die zugehörige `.woff2` und den `@font-face`-Block in [`vendor/fontawesome/all.min.css`](vendor/fontawesome/all.min.css) ergänzen.
+### Zehn Module
 
-Weitere Abhängigkeiten bestehen nicht: Bootstrap wurde entfernt (ungenutzt), alle SOP-Skripte und die zehn Anwendungsmodule werden mit `defer` geladen und blockieren das Rendern nicht.
+Ladereihenfolge ist Teil der Architektur:
 
-### Architektur-Prinzipien
+```
+core → motion → platform → router → views → lists → segmented → sop → overlays → main
+```
 
-- **Single-Page Application (SPA)** ohne Framework-Abhängigkeiten
-- **Modulare SOP-Dateien** – jede SOP ist eine separate `.js`-Datei
-- **Zehn Anwendungsmodule** in [`js/`](js/) statt einer einzelnen Datei; jedes Modul ist eine IIFE, die ihre öffentlichen Funktionen an den gemeinsamen Namensraum `window.SOPApp` hängt
-- **CSS Custom Properties** für konsistentes Theming
-
-Die Reihenfolge der Module ist die Ladereihenfolge in [`index.html`](index.html) – jedes Modul darf nur Zustand aus bereits geladenen Modulen zum Ladezeitpunkt lesen; Funktionsaufrufe laufen zur Laufzeit stets über `App.<name>()` und sind damit von der Reihenfolge unabhängig.
-
-| Modul | Inhalt |
-|-------|--------|
-| [`js/core.js`](js/core.js) | Version, Kategorien, Zustand `S`, DOM-Puffer `E`, Text- und Datenhilfen, Kurzhinweis |
-| [`js/motion.js`](js/motion.js) | Bewegungsdauern, `requestAnimationFrame`-Helfer, weiches Scrollen, gestaffelter Auftritt, Tipp-Feedback |
-| [`js/platform.js`](js/platform.js) | Theme, Schriftgröße, Safe-Area, Offline-Anzeige, stiller Versionswechsel |
-| [`js/router.js`](js/router.js) | Adresse, Verlauf, Öffnen und Zurück |
-| [`js/views.js`](js/views.js) | Ansichtswechsel, Tab-Steuerung, Kopfzeile, Breadcrumb, Scroll-Reaktionen |
+| Modul | Aufgabe |
+|---|---|
+| [`js/core.js`](js/core.js) | Zustand, DOM-Puffer, Normalisierung, Suchwerk, Datenübernahme |
+| [`js/motion.js`](js/motion.js) | Bewegungssteuerung; liest Dauern aus den CSS-Token |
+| [`js/platform.js`](js/platform.js) | Theme, Schriftgröße, Safe-Area, Offline-Anzeige, Versionsabgleich |
+| [`js/router.js`](js/router.js) | Adresse, Verlauf, Scrollgedächtnis |
+| [`js/views.js`](js/views.js) | Ansichtswechsel, Tabs, Kopfzeile, Scrollmaße |
 | [`js/lists.js`](js/lists.js) | Seitenleiste, Startseite, Übersicht, Volltextsuche |
-| [`js/segmented.js`](js/segmented.js) | Angeheftete Kapitelleiste inkl. Markierung, Pfeilen und Tastaturbedienung |
-| [`js/sop.js`](js/sop.js) | Aufbau einer SOP, Akkordeon, Abschnittspositionen, Scroll-Spy, Drucken |
-| [`js/overlays.js`](js/overlays.js) | Fokusverwaltung, Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis |
+| [`js/segmented.js`](js/segmented.js) | Angeheftete Kapitelleiste samt Fortschritt |
+| [`js/sop.js`](js/sop.js) | SOP-Ansicht, Akkordeon, Tabellen, Score-Rechner, Querverweise, Druck |
+| [`js/overlays.js`](js/overlays.js) | Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis |
 | [`js/main.js`](js/main.js) | Gesten, Ereignisbindung, Start |
+
+Objekte (`App.S`, `App.E`, `App.MOTION`) dürfen am Modulanfang aliasiert werden. **Funktionen werden stets als `App.foo()` aufgerufen** – sonst friert ein Modul eine noch nicht definierte Funktion ein.
+
+### Vier CSS-Layer
+
+Bis Fassung 3.3 entschied allein die Position in `styles.css`, welche Regel gewinnt: 16 nacheinander angehängte Abschnitte, deren Vorrang niemand mehr überblickte. Jetzt ist die Rangfolge erklärt statt zufällig:
+
+```
+legacy  <  tokens  <  components  <  print
+```
+
+| Datei | Layer | Inhalt |
+|---|---|---|
+| [`css/legacy.css`](css/legacy.css) | `legacy` | die gewachsene Formatierung, unverändert übernommen |
+| [`css/tokens.css`](css/tokens.css) | `tokens` | **alle Werte**: Typografie, Raster, Tiefe, Kategoriefarben, klinische Semantik, Bewegung |
+| [`css/components.css`](css/components.css) | `components` | die neu gestalteten Bausteine |
+| [`css/print.css`](css/print.css) | `print` | die gesamte Druckausgabe an einer Stelle |
+
+Was später kommt, gewinnt – unabhängig von der Spezifität des Selektors. **Neue Gestaltung gehört nach `components.css`, neue Werte nach `tokens.css`.**
+
+### Kategoriefarben mit Nachweis
+
+Die elf Kategoriefarben stehen nicht mehr als Hexwert im JavaScript, sondern als Token-Satz je Kategorie (Akzent, getönte Fläche, Schrift darauf, Kante) für hell und dunkel. [`tools/palette.mjs`](tools/palette.mjs) rechnet sie aus und **weist nach**, dass sie die WCAG-Schwellen halten:
+
+```bash
+node tools/palette.mjs
+```
+
+Der Durchlauf endet mit Fehlercode, sobald eine Kombination unter 3,0 : 1 (Nicht-Text) bzw. 4,5 : 1 (Text) fällt. Der Build prüft zusätzlich, dass `css/tokens.css` und die Rechnung nicht auseinandergelaufen sind.
+
+*Infektiologie* ist dabei von Lime auf Teal gewechselt: Lime erreichte auf Weiß nur 1,9 : 1 und war als Signalpunkt praktisch unsichtbar.
+
+---
+
+## Entwicklung
+
+### Einrichten
+
+```bash
+npm install          # nur für Playwright (Sichtprüfung), sonst nichts nötig
+pip3 install fonttools brotli   # einmalig, für das Schrift-Subsetting
+```
+
+### Befehle
+
+| Befehl | Wirkung |
+|---|---|
+| `npm run build` | Artefakte unter `dist/` aus `sops/` erzeugen, Version überall gleichziehen |
+| `npm run check` | prüfen, ob die Artefakte aktuell sind (Exit 1, wenn nicht) |
+| `npm run fonts` | Schriften und Symbole auf den tatsächlichen Bestand reduzieren |
+| `npm run serve` | lokaler Server auf Port 8080 |
+| `npm run visual` | Sicht- und Funktionsprüfung gegen den hinterlegten Stand |
+| `npm run baseline` | den hinterlegten Stand neu festlegen |
+| `npm run verify` | `check` und `visual` nacheinander |
+| `node tools/verify-fold.mjs` | beweist, dass Build und Browser identisch normalisieren |
+| `node tools/palette.mjs` | Kontrastnachweis der Kategoriefarben |
+
+### Eine SOP ändern oder hinzufügen
+
+1. Datei in [`sops/`](sops/) anlegen bzw. bearbeiten – Aufbau wie bei den bestehenden 73.
+2. `npm run build` ausführen.
+3. `npm run verify`.
+
+Der Build bricht ab, wenn eine Kennung doppelt vergeben ist, ein Abschnitt leer bleibt, eine Kategorie sich nicht auflösen lässt oder ein Synonymeintrag fehlt. **`index.html` muss nicht angefasst werden.**
+
+Für jede SOP ist ein Eintrag in [`tools/data/aliases.mjs`](tools/data/aliases.mjs) Pflicht – der Build erzwingt das. Damit kann die Synonymtabelle nicht stillschweigend veralten.
+
+### Kuratierte Zusatzdaten
+
+| Datei | Inhalt |
+|---|---|
+| [`tools/data/aliases.mjs`](tools/data/aliases.mjs) | Synonyme, Abkürzungen, Umgangssprache je SOP + Leitsymptom-Gruppen |
+| [`tools/data/drugs.mjs`](tools/data/drugs.mjs) | Wirkstoff-Lexikon; indiziert wird nur, was im Bestand vorkommt |
+| [`tools/data/figures.mjs`](tools/data/figures.mjs) | Zuordnung Abbildung → SOP → Abschnitt |
+
+Das ist **Anwendungswissen, kein SOP-Inhalt**. Der Build prüft jede Zuordnung gegen den Bestand.
+
+### Sicht- und Funktionsprüfung
+
+```bash
+npm run visual
+```
+
+Fährt 3 Breiten × 2 Themes × 7 Zustände an (42 Bilder) und prüft parallel 28 Funktionsmerkmale: Anzahl der Pfade, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Konsolenfehler.
+
+Beide Teile sind nötig: ein Bild kann gleich aussehen und die Anwendung trotzdem kaputt sein. Genau das ist beim Umbau der Druckausgabe passiert – der Bildvergleich hat eine um eine Zeile verschobene Glasgow Coma Scale aufgedeckt.
+
+Abweichungen liegen als rot markierte Bilder unter `tests/visual/diff/`.
+
+### Projektstruktur
+
+```
+sop-zna/
+├── index.html              Einstiegspunkt
+├── package.json            Version (die einzige Quelle) und Befehle
+├── version.json            erzeugt
+├── css/
+│   ├── legacy.css          Layer legacy
+│   ├── tokens.css          Layer tokens
+│   ├── components.css      Layer components
+│   └── print.css           Layer print
+├── js/                     zehn Module
+├── dist/                   erzeugt – nicht von Hand bearbeiten
+├── sops/                   73 SOP-Dateien (fachlicher Inhalt)
+├── tools/
+│   ├── build.mjs           Artefakte, Prüfungen, Version
+│   ├── palette.mjs         Kategoriefarben mit Kontrastnachweis
+│   ├── subset-fonts.py     Schrift- und Symbol-Subsetting
+│   ├── verify-fold.mjs     Normalisierung Build gegen Browser
+│   ├── visual-regress.mjs  Sicht- und Funktionsprüfung
+│   ├── data/               kuratierte Zusatzdaten
+│   └── lib/                gemeinsame Bausteine
+├── tests/visual/           hinterlegter Stand, aktuelle Bilder, Abweichungen
+├── vendor/                 Inter und FontAwesome, lokal und reduziert
+└── img/
+```
 
 ---
 
@@ -138,96 +264,38 @@ Die Reihenfolge der Module ist die Ladereihenfolge in [`index.html`](index.html)
 ### Voraussetzungen
 
 - Webserver mit statischem File-Serving
-- HTTPS für PWA-Funktionalität (empfohlen)
-- Keine serverseitige Laufzeitumgebung erforderlich
+- HTTPS empfohlen
+- Keine serverseitige Laufzeitumgebung
 
-### Deployment
+### Vorgehen
 
-1. **Dateien auf Webserver kopieren:**
+```bash
+npm run build && npm run verify     # Artefakte erzeugen und prüfen
+scp -r sop-zna/ user@server:/var/www/html/
+```
 
-   ```bash
-   # Beispiel: SCP auf Server
-   scp -r sop-zna/ user@server:/var/www/html/
-   ```
+Die Fassung steht **nur** in `package.json`. `npm run build` trägt sie in `version.json`, `js/core.js` und die Kennzahlenblöcke dieser Datei sowie in `AGENTS.md` ein. Von Hand wird sie nirgends gepflegt.
 
-2. **Version aktualisieren (optional):**
-   
-   In [`version.json`](version.json) die neue Version eintragen:
-   ```json
-   {
-       "version": "2.2.3",
-       "lastUpdated": "2026-02-15T10:00:00Z",
-       "changelog": "Neue SOP hinzugefügt"
-   }
-   ```
-
-3. **Cache leeren:**
-   
-   Die Anwendung löscht beim Laden automatisch alle Service Worker und Caches.
+Nicht ausgeliefert werden müssen: `tools/`, `tests/`, `sops/` und die unreduzierten Schriftdateien in `vendor/`. Ausgeliefert werden müssen `dist/`, `css/`, `js/`, `img/`, `index.html`, `version.json` und die `*-subset.*`-Dateien in `vendor/`.
 
 ### Hosting-Optionen
 
 | Plattform | Eignung |
-|-----------|---------|
-| **Firebase Hosting** | Empfohlen für PWA |
-| **GitHub Pages** | Für Demos/Entwicklung |
-| **Apache/Nginx** | On-Premise Hosting |
-| **Netlify/Vercel** | Automatisches Deployment |
+|---|---|
+| **Apache/Nginx** | On-Premise, empfohlen im Klinikbetrieb |
+| **Firebase Hosting** | wenn extern gehostet werden darf |
+| **GitHub Pages** | für Demos und Entwicklung |
+| **Netlify/Vercel** | automatisches Deployment |
 
 ---
 
 ## Update-Mechanismus
 
-### Funktionsweise
+Beim Start vergleicht die Anwendung die geladene Fassung mit `version.json`. Weichen sie ab, werden Caches verworfen und die Seite genau einmal neu geladen – ohne Banner. Ein Wächter in `sessionStorage` verhindert Neulade-Schleifen; nachgeladene Artefakte tragen die Fassung als Parameter.
 
-Die Anwendung nutzt **immer automatisch den aktuellen Stand vom Server** &ndash; ohne Hinweisbanner und ohne Zutun der Nutzer:
+Die früheren `http-equiv`-Angaben zu Cache-Control, Pragma und Expires sind entfallen: Browser werten sie in einem Dokument nicht aus.
 
-1. **Version-Check:** Beim Laden wird [`version.json`](version.json) mit Cache-Busting vom Server abgerufen
-2. **Vergleich:** Die Server-Version wird mit der geladenen `App.VERSION` aus [`js/core.js`](js/core.js) verglichen
-3. **Stille Aktualisierung:** Bei Abweichung werden alle Caches verworfen und die Seite genau einmal automatisch neu geladen
-4. **Schleifenschutz:** Ein Marker im `sessionStorage` sorgt dafür, dass pro Version höchstens ein Reload erfolgt
-
-Zusätzlich werden Service Worker beim Start abgemeldet und alle Cache-Storage-Einträge gelöscht ([`index.html`](index.html)); `Cache-Control`-Meta-Tags verhindern das Ausliefern veralteter HTML-Dateien.
-
-### Implementierung
-
-```javascript
-function checkForUpdate() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'version.json?_=' + new Date().getTime(), true);
-    xhr.setRequestHeader('Cache-Control', 'no-cache');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState !== 4 || xhr.status !== 200) return;
-        var serverVersion = JSON.parse(xhr.responseText).version || App.VERSION;
-        if (serverVersion === App.VERSION) {
-            localStorage.setItem('sop-app-version', serverVersion);
-            return;
-        }
-        applyUpdate(serverVersion);   // Caches leeren + einmaliger Reload
-    };
-    xhr.send();
-}
-```
-
-`applyUpdate()` löscht alle Cache-Storage-Einträge, merkt sich die Zielversion im `sessionStorage` und lädt die Seite mit dem Parameter `?v=<version>` neu. Ein Update-Banner existiert nicht mehr.
-
-### Update durchführen
-
-1. **Neue Version in [`js/core.js`](js/core.js) eintragen:**
-   ```javascript
-   App.VERSION = '3.0.1';
-   ```
-
-2. **`version.json` aktualisieren:**
-   ```json
-   {
-       "version": "3.0.1",
-       "lastUpdated": "2026-09-18T12:00:00Z",
-       "changelog": "Beschreibung der Änderungen"
-   }
-   ```
-
-3. **Dateien auf Server deployen** &ndash; offene Sitzungen aktualisieren sich beim nächsten Version-Check selbst.
+Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen aus früheren Fassungen werden beim Start abgeräumt.
 
 ---
 
@@ -243,433 +311,87 @@ Jede SOP enthält den Abschnitt **Disposition** mit den verbindlichen hausintern
 | 🟡 **GELB** | Stationäre Aufnahme: krankheitsbildspezifischer Regelpfad (Fachabteilung inkl. Telefonnummer) sowie ZNA-/A&B-Station mit Indikation und Bedingung |
 | 🔴 **ROT** | Kritisch: passende Intensivbereiche (ITS-Koordinator, KAIM-/KAIS-IMC, ITS Pneumologie, ITO/Stroke Unit, HKL) |
 
-Die Karten sind farbcodiert, auf Desktop dreispaltig, auf Mobilgeräten einspaltig und für den Druck optimiert. Jede Kontaktzeile zeigt Fachbereich, Durchwahl und einen Zusatzhinweis (z. B. abweichende Dienstzeiten). Am Ende jedes Dispositionsfeldes öffnet ein Button das vollständige Telefonverzeichnis.
+Die Karten sind farbcodiert, auf Desktop dreispaltig, auf Mobilgeräten einspaltig und für den Druck optimiert. Am Ende jedes Dispositionsfeldes öffnet ein Button das vollständige Telefonverzeichnis.
 
 ### Telefonverzeichnis
 
-Neben dem Dark-/Light-Mode-Umschalter (Sidebar und mobile Kopfzeile) öffnet der Button **Telefonverzeichnis** ein Modal mit allen internen und externen Nummern der ZNA:
+56 interne und externe Nummern in sieben Gruppen: Notfall & externe Kontakte, ITS & IMC (Disposition ROT), chirurgische Fächer, konservative Fächer, Diagnostik & Funktionseinheiten, Infrastruktur & ZNA-Organisation, Sprechstunden des Ambulanzzentrums.
 
-- Notfall & externe Kontakte
-- ITS & IMC (Disposition ROT)
-- Chirurgische Fächer
-- Konservative Fächer & Weitere
-- Diagnostik & Funktionseinheiten
-- Infrastruktur & ZNA-Organisation
-- Sprechstunden des Ambulanzzentrums
-
-Ein Suchfeld filtert live über Fachbereich, Nummer und Zusatzhinweis; `Esc` schließt das Modal. Ein Tipp auf eine Zeile legt die Nummer in die Zwischenablage und bestätigt das mit einem Kurzhinweis – im Klinikbetrieb wird meist am Stationstelefon gewählt, `tel:`-Links helfen dort nicht weiter. Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.js).
+Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.js). Die Dienstzeiterkennung liest ausschließlich die dort vorhandenen Notizen – es müssen keine Zeiten zusätzlich gepflegt werden.
 
 ---
 
-## Navigation, Bedienung & Barrierefreiheit
+## Bedienung & Barrierefreiheit
 
-### Routing und Verlauf
+### Tastatur
 
-Die Ansichten sind adressierbar und über den Verlauf navigierbar:
+| Taste | Wirkung |
+|---|---|
+| `Strg`/`Cmd` + `K`, `/` | Schnellsuche öffnen |
+| `↑` `↓` `↵` | in der Schnellsuche wählen und öffnen |
+| `Esc` | oberstes Overlay schließen |
+| `Rücktaste` | zurück |
+| `←` `→` `Pos1` `Ende` | in der Kapitelleiste |
+| `Leertaste` `↵` | Abschnitt auf-/zuklappen, Score-Kriterium wählen |
 
-| Adresse | Ansicht |
-|---------|---------|
-| `#home` | Startseite |
-| `#browse` | SOP-Übersicht |
-| `#search` | Volltextsuche |
-| `#sop/<id>` | Einzelne SOP |
+### Barrierefreiheit
 
-Der Browser-Verlauf ist die **einzige** Quelle der Navigationstiefe; einen zweiten Stapel in der Anwendung gibt es nicht mehr. Das Öffnen einer SOP erzeugt einen Eintrag (`pushState`), Tabwechsel ersetzen ihn (`replaceState`). Die Zurück-Schaltfläche der App ruft `history.back()` auf – Zurückgehen legt damit keinen neuen Eintrag an.
-
-Jeder Eintrag trägt einen laufenden Index. Beim `popstate`-Ereignis zeigt der Vergleich mit dem aktuellen Index die Richtung an, sodass vorwärts und rückwärts unterschiedlich animiert werden. Die Zurück-Taste des Browsers bzw. des Android-Geräts führt damit zurück in die App statt aus ihr heraus, und Deep Links funktionieren sowohl beim Laden als auch zur Laufzeit. Wird die Anwendung direkt über einen Deep Link geöffnet, gibt es keinen eigenen Eintrag – dann führt die Zurück-Schaltfläche in die Übersicht und von dort zur Startseite.
-
-### Tastaturbedienung
-
-| Taste | Funktion |
-|-------|----------|
-| `Strg/Cmd + K` oder `/` | Schnellsuche öffnen |
-| `↑` / `↓` | In den Ergebnissen der Schnellsuche wählen |
-| `Enter` | Gewähltes Ergebnis öffnen |
-| `Tab` / `Umschalt + Tab` | Fokus bewegen; in geöffneten Overlays wird der Fokus gehalten – maßgeblich ist das zuletzt geöffnete |
-| `Enter` / `Leertaste` | Kategorie-Karte, Listeneintrag oder Abschnitt aktivieren |
-| `←` / `→` / `Pos1` / `Ende` | In der Kapitelleiste einer SOP bewegen |
-| `Rücktaste` | Eine Ebene zurück (außerhalb von Eingabefeldern) |
-| `Esc` | Oberstes Overlay schließen |
-
-Beim Schließen eines Overlays kehrt der Fokus auf das auslösende Element zurück. Ein Sprunglink („Zum Inhalt springen") ist die erste fokussierbare Stelle der Seite.
-
-### Barrierefreiheit (WCAG 2.1 AA)
-
-- **Automatisiert geprüft:** axe-core meldet auf Start-, Übersichts-, Such- und SOP-Ansicht sowie in allen Overlays (Spotlight, Inhalts-Sheet, Telefonverzeichnis) in hellem und dunklem Design **keine Verstöße** – inklusive der Best-Practice-Regeln.
-- **Kontraste:** Sekundärtexte, Breadcrumbs, Kategorie-Badges und die Farbstufen des Dispositionsfeldes erfüllen mindestens 4,5:1; die Ampelfarben tragen zusätzlich Text („GRÜN/GELB/ROT"), Farbe ist nie alleiniger Informationsträger.
-- **Semantik:** je Ansicht genau eine `<h1>`, Abschnittsköpfe als `<h2>` mit enthaltener Schaltfläche (Standardmuster für Akkordeons), `aria-expanded` und `aria-controls` an aufklappbaren Abschnitten, `aria-live` für Suchergebnisse, beschriftete Icon-Schaltflächen, dekorative Icons mit `aria-hidden`.
-- **Echte Bedienelemente:** Karten, Listeneinträge, Filterchips und Abschnittsköpfe sind `<button>`-Elemente statt `div` mit `role="button"` – Tastaturbedienung, Fokus und Hilfstechnologien funktionieren damit ohne Zusatzlogik. Die Kapitelleiste ist eine Werkzeugleiste (`role="toolbar"`, `aria-pressed`), kein Registerkartensatz: die Abschnitte bleiben untereinander lesbar.
-- **Bewegung:** `prefers-reduced-motion: reduce` deaktiviert Animationen und Übergänge – in CSS wie in JavaScript (siehe Abschnitt „Darstellung & Bewegung“).
-- **Fokus:** einheitlicher, sichtbarer Fokusring (`:focus-visible`), der bei Mausklicks nicht stört.
+- Kategoriefarben in beiden Themes nachweislich über den WCAG-Schwellen (`node tools/palette.mjs`)
+- `aria-expanded` folgt dem **tatsächlichen** Zustand, nicht dem angestrebten; geschlossene Abschnitte tragen `hidden` und sind damit weder im Zugänglichkeitsbaum noch in der Browsersuche
+- Fokusfalle und Fokusrückgabe in allen Overlays, Sprunglink, Überschriftenstruktur
+- Bedienelemente auf Zeigegeräten ohne Feinsteuerung mindestens **48 px** – in der ZNA wird mit Handschuhen bedient, die 44 px der Plattformvorgaben sind dafür zu knapp
+- `prefers-reduced-motion` stellt alle Bewegung an einer Stelle still
+- Signale tragen nie allein Farbe: CAVE hat zusätzlich Kante, Symbol und Wortlabel
 
 ### Responsives Verhalten
 
-Geprüft bei 320, 390, 768, 1024 und 1440 px – ohne horizontales Überlaufen:
-
 | Breite | Verhalten |
-|--------|-----------|
-| ≤ 360 px | Kompakte Kopfzeile, zweispaltiges Kartenraster mit reduzierten Abständen |
-| ≤ 480 px | Schmalerer Seitenrand (18 px), kompakter Hero-Bereich |
-| ≤ 640 px | Bottom-Navigation, Inhalts-Sheet als Bottom-Sheet |
-| ≥ 768 px | **Zweispaltige SOP-Übersicht**, breiterer Seitenrand (32 px) – 73 Pfade in einer Spalte kosteten auf dem Tablet zu viel Weg |
-| ≥ 900 px | Sidebar-Navigation, Breadcrumbs, Inhalts-Button in der Kopfzeile |
-| ≥ 1024 px | FAB entfällt (Inhalt liegt in der Kopfzeile) |
-| ≥ 1120 px | Satzspiegel zentriert und auf 1120 px begrenzt, Listen auf 940 px, Fließtext auf 92 Zeichen |
-| ≥ 1600 px | Sechsspaltiges Kategorie-Raster |
+|---|---|
+| < 480 px | einspaltig, engere Ränder |
+| ≤ 560 px | „Inhalt" und „Drucken" schrumpfen auf ihr Symbol, bleiben aber neben der Überschrift |
+| ≤ 640 px | Tabellen werden zu Karten (Score-Tabellen ausgenommen) |
+| < 1024 px | mobiles Layout mit Fußnavigation |
+| ≥ 1024 px | Seitenleiste, Breadcrumb, kein FAB |
 
-Alle Ansichten teilen sich denselben zentrierten Satzspiegel (`--content-max`, `--content-narrow`, `--gutter`). Vorher stand der Inhalt auf Tablet und breitem Desktop linksbündig in einer sehr breiten Spalte.
-
----
-
-## Darstellung & Bewegung
-
-Die Oberfläche ist so gebaut, dass jede sichtbare Zustandsänderung eine eigene Bewegung hat und diese Bewegung durchgängig flüssig bleibt.
-
-### Grundregel
-
-Animiert werden ausschließlich `transform` und `opacity`. Diese beiden Eigenschaften verarbeitet der Browser auf dem Compositor, ohne Layout oder Neuzeichnen – dadurch laufen die Übergänge auch auf älteren Mobilgeräten mit voller Bildrate.
-
-> **`filter` gehört nicht dazu.** Eine animierte Helligkeitsstufe auf der abgehenden Ansicht zwingt den Compositor, für die bildschirmgroße Fläche in jedem Frame eine eigene Zeichenfläche aufzubauen. Gemessen halbierte das die Bildrate des Ansichtswechsels (33,3 statt 16,7 ms je Frame). Die Tiefenwirkung tragen Versatz, Maßstab und Deckkraft allein.
-
-Alle Dauern und Kurven sind als Custom Properties zentral hinterlegt. Jede Kurve hat eine Aufgabe:
-
-| Token | Aufgabe |
-|-------|---------|
-| `--ease-view` | Ansichtswechsel: sanft los, langer Auslauf |
-| `--ease-settle` | etwas wandert an seinen Platz und kommt zur Ruhe |
-| `--ease-spring` | etwas erscheint und schwingt einmal leicht nach |
-| `--ease-snap` | kurze Rückmeldung auf eine Berührung |
-
-Die Dauern (`--dur-tiny` 110 ms, `--dur-micro` 170 ms, `--dur-view-fast` 240 ms, `--dur-section` 300 ms, `--dur-view` 340 ms, `--dur-enter` 400 ms) sind in `js/motion.js` gespiegelt. Ein Testlauf vergleicht beide Stellen und schlägt an, sobald sie auseinanderlaufen.
-
-Ein zweiter Testlauf liest alle `@keyframes` der Anwendung aus und schlägt an, sobald darin eine Eigenschaft steht, die Layout auslöst.
-
-### Übergänge im Überblick
-
-| Aktion | Bewegung | Dauer |
-|--------|----------|-------|
-| SOP öffnen (Push) | Neue Ansicht fährt von rechts ein, alte zieht gedämpft nach links ab | 340 ms |
-| Zurück (Pop) | Umgekehrte Richtung | 340 ms |
-| Tabwechsel | Richtung folgt der Reihenfolge Start → SOPs → Suche | 340 ms |
-| SOP → SOP | Kurzer seitlicher Austausch innerhalb derselben Ansicht | 340 ms |
-| Abschnitt auf-/zuklappen | Animierte Höhe plus Einblendung, danach wird die Höhe wieder freigegeben | 300 ms |
-| Startseite | Logo, Titel, Untertitel, Suchfeld und Kacheln treten als eine Kaskade auf | 400 ms |
-| Kapitelleiste heftet an | Beim Erreichen des oberen Randes setzt sich die Leiste mit einer weichen Kante ab | 280 ms |
-| Abschnittswahl | Gleitende Pille dehnt sich in Laufrichtung, wandert und zieht sich auf das Ziel zusammen | 240 ms |
-| Listen und Kacheln | Gestaffelter Auftritt, Verzögerung bei 14 Elementen gedeckelt | 420 ms |
-| Overlays | Bottom-Sheet, Spotlight und Telefonverzeichnis fahren ein statt zu erscheinen | 260–420 ms |
-| Theme-Wechsel | Kreisförmige Blende vom auslösenden Knopf (View Transition API, mit Rückfallebene) | 480 ms |
-| Tipp-Feedback | Ripple am Berührungspunkt, Karten heben sich an und senken sich beim Drücken | 120–560 ms |
-| Tabwechsel unten | Gleitende Markierung wandert auf den gewählten Tab | 260 ms |
-| Lesefortschritt | Linie unter der Kopfzeile folgt der Scrollposition | 120 ms |
-
-### Angeheftete Kapitelleiste
-
-In der SOP-Ansicht bleibt die Leiste mit den Kapiteln beim Scrollen am oberen Rand stehen (`position: sticky`) und ist dort jederzeit bedienbar. Sie wird **nicht** durch eine andere Leiste ersetzt.
-
-- Beim Anheften setzt sich die Leiste mit einer dezenten Kante vom Inhalt ab (`.is-stuck`).
-- Das Kapitel, das gerade unter der Leiste steht, wird darin mit einem Strich markiert (`.is-current`). Diese Markierung ist bewusst von der Auswahl (`.active`, hinterlegte Pille) unterschieden: die eine zeigt die Scrollposition, die andere die getroffene Wahl.
-- Liegt das markierte Kapitel außerhalb des sichtbaren Ausschnitts, scrollt die Leiste es waagerecht heran – nur beim Wechsel, damit sie nicht unter dem Finger wegwandert.
-- Sprungziele (Kapitelwahl, Inhaltsverzeichnis) landen unterhalb der Leiste; ihre Höhe wird vom Zielpunkt abgezogen.
-- Das Inhaltsverzeichnis im Bottom-Sheet markiert denselben Abschnitt – beide werden aus einer Quelle gespeist.
-
-### Gesten
-
-- **Wischen zum Zurückgehen:** Die Geste startet am linken Rand, die Richtung wird einmalig festgelegt. Senkrechtes Scrollen am linken Rand bleibt dadurch möglich. Die Ansicht folgt dem Finger mit Widerstand am Ende der Strecke; über Strecke *oder* Geschwindigkeit entscheidet sich, ob zurückgegangen oder zurückgefedert wird.
-- **Bottom-Sheet:** Das Inhaltsverzeichnis wird über `translate3d` gezogen; über Zugstrecke oder Wischgeschwindigkeit schließt es.
-- **Pull-to-Refresh:** Gummiband-Charakteristik, das Symbol dreht sich proportional zur Zugstrecke.
-
-### Die Bewegung beginnt, wenn der Inhalt steht
-
-Bis Version 3.1 wurden Inhalt und Bewegung im selben Frame angestoßen: der Browser musste die gesamte neue Ansicht anordnen und zeichnen, **während die Animation bereits lief**. Dieser eine Frame dauerte gemessen 83 ms – die Bewegung setzte also erst nach rund einem Fünftel ihrer Strecke sichtbar ein und wirkte dadurch wie ein Sprung.
-
-Beide Ansichten bekommen ihre Bildfolge jetzt zuerst im Zustand *angehalten* (`.is-prepped` → `animation-play-state: paused`). Das legt den Startzustand fest, ohne dass die Animationsuhr läuft; ein erzwungener Layoutdurchlauf zieht die teure Arbeit in diesen Frame. Im nächsten Frame fällt die Bremse, und die Bewegung startet mit bereits gezeichnetem Inhalt.
-
-Der Unterschied ist messbar. Aufgezeichnet wird der Versatz der einfahrenden Ansicht in jedem Frame:
-
-| | Startwert | Frames über 32 ms |
-|---|---|---|
-| vorher | 80,8 % statt 100 % | 4 |
-| nachher | **100,0 %** | **0** |
-
-### Gemessene Bildrate
-
-Die Bewegungen werden nicht nur behauptet, sondern gemessen: ein Testlauf zeichnet die Abstände zwischen den Frames auf, während die jeweilige Bewegung läuft.
-
-| Bewegung | Median | Verworfene Frames |
-|----------|--------|-------------------|
-| Scrollen durch eine SOP (8504 px, alle Abschnitte offen) | 16,7 ms | 0 |
-| Abschnitt auf-/zuklappen | 16,7 ms | 0 |
-| Alle zehn Abschnitte aufklappen | 16,7 ms | 0 |
-| Sprung zu einem Kapitel (weiches Scrollen) | 16,7 ms | 0 |
-| Kapitelwahl in der angehefteten Leiste | 16,7 ms | 0 |
-| Ansichtswechsel (Smartphone) | 16,7 ms | 0 |
-| Inhalts-Sheet öffnen und schließen | 16,7 ms | 0 |
-| Telefonverzeichnis öffnen | 16,7 ms | 0 |
-| Schnellsuche öffnen | 16,7 ms | 0 |
-| Wischen zum Zurückgehen | 16,7 ms | 0 |
-
-Vier Befunde aus diesen Messungen haben die Umsetzung verändert:
-
-- **Kein `filter` in den Bildfolgen der Ansichtswechsel** (siehe Grundregel oben) – der teuerste Einzelposten.
-- **Keine animierte Polsterung an der Kapitelleiste.** Die Leiste wurde beim Anheften flacher; das erzwang in jedem Frame ein Layout, ließ den Inhalt darunter wandern und machte die gepufferte Leistenhöhe ungültig, an der alle Sprungziele hängen. Der Zustandswechsel zeigt sich jetzt allein über Fläche und Kante.
-
-- **Kein `backdrop-filter` auf bildschirmfüllenden Flächen.** Der weichgezeichnete Hintergrund hinter Schnellsuche, Inhalts-Sheet und Telefonverzeichnis muss in jedem Frame neu gerechnet werden und drückte das Öffnen der Schnellsuche auf dem Desktop von 60 auf 20 Bilder je Sekunde – unabhängig davon, ob die Transparenz animiert wurde oder nicht. An seine Stelle ist ein radialer Verlauf getreten: dieselbe Tiefenwirkung, gemessen null Zusatzkosten.
-- **Ein Listener je Liste statt einer je Zeile.** Jede der 73 Zeilen bekam beim Aufbau einen eigenen `click`-Listener und eine eigene Auftrittsanimation samt Ereignis-Registrierung. Beides läuft jetzt über Ereignisdelegation, und der gestaffelte Auftritt ist auf die 18 Einträge begrenzt, die überhaupt sichtbar sein können.
-
-Arbeit, die niemand sofort sieht, liegt außerdem hinter der Bewegung: die Navigationsliste der Seitenleiste wird über `requestIdleCallback` nachgezogen, das Inhaltsverzeichnis entsteht erst beim Öffnen des Sheets. Beides während der ersten Frames aufzubauen kostete genau dort Zeit, wo die Bewegung sie braucht.
-
-Zusätzlich überlässt `content-visibility: auto` dem Browser die Entscheidung, welche Listeneinträge außerhalb des Sichtfensters er überhaupt anordnen und zeichnen muss; `contain-intrinsic-size` hält die Bildlaufleiste dabei ruhig. Für die SOP-Abschnitte wird das bewusst **nicht** gesetzt – dort wird die Höhe des Inhalts für die Aufklapp-Animation gemessen.
-
-### Scrollverhalten
-
-- Scroll-Reaktionen (eingeblendeter FAB, Abschnittsleiste) laufen in **einem** `requestAnimationFrame`-getakteten Handler statt in mehreren gedrosselten Listenern.
-- Die Positionen der SOP-Abschnitte sowie Höhe und Ruheposition der Kapitelleiste werden gepuffert und nur bei echten Änderungen neu vermessen – das Scrollen erzwingt damit kein Layout mehr pro Frame.
-- Der Volltext jedes Abschnitts wird einmalig aus dem HTML gelöst und gepuffert; die Suche entprellt Eingaben. Zuvor wurde bei **jedem Tastendruck** der HTML-Inhalt aller 73 SOPs neu geparst.
-- Weiches Scrollen läuft über eine eigene `requestAnimationFrame`-Schleife mit einheitlicher Kurve, statt über das global gesetzte `scroll-behavior: smooth` (das zuvor auch jeden Positions-Reset animierte).
-- Auf Zeigegeräten reserviert `scrollbar-gutter: stable` den Platz des Scrollbalkens, sodass beim Ansichtswechsel keine Breite springt.
-
-### Bewegungsreduktion
-
-`prefers-reduced-motion: reduce` wird an einer einzigen Stelle ausgewertet und wirkt auf CSS **und** JavaScript: sämtliche Dauer-Tokens fallen auf 1 ms, Ansichten wechseln ohne Übergang, Ripple, Auftritts- und Schwebeeffekte entfallen, gleitende Markierungen springen, das Akkordeon schaltet direkt um. Ein Testlauf öffnet die Anwendung mit dieser Einstellung und prüft, dass die Bedienung dabei vollständig erhalten bleibt.
-
----
-
-## SOP hinzufügen
-
-### Schritt-für-Schritt-Anleitung
-
-1. **Neue Datei erstellen:**
-   
-   Datei `sops/neue-sop.js` im Verzeichnis [`sops/`](sops/) anlegen.
-
-2. **SOP-Datenstruktur:**
-   
-   ```javascript
-   window.SOP_DATA = window.SOP_DATA || [];
-   window.SOP_DATA.push({
-       id: "eindeutige-id",           // Required: URL-freundlicher String
-       name: "Titel der SOP",         // Required: Anzeigename
-       category: "kardio",            // Required: Kategorie-Schlüssel
-       stand: "02/26",                // Optional: Datum MM/YY
-       sources: "<p>Quellen...</p>",  // Optional: HTML-String
-       sections: [                    // Required: Array von Abschnitten
-           {
-               title: "Definition",
-               html: "<p>Inhalt...</p>"
-           },
-           {
-               title: "Diagnostik",
-               html: "<p>Inhalt...</p>"
-           },
-           {
-               title: "Therapie",
-               html: "<p>Inhalt...</p>"
-           }
-       ]
-   });
-   ```
-
-3. **In `index.html` einbinden:**
-   
-   Script-Tag vor den Anwendungsmodulen hinzufügen:
-   ```html
-   <script defer src="sops/neue-sop.js"></script>
-   <!-- ... danach erst js/core.js bis js/main.js -->
-   ```
-
-4. **Kategorie prüfen:**
-   
-   Sicherstellen, dass die Kategorie in `CATS` in [`js/core.js`](js/core.js) definiert ist:
-   ```javascript
-   var CATS = {
-       'kardio': { name: 'Kardiologie', icon: 'fa-heart-pulse' },
-       // ...
-   };
-   ```
-
-### Verfügbare Kategorien
-
-| Schlüssel | Name | Icon | Farbe |
-|-----------|------|------|-------|
-| `kardio` | Kardiologie | `fa-heart-pulse` | Rot |
-| `pulmo` | Pneumologie | `fa-lungs` | Blau |
-| `gi` | Gastroenterologie | `fa-utensils` | Orange |
-| `neuro` | Neurologie | `fa-brain` | Violett |
-| `nephro` | Nephrologie | `fa-droplet` | Cyan |
-| `metab` | Metabolisch | `fa-flask` | Grün |
-| `haem` | Hämatologie | `fa-syringe` | Pink |
-| `infekt` | Infektiologie | `fa-virus` | Limette |
-| `tox` | Toxikologie | `fa-skull-crossbones` | Orange |
-| `leit` | Leitsymptom | `fa-stethoscope` | Indigo |
-| `sonst` | Sonstige | `fa-circle-info` | Grau |
-
-### Neue Kategorie hinzufügen
-
-In [`js/core.js`](js/core.js) zwei Objekte erweitern:
-
-```javascript
-// Kategorien
-var CATS = {
-    // ... bestehende
-    'neue-kat': { name: 'Neue Kategorie', icon: 'fa-icon-name' }
-};
-
-// Farben
-var CC = {
-    // ... bestehende
-    'neue-kat': '#hexfarbe'
-};
-```
-
----
-
-## Entwicklung
-
-### Lokale Entwicklungsumgebung
-
-```bash
-# Python 3
-python3 -m http.server 8080
-
-# Node.js
-npx serve .
-
-# PHP
-php -S localhost:8080
-```
-
-Die Anwendung ist dann unter `http://localhost:8080` erreichbar.
-
-### Projektstruktur
-
-```
-sop-zna/
-├── index.html              # Einstiegspunkt, HTML-Struktur
-├── js/                     # Anwendungslogik in zehn Modulen
-│   ├── core.js                 # Konfiguration, Zustand, DOM-Puffer, Hilfsfunktionen
-│   ├── motion.js               # Bewegungssteuerung
-│   ├── platform.js             # Theme, Schrift, Safe-Area, Offline, Versionswechsel
-│   ├── router.js               # Adresse, Verlauf, Öffnen und Zurück
-│   ├── views.js                # Ansichtswechsel, Tabs, Kopfzeile, Breadcrumb
-│   ├── lists.js                # Seitenleiste, Startseite, Übersicht, Volltextsuche
-│   ├── segmented.js            # Angeheftete Kapitelleiste
-│   ├── sop.js                  # SOP-Ansicht, Akkordeon, Scroll-Spy, Drucken
-│   ├── overlays.js             # Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis
-│   └── main.js                 # Gesten, Ereignisbindung, Start
-├── styles.css              # Vollständiges Stylesheet (~4700 Zeilen)
-├── version.json            # Versionsdatei für Update-Check
-├── AGENTS.md               # Technische Dokumentation für KI-Agenten
-├── README.md               # Diese Datei
-├── img/
-│   ├── Basislogo_farbig.png    # Logo für Hero-Section
-│   ├── Patientenpfade.png      # App-Icon
-│   └── ZNA/
-│       └── *.png               # SOP-spezifische Abbildungen
-├── vendor/                 # Schrift und Symbole (keine CDN-Abhängigkeit)
-│   ├── fontawesome/            # all.min.css + fa-solid-900.woff2
-│   └── inter/                  # inter.css + latin/latin-ext woff2
-└── sops/
-    └── *.js                # 73 einzelne SOP-Module
-```
-
-### Wichtige Dateien
-
-| Datei | Zweck |
-|-------|-------|
-| [`index.html`](index.html) | DOM-Struktur, Script-Einbindung |
-| [`js/`](js/) | Anwendungslogik: Zustand, Rendering, Navigation, Overlays (zehn Module, siehe „Architektur-Prinzipien") |
-| [`styles.css`](styles.css) | Theming, Layout, Animationen |
-| [`version.json`](version.json) | Update-Erkennung |
-| [`AGENTS.md`](AGENTS.md) | Detaillierte Architektur-Dokumentation |
-
-### Debugging
-
-- **Namensraum:** `window.SOPApp` bündelt alle Module
-- **Zustand:** `SOPApp.S` für State-Inspektion
-- **DOM-Puffer:** `SOPApp.E` für Element-Referenzen
-- **SOP-Daten:** `SOP_DATA` Array im globalen Scope, normalisiert in `SOPApp.S.data`
-- **Nachladen:** `window.registerSOP({...})` fügt eine SOP zur Laufzeit hinzu
+Ein Wechsel zwischen diesen Stufen baut die betroffenen Ansichten neu auf – ein gedrehtes Tablet behält nicht länger die Telefonentscheidungen.
 
 ---
 
 ## Browser-Unterstützung
 
-### Unterstützte Browser
+| Browser | Ab Version |
+|---|---|
+| Chrome / Edge | 99 |
+| Safari (macOS/iOS) | 15.4 |
+| Firefox | 97 |
 
-| Browser | Version | Status |
-|---------|---------|--------|
-| **Chrome** | 80+ | ✅ Vollständig |
-| **Firefox** | 75+ | ✅ Vollständig |
-| **Safari** | 13+ | ✅ Vollständig |
-| **Edge** | 80+ | ✅ Vollständig |
-| **iOS Safari** | 13+ | ✅ Vollständig |
-| **Android Chrome** | 80+ | ✅ Vollständig |
-
-### Mobile Optimierung
-
-- **iOS Safe Areas:** Berücksichtigt Notch und Home Indicator
-- **Touch-Optimierung:** 44 px Mindestgröße für Touch-Targets auf Touchgeräten (`pointer: coarse`)
-- **Swipe-Gesten:** Edge-Swipe für Zurück-Navigation
-- **Zurück-Taste:** Hardware-/Browser-Zurück navigiert innerhalb der App (History-API)
-- **Pull-to-Refresh:** Aktualisieren durch Herunterziehen
-- **Zoom erlaubt:** Kein `user-scalable=no` – Pinch-to-Zoom bleibt möglich (WCAG 1.4.4)
-- **Kompakte Kopfbereiche:** Startseite zeigt mehr Kategorien oberhalb der Falz; die Schriftgrößen-Steuerung liegt im Inhalts-Sheet
-
-### iOS PWA Safe-Area-Unterstützung
-
-Die Anwendung nutzt einen JavaScript-basierten Ansatz zur Erkennung der Safe-Area auf iOS-Geräten im PWA-Modus, da die CSS-Funktion `env(safe-area-inset-bottom)` im iOS standalone mode oft `0px` zurückgibt.
-
-**Implementierte Lösung:**
-- Laufzeit-Messung der Safe-Area beim Anwendungsstart
-- iPhone-Screen-Height-Lookup-Table für präzise Erkennung
-- CSS-Variable `--sab-js` wird dynamisch gesetzt
-- Event-Handler für orientationchange und resize
-
-**Unterstützte Geräte:**
-- iPhone X/XS/11 Pro (34px Safe-Area)
-- iPhone XR/11 (34px Safe-Area)
-- iPhone 12/13/14/15 Mini (34px Safe-Area)
-- iPhone 12/13/14/15/16 (34px Safe-Area)
-- iPhone 12/13/14/15/16 Pro (34px Safe-Area)
-- iPhone 12/13/14/15/16 Pro Max (34px Safe-Area)
-- iPhone 14 Pro/15 Pro/16 Pro (59px Dynamic Island)
-- iPhone 14 Pro Max/15 Pro Max/16 Pro Max (59px Dynamic Island)
+Voraussetzung ist `@layer` (CSS Cascade Layers). Ältere Browser zeigen die Anwendung ohne die neue Gestaltungsschicht, bleiben aber bedienbar.
 
 ### Bekannte Einschränkungen
 
-- **Internet Explorer:** Nicht unterstützt
-- **file:// Protocol:** Update-Check deaktiviert
-- **Private Mode:** localStorage möglicherweise eingeschränkt
+- Der laufende Kopf im Ausdruck setzt eine echte Tabelle voraus; in Engines ohne wiederholte Tabellenköpfe erscheint er nur auf der ersten Seite.
+- Ohne Netz sind nur die Pakete verfügbar, die bereits vorgeladen wurden. Das Vorladen beginnt unmittelbar nach dem ersten Bild und ist in aller Regel nach wenigen Sekunden abgeschlossen. Die Anwendung bringt bewusst keinen Service Worker mit.
+- `tel:`-Wählknöpfe erscheinen nur auf Geräten mit Touch-Bedienung unter 900 px.
 
 ---
 
 ## Lizenz & Kontakt
 
-### Lizenz
-
 Internes Projekt des Klinikums St. Georg Leipzig. Alle Rechte vorbehalten.
-
-### Kontakt
 
 - **Entwicklung:** AG Klinische Pfade
 - **Institution:** Klinikum St. Georg Leipzig gGmbH
 - **Standort:** Delitzscher Straße 141, 04129 Leipzig
 
-### Mitwirken
-
-Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) für technische Details.
-
----
-
-*Letzte Aktualisierung: September 2026*  
-*Version: 3.3.0*
+Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 ---
 
 ## Versionshistorie
 
 | Version | Datum | Änderungen |
+|---------|-------|------------|
+| **v4.0.0** | Sep 2026 | **Suchwerk, Auslieferung und Gestaltung neu.** Suche: ein Werk für alle vier Oberflächen, mit Umlauttoleranz in beide Richtungen, rund 700 kuratierten Synonymen und Abkürzungen, Tippfehlertoleranz, Wirkstoff-Direktsuche über 137 Wirkstoffe und Sprung zur Fundstelle; kurze Eingaben treffen nur an Wortgrenzen. Auslieferung: die 73 SOP-Skripte sind einem Build gewichen – Start mit 95 KB Index statt 1 MB, Inhalte in neun Paketen auf Abruf und im Hintergrund; Schriften und Symbole auf den Bestand reduziert (389 KB → 54 KB). Gestaltung: vier CSS-Layer mit erklärter Rangfolge statt 16 gewachsener Schichten, vollständiges Token-System (Typografie, 8-px-Raster, Tiefe, Bewegung), Kategoriefarben mit nachgerechnetem Kontrast in beiden Themes, Hinweisblöcke als Warnstufen, Tabellen auf dem Telefon als Karten, Kapitelfortschritt, „Inhalt" und „Drucken" neben der Überschrift. Neu: elf Score-Rechner aus den SOP-eigenen Tabellen, Querverweise, verwandte Pfade, zwei bislang verwaiste Abbildungen, Dienstzeitkennung im Telefonverzeichnis, Druckausgabe mit laufendem Kopf und Fuß. Behoben: Trefferhervorhebung zerriss HTML-Entitäten; Druck war ein Wettlauf gegen `window.print()`; Scrollposition ging beim Zurückgehen verloren; Lesefortschritt erzwang ein Layout je Frame; `aria-expanded` widersprach dem Zustand; „Therapie – …" und „Diagnostik & …" klappten nicht auf; `Esc` konnte die Tastaturbedienung mitreißen; das Inhaltsverzeichnis schloss sich beim Scrollen; Breakpoint-Wechsel baute die Ansichten nicht neu auf; `fa-wifi-slash` gibt es im Free-Satz nicht. SOP-Dateien unverändert. |
 |---------|-------|------------|
 | **v3.3.0** | Sep 2026 | Kompakter, modusabhängiger Kopfbereich, größeres Logo und Kategorie-Symbole, Kartenanimation bei Rückkehr, überarbeitetes Telefonverzeichnis mit Kopierfeedback; Suchtreffer springen zum Abschnitt, robustere Akkordeons, Dialoge und Direktlinks. SOP-Dateien unverändert. |
 | **v3.2.0** | Sep 2026 | **Bewegungen durchgehend flüssig.** Behoben: der Ansichtswechsel setzte erst nach rund einem Fünftel seiner Strecke sichtbar ein, weil der Browser die neue Ansicht anordnen und zeichnen musste, während die Animationsuhr bereits lief – die Bildfolge wird jetzt im Zustand „angehalten" vorbereitet und startet erst, wenn der Inhalt steht (Startwert 100,0 % statt 80,8 %, null verworfene Frames statt vier); eine in v3.1 eingeführte animierte Helligkeitsstufe auf der abgehenden Ansicht halbierte die Bildrate des Wechsels (33,3 statt 16,7 ms je Frame) und ist entfallen; die Kapitelleiste wurde beim Anheften flacher, was in jedem Frame ein Layout erzwang, den Inhalt wandern ließ und die gepufferte Leistenhöhe ungültig machte, an der alle Sprungziele hängen; das Aufklappen animierte jedes Kind eines Abschnitts einzeln – bei langen Abschnitten leicht fünfzig Animationen. Neu: die gleitenden Markierungen in Kapitelleiste und Fußnavigation dehnen sich in Laufrichtung und ziehen sich am Ziel zusammen, statt zu springen; die Startseite tritt als Kaskade auf; Kurven haben feste Aufgaben (`--ease-view`, `--ease-settle`, `--ease-spring`, `--ease-snap`), Dauern sind gestrafft (Ansichtswechsel 340 ms, Akkordeon 300 ms) und werden von einem Testlauf gegen ihre Spiegelung in JavaScript geprüft; Rückmeldung auf Berührung an Kopfzeilen-Schaltflächen, Abschnittsköpfen und Listeneinträgen. Nacharbeiten liegen hinter der Bewegung: die Navigationsliste wird über `requestIdleCallback` nachgezogen, das Inhaltsverzeichnis entsteht erst beim Öffnen. Gemessen: zehn von zehn geprüften Bewegungen mit 16,7 ms Median und null verworfenen Frames |

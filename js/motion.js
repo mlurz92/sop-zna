@@ -10,23 +10,84 @@
 
     var E = App.E;
 
-    // Gespiegelt in styles.css (--dur-view und Geschwister).
-    // Wird eine Dauer geaendert, gehoert die andere Stelle dazu.
+    // ---------- Dauern: eine einzige Quelle (Vorschlag 42) ----------
+    // Bisher standen dieselben Zahlen zweimal da - hier und in der
+    // CSS-Datei - und mussten von Hand synchron gehalten werden. Ein
+    // Kommentar an beiden Stellen hat darum gebeten; verlassen konnte
+    // man sich darauf nicht.
+    //
+    // Jetzt stehen sie ausschliesslich in css/tokens.css. Die Werte
+    // unten sind reine Rueckfallwerte fuer den Fall, dass das
+    // Stylesheet noch nicht anliegt (z. B. bei file:// mit
+    // blockierter CSS-Datei).
     var MOTION = {
         reduced: false,
         view: 340,        // Dauer eines Ansichtswechsels
         viewFast: 240,
         section: 300,     // Dauer des Auf-/Zuklappens
         micro: 170,
+        tiny: 120,
+        sheet: 460,
         staggerStep: 26,  // Verzoegerung je Listenelement
         staggerMax: 14,   // ... hoechstens fuer so viele Elemente
         staggerLimit: 18  // ... und ueberhaupt nur fuer so viele
     };
     App.MOTION = MOTION;
 
+    // Welche CSS-Variable fuellt welches Feld?
+    var DURATION_TOKENS = [
+        ['view', '--dur-view'],
+        ['viewFast', '--dur-view-fast'],
+        ['section', '--dur-section'],
+        ['micro', '--dur-micro'],
+        ['tiny', '--dur-tiny'],
+        ['sheet', '--dur-sheet']
+    ];
+
+    var COUNT_TOKENS = [
+        ['staggerStep', '--stagger-step'],
+        ['staggerMax', '--stagger-max'],
+        ['staggerLimit', '--stagger-limit']
+    ];
+
+    // "340ms" / "0.34s" / "14" -> Millisekunden bzw. Zahl
+    function parseTime(raw) {
+        var v = String(raw || '').trim();
+        if (!v) return NaN;
+        if (v.slice(-2) === 'ms') return parseFloat(v);
+        if (v.slice(-1) === 's') return parseFloat(v) * 1000;
+        return parseFloat(v);
+    }
+
+    App.readMotionTokens = function() {
+        if (!window.getComputedStyle) return;
+        var cs;
+        try { cs = getComputedStyle(document.documentElement); } catch (e) { return; }
+        if (!cs || !cs.getPropertyValue) return;
+
+        var i, value;
+
+        for (i = 0; i < DURATION_TOKENS.length; i++) {
+            value = parseTime(cs.getPropertyValue(DURATION_TOKENS[i][1]));
+            // Bei "Bewegung reduzieren" setzt das Stylesheet 1ms. Das
+            // ist gewollt und wird uebernommen; nur Unsinn wird verworfen.
+            if (isFinite(value) && value >= 0 && value < 5000) {
+                MOTION[DURATION_TOKENS[i][0]] = value;
+            }
+        }
+
+        for (i = 0; i < COUNT_TOKENS.length; i++) {
+            value = parseTime(cs.getPropertyValue(COUNT_TOKENS[i][1]));
+            if (isFinite(value) && value >= 0 && value < 500) {
+                MOTION[COUNT_TOKENS[i][0]] = value;
+            }
+        }
+    };
+
     function updateMotionPreference() {
         MOTION.reduced = !!(window.matchMedia &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        App.readMotionTokens();
     }
 
     App.initMotionPreference = function() {
@@ -229,9 +290,13 @@
     };
 
     // ---------- Tipp-Rueckmeldung ("Ripple") ----------
+    // Tabellenzeilen fehlen hier bewusst: ein <tr> kann ein absolut
+    // gesetztes Kind nicht zuverlaessig beschneiden, der Ripple liefe
+    // ueber die Tabellenkante hinaus.
     var RIPPLE_SELECTOR = '.cat-card, .browse-item, .search-result, .btm-btn,' +
         ' .picker-list li, .spotlight-result, .sidebar-nav a, .browse-cat-chip,' +
-        ' .sidebar-cat-chip, .segmented-btn, .dir-row';
+        ' .sidebar-cat-chip, .segmented-btn, .dir-row, .related-card, .scope-chip,' +
+        ' .drug-item, .sr-hit, .dir-jump-chip, .hero-search';
 
     function spawnRipple(host, clientX, clientY) {
         if (MOTION.reduced || !host) return;

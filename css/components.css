@@ -1,0 +1,1616 @@
+/* ============================================================
+   css/components.css                        Layer: components
+   ------------------------------------------------------------
+   Die neu gestalteten Bausteine. Alles hier greift ausschliess-
+   lich auf die Werte aus css/tokens.css zu - keine festen Farben,
+   keine festen Abstaende, keine festen Dauern.
+
+   Enthalten:
+     1  Fliesstext der SOP                     (Vorschlag 34)
+     2  Hinweisbloecke CAVE / WICHTIG / HINWEIS (Vorschlag 36)
+     3  Tabellen, auf dem Telefon als Karten    (Vorschlag 37)
+     4  Score-Rechner aus der SOP-Tabelle       (Vorschlag 32)
+     5  Abbildungen                             (Vorschlag 12)
+     6  Querverweise                            (Vorschlag 27)
+     7  Verwandte Pfade                         (Vorschlag 28)
+     8  Kapitelleiste mit Fortschritt           (Vorschlag 39)
+     9  Abschnittskarten, Tiefe, Raster         (Vorschlag 40)
+    10  Suche: Bereiche, Treffer, Wirkstoffe    (Vorschlaege 23-25)
+    11  Startseite                              (Vorschlag 24)
+    12  Telefonverzeichnis mit Dienstzeit       (Vorschlag 29)
+    13  Ladezustaende                           (Vorschlag 17)
+    14  Bedienmasse                             (Vorschlag 45)
+   ============================================================ */
+
+@layer components {
+
+    /* ========================================================
+       1  FLIESSTEXT DER SOP                    (Vorschlag 34)
+       --------------------------------------------------------
+       Eine durchgaengige Skala statt gewachsener Einzelwerte.
+       Ziffern laufen in Tabellenbreite - Dosierungen, Zeiten und
+       Grenzwerte stehen dadurch stellengenau untereinander.
+       ======================================================== */
+
+    .sop-section-body {
+        font-size: var(--fs-md);
+        line-height: var(--lh-normal);
+        color: var(--text);
+        padding: 0 var(--sp-25) var(--sp-25);
+        font-variant-numeric: tabular-nums lining-nums;
+        font-feature-settings: var(--num-tabular);
+    }
+
+    .sop-section-body > *:first-child { margin-top: 0; }
+    .sop-section-body > *:last-child { margin-bottom: 0; }
+
+    .sop-section-body h3 {
+        font-size: var(--fs-lg);
+        font-weight: var(--fw-bold);
+        line-height: var(--lh-snug);
+        letter-spacing: var(--ls-snug);
+        color: var(--text);
+        margin: var(--sp-3) 0 var(--sp-1);
+        padding-bottom: var(--sp-05);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sop-section-body h3:first-child { margin-top: 0; }
+
+    .sop-section-body h4 {
+        font-size: var(--fs-md);
+        font-weight: var(--fw-semibold);
+        line-height: var(--lh-snug);
+        color: var(--text2);
+        margin: var(--sp-2) 0 var(--sp-05);
+        text-transform: none;
+        letter-spacing: var(--ls-normal);
+    }
+
+    .sop-section-body p {
+        margin: 0 0 var(--sp-15);
+        max-width: var(--measure);
+    }
+
+    .sop-section-body ul,
+    .sop-section-body ol {
+        margin: 0 0 var(--sp-15);
+        padding-left: var(--sp-25);
+        max-width: var(--measure);
+    }
+
+    .sop-section-body li {
+        margin-bottom: var(--sp-1);
+        line-height: var(--lh-normal);
+    }
+
+    .sop-section-body li:last-child { margin-bottom: 0; }
+
+    .sop-section-body li::marker {
+        color: var(--cat-color, var(--primary));
+        font-weight: var(--fw-bold);
+    }
+
+    /* Verschachtelte Listen ruecken ein, ohne Luft zu verlieren. */
+    .sop-section-body ul ul,
+    .sop-section-body ul ol,
+    .sop-section-body ol ul,
+    .sop-section-body ol ol {
+        margin: var(--sp-05) 0 var(--sp-1);
+        padding-left: var(--sp-2);
+    }
+
+    .sop-section-body ul ul li::marker { color: var(--text4); }
+
+    /* Hervorhebung traegt Bedeutung: der Begriff, um den es geht.
+       Deshalb Gewicht statt Farbe - Farbe ist fuer Signale
+       reserviert (siehe Abschnitt 2). */
+    .sop-section-body strong {
+        font-weight: var(--fw-semibold);
+        color: var(--text);
+    }
+
+    .sop-section-body em {
+        font-style: italic;
+        color: var(--text2);
+    }
+
+    .sop-section-body code,
+    .sop-section-body kbd {
+        font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+        font-size: 0.92em;
+        background: var(--inset);
+        border: 1px solid var(--inset-line);
+        border-radius: var(--radius-xs);
+        padding: 0.1em 0.38em;
+    }
+
+    /* ========================================================
+       2  HINWEISBLOECKE                        (Vorschlag 36)
+       --------------------------------------------------------
+       Die Stelle, an der ein Nachschlagewerk Fehler verhindert.
+       Drei Stufen, jede mit Signalkante, Symbol und eigener
+       Flaeche - und in beiden Themes mit geprueftem Kontrast.
+
+       Bewusst NICHT eingefaerbt nach Fachgebiet: ein CAVE in der
+       Nephrologie muss aussehen wie ein CAVE in der Kardiologie,
+       sonst wird es als Fachgebiet gelesen statt als Warnung.
+       ======================================================== */
+
+    .sop-section-body .callout {
+        position: relative;
+        margin: var(--sp-2) 0;
+        padding: var(--sp-15) var(--sp-2) var(--sp-15) var(--sp-6);
+        border: 1px solid var(--callout-line, var(--border));
+        border-left: 4px solid var(--callout-accent, var(--primary));
+        border-radius: var(--radius-md);
+        background: var(--callout-tint, var(--inset));
+        color: var(--callout-ink, var(--text));
+        max-width: var(--measure);
+        box-shadow: var(--elev-1);
+    }
+
+    .sop-section-body .callout::before {
+        content: var(--callout-icon, "\f05a");
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        left: var(--sp-2);
+        top: calc(var(--sp-15) + 0.12em);
+        font-size: var(--fs-md);
+        line-height: var(--lh-normal);
+        color: var(--callout-accent, var(--primary));
+    }
+
+    .sop-section-body .callout > *:last-child { margin-bottom: 0; }
+    .sop-section-body .callout p { max-width: none; }
+
+    .sop-section-body .callout strong { color: var(--callout-ink, var(--text)); }
+    .sop-section-body .callout li::marker { color: var(--callout-accent); }
+
+    /* CAVE - Gefahr, Kontraindikation, Verwechslungsrisiko */
+    .sop-section-body .callout-cave {
+        --callout-accent: var(--cave);
+        --callout-tint: var(--cave-tint);
+        --callout-ink: var(--cave-ink);
+        --callout-line: var(--cave-line);
+        --callout-icon: "\f071";            /* triangle-exclamation */
+    }
+
+    /* WICHTIG - zentrale Handlungsaussage */
+    .sop-section-body .callout-wichtig {
+        --callout-accent: var(--warn);
+        --callout-tint: var(--warn-tint);
+        --callout-ink: var(--warn-ink);
+        --callout-line: var(--warn-line);
+        --callout-icon: "\f0eb";            /* lightbulb */
+    }
+
+    /* HINWEIS - Einordnung, Hintergrund */
+    .sop-section-body .callout-hinweis {
+        --callout-accent: var(--info);
+        --callout-tint: var(--info-tint);
+        --callout-ink: var(--info-ink);
+        --callout-line: var(--info-line);
+        --callout-icon: "\f05a";            /* circle-info */
+    }
+
+    /* Ein CAVE darf beim Ueberfliegen nicht untergehen. Der
+       Lichtsaum ist statisch - nichts blinkt, nichts pulsiert. */
+    .sop-section-body .callout-cave {
+        box-shadow: var(--elev-1), 0 0 0 4px color-mix(in srgb, var(--cave) 8%, transparent);
+    }
+
+    @supports not (color: color-mix(in srgb, red 50%, blue)) {
+        .sop-section-body .callout-cave { box-shadow: var(--elev-2); }
+    }
+
+    /* ========================================================
+       3  TABELLEN                              (Vorschlag 37)
+       --------------------------------------------------------
+       45 SOPs fuehren Tabellen. Auf dem Desktop bleiben sie
+       Tabellen - mit klebender Kopfzeile, damit die Spalten-
+       bedeutung beim Scrollen nicht verloren geht.
+
+       Unterhalb von 640 px werden sie zu Karten: jede Zeile ein
+       Block, jede Zelle mit ihrem Spaltenkopf davor. Waagerechtes
+       Scrollen in einer vierspaltigen Tabelle ist auf dem Telefon
+       keine Bedienung, sondern eine Zumutung.
+
+       Die Spaltenkoepfe kommen aus data-label, das js/sop.js beim
+       Einbau setzt - das HTML der SOP bleibt unberuehrt.
+       ======================================================== */
+
+    .sop-section-body .table-wrap {
+        position: relative;
+        margin: var(--sp-2) 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        box-shadow: var(--elev-1);
+        overflow: hidden;
+    }
+
+    .sop-section-body .table-scroll {
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+
+    .sop-section-body table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .sop-section-body thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--inset);
+        color: var(--text2);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-xs);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        text-align: left;
+        padding: var(--sp-1) var(--sp-15);
+        border-bottom: 1px solid var(--border2);
+        white-space: nowrap;
+    }
+
+    .sop-section-body tbody td {
+        padding: var(--sp-1) var(--sp-15);
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+
+    .sop-section-body tbody tr:last-child td { border-bottom: none; }
+
+    .sop-section-body tbody tr:nth-child(even) td {
+        background: color-mix(in srgb, var(--inset) 55%, transparent);
+    }
+
+    /* Die letzte Spalte einer Score-Tabelle traegt Zahlen -
+       rechtsbuendig und schmal, damit die Summe ablesbar bleibt. */
+    .sop-section-body table.is-score tbody td:last-child,
+    .sop-section-body table.is-score thead th:last-child {
+        text-align: right;
+        white-space: nowrap;
+        width: 1%;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Ueberlauf sichtbar machen: eine Blende an der Kante, die
+       nur erscheint, wenn tatsaechlich etwas ausserhalb liegt. */
+    .sop-section-body .table-wrap::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 28px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity var(--dur-micro) var(--ease-out-quart);
+        background: linear-gradient(to right,
+            color-mix(in srgb, var(--surface) 0%, transparent),
+            var(--surface));
+    }
+
+    .sop-section-body .table-wrap.has-overflow-right::after { opacity: 1; }
+
+    /* ---- Kartenmodus auf schmalen Geraeten ---- */
+    @media (max-width: 640px) {
+        .sop-section-body .table-wrap.as-cards { border: none; box-shadow: none; background: none; }
+        .sop-section-body .table-wrap.as-cards::after { display: none; }
+        .sop-section-body .table-wrap.as-cards .table-scroll { overflow: visible; }
+
+        .sop-section-body .table-wrap.as-cards table:not(.is-score),
+        .sop-section-body .table-wrap.as-cards table:not(.is-score) tbody,
+        .sop-section-body .table-wrap.as-cards table:not(.is-score) tr,
+        .sop-section-body .table-wrap.as-cards table:not(.is-score) td {
+            display: block;
+            width: auto;
+        }
+
+        .sop-section-body .table-wrap.as-cards thead {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+
+        .sop-section-body .table-wrap.as-cards tr {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            box-shadow: var(--elev-1);
+            padding: var(--sp-1) var(--sp-15);
+            margin-bottom: var(--sp-1);
+        }
+
+        .sop-section-body .table-wrap.as-cards tr:last-child { margin-bottom: 0; }
+
+        .sop-section-body .table-wrap.as-cards tbody tr:nth-child(even) td {
+            background: none;
+        }
+
+        .sop-section-body .table-wrap.as-cards table:not(.is-score) td {
+            border: none;
+            padding: var(--sp-05) 0;
+            display: grid;
+            grid-template-columns: minmax(0, 8.5em) 1fr;
+            gap: var(--sp-1);
+            align-items: baseline;
+        }
+
+        .sop-section-body .table-wrap.as-cards td + td {
+            border-top: 1px dashed var(--border);
+            padding-top: var(--sp-1);
+            margin-top: var(--sp-05);
+        }
+
+        .sop-section-body .table-wrap.as-cards table:not(.is-score) td::before {
+            content: attr(data-label);
+            font-size: var(--fs-2xs);
+            font-weight: var(--fw-semibold);
+            letter-spacing: var(--ls-caps);
+            text-transform: uppercase;
+            color: var(--text3);
+            line-height: var(--lh-snug);
+        }
+
+        /* Zellen ohne eigenen Spaltenkopf (erste Spalte) stehen
+           als Ueberschrift der Karte ueber der Reihe. */
+        .sop-section-body .table-wrap.as-cards td[data-lead] {
+            display: block;
+            font-weight: var(--fw-semibold);
+            font-size: var(--fs-md);
+            color: var(--text);
+            padding-bottom: var(--sp-05);
+        }
+
+        .sop-section-body .table-wrap.as-cards td[data-lead]::before { content: none; }
+    }
+
+    /* ========================================================
+       4  SCORE-RECHNER                         (Vorschlag 32)
+       --------------------------------------------------------
+       Kein zweiter Satz Kriterien: die Tabelle der SOP WIRD der
+       Rechner. Jede Zeile bzw. jede Punktspalte wird anklickbar,
+       darunter laeuft die Summe mit.
+
+       Alles, was auf dem Bildschirm steht, stammt woertlich aus
+       der SOP - auch die Deutung unter der Summe.
+       ======================================================== */
+
+    .score-panel {
+        margin: calc(var(--sp-15) * -1) 0 var(--sp-2);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        background: var(--surface);
+        box-shadow: var(--elev-1);
+        overflow: hidden;
+    }
+
+    .score-bar {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-15);
+        padding: var(--sp-1) var(--sp-15);
+        background: var(--inset);
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+
+    .score-label {
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--text3);
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .score-total {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.15em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    .score-total-value {
+        font-size: var(--fs-xl);
+        font-weight: var(--fw-heavy);
+        line-height: 1;
+        color: var(--dose);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .score-total-max {
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        color: var(--text3);
+    }
+
+    .score-reset {
+        border: 1px solid var(--border2);
+        background: var(--surface);
+        color: var(--text2);
+        border-radius: var(--radius-full);
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        padding: var(--sp-05) var(--sp-15);
+        min-height: 32px;
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .score-reset:hover { border-color: var(--primary); color: var(--primary); }
+    .score-reset[disabled] { opacity: 0.4; cursor: default; }
+
+    /* Balken: zeigt den Anteil an der erreichbaren Punktzahl. */
+    .score-meter {
+        height: 3px;
+        background: var(--border);
+        overflow: hidden;
+    }
+
+    .score-meter > span {
+        display: block;
+        height: 100%;
+        width: 100%;
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+        background: var(--dose);
+        transition: transform var(--dur-section) var(--ease-out-expo);
+    }
+
+    .score-note {
+        padding: var(--sp-1) var(--sp-15);
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        color: var(--text2);
+        border-top: 1px solid var(--border);
+    }
+
+    .score-hint {
+        padding: var(--sp-1) var(--sp-15);
+        font-size: var(--fs-2xs);
+        line-height: var(--lh-snug);
+        color: var(--text3);
+    }
+
+    .score-hint strong { color: var(--text2); font-weight: var(--fw-semibold); }
+
+    /* Die Tabelle daraufhin anfassbar machen. */
+    .sop-section-body table.is-score .table-wrap { border-radius: 0; }
+
+    .sop-section-body table.is-score tbody tr[data-score-row] { cursor: pointer; }
+
+    /* Die Marke haengt an genau der Zelle, die die Auswahl traegt -
+       js/sop.js setzt dafuer .score-mark. Bei einer Gruppentabelle
+       (Glasgow Coma Scale) ist das NICHT die erste Zelle: dort steht
+       per rowspan der Gruppenname, nicht die Wahlmoeglichkeit. */
+    .sop-section-body table.is-score tbody tr[data-score-row] td.score-mark {
+        position: relative;
+        padding-left: calc(var(--sp-15) + 26px);
+    }
+
+    /* Kaestchen bzw. Punkt links in der Zelle. */
+    .sop-section-body table.is-score tbody tr[data-score-row] td.score-mark::before {
+        content: "";
+        position: absolute;
+        left: var(--sp-15);
+        top: calc(var(--sp-1) + 0.15em);
+        width: 17px;
+        height: 17px;
+        border: 2px solid var(--border2);
+        border-radius: var(--radius-xs);
+        background: var(--surface);
+        transition: background-color var(--dur-tiny) var(--ease-out-quart),
+                    border-color var(--dur-tiny) var(--ease-out-quart);
+    }
+
+    .sop-section-body table.is-score tbody tr[data-score-exclusive] td.score-mark::before {
+        border-radius: var(--radius-full);
+    }
+
+    .sop-section-body table.is-score tbody tr[data-score-row][aria-checked="true"] td.score-mark::before {
+        background: var(--dose);
+        border-color: var(--dose);
+    }
+
+    .sop-section-body table.is-score tbody tr[data-score-row][aria-checked="true"] td.score-mark::after {
+        content: "\f00c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        left: calc(var(--sp-15) + 3px);
+        top: calc(var(--sp-1) + 0.2em);
+        font-size: 10px;
+        line-height: 1.1;
+        color: #fff;
+    }
+
+    .sop-section-body table.is-score tbody tr[data-score-row][aria-checked="true"] td {
+        background: var(--dose-tint);
+        color: var(--dose-ink);
+    }
+
+    .sop-section-body table.is-score tbody tr[data-score-row]:hover td {
+        background: color-mix(in srgb, var(--dose) 7%, transparent);
+    }
+
+    /* Der Gruppenname einer rowspan-Tabelle ist keine Wahl - er wird
+       ruhig gesetzt und traegt keine Marke. */
+    .sop-section-body table.is-score tbody td.score-group {
+        vertical-align: top;
+        font-weight: var(--fw-semibold);
+        color: var(--text2);
+        background: var(--inset) !important;
+        border-right: 1px solid var(--border);
+    }
+
+    /* Auswahl innerhalb einer Zelle (4T-Score, Glasgow-Blatchford). */
+    .score-opt {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: 1px solid transparent;
+        border-radius: var(--radius-xs);
+        background: none;
+        color: inherit;
+        font: inherit;
+        padding: var(--sp-05) var(--sp-1);
+        margin: 1px 0;
+        cursor: pointer;
+        min-height: 30px;
+        transition: background-color var(--dur-tiny) var(--ease-out-quart),
+                    border-color var(--dur-tiny) var(--ease-out-quart);
+    }
+
+    .score-opt:hover { background: color-mix(in srgb, var(--dose) 8%, transparent); }
+
+    .score-opt[aria-checked="true"] {
+        background: var(--dose-tint);
+        border-color: var(--dose);
+        color: var(--dose-ink);
+        font-weight: var(--fw-semibold);
+    }
+
+    .score-opt-points {
+        float: right;
+        margin-left: var(--sp-1);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--fw-bold);
+        color: var(--text3);
+    }
+
+    .score-opt[aria-checked="true"] .score-opt-points { color: var(--dose-ink); }
+
+    /* ========================================================
+       5  ABBILDUNGEN                           (Vorschlag 12)
+       ======================================================== */
+
+    .sop-figure {
+        margin: var(--sp-2) 0;
+        padding: var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--inset);
+        box-shadow: var(--elev-1);
+    }
+
+    .sop-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: var(--radius-xs);
+        background: #fff;
+    }
+
+    .sop-figure figcaption {
+        display: flex;
+        align-items: baseline;
+        gap: var(--sp-1);
+        margin-top: var(--sp-1);
+        font-size: var(--fs-xs);
+        line-height: var(--lh-snug);
+        color: var(--text3);
+    }
+
+    .sop-figure figcaption i { color: var(--cat-color, var(--primary)); }
+
+    /* Im Dunkelmodus wuerde eine weisse Abbildung blenden. */
+    [data-theme="dark"] .sop-figure img {
+        filter: brightness(0.92) contrast(1.04);
+    }
+
+    /* ========================================================
+       6  QUERVERWEISE                          (Vorschlag 27)
+       --------------------------------------------------------
+       Nennt eine SOP eine andere beim Namen, wird daraus ein
+       Sprungziel. Die Auszeichnung ist bewusst zurueckhaltend -
+       im Fliesstext darf sie nicht mit einer Hervorhebung
+       verwechselt werden.
+       ======================================================== */
+
+    .sop-xref {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted var(--primary);
+        cursor: pointer;
+        padding-bottom: 1px;
+        transition: background-color var(--dur-tiny) var(--ease-out-quart),
+                    border-color var(--dur-tiny) var(--ease-out-quart);
+    }
+
+    .sop-xref::after {
+        content: "\f0c1";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 0.62em;
+        margin-left: 0.28em;
+        vertical-align: 0.28em;
+        color: var(--primary);
+        opacity: 0.6;
+    }
+
+    .sop-xref:hover,
+    .sop-xref:focus-visible {
+        background: var(--info-tint);
+        border-bottom-style: solid;
+        border-radius: var(--radius-xs);
+    }
+
+    .sop-xref:hover::after { opacity: 1; }
+
+    /* ========================================================
+       7  VERWANDTE PFADE                       (Vorschlag 28)
+       ======================================================== */
+
+    .sop-related {
+        margin: var(--sp-4) 0 var(--sp-2);
+        padding-top: var(--sp-3);
+        border-top: 1px solid var(--border);
+    }
+
+    .sop-related-title {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: 0 0 var(--sp-15);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--text3);
+    }
+
+    .sop-related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: var(--sp-1);
+    }
+
+    .related-card {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-15);
+        width: 100%;
+        min-height: var(--tap-min);
+        padding: var(--sp-1) var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        text-align: left;
+        cursor: pointer;
+        box-shadow: var(--elev-1);
+        transition: transform var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart),
+                    box-shadow var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .related-card:hover {
+        transform: translateY(-1px);
+        border-color: var(--cat-color, var(--primary));
+        box-shadow: var(--elev-3);
+    }
+
+    .related-card:active { transform: translateY(0); }
+
+    .related-card-icon {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: var(--radius-full);
+        background: var(--cat-tint, var(--inset));
+        color: var(--cat-ink, var(--text2));
+        font-size: var(--fs-sm);
+    }
+
+    .related-card-text { min-width: 0; }
+
+    .related-card-name {
+        display: block;
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        line-height: var(--lh-snug);
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .related-card-cat {
+        display: block;
+        font-size: var(--fs-2xs);
+        color: var(--text3);
+        line-height: var(--lh-snug);
+    }
+
+    /* ========================================================
+       8  KAPITELLEISTE MIT FORTSCHRITT         (Vorschlag 39)
+       --------------------------------------------------------
+       Die Leiste zeigt nicht mehr nur, WELCHES Kapitel gerade
+       oben steht, sondern auch, wie weit es durchgelesen ist.
+       Der Balken laeuft unter der gesamten Leiste durch; die
+       Breite kommt aus --seg-progress (js/segmented.js).
+       ======================================================== */
+
+    .sop-seg-sticky { position: sticky; }
+
+    .seg-progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
+        overflow: hidden;
+        opacity: 0;
+        transition: opacity var(--dur-micro) var(--ease-out-quart);
+        pointer-events: none;
+    }
+
+    .sop-seg-sticky.is-stuck .seg-progress { opacity: 1; }
+
+    .seg-progress > span {
+        display: block;
+        height: 100%;
+        width: 100%;
+        transform-origin: 0 50%;
+        transform: scaleX(var(--seg-progress, 0));
+        background: var(--cat-color, var(--primary));
+        transition: transform 90ms linear;
+    }
+
+    /* Das gerade sichtbare Kapitel bekommt zusaetzlich einen
+       kurzen Unterstrich an der Schaltflaeche. */
+    .segmented-btn.is-current::after {
+        content: "";
+        position: absolute;
+        left: 22%;
+        right: 22%;
+        bottom: 3px;
+        height: 2px;
+        border-radius: var(--radius-full);
+        background: var(--cat-color, var(--primary));
+        opacity: 0.85;
+    }
+
+    .segmented-btn { position: relative; }
+
+    /* ========================================================
+       9  ABSCHNITTSKARTEN, TIEFE, RASTER       (Vorschlag 40)
+       --------------------------------------------------------
+       Ein einziges Rastermass, eine Tiefenskala, ein Rahmen -
+       statt Schlagschatten in vier Staerken aus vier Schichten.
+       ======================================================== */
+
+    .sop-section {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        box-shadow: var(--elev-1);
+        margin-bottom: var(--sp-15);
+        overflow: hidden;
+        transition: box-shadow var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .sop-section.is-open {
+        box-shadow: var(--elev-2);
+    }
+
+    .sop-section.is-current {
+        border-color: color-mix(in srgb, var(--cat-color, var(--primary)) 42%, var(--border));
+    }
+
+    .sop-section-head {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-15);
+        width: 100%;
+        min-height: var(--tap-comfort);
+        padding: var(--sp-15) var(--sp-25);
+        cursor: pointer;
+        background: none;
+    }
+
+    .sop-section-head .sec-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: var(--fs-lg);
+        font-weight: var(--fw-semibold);
+        line-height: var(--lh-snug);
+        letter-spacing: var(--ls-snug);
+        color: var(--text);
+    }
+
+    .sop-section-head .sec-icon {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: var(--radius);
+        background: var(--cat-tint, var(--inset));
+        font-size: var(--fs-sm);
+    }
+
+    .sop-section-head .sec-toggle {
+        flex: 0 0 auto;
+        color: var(--text4);
+        font-size: var(--fs-sm);
+        transition: transform var(--dur-section) var(--ease-out-expo),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .sop-section.is-open .sop-section-head .sec-toggle { color: var(--text2); }
+
+    /* --------------------------------------------------------
+       Kopfbereich der SOP
+       --------------------------------------------------------
+       "Inhalt" und "Drucken" stehen AUF DER HOEHE der Ueberschrift,
+       nicht darunter. Damit ist auf dem Desktop die erste
+       Bildschirmhoehe fuer den Inhalt frei, und auf dem Telefon
+       sind beide Wege ohne Scrollen erreichbar.
+
+       Umgesetzt als Flex-Zeile mit ausrichtender Grundlinie:
+       die Ueberschrift nimmt den verfuegbaren Platz, die
+       Werkzeuge behalten ihre Breite und brechen nie um.
+       -------------------------------------------------------- */
+
+    .sop-header {
+        margin-bottom: var(--sp-2);
+    }
+
+    .sop-header-top {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin-bottom: var(--sp-1);
+        flex-wrap: wrap;
+    }
+
+    .sop-header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-2);
+    }
+
+    .sop-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: var(--fs-display);
+        font-weight: var(--fw-heavy);
+        line-height: var(--lh-tight);
+        letter-spacing: var(--ls-tight);
+        color: var(--text);
+        margin: 0;
+        text-wrap: balance;
+        /* Lange Diagnosenamen duerfen umbrechen, aber nicht die
+           Werkzeuge verdraengen. */
+        overflow-wrap: anywhere;
+    }
+
+    .sop-tools {
+        flex: 0 0 auto;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--sp-1);
+        margin-top: 0;
+    }
+
+    .utility-btn {
+        min-height: var(--tap-min);
+        gap: var(--sp-1);
+        padding: 0 var(--sp-15);
+        border-radius: var(--radius);
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        white-space: nowrap;
+        box-shadow: var(--elev-1);
+    }
+
+    .utility-btn:hover {
+        border-color: var(--primary);
+        box-shadow: var(--elev-2);
+    }
+
+    /* Auf schmalen Geraeten schrumpfen die Werkzeuge auf ihr Symbol,
+       statt unter die Ueberschrift zu rutschen. Das Bedienmass von
+       48 px bleibt dabei erhalten. */
+    @media (max-width: 560px) {
+        .utility-btn {
+            width: var(--tap-min);
+            padding: 0;
+            justify-content: center;
+        }
+
+        .utility-btn-label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+
+        .sop-header-main { gap: var(--sp-1); }
+    }
+
+    .sop-cat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        padding: 3px var(--sp-1);
+        border: 1px solid var(--cat-line, var(--border));
+        border-radius: var(--radius-full);
+        background: var(--cat-tint, var(--inset));
+        color: var(--cat-ink, var(--text2));
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        letter-spacing: var(--ls-wide);
+        text-transform: uppercase;
+    }
+
+    .sop-meta-item {
+        font-size: var(--fs-xs);
+        color: var(--text3);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ========================================================
+       10  SUCHE                          (Vorschlaege 23 - 25)
+       ======================================================== */
+
+    /* ---- Bereichswahl ueber den Treffern ---- */
+    .search-scope {
+        display: flex;
+        gap: var(--sp-05);
+        flex-wrap: wrap;
+        margin: var(--sp-15) 0;
+    }
+
+    .scope-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        min-height: 36px;
+        padding: var(--sp-05) var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text2);
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .scope-chip[aria-pressed="true"] {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+    .scope-chip[hidden] { display: none; }
+
+    .scope-chip-count {
+        font-variant-numeric: tabular-nums;
+        opacity: 0.75;
+    }
+
+    /* ---- Treffer ----
+       Ein Treffer ist jetzt ein Behaelter: oben der Weg in die SOP,
+       darunter die einzelnen Fundstellen. Frueher war der ganze
+       Treffer ein <button>; die Fundstellen haetten darin
+       verschachtelte Schaltflaechen ergeben - im HTML nicht erlaubt
+       und mit der Tastatur nicht bedienbar. */
+    .search-result {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .sr-open {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+        padding: var(--sp-15);
+        cursor: pointer;
+        min-height: var(--tap-min);
+    }
+
+    .sr-open:hover { background: var(--hover); }
+
+    .sr-title {
+        display: block;
+        font-size: var(--fs-md);
+        font-weight: var(--fw-semibold);
+        line-height: var(--lh-snug);
+        color: var(--text);
+        margin-bottom: 3px;
+    }
+
+    .sr-cat {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-05);
+        flex-wrap: wrap;
+        font-size: var(--fs-xs);
+        color: var(--text3);
+    }
+
+    .sr-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 1px var(--sp-05);
+        border-radius: var(--radius-xs);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-wide);
+        text-transform: uppercase;
+        background: var(--inset);
+        color: var(--text3);
+        border: 1px solid var(--inset-line);
+    }
+
+    .sr-badge-name { background: var(--info-tint); color: var(--info-ink); border-color: var(--info-line); }
+    .sr-badge-alias { background: var(--cat-leit-tint); color: var(--cat-leit-ink); border-color: var(--cat-leit-line); }
+    .sr-badge-drug { background: var(--dose-tint); color: var(--dose-ink); border-color: var(--dose-line); }
+    .sr-badge-fuzzy { background: var(--warn-tint); color: var(--warn-ink); border-color: var(--warn-line); }
+
+    /* Mehrere Fundstellen je SOP, jede direkt anspringbar. */
+    .sr-hits {
+        display: block;
+        margin-top: var(--sp-1);
+        border-top: 1px dashed var(--border);
+        padding-top: var(--sp-05);
+    }
+
+    .sr-hit {
+        display: grid;
+        grid-template-columns: minmax(0, 9.5em) 1fr;
+        gap: var(--sp-1);
+        align-items: baseline;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+        padding: var(--sp-05) var(--sp-05);
+        border-radius: var(--radius-xs);
+        cursor: pointer;
+        min-height: 34px;
+    }
+
+    .sr-hit:hover { background: var(--hover); }
+
+    .sr-hit-sec {
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--cat-color, var(--text3));
+        line-height: var(--lh-snug);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sr-hit-text {
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        color: var(--text2);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .sr-hit-more {
+        font-size: var(--fs-2xs);
+        color: var(--text3);
+        padding: var(--sp-05);
+    }
+
+    /* ---- Wirkstoff-Direktsuche ---- */
+    .drug-panel {
+        margin: var(--sp-15) 0;
+        border: 1px solid var(--dose-line);
+        border-radius: var(--radius-md);
+        background: var(--dose-tint);
+        overflow: hidden;
+    }
+
+    .drug-head {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        padding: var(--sp-1) var(--sp-15);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--dose-ink);
+        border-bottom: 1px solid var(--dose-line);
+    }
+
+    .drug-name {
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-normal);
+        text-transform: none;
+        color: var(--dose-ink);
+    }
+
+    .drug-list { display: block; }
+
+    .drug-item {
+        display: grid;
+        grid-template-columns: minmax(0, 12em) 1fr;
+        gap: var(--sp-1);
+        align-items: baseline;
+        width: 100%;
+        min-height: var(--tap-min);
+        padding: var(--sp-1) var(--sp-15);
+        border: none;
+        border-top: 1px solid color-mix(in srgb, var(--dose-line) 55%, transparent);
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .drug-item:first-child { border-top: none; }
+    .drug-item:hover { background: color-mix(in srgb, var(--dose) 10%, transparent); }
+
+    .drug-item-sop {
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .drug-item-where {
+        font-size: var(--fs-xs);
+        color: var(--text2);
+        line-height: var(--lh-snug);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* ---- Hinweis, solange der Volltext noch laedt ---- */
+    .search-state {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        padding: var(--sp-15);
+        margin: var(--sp-15) 0;
+        border: 1px dashed var(--border2);
+        border-radius: var(--radius-md);
+        font-size: var(--fs-sm);
+        color: var(--text3);
+    }
+
+    /* ========================================================
+       11  STARTSEITE                           (Vorschlag 24)
+       --------------------------------------------------------
+       Das Suchfeld ist das erste, was die Startseite anbietet -
+       in der ZNA wird gesucht, nicht geblaettert.
+       ======================================================== */
+
+    .hero-search {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-15);
+        width: 100%;
+        min-height: var(--tap-comfort);
+        margin-top: var(--sp-25);
+        padding: var(--sp-15) var(--sp-25);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius-xl);
+        background: var(--surface);
+        color: var(--text3);
+        font-size: var(--fs-lg);
+        cursor: pointer;
+        box-shadow: var(--elev-2);
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    box-shadow var(--dur-micro) var(--ease-out-quart),
+                    transform var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .hero-search:hover {
+        border-color: var(--primary);
+        box-shadow: var(--elev-3);
+        transform: translateY(-1px);
+    }
+
+    .hero-search > i:first-child {
+        font-size: var(--fs-lg);
+        color: var(--primary);
+    }
+
+    .hero-search-label {
+        flex: 1 1 auto;
+        text-align: left;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .hero-search-kbd {
+        flex: 0 0 auto;
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        color: var(--text4);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius-xs);
+        padding: 2px 6px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    @media (pointer: coarse) {
+        .hero-search-kbd { display: none; }
+    }
+
+    /* ========================================================
+       12  TELEFONVERZEICHNIS                   (Vorschlag 29)
+       --------------------------------------------------------
+       Die Notizen der Eintraege enthalten bereits Dienstzeiten
+       ("DA bis 15:30 Uhr", "ab 19:30 Uhr"). Sie werden gelesen
+       und in eine Kennzeichnung uebersetzt: gilt jetzt / gilt
+       jetzt nicht. Die Nummern selbst bleiben unveraendert.
+       ======================================================== */
+
+    .dir-shift {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: var(--sp-05);
+        padding: 1px 6px;
+        border-radius: var(--radius-full);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-wide);
+        border: 1px solid transparent;
+        white-space: nowrap;
+        vertical-align: 1px;
+    }
+
+    .dir-shift-now {
+        background: var(--ok-tint);
+        color: var(--ok-ink);
+        border-color: var(--ok-line);
+    }
+
+    .dir-shift-off {
+        background: var(--inset);
+        color: var(--text3);
+        border-color: var(--inset-line);
+    }
+
+    .dir-row.is-off .dir-name,
+    .dir-row.is-off .dir-tel { opacity: 0.62; }
+
+    /* Zeile und Waehlknopf stehen nebeneinander. Ohne diese Regel
+       waere der Knopf ein eigener Block unter der Zeile - das <li>
+       ist im Grundzustand kein Flex-Behaelter. */
+    .dir-rows > li {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .dir-rows > li > .dir-row {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .dir-call {
+        display: none;
+        place-items: center;
+        align-self: center;
+        margin-right: var(--sp-1);
+        width: var(--tap-min);
+        height: var(--tap-min);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--ok);
+        font-size: var(--fs-md);
+        text-decoration: none;
+        flex: 0 0 auto;
+    }
+
+    /* Waehlen ergibt nur auf einem Geraet Sinn, das telefonieren
+       kann. Am Stationsrechner bleibt es beim Kopieren. */
+    @media (pointer: coarse) and (max-width: 900px) {
+        .dir-call { display: grid; }
+    }
+
+    .dir-jump {
+        /* Das Blatt ist eine Flex-Spalte; ohne feste Basis wuerde die
+           Sprungleiste zusammengedrueckt und liefe unter die
+           Trefferzeile. */
+        flex: 0 0 auto;
+        display: flex;
+        gap: var(--sp-05);
+        overflow-x: auto;
+        padding: var(--sp-05) var(--sp-25);
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none;
+    }
+
+    .dir-jump::-webkit-scrollbar { display: none; }
+
+    .dir-jump-chip {
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: var(--sp-05) var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text2);
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .dir-jump-chip:hover { border-color: var(--primary); color: var(--primary); }
+
+    .dir-clock {
+        font-variant-numeric: tabular-nums;
+        color: var(--text3);
+        font-size: var(--fs-xs);
+    }
+
+    /* ========================================================
+       13  LADEZUSTAENDE                        (Vorschlag 17)
+       --------------------------------------------------------
+       Die Inhalte kommen paketweise. Solange ein Paket unterwegs
+       ist, steht ein Platzhalter in der Form des Erwarteten -
+       kein Springen, kein leerer Bildschirm.
+       ======================================================== */
+
+    .sop-skeleton {
+        padding: var(--sp-25);
+    }
+
+    .skeleton-line {
+        height: 0.82em;
+        margin-bottom: var(--sp-1);
+        border-radius: var(--radius-xs);
+        background: linear-gradient(90deg,
+            var(--inset) 0%,
+            color-mix(in srgb, var(--inset) 55%, var(--surface3)) 50%,
+            var(--inset) 100%);
+        background-size: 220% 100%;
+        animation: skeleton-sweep 1.4s linear infinite;
+    }
+
+    .skeleton-line:nth-child(3n) { width: 72%; }
+    .skeleton-line:nth-child(4n) { width: 88%; }
+    .skeleton-line:last-child { width: 46%; margin-bottom: 0; }
+
+    @keyframes skeleton-sweep {
+        from { background-position: 120% 0; }
+        to { background-position: -120% 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .skeleton-line { animation: none; }
+    }
+
+    .sop-load-error {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--sp-1);
+        margin: var(--sp-15) 0;
+        padding: var(--sp-2);
+        border: 1px solid var(--cave-line);
+        border-radius: var(--radius-md);
+        background: var(--cave-tint);
+        color: var(--cave-ink);
+        font-size: var(--fs-sm);
+    }
+
+    .sop-load-retry {
+        min-height: 40px;
+        padding: var(--sp-05) var(--sp-2);
+        border: 1px solid var(--cave);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--cave-ink);
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+    }
+
+    /* ========================================================
+       14  BEDIENMASSE                          (Vorschlag 45)
+       --------------------------------------------------------
+       In der ZNA wird mit Handschuhen bedient. Alles, was
+       angetippt wird, bekommt daher mindestens 48 px - nicht
+       die 44 px der Plattformvorgaben.
+
+       Gilt nur fuer Zeigegeraete ohne Feinsteuerung: mit der
+       Maus bleibt die Darstellung dicht.
+       ======================================================== */
+
+    @media (pointer: coarse) {
+        .sop-section-head { min-height: var(--tap-min); }
+        .segmented-btn { min-height: var(--tap-min); }
+        .picker-list li { min-height: var(--tap-min); }
+        .browse-item { min-height: var(--tap-min); }
+        .search-result { min-height: var(--tap-min); }
+        .spotlight-result { min-height: var(--tap-min); }
+        .dir-row { min-height: var(--tap-min); }
+        .btm-btn { min-height: var(--tap-min); }
+        .topbar-btn { min-width: var(--tap-min); min-height: var(--tap-min); }
+        .sidebar-cat-chip,
+        .browse-cat-chip { min-height: 40px; }
+        .sop-section-body table.is-score tbody tr[data-score-row] td { padding-top: var(--sp-15); padding-bottom: var(--sp-15); }
+        .score-opt { min-height: 40px; }
+
+        /* Abstand zwischen benachbarten Zielen, damit der Daumen
+           nicht zwischen zwei Zeilen entscheiden muss. */
+        .sop-related-grid { gap: var(--tap-gap); }
+        .search-scope { gap: var(--tap-gap); }
+    }
+
+    /* ========================================================
+       15  KATEGORIEFARBE IN DEN LISTEN         (Vorschlag 35)
+       --------------------------------------------------------
+       Die Farbwerte kommen nicht mehr als Hexwert aus dem
+       JavaScript, sondern als Token-Satz am Element
+       (App.catStyle). Hier wird er verbraucht.
+       ======================================================== */
+
+    .cat-card .cat-card-icon { color: var(--cat-color, var(--primary)); }
+
+    .cat-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        box-shadow: var(--elev-1);
+        transition: transform var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart),
+                    box-shadow var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .cat-card:hover {
+        border-color: var(--cat-color, var(--primary));
+        box-shadow: var(--elev-3);
+    }
+
+    .cat-card-name {
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        color: var(--text);
+    }
+
+    .cat-card-count {
+        font-size: var(--fs-2xs);
+        color: var(--text3);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .bi-dot { background: var(--cat-color, var(--text4)); }
+
+    .bi-cat {
+        font-size: var(--fs-2xs);
+        color: var(--cat-ink, var(--text3));
+        background: var(--cat-tint, transparent);
+        border: 1px solid var(--cat-line, transparent);
+        border-radius: var(--radius-full);
+        padding: 2px var(--sp-1);
+        white-space: nowrap;
+    }
+
+    .sidebar-cat-chip.active,
+    .browse-cat-chip.active {
+        background: var(--cat-tint, var(--primary-light));
+        border-color: var(--cat-line, var(--primary));
+        color: var(--cat-ink, var(--primary-dark));
+    }
+
+    .spotlight-result-icon {
+        background: var(--cat-tint, var(--inset));
+        color: var(--cat-ink, var(--text2));
+    }
+
+    .spotlight-icon-drug {
+        background: var(--dose-tint);
+        color: var(--dose-ink);
+    }
+
+    .spotlight-icon-full {
+        background: var(--info-tint);
+        color: var(--info-ink);
+    }
+
+    .sec-icon { color: var(--cat-color, var(--primary)); }
+
+    .dir-group h4 i {
+        background: var(--inset);
+        color: var(--primary);
+        border: 1px solid var(--inset-line);
+    }
+
+    .dir-jump-chip.is-on {
+        background: var(--ok-tint);
+        border-color: var(--ok-line);
+        color: var(--ok-ink);
+    }
+
+    /* ========================================================
+       16  SATZSPIEGEL
+       ======================================================== */
+
+    .v-sop .sop-header,
+    .v-sop .sop-section,
+    .v-sop .sop-related,
+    .v-sop .sop-seg-sticky > * {
+        max-width: var(--content-max);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

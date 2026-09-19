@@ -1,0 +1,9 @@
+# Erzeugte Vergleichsbilder der Sichtpruefung.
+# Der hinterlegte Stand (tests/visual/baseline/) gehoert ins Projekt,
+# die Bilder des letzten Durchgangs und die Abweichungen nicht.
+tests/visual/current/
+tests/visual/diff/
+
+node_modules/
+npm-debug.log*
+.DS_Store
