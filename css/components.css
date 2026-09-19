@@ -1230,8 +1230,86 @@
        11  STARTSEITE                           (Vorschlag 24)
        --------------------------------------------------------
        Das Suchfeld ist das erste, was die Startseite anbietet -
-       in der ZNA wird gesucht, nicht geblaettert.
+       in der ZNA wird gesucht, nicht geblaettert. Darueber steht
+       der Kopf: Titel und Marke nebeneinander, in jeder Breite.
+
+       Der Stand der Erzeugung steht nicht mehr am Fuss der Seite.
+       Der fachlich massgebliche Stand haengt an der einzelnen SOP
+       und wird dort angezeigt; ein Datum der Anwendung darueber
+       zu stellen hat mehr verwirrt als geholfen.
        ======================================================== */
+
+    /* Marke NEBEN dem Titel - in jeder Breite.
+       --------------------------------------------------------
+       Bisher gab es dafuer zwei Loesungen: auf dem Telefon lag das
+       Logo ueber dem Titel, ab 768 px schwebte es frei in der Ecke
+       (position: absolute) und der Titel musste sich mit einem
+       festen padding-right davon freihalten. Beides faellt weg.
+
+       Eine Zeile, zwei Kinder: der Titelblock nimmt den Rest der
+       Breite (flex: 1 1 auto; min-width: 0 - ohne das Nullmass
+       schrumpft ein Flex-Kind nie unter seinen Inhalt), die Marke
+       genau so viel, wie sie braucht.
+
+       Die Breite des Logos ist fluide: nie unter 104 px (darunter
+       ist der Schriftzug nicht mehr lesbar), nie ueber 200 px, und
+       dazwischen ein Viertel der Fensterbreite. Auf einem 360-px-
+       Telefon bleiben dem Titel damit rund 196 px - genug fuer
+       "Patientenpfade" in einer Zeile. */
+
+    .hero-head {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-25);
+    }
+
+    .hero-heading {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .hero-brand {
+        flex: 0 0 auto;
+        position: static;
+        margin: 0;
+        display: block;
+    }
+
+    .hero-logo {
+        display: block;
+        width: clamp(104px, 25vw, 200px);
+        height: auto;
+        margin: 0;
+        padding: var(--sp-1);
+        background: #fff;
+        border-radius: var(--radius-sm);
+        filter: none;
+    }
+
+    /* Der Titel haelt sich nicht mehr von einer absoluten Ecke frei. */
+    .hero-title {
+        padding-right: 0;
+        overflow-wrap: break-word;
+    }
+
+    .hero-subtitle {
+        padding-right: 0;
+        margin: var(--sp-05) 0 0;
+    }
+
+    /* Unter 400 px reicht die Breite nicht mehr fuer beides in
+       voller Groesse: "Patientenpfade" ist ein Wort und laesst sich
+       nicht umbrechen, ohne haesslich zu trennen. Also schrumpfen
+       Marke, Abstand und Titel gemeinsam mit dem Fenster - bis
+       hinunter zu 320 px bleibt der Titel damit einzeilig. */
+    @media (max-width: 400px) {
+
+        .hero-head { gap: var(--sp-15); }
+
+        .hero-logo { width: clamp(84px, 24vw, 120px); }
+
+        .hero-title { font-size: clamp(1.05rem, 5.2vw, 1.5rem); }
+    }
 
     .hero-search {
         display: flex;
