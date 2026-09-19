@@ -18,6 +18,34 @@
     var ROUTE_LOCK = false;
     var routeIndex = 0;
 
+    // ============================================
+    // SCROLLPOSITION MERKEN (Vorschlag 4)
+    // ============================================
+    // Jeder Ansichtswechsel setzte die Scrollposition hart auf 0.
+    // Wer sich in der 73 Eintraege langen Liste bis "Tumorlyse-
+    // syndrom" gescrollt hatte, eine SOP oeffnete und zurueckging,
+    // stand wieder ganz oben. Die Position wird deshalb je Adresse
+    // gemerkt und beim Zurueckgehen wiederhergestellt.
+    //
+    // Das ist keine Verlaufsfunktion und keine Personalisierung:
+    // nichts wird gespeichert, nichts ueberdauert das Schliessen
+    // des Fensters.
+    App.rememberScroll = function() {
+        var scroller = App.E.contentScroll;
+        if (!scroller) return;
+        S.scrollMemory[hashForState()] = scroller.scrollTop;
+    };
+
+    App.recallScroll = function() {
+        var value = S.scrollMemory[hashForState()];
+        return typeof value === 'number' ? value : 0;
+    };
+
+    App.forgetScroll = function(key) {
+        if (key === undefined) S.scrollMemory = {};
+        else delete S.scrollMemory[key];
+    };
+
     function hashForState() {
         if (S.tab === 'sop' && S.sopId) return '#sop/' + S.sopId;
         if (S.tab === 'browse') return '#browse';

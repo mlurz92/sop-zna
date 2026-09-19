@@ -1,0 +1,455 @@
+/* ============================================================
+   css/tokens.css                                Layer: tokens
+   ------------------------------------------------------------
+   Das Fundament der Gestaltung (Vorschlaege 33, 34, 35, 40, 42).
+
+   Hier steht KEINE Komponente, nur Werte. Jede Regel weiter
+   hinten - und jede Regel in css/legacy.css - greift auf diese
+   Werte zu. Wer eine Groesse, eine Farbe, einen Abstand oder
+   eine Dauer aendern will, aendert sie hier und nirgends sonst.
+
+   Rangfolge der Layer:  legacy < tokens < components < print
+
+   Weil "tokens" nach "legacy" kommt, gewinnen die Werte von hier
+   gegen die historischen :root-Bloecke - unabhaengig davon, wie
+   spezifisch dort formuliert wurde. Werte, die hier NICHT
+   auftauchen, behalten ihren alten Stand; die Umstellung ist
+   damit schrittweise und jederzeit nachvollziehbar.
+   ============================================================ */
+
+@layer tokens {
+
+    /* ========================================================
+       1  TYPOGRAFISCHE SKALA                   (Vorschlag 34)
+       --------------------------------------------------------
+       Alle Groessen leiten sich aus --font-base ab. Diese eine
+       Variable steuert die Schriftgroessen-Wippe (A- / A+,
+       js/platform.js) - die Skala wandert dadurch geschlossen
+       mit, statt dass einzelne Stellen aus dem Takt geraten.
+
+       Verhaeltnis 1.2 (kleine Terz). Bewusst eng: ein Nach-
+       schlagewerk lebt von Dichte, nicht von Plakativitaet.
+       ======================================================== */
+
+    :root {
+        --ratio: 1.2;
+
+        --fs-2xs: calc(var(--font-base) * 0.694);   /* 10.4px @ 15 */
+        --fs-xs: calc(var(--font-base) * 0.735);    /* 11.0px      */
+        --fs-sm: calc(var(--font-base) * 0.833);    /* 12.5px      */
+        --fs-md: var(--font-base);                  /* 15.0px      */
+        --fs-lg: calc(var(--font-base) * 1.125);    /* 16.9px      */
+        --fs-xl: calc(var(--font-base) * 1.333);    /* 20.0px      */
+        --fs-2xl: calc(var(--font-base) * 1.6);     /* 24.0px      */
+        --fs-3xl: calc(var(--font-base) * 1.95);    /* 29.3px      */
+
+        /* Schaugroessen duerfen zusaetzlich mit dem Fenster atmen.
+           Die Untergrenze bleibt an die Schriftwippe gekoppelt,
+           damit "A-" auch die Ueberschriften erreicht. */
+        --fs-display: clamp(var(--fs-2xl), var(--fs-xl) + 1.6vw, var(--fs-3xl));
+        --fs-title: clamp(var(--fs-xl), var(--fs-lg) + 1.1vw, var(--fs-2xl));
+
+        --lh-tight: 1.18;
+        --lh-snug: 1.32;
+        --lh-normal: 1.55;
+        --lh-relaxed: 1.68;
+
+        --ls-tight: -0.018em;
+        --ls-snug: -0.011em;
+        --ls-normal: 0;
+        --ls-wide: 0.02em;
+        --ls-caps: 0.07em;
+
+        --fw-regular: 400;
+        --fw-medium: 500;
+        --fw-semibold: 600;
+        --fw-bold: 700;
+        --fw-heavy: 800;
+
+        /* Lesbare Zeilenlaenge. Fliesstext bricht bei 66 Zeichen,
+           Tabellen und Abbildungen duerfen darueber hinaus. */
+        --measure: 66ch;
+        --measure-narrow: 52ch;
+
+        /* Ziffern in Tabellenbreite: Dosierungen, Zeiten und
+           Laborwerte stehen damit stellengenau untereinander und
+           sind auf einen Blick vergleichbar. */
+        --num-tabular: "tnum" 1, "lnum" 1, "cv05" 1;
+    }
+
+    /* ========================================================
+       2  RASTER UND ABSTAENDE                  (Vorschlag 40)
+       --------------------------------------------------------
+       Ein einziges Mass: 8 px, mit halber Stufe fuer Feinarbeit.
+       Vorher liefen mehrere Rhythmen nebeneinander her, weil die
+       16 CSS-Schichten jeweils eigene Werte mitbrachten.
+       ======================================================== */
+
+    :root {
+        --sp-0: 0;
+        --sp-05: 4px;
+        --sp-1: 8px;
+        --sp-15: 12px;
+        --sp-2: 16px;
+        --sp-25: 20px;
+        --sp-3: 24px;
+        --sp-35: 28px;
+        --sp-4: 32px;
+        --sp-5: 40px;
+        --sp-6: 48px;
+        --sp-7: 56px;
+        --sp-8: 64px;
+        --sp-10: 80px;
+        --sp-12: 96px;
+
+        --radius-xs: 6px;
+        --radius: 10px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-2xl: 26px;
+        --radius-full: 9999px;
+
+        /* Mindestmass fuer Bedienelemente (Vorschlag 45).
+           48 px, weil in der ZNA mit Handschuhen bedient wird -
+           die 44 px der Plattformvorgaben sind dafuer zu knapp. */
+        --tap-min: 48px;
+        --tap-comfort: 52px;
+        --tap-gap: 8px;
+    }
+
+    /* ========================================================
+       3  TIEFE                                 (Vorschlag 40)
+       --------------------------------------------------------
+       Fuenf Stufen, eine Lichtquelle, ein Farbton. Der Schatten
+       traegt im Dunkelmodus zusaetzlich eine helle Oberkante -
+       sonst verschwindet Tiefe dort vollstaendig.
+       ======================================================== */
+
+    :root {
+        --elev-color: 215 35% 12%;
+
+        --elev-0: none;
+        --elev-1: 0 1px 2px hsl(var(--elev-color) / 0.05);
+        --elev-2: 0 1px 2px hsl(var(--elev-color) / 0.05),
+                  0 2px 6px -1px hsl(var(--elev-color) / 0.06);
+        --elev-3: 0 2px 4px -1px hsl(var(--elev-color) / 0.05),
+                  0 8px 16px -4px hsl(var(--elev-color) / 0.09);
+        --elev-4: 0 4px 8px -2px hsl(var(--elev-color) / 0.06),
+                  0 18px 34px -8px hsl(var(--elev-color) / 0.13);
+        --elev-5: 0 8px 16px -4px hsl(var(--elev-color) / 0.08),
+                  0 32px 60px -12px hsl(var(--elev-color) / 0.2);
+
+        /* Die alten Schattennamen bleiben bedient, damit
+           css/legacy.css unveraendert weiterlaeuft. */
+        --shadow-xs: var(--elev-1);
+        --shadow-sm: var(--elev-2);
+        --shadow: var(--elev-2);
+        --shadow-md: var(--elev-3);
+        --shadow-lg: var(--elev-4);
+        --shadow-xl: var(--elev-5);
+    }
+
+    [data-theme="dark"] {
+        --elev-color: 220 60% 2%;
+
+        --elev-1: 0 1px 2px hsl(var(--elev-color) / 0.5),
+                  inset 0 1px 0 hsl(210 40% 100% / 0.04);
+        --elev-2: 0 2px 6px -1px hsl(var(--elev-color) / 0.55),
+                  inset 0 1px 0 hsl(210 40% 100% / 0.045);
+        --elev-3: 0 8px 18px -4px hsl(var(--elev-color) / 0.6),
+                  inset 0 1px 0 hsl(210 40% 100% / 0.05);
+        --elev-4: 0 18px 36px -8px hsl(var(--elev-color) / 0.68),
+                  inset 0 1px 0 hsl(210 40% 100% / 0.055);
+        --elev-5: 0 34px 64px -12px hsl(var(--elev-color) / 0.75),
+                  inset 0 1px 0 hsl(210 40% 100% / 0.06);
+    }
+
+    /* ========================================================
+       4  KATEGORIEFARBEN                       (Vorschlag 35)
+       --------------------------------------------------------
+       Erzeugt und nachgewiesen von tools/palette.mjs. Je
+       Kategorie vier zusammengehoerige Werte:
+
+         --cat-X        Akzent  - Punkt, Symbol, Kante
+                        >= 3.0 : 1 gegen die Flaeche (WCAG 1.4.11)
+         --cat-X-tint   getoente Flaeche
+         --cat-X-ink    Schrift auf dieser Flaeche
+                        >= 4.5 : 1 (WCAG 1.4.3)
+         --cat-X-line   ruhige Kante auf der Flaeche
+
+       Nachrechnen:  node tools/palette.mjs
+       Der Durchlauf endet mit Fehlercode, sobald eine Kombination
+       die Schwelle reisst - die Palette kann also nicht
+       unbemerkt schlechter werden.
+
+       "Infektiologie" ist bewusst von Lime auf Teal gewechselt:
+       Lime erreichte auf Weiss nur 1.9 : 1 und war als
+       Signalpunkt damit praktisch unsichtbar.
+       ======================================================== */
+
+    :root {
+        --cat-kardio: #ef4444;
+        --cat-kardio-tint: #fee9e9;
+        --cat-kardio-ink: #b91c1c;
+        --cat-kardio-line: #fcaeae;
+        --cat-pulmo: #3b82f6;
+        --cat-pulmo-tint: #e4effe;
+        --cat-pulmo-ink: #1d4ed8;
+        --cat-pulmo-line: #9ecbfd;
+        --cat-gi: #d97706;
+        --cat-gi-tint: #fef6d5;
+        --cat-gi-ink: #b45309;
+        --cat-gi-line: #fcd75f;
+        --cat-neuro: #8b5cf6;
+        --cat-neuro-tint: #f2effe;
+        --cat-neuro-ink: #7c3aed;
+        --cat-neuro-line: #cabcfd;
+        --cat-nephro: #0891b2;
+        --cat-nephro-tint: #dbfbfe;
+        --cat-nephro-ink: #0e7490;
+        --cat-nephro-line: #76eafa;
+        --cat-metab: #059669;
+        --cat-metab-tint: #ddfbec;
+        --cat-metab-ink: #047857;
+        --cat-metab-line: #7de9be;
+        --cat-haem: #ec4899;
+        --cat-haem-tint: #fdedf6;
+        --cat-haem-ink: #be185d;
+        --cat-haem-line: #fab1d8;
+        --cat-infekt: #0d9488;
+        --cat-infekt-tint: #d9fcf5;
+        --cat-infekt-ink: #0f766e;
+        --cat-infekt-line: #6eecd8;
+        --cat-tox: #ea580c;
+        --cat-tox-tint: #fff2e0;
+        --cat-tox-ink: #c2410c;
+        --cat-tox-line: #fdc182;
+        --cat-leit: #6366f1;
+        --cat-leit-tint: #e8edff;
+        --cat-leit-ink: #4f46e5;
+        --cat-leit-line: #aebcfc;
+        --cat-sonst: #64748b;
+        --cat-sonst-tint: #f5f8fb;
+        --cat-sonst-ink: #475569;
+        --cat-sonst-line: #d0d9e4;
+    }
+
+    [data-theme="dark"] {
+        --cat-kardio: #ef4444;
+        --cat-kardio-tint: #53222b;
+        --cat-kardio-ink: #f87171;
+        --cat-kardio-line: #7b2128;
+        --cat-pulmo: #3b82f6;
+        --cat-pulmo-tint: #1e3266;
+        --cat-pulmo-ink: #60a5fa;
+        --cat-pulmo-line: #1d3f99;
+        --cat-gi: #f59e0b;
+        --cat-gi-tint: #503023;
+        --cat-gi-ink: #fbbf24;
+        --cat-gi-line: #78421d;
+        --cat-neuro: #8b5cf6;
+        --cat-neuro-tint: #37226d;
+        --cat-neuro-ink: #a78bfa;
+        --cat-neuro-line: #4d289a;
+        --cat-nephro: #06b6d4;
+        --cat-nephro-tint: #1a3d51;
+        --cat-nephro-ink: #22d3ee;
+        --cat-nephro-line: #14566e;
+        --cat-metab: #10b981;
+        --cat-metab-tint: #113d3b;
+        --cat-metab-ink: #34d399;
+        --cat-metab-line: #0e584c;
+        --cat-haem: #ec4899;
+        --cat-haem-tint: #56203f;
+        --cat-haem-ink: #f472b6;
+        --cat-haem-line: #7e1f4f;
+        --cat-infekt: #14b8a6;
+        --cat-infekt-tint: #183d43;
+        --cat-infekt-ink: #2dd4bf;
+        --cat-infekt-line: #15575a;
+        --cat-tox: #f97316;
+        --cat-tox-tint: #522b24;
+        --cat-tox-ink: #fb923c;
+        --cat-tox-line: #80371f;
+        --cat-leit: #6366f1;
+        --cat-leit-tint: #282c62;
+        --cat-leit-ink: #a5b4fc;
+        --cat-leit-line: #343291;
+        --cat-sonst: #64748b;
+        --cat-sonst-tint: #161f32;
+        --cat-sonst-ink: #94a3b8;
+        --cat-sonst-line: #2b374b;
+    }
+
+    /* ========================================================
+       5  KLINISCHE SEMANTIK                    (Vorschlag 36)
+       --------------------------------------------------------
+       Eine eigene Ebene fuer die Aussagen, bei denen ein Irrtum
+       teuer ist. Sie haengt NICHT an der Kategoriefarbe: ein
+       CAVE in der Nephrologie sieht aus wie ein CAVE in der
+       Kardiologie, damit es als CAVE gelesen wird und nicht als
+       Fachgebiet.
+       ======================================================== */
+
+    :root {
+        /* CAVE - Gefahr, Kontraindikation, Verwechslungsrisiko */
+        --cave: #dc2626;
+        --cave-tint: #fef1f1;
+        --cave-ink: #991b1b;
+        --cave-line: #f6b4b4;
+
+        /* NOTFALL - zeitkritischer Handlungsschritt */
+        --alert: #b91c1c;
+        --alert-tint: #fee7e7;
+        --alert-ink: #7f1d1d;
+        --alert-line: #f3a0a0;
+
+        /* DOSIS - Mengen, Raten, Grenzwerte */
+        --dose: #7c3aed;
+        --dose-tint: #f3f0fe;
+        --dose-ink: #5b21b6;
+        --dose-line: #cfc2fb;
+
+        /* HINWEIS - Merke, Einordnung, Hintergrund */
+        --info: #2563eb;
+        --info-tint: #e8f0fe;
+        --info-ink: #1d4ed8;
+        --info-line: #b3cffb;
+
+        /* BESTAETIGT - Zielwert erreicht, Kriterium erfuellt */
+        --ok: #15803d;
+        --ok-tint: #e6f7ec;
+        --ok-ink: #14532d;
+        --ok-line: #a5dfb9;
+
+        /* ACHTUNG - Einschraenkung, Sonderfall */
+        --warn: #b45309;
+        --warn-tint: #fef5e0;
+        --warn-ink: #92400e;
+        --warn-line: #f6cf83;
+
+        /* Die alten Namen bleiben bedient. */
+        --danger: var(--cave);
+        --danger-light: var(--cave-tint);
+        --success: var(--ok);
+        --success-light: var(--ok-tint);
+        --warning: var(--warn);
+        --warning-light: var(--warn-tint);
+    }
+
+    [data-theme="dark"] {
+        --cave: #f87171;
+        --cave-tint: #46201f;
+        --cave-ink: #fca5a5;
+        --cave-line: #7a2725;
+
+        --alert: #fca5a5;
+        --alert-tint: #521d1d;
+        --alert-ink: #fecaca;
+        --alert-line: #8a2727;
+
+        --dose: #a78bfa;
+        --dose-tint: #2f2359;
+        --dose-ink: #c4b5fd;
+        --dose-line: #46308a;
+
+        --info: #60a5fa;
+        --info-tint: #1c3157;
+        --info-ink: #93c5fd;
+        --info-line: #234a86;
+
+        --ok: #4ade80;
+        --ok-tint: #12351f;
+        --ok-ink: #86efac;
+        --ok-line: #195b31;
+
+        --warn: #fbbf24;
+        --warn-tint: #472e14;
+        --warn-ink: #fcd34d;
+        --warn-line: #714717;
+    }
+
+    /* ========================================================
+       6  BEWEGUNG                              (Vorschlag 42)
+       --------------------------------------------------------
+       Ab hier gibt es GENAU EINE Quelle fuer Dauern und Kurven.
+       js/motion.js liest die Werte beim Start aus dem berechneten
+       Stil aus, statt sie ein zweites Mal zu fuehren - vorher
+       standen dieselben Zahlen an zwei Stellen und mussten von
+       Hand synchron gehalten werden.
+       ======================================================== */
+
+    :root {
+        --dur-tiny: 120ms;
+        --dur-micro: 170ms;
+        --dur-view-fast: 240ms;
+        --dur-section: 300ms;
+        --dur-view: 340ms;
+        --dur-enter: 420ms;
+        --dur-sheet: 460ms;
+
+        --stagger-step: 26ms;
+        --stagger-max: 14;
+        --stagger-limit: 18;
+
+        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+        --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+        --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+        --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --spring-bounce: var(--ease-spring);
+        --ease-view: var(--ease-out-expo);
+        --ease-settle: var(--ease-out-quart);
+        --ease-snap: var(--ease-out-cubic);
+    }
+
+    /* Bewegungsreduktion: eine Stelle, die alles stillstellt.
+       js/motion.js fragt zusaetzlich die Medienabfrage ab und
+       ueberspringt dann die JS-gesteuerten Ablaeufe. */
+    @media (prefers-reduced-motion: reduce) {
+        :root {
+            --dur-tiny: 1ms;
+            --dur-micro: 1ms;
+            --dur-view-fast: 1ms;
+            --dur-section: 1ms;
+            --dur-view: 1ms;
+            --dur-enter: 1ms;
+            --dur-sheet: 1ms;
+            --stagger-step: 0ms;
+        }
+    }
+
+    /* ========================================================
+       7  FLAECHEN UND SATZSPIEGEL
+       --------------------------------------------------------
+       Nur die Werte, die die neuen Komponenten brauchen. Die
+       uebrigen Grundfarben bleiben vorerst aus css/legacy.css -
+       so bleibt der Umbau nachvollziehbar.
+       ======================================================== */
+
+    :root {
+        --content-max: 980px;
+        --content-narrow: 720px;
+        --gutter: var(--sp-25);
+
+        /* Flaeche fuer eingelagerte Bloecke (Tabellen, Hinweise,
+           Abbildungen) - eine Spur ruhiger als die Karte selbst. */
+        --inset: #f7f9fc;
+        --inset-line: #e6ecf3;
+    }
+
+    [data-theme="dark"] {
+        --inset: #182233;
+        --inset-line: #2b3749;
+    }
+
+    @media (min-width: 1024px) {
+        :root { --gutter: var(--sp-4); }
+    }
+
+    @media (max-width: 480px) {
+        :root { --gutter: var(--sp-2); }
+    }
+}

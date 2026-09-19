@@ -1,3 +1,29 @@
+/* ============================================================
+   css/legacy.css
+   ------------------------------------------------------------
+   Die ueber viele Ausbaustufen gewachsene Formatierung der
+   Anwendung, unveraendert uebernommen und geschlossen in den
+   Layer "legacy" gelegt.
+
+   Warum: bis hierher entschied allein die Position in der Datei,
+   welche Regel gewinnt - 16 nacheinander angehaengte Abschnitte,
+   deren Vorrang niemand mehr ueberblicken konnte. Mit Layern ist
+   die Rangfolge erklaert statt zufaellig:
+
+       legacy  <  tokens  <  components  <  print
+
+   Alles, was spaeter kommt, gewinnt - unabhaengig von der
+   Spezifitaet des Selektors. Neue Gestaltung gehoert deshalb
+   NICHT mehr hierher, sondern nach css/components.css.
+
+   Die Druckregeln sind herausgeloest und liegen gebuendelt in
+   css/print.css.
+   ============================================================ */
+
+@layer legacy, tokens, components, print;
+
+@layer legacy {
+
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -3821,73 +3847,6 @@ mark {
     }
 }
 
-@media print {
-    .dir-overlay,
-    .sop-section-body .dispo-actions {
-        display: none !important;
-    }
-}
-
-@media print {
-    .sop-section-body .dispo {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
-    .sop-section-body .dispo-card {
-        box-shadow: none !important;
-        break-inside: avoid;
-    }
-
-    .sop-section-body .dispo-tel {
-        background: transparent !important;
-    }
-}
-
-@media print {
-    .sidebar,
-    .topbar,
-    .btm-nav,
-    .fab,
-    .picker-overlay,
-    .desk-bar,
-    .offline-bar,
-    .spotlight-overlay {
-        display: none !important;
-    }
-    
-    .v-sop {
-        display: block !important;
-        padding: 0 !important;
-        position: static !important;
-    }
-    
-    .sop-section {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-        break-inside: avoid;
-    }
-    
-    .sop-section-body {
-        display: block !important;
-        padding: 0 20px 20px !important;
-    }
-    
-    .sop-section-head .sec-toggle {
-        display: none !important;
-    }
-    
-    body {
-        background: #fff !important;
-        color: #000 !important;
-        font-size: 11pt;
-    }
-    
-    .sop-section-body .callout {
-        break-inside: avoid;
-    }
-}
-
 .tap-active {
     opacity: 0.7;
     transform: scale(0.98);
@@ -4310,35 +4269,6 @@ html.theme-switching {
 /* ============================================================
    Druckausgabe: Animationen dürfen nichts verschlucken
    ============================================================ */
-@media print {
-    *,
-    *::before,
-    *::after {
-        animation: none !important;
-        transition: none !important;
-    }
-
-    .v,
-    .sop-section,
-    .sop-section-body,
-    .sop-header,
-    .stagger-item,
-    .stagger-item-x {
-        opacity: 1 !important;
-        transform: none !important;
-        visibility: visible !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-
-    .sop-seg-sticky,
-    .segmented-control-wrapper,
-    .app-progress,
-    .ripple {
-        display: none !important;
-    }
-}
-
 /* ============================================================
    Geoeffnete Overlays: Hintergrund friert ein statt zu scrollen
    ============================================================ */
@@ -4621,13 +4551,6 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* --- Druck: Kurzhinweis und Kapitelleiste bleiben draussen --- */
-@media print {
-    .toast,
-    .sop-seg-sticky {
-        display: none !important;
-    }
-}
-
 /* ============================================================================
    GESTALTUNGSSCHICHT
    ============================================================================
@@ -5616,17 +5539,6 @@ input[type="search"]::-webkit-search-results-decoration {
    14  DRUCK
    ============================================================ */
 
-@media print {
-    .read-progress,
-    .btm-nav-pill {
-        display: none !important;
-    }
-
-    .sop-section::before {
-        display: none !important;
-    }
-}
-
 /* ============================================================
    15  ZEICHENAUFWAND LANGER LISTEN
    ============================================================
@@ -5932,8 +5844,6 @@ input[type="search"]::-webkit-search-results-decoration {
     .utility-btn, .cat-card { transition: none; }
     .utility-btn:active, .picker-list li:active { transform: none; }
 }
-@media print { .sop-tools { display: none !important; } }
-
 /* ============================================================
    20  TELEFONVERZEICHNIS
    ============================================================ */
@@ -5995,3 +5905,5 @@ input[type="search"]::-webkit-search-results-decoration {
 [data-theme="light"] .hero::before { border-color: rgba(18,54,75,.1); box-shadow: 0 0 0 48px rgba(18,54,75,.025), 0 0 0 96px rgba(18,54,75,.02); }
 [data-theme="light"] .hero .hero-search { background: #fff; border-color: #b9cdd9; }
 [data-theme="light"] .hero .hero-search:hover { border-color: var(--primary); }
+
+}

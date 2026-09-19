@@ -1,5 +1,8 @@
 {
-    "version": "3.3.0",
-    "lastUpdated": "2026-09-19T12:00:00Z",
-    "changelog": "Kompakter klinischer Kopfbereich, größere Kategorie-Icons, wiederkehrender Kartenauftritt, neu gestaltetes Telefonverzeichnis mit Kopierbestätigung; robustere Kapitelbedienung, Dialogsteuerung und Direktlinks. SOP-Inhalte unverändert."
+    "version": "4.0.0",
+    "lastUpdated": "2026-09-19T06:40:09Z",
+    "hash": "1d57bedd459d",
+    "sops": 73,
+    "sections": 593,
+    "changelog": "Neues Suchwerk mit Umlaut-, Synonym- und Tippfehlertoleranz sowie Wirkstoff-Direktsuche; Inhalte werden in Paketen geladen statt komplett beim Start; Gestaltung auf ein Token- und Layer-System umgestellt (Typografie, Kategoriefarben, Hinweisblöcke, Tabellen auf dem Telefon, Kapitelfortschritt); Abbildungen, Querverweise und verwandte Pfade ergänzt; Telefonverzeichnis mit Dienstzeitkennung; Druckausgabe in Hausqualität. SOP-Inhalte unverändert."
 }

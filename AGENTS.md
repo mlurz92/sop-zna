@@ -2,13 +2,37 @@
 
 > **WICHTIG:** Diese Datei ist die Referenz für KI-Assistenten und Agenten, die an diesem Projekt arbeiten. Sie beschreibt Architektur, Aufbau und Konventionen des SOP-ZNA-Projekts vollständig.
 
+<!-- BUILD:STATS -->
+| Kennzahl | Wert |
+| --- | --- |
+| Fassung | `4.0.0` |
+| Patientenpfade | 73 |
+| Abschnitte | 593 |
+| Eigene Synonyme | 581 |
+| Leitsymptom-Gruppen | 16 |
+| Indizierte Wirkstoffe | 137 |
+| Abbildungen | 2 |
+| Score-Rechner | 11 |
+| Startlast (`dist/sop-meta.js`) | 95 KB |
+| Inhaltspakete | 9 × ~105 KB |
+| Stand der Erzeugung | 2026-09-19 |
+<!-- /BUILD:STATS -->
+
+---
+
+## Die eine Regel
+
+> **Die SOPs sind fachlicher Inhalt.** Dateien in `sops/` werden nicht verändert – weder Wortlaut noch HTML –, solange das nicht ausdrücklich verlangt wird.
+
+Alles, was die Anwendung darüber hinaus zeigt (Suche, Querverweise, Abbildungen, Score-Rechner, Druckbogen), wird **aus** den SOPs abgeleitet, ohne sie anzufassen. Wo Anwendungswissen nötig ist, liegt es in `tools/data/` und wird vom Build gegen den Bestand geprüft.
+
+---
+
 ## Projektübersicht
 
-SOP-ZNA ist eine Progressive Web Application für die Darstellung von 73 evidenzbasierten Standard Operating Procedures (SOPs) in der Zentralen Notaufnahme des Klinikums St. Georg Leipzig. Die Anwendung ist eine Single-Page-Application ohne Framework-Abhängigkeiten und nutzt ES5-kompatibles JavaScript für maximale Browser-Kompatibilität.
+Single-Page-Anwendung ohne Framework, ES5-kompatibles JavaScript in **zehn Modulen** unter `js/`. Dazu `index.html`, vier CSS-Layer unter `css/`, 73 SOP-Dateien unter `sops/` und die daraus erzeugten Auslieferungsartefakte unter `dist/`.
 
-Die Anwendungslogik liegt in **zehn Modulen** unter `js/`. Dazu kommen `index.html` für die DOM-Struktur, `styles.css` für das Styling und 73 SOP-Dateien in `sops/`, die jeweils ein Datenobjekt in das globale `SOP_DATA` Array legen.
-
-> **Die SOPs selbst sind fachlicher Inhalt.** Dateien in `sops/` werden nicht verändert – weder Wortlaut noch HTML –, solange das nicht ausdrücklich verlangt wird.
+**Die Obergrenze von zehn Modulen bleibt bestehen.** Neue Funktionalität gehört in das Modul, dessen Aufgabe sie berührt.
 
 ---
 
@@ -16,39 +40,83 @@ Die Anwendungslogik liegt in **zehn Modulen** unter `js/`. Dazu kommen `index.ht
 
 ```
 sop-zna/
-├── index.html              # Einstiegspunkt mit HTML-Struktur
+├── index.html              Einstiegspunkt, DOM-Struktur, Druckbogen
+├── package.json            Version (einzige Quelle) und Befehle
+├── version.json            ERZEUGT von tools/build.mjs
 ├── js/
-│   ├── core.js             # Konfiguration, Zustand, DOM-Puffer, Hilfsfunktionen
-│   ├── motion.js           # Bewegungssteuerung
-│   ├── platform.js         # Theme, Schrift, Safe-Area, Offline, Versionswechsel
-│   ├── router.js           # Adresse, Verlauf, Öffnen und Zurück
-│   ├── views.js            # Ansichtswechsel, Tabs, Kopfzeile, Breadcrumb, Scrollen
-│   ├── lists.js            # Seitenleiste, Startseite, Übersicht, Volltextsuche
-│   ├── segmented.js        # Angeheftete Kapitelleiste
-│   ├── sop.js              # SOP-Ansicht, Akkordeon, Scroll-Spy, Drucken
-│   ├── overlays.js         # Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis
-│   └── main.js             # Gesten, Ereignisbindung, Start
-├── styles.css              # Vollständiges Stylesheet (ca. 4700 Zeilen)
-├── version.json            # Versionsdatei für Update-Check
-├── AGENTS.md               # Diese Dokumentation
-├── README.md               # Benutzerdokumentation
-├── img/
-│   ├── Basislogo_farbig.png
-│   ├── Patientenpfade.png
-│   └── ZNA/*.png           # SOP-spezifische Abbildungen
-├── vendor/                 # Schrift und Symbole, lokal eingebunden
-│   ├── fontawesome/        # all.min.css + fa-solid-900.woff2
-│   └── inter/              # inter.css + latin/latin-ext woff2
-└── sops/*.js               # 73 einzelne SOP-Module
+│   ├── core.js             Zustand, DOM-Puffer, Normalisierung, Suchwerk, Daten
+│   ├── motion.js           Bewegungssteuerung (liest Dauern aus den Tokens)
+│   ├── platform.js         Theme, Schrift, Safe-Area, Offline, Versionswechsel
+│   ├── router.js           Adresse, Verlauf, Scrollgedächtnis
+│   ├── views.js            Ansichtswechsel, Tabs, Kopfzeile, Scrollmaße
+│   ├── lists.js            Seitenleiste, Startseite, Übersicht, Volltextsuche
+│   ├── segmented.js        Angeheftete Kapitelleiste samt Fortschritt
+│   ├── sop.js              SOP-Ansicht, Akkordeon, Tabellen, Scores, Druck
+│   ├── overlays.js         Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis
+│   └── main.js             Gesten, Ereignisbindung, Start
+├── css/
+│   ├── legacy.css          @layer legacy     – gewachsene Formatierung
+│   ├── tokens.css          @layer tokens     – ALLE Werte
+│   ├── components.css      @layer components – neue Bausteine
+│   └── print.css           @layer print      – gesamte Druckausgabe
+├── dist/                   ERZEUGT – niemals von Hand bearbeiten
+│   ├── sop-meta.js         Metadaten + vorberechneter Suchindex
+│   ├── sop-text.js         Reintext aller Abschnitte
+│   └── sop-content-NN.js   Abschnitts-HTML in neun Paketen
+├── sops/                   73 SOP-Dateien (QUELLE, fachlicher Inhalt)
+├── tools/
+│   ├── build.mjs           Artefakte, Prüfungen, Version
+│   ├── palette.mjs         Kategoriefarben mit Kontrastnachweis
+│   ├── subset-fonts.py     Schrift- und Symbol-Subsetting
+│   ├── verify-fold.mjs     Normalisierung Build gegen Browser
+│   ├── visual-regress.mjs  Sicht- und Funktionsprüfung
+│   ├── data/               aliases.mjs, drugs.mjs, figures.mjs
+│   └── lib/                load-sops, text, cats, scores
+├── tests/visual/           baseline/, current/, diff/
+├── vendor/                 Inter, FontAwesome – Original + Subset
+└── img/
 ```
 
-**Wichtig:** Alle SOP-Dateien werden in `index.html` vor den Anwendungsmodulen eingebunden, damit `SOP_DATA` beim Start vollständig vorliegt.
+---
+
+## Datenfluss
+
+```
+sops/*.js  ──tools/build.mjs──▶  dist/sop-meta.js      (sofort, ~95 KB)
+                                 dist/sop-text.js      (nach dem ersten Bild)
+                                 dist/sop-content-NN.js (auf Abruf + Vorladen)
+                                        │
+                                        ▼
+                         App.initData / acceptText / acceptContent
+                                        │
+                                        ▼
+                                   App.S.data
+```
+
+`index.html` bindet **nur** `dist/sop-meta.js` synchron ein. `window.registerSOP()` ist entfallen.
+
+Trifft ein Artefakt ein, bevor `js/core.js` geladen ist, legt es sich in `window.__SOP_TEXT__` bzw. `window.__SOP_CONTENT__`; `js/main.js` arbeitet diese Warteschlangen beim Start ab.
+
+### Zustand einer SOP im Speicher
+
+```javascript
+{
+    id, name, category, stand, chunk,     // aus sop-meta.js
+    secTitles: [], hasSources, aliases: [],
+    xref: [],      // Kennungen, die im Text vorkommen (Vorberechnung)
+    related: [],   // vier verwandte Pfade (Vorberechnung)
+    nf, nc, af, tf,// vorberechnete Normalformen für die Suche
+    sections: null,// erst nach dem Paket: [{ title, html }]
+    sources: null, // erst nach dem Paket
+    text: null     // erst nach sop-text.js: { s: [...], q: '' }
+}
+```
+
+`App.sopLoadState(d)` liefert `'ready' | 'loading' | 'error' | 'missing'`.
 
 ---
 
 ## Modulsystem
-
-Jedes Modul ist eine IIFE, die ihre öffentlichen Teile an den gemeinsamen Namensraum `window.SOPApp` hängt:
 
 ```javascript
 (function(App) {
@@ -58,450 +126,259 @@ Jedes Modul ist eine IIFE, die ihre öffentlichen Teile an den gemeinsamen Namen
     var E = App.E;   // ihre Identitaet aendert sich nie.
 
     App.machWas = function() {
-        App.andereFunktion();   // Funktionen immer ueber App.<name>() aufrufen
+        App.andereFunktion();   // Funktionen immer ueber App.<name>()
     };
 
 })(window.SOPApp);
 ```
 
-`js/core.js` legt den Namensraum an (`window.SOPApp = window.SOPApp || {}`); alle weiteren Module setzen ihn voraus.
+1. **Objekte** (`App.S`, `App.E`, `App.MOTION`, `App.CATS`) dürfen aliasiert werden – sie werden nie ersetzt.
+2. **Funktionen** werden stets als `App.foo()` aufgerufen. Sonst friert ein Modul eine noch nicht definierte Funktion ein.
 
-**Zwei Regeln:**
-
-1. **Objekte** (`App.S`, `App.E`, `App.MOTION`, `App.CATS`, …) dürfen am Modulanfang in eine lokale Variable gelegt werden – sie werden nie ersetzt, nur verändert.
-2. **Funktionen** werden stets als `App.foo()` aufgerufen, nie beim Laden in eine lokale Variable gelegt. Sonst würde ein Modul eine noch nicht definierte Funktion einfrieren.
-
-**Wichtig:** Die Ladereihenfolge in `index.html` (`core → motion → platform → router → views → lists → segmented → sop → overlays → main`) ist Teil der Architektur. Wird ein neues Modul ergänzt, gehört es an die passende Stelle dieser Kette – und die Obergrenze von zehn Modulen bleibt bestehen.
+Ladereihenfolge `core → motion → platform → router → views → lists → segmented → sop → overlays → main` ist Teil der Architektur.
 
 ---
 
-## Architektur und Komponenten
+## Suchwerk (js/core.js)
 
-### View-Management System
-
-Vier Hauptansichten:
-
-| View-ID | Beschreibung | Container |
-|---------|--------------|-----------|
-| `viewHome` | Startseite mit Hero-Bereich und Kategorien | `#viewHome` |
-| `viewBrowse` | SOP-Liste mit Suchfeld und Filter | `#viewBrowse` |
-| `viewSearch` | Volltextsuche mit Ausschnitten | `#viewSearch` |
-| `viewSOP` | Einzelne SOP mit Kapitelleiste | `#viewSOP` |
-
-Jede Ansicht ist ein DIV mit der Klasse `.v`; nur die aktive trägt `.active`. Während eines Wechsels tragen beide beteiligten Ansichten zusätzlich `.is-anim` (hält sie sichtbar) und eine Richtungsklasse: `anim-in-push` / `anim-out-push`, `anim-in-pop` / `anim-out-pop`, `anim-in-fade` / `anim-out-fade` sowie `anim-in-replace` / `anim-in-replace-back` für den Austausch innerhalb derselben Ansicht (SOP → SOP).
-
-Das View-Management erfolgt über `App.sTab(t, mode, done)` (`js/views.js`):
-
-- `t` – Zieltab (`home`, `browse`, `search`, `sop`)
-- `mode` – `'push'`, `'pop'`, `'fade'` oder `null` für einen sofortigen Wechsel
-- `done` – optionaler Rückruf nach Abschluss der Bewegung
-
-Der Ablauf ist fest: Zielinhalt rendern → `App.uChrome()` für Kopfzeile, Breadcrumb, Fussnavigation und FAB → `App.switchView()` für die Bewegung → Nacharbeiten (Abschnittspositionen, Kapitelleiste, Adresse). `switchView()` räumt die Animationsklassen erst nach dem `animationend`-Ereignis auf; ein Zeitlimit dient als Sicherheitsnetz.
-
-**Wichtig:** Die abgehende Ansicht wird während des Wechsels über `style.top = -scrollTop` optisch festgehalten, damit das Zurücksetzen der Scrollposition keinen Sprung erzeugt.
-
-### Navigationstiefe
-
-Es gibt **keinen** eigenen Navigationsstapel. Die Tiefe steckt allein im Browser-Verlauf – Einzelheiten im Abschnitt „Verlauf und Routing".
-
-```javascript
-App.pushNav(sopId);   // Oeffnen: legt einen Verlaufseintrag an
-App.popNav();         // Zurueck: history.back(), sonst Ersatzroute
-```
-
-**Wichtig:** Ein zweiter Stapel neben dem Verlauf driftet unweigerlich auseinander – genau daran scheiterte die frühere Lösung, bei der auch das Zurückgehen einen neuen Eintrag anlegte.
-
-### State Management
-
-Der globale Zustand `App.S` enthält alle anwendungsweiten Variablen:
-
-| Variable | Typ | Beschreibung |
-|----------|-----|--------------|
-| `S.data` | Array | Alle SOP-Objekte, alphabetisch sortiert |
-| `S.tab` | String | Aktueller Tab (`home`, `browse`, `search`, `sop`) |
-| `S.sopId` | String\|null | Aktuell geöffnete SOP |
-| `S.catD` | String | Seitenleisten-Kategoriefilter (`all` oder Key) |
-| `S.catB` | String | Übersichts-Kategoriefilter (`all` oder Key) |
-| `S.bQ` | String | Filterbegriff der Übersicht |
-| `S.sQ` | String | Begriff der Volltextsuche |
-| `S.spotQ` | String | Begriff der Schnellsuche (getrennt von `S.sQ`) |
-| `S.hQ` | String | Filterbegriff der Seitenleiste |
-| `S.theme` | String | Theme (`light` oder `dark`) |
-| `S.fs` | Number | Schriftgröße (13–20 px) |
-| `S.mob` | Boolean | Mobiler Breakpoint (Breite < 1024 px) |
-| `S.off` | Boolean | Keine Netzverbindung |
-| `S.isNavigating` | Boolean | Sperre während eines laufenden Wechsels |
-
-### DOM Element Cache
-
-`App.cache()` (in `js/core.js`) füllt `App.E` mit Referenzen auf alle Elemente aus der ID-Liste `CACHED_IDS`. Das vermeidet wiederholte `document.getElementById()`-Aufrufe.
-
-**Wichtig:** Elemente, die dynamisch über `innerHTML` entstehen (etwa in `App.rBrowse()`), existieren zum Zeitpunkt von `cache()` noch nicht. Sie werden nach dem Setzen von `innerHTML` erneut geholt:
-
-```javascript
-E.viewBrowse.innerHTML = html;
-E.browseSearchInput = document.getElementById('browseSearchInput');
-E.browseList = document.getElementById('browseList');
-```
-
----
-
-## Schlüsselfunktionen
-
-### Render-Funktionen
-
-| Funktion | Modul | Beschreibung |
-|----------|-------|--------------|
-| `App.rSB()` | lists.js | Kategorie-Chips der Seitenleiste mit Anzahl |
-| `App.rNav()` | lists.js | Navigationsliste der Seitenleiste |
-| `App.rHome()` | lists.js | Hero-Bereich und Kategorien-Raster |
-| `App.rBrowse()` | lists.js | Übersicht inkl. Filterleiste (holt Referenzen neu) |
-| `App.rBrowseCats()` | lists.js | Kategorie-Chips der Übersicht |
-| `App.rBrowseList()` | lists.js | Liste der Übersicht mit Trefferanzahl |
-| `App.searchSops(q)` | lists.js | Bewertete Treffer der Volltextsuche |
-| `App.rSearch()` | lists.js | Ergebnisliste der Volltextsuche |
-| `App.rSOP()` | sop.js | Vollständige SOP-Ansicht |
-| `App.rPk()` | overlays.js | Inhaltsverzeichnis |
-| `App.rDir(q)` | overlays.js | Telefonverzeichnis |
-| `App.rBC(items)` | views.js | Breadcrumb |
-
-### Angeheftete Kapitelleiste
-
-Die Kapitelleiste steckt in einem Rahmen `.sop-seg-sticky`, der über `position: sticky` am oberen Rand des Inhaltsbereichs stehen bleibt. Der vollflächige Hintergrund kommt aus einem `::before`, das seitlich über die Polsterung der Ansicht hinausragt; `.scroll-area` beschneidet den Überstand.
-
-`App.uSticky(y)` (`js/sop.js`) ist der Scroll-Spy: Er setzt `.is-stuck` am Rahmen, markiert das gerade sichtbare Kapitel mit `.is-current` (an Schaltfläche **und** Abschnitt) und aktualisiert das Inhaltsverzeichnis. Ein zusätzlicher `IntersectionObserver` dafür existiert bewusst nicht – eine Quelle, zwei Anzeigen.
-
-**Wichtig:** `.is-current` (Scrollposition) und `.active` (getroffene Auswahl, hinterlegte Pille) sind getrennte Zustände und dürfen nicht vermischt werden. `App.syncSegmentedWithSections()` hält `.active` ehrlich: „Alle" nur, wenn wirklich alle Abschnitte offen stehen, ein Kapitel nur, wenn es als einziges offen ist – sonst ist nichts markiert und die Pille verschwindet.
-
-**Fallstrick:** Bei `position: sticky` enthält `offsetTop` in Chrome die Klebeverschiebung. Die Ruheposition wird deshalb in `sectionOffsets()` nur übernommen, solange `segStuck` falsch ist.
-
-### Verlauf und Routing
-
-Der Browser-Verlauf ist die einzige Quelle der Navigationstiefe. `App.syncRoute(replace)` schreibt in jeden Eintrag einen laufenden Index (`{ r, i }`); `App.onPopState` vergleicht ihn mit `routeIndex` und leitet daraus die Richtung (`push`/`pop`) für die Animation ab. `App.popNav()` ruft `history.back()`, sofern `hasRouteHistory()` zutrifft, sonst greift die Ersatzroute (SOP → Übersicht → Start).
-
-### Navigation und Animation
-
-| Funktion | Modul | Beschreibung |
-|----------|-------|--------------|
-| `App.pushNav(id)` | router.js | Öffnet eine SOP und legt einen Verlaufseintrag an |
-| `App.popNav()` | router.js | `history.back()`, sonst Ersatzroute |
-| `App.gotoTab(t)` | views.js | Tabwechsel über die Fussnavigation |
-| `App.switchView(from, to, mode, done)` | views.js | Führt den Ansichtswechsel aus und räumt danach auf |
-| `App.uSticky(y)` | sop.js | Scroll-Spy für Kapitelleiste, Abschnitte, Inhaltsverzeichnis |
-| `App.setSectionOpen(sec, open, animate)` | sop.js | Klappt einen Abschnitt mit animierter Höhe auf/zu |
-| `App.updateSegmentedPill(animate)` | segmented.js | Setzt die gleitende Markierung auf die aktive Schaltfläche |
-| `App.applyStagger(nodes, cls)` | motion.js | Gestaffelter Auftritt, Verzögerung bei 14 Elementen gedeckelt |
-| `App.smoothScrollTo(container, top)` | motion.js | Weiches Scrollen über eine eigene rAF-Schleife |
-
-### Touch-Gesten
-
-Alle Gesten liegen in `js/main.js`; die Schwellenwerte stehen zentral in `App.GESTURE` (`js/core.js`):
-
-| Schwelle | Wert | Bedeutung |
-|----------|------|-----------|
-| `edgeMargin` | 35 px | Randbereich, in dem der Zurück-Wisch beginnen darf |
-| `swipeDistance` | 60 px | Strecke, ab der ausgelöst wird |
-| `swipeVelocity` | 0.3 | ... oder Geschwindigkeit |
-| `directionLock` | 8 px | Ab hier steht die Richtung fest |
-| `segTapSlop` | 10 px | Tippen gegen Wischen in der Kapitelleiste |
-
-**Wichtig:** `preventDefault()` wird erst aufgerufen, nachdem die waagerechte Richtung feststeht. Würde es wie früher sofort erfolgen, wäre senkrechtes Scrollen im linken Randbereich blockiert.
-
-### Gestaltungsschicht in `styles.css`
-
-Am Ende von `styles.css` steht eine zusammenhaengende Gestaltungsschicht (nummerierte Abschnitte 1–16). Sie enthaelt Rhythmus, Tiefe und Bewegung und hat im Zweifel Vorrang vor den Regeln darueber. Wer an der Darstellung arbeitet, sucht zuerst dort.
-
-Zentrale Tokens dieser Schicht:
-
-| Token | Bedeutung |
-|-------|-----------|
-| `--content-max` / `--content-narrow` | Satzspiegel aller Ansichten bzw. der Listen |
-| `--gutter` | Seitenrand, je Breakpoint gesetzt |
-| `--dur-tiny` … `--dur-enter` | Bewegungsdauern (zusaetzlich zu den bestehenden) |
-| `--ease-settle`, `--ease-spring` | Kurven fuer gleitende Markierungen und Antippen |
-
-**Zwei Regeln aus Messungen, die nicht zurueckgedreht werden sollten:**
-
-1. **Kein `backdrop-filter` auf bildschirmfuellenden Flaechen.** Die Backdrops von Schnellsuche, Inhalts-Sheet und Telefonverzeichnis tragen einen radialen Verlauf, keinen Weichzeichner. Gemessen kostete der Weichzeichner zwei Drittel der Bildrate beim Oeffnen der Schnellsuche – unabhaengig davon, ob die Transparenz animiert wurde. Der kleine Weichzeichner der Fussnavigation ist davon nicht betroffen (schmaler Streifen).
-2. **`content-visibility: auto` nur auf flachen Listeneintraegen** (`.browse-item`, `.search-result`, `#navList li`, `.dir-rows > li`), nie auf `.sop-section`. Dort wird `scrollHeight` des Inhalts fuer die Aufklapp-Animation gemessen; uebersprungene Teilbaeume wuerden falsche Hoehen liefern.
-
-### Ereignisdelegation
-
-`App.delegate(container, selector, handler)` (in `js/lists.js`) haengt **einen** `click`-Listener an die Liste statt einen an jede Zeile und merkt sich das am Element (`_delegated`), damit ein erneuter Aufbau nicht doppelt bindet. So arbeiten Seitenleiste, Uebersicht, Suchtreffer, Kategorie-Chips, Startkacheln, Schnellsuche, Inhaltsverzeichnis und Telefonverzeichnis.
-
-**Wichtig:** Container, die per `innerHTML` neu entstehen (z.B. `E.browseList` nach `rBrowse()`), sind neue Elemente ohne `_delegated` – sie werden korrekt neu gebunden. Container, die bestehen bleiben (`E.navList`, `E.searchResultsArea`, `E.spotlightResults`, `E.sectionPickerList`, `E.dirBody`), werden nur einmal gebunden.
-
-### Auftritt langer Listen
-
-`App.applyStagger` animiert hoechstens `MOTION.staggerLimit` (18) Elemente. Alles darunter erscheint sofort – bei 73 Eintraegen sparte das 57 Animationen samt Ereignis-Listenern, und genau die waren ein spuerbarer Teil des ersten Frames eines Ansichtswechsels.
-
-### Kopfzeile, Fortschritt und Fussnavigation
-
-| Funktion | Modul | Wirkung |
-|----------|-------|---------|
-| `App.setScrolled(bool)` | views.js | setzt `#app.is-scrolled`; Kopfzeile und Breadcrumb bekommen dann Kante und Schatten |
-| `App.updateReadProgress(y)` | views.js | skaliert `#readProgress > span`; nur in der SOP-Ansicht und nur bei nennenswerter Laenge sichtbar |
-| `App.updateBottomNavPill()` | views.js | setzt Breite und Versatz der gleitenden Markierung; eine geoeffnete SOP zaehlt zum Tab „SOPs" |
-
-Alle drei laufen im gemeinsamen `requestAnimationFrame`-Handler bzw. nach einem Ansichtswechsel – kein zusaetzlicher Scroll-Listener.
-
-### Start eines Ansichtswechsels
-
-`switchView()` versieht beide Ansichten zuerst mit `.is-prepped` (CSS: `animation-play-state: paused`), erzwingt einen Layoutdurchlauf und nimmt die Bremse erst im naechsten Frame heraus (`startWhenPainted`).
-
-**Warum:** Ohne diesen Halt liefen Inhaltsaufbau und Animation im selben Frame. Der Browser musste die gesamte neue Ansicht anordnen und zeichnen, waehrend die Animationsuhr bereits lief - gemessen 83 ms fuer diesen einen Frame. Die Bewegung setzte dadurch erst nach rund einem Fuenftel ihrer Strecke sichtbar ein.
-
-**Nicht entfernen.** Ein Testlauf misst den Versatz der einfahrenden Ansicht im ersten Frame und schlaegt an, sobald er unter 92 % faellt.
-
-### Gleitende Markierungen
-
-`App.movePill(pill, left, width, animate)` (in `js/motion.js`) bewegt die Markierungen in Kapitelleiste und Fussnavigation. Sie springen nicht, sondern dehnen sich in Laufrichtung (gedeckelt auf das 1,5-fache der groesseren Breite), wandern und ziehen sich am Ziel zusammen. Der Umschaltpunkt liegt bei 34 % der Dauer - frueher bliebe die Dehnung unsichtbar, spaeter wirkte die Markierung traege.
-
-Die Funktion merkt sich die letzte Position an `data-left` / `data-width` des Elements. Wird eine Markierung verborgen, muessen diese Attribute entfernt werden, sonst dehnt die naechste Bewegung quer ueber die ganze Leiste.
-
-### Arbeit hinter der Bewegung
-
-`App.afterTransition(fn)` legt Arbeit, die waehrend des Wechsels niemand sieht, in die erste ruhige Luecke (`requestIdleCallback` mit Zeitlimit). So wird die Navigationsliste der Seitenleiste nachgezogen. Das Inhaltsverzeichnis entsteht erst in `openPicker()`.
-
-**Wichtig:** `rSOP()` baut daher weder Navigationsliste noch Inhaltsverzeichnis auf - das uebernimmt der Aufrufer.
-
-### Bewegungssteuerung
-
-`App.MOTION` (`js/motion.js`) bündelt alle Dauern und die Systemeinstellung `prefers-reduced-motion`:
-
-```javascript
-App.MOTION.reduced      // true, wenn Bewegung reduziert werden soll
-App.MOTION.view         // 360 ms – Ansichtswechsel
-App.MOTION.section      // 320 ms – Akkordeon
-App.MOTION.staggerStep  // 26 ms je Listenelement
-App.MOTION.staggerMax   // gedeckelt bei 14 Elementen
-```
-
-Hilfsfunktionen: `App.afterMotion(el, event, dauer, cb)` wartet auf `animationend`/`transitionend` mit Zeitlimit, `App.nextFrame(cb)` überspringt zwei Frames, `App.reflow(el)` erzwingt einen Layoutdurchlauf zwischen Start- und Zielzustand.
-
-**Regel:** Es werden ausschließlich `transform` und `opacity` animiert (`clip-path` einzig fuer die Kreisblende des Theme-Wechsels).
-
-**`filter` gehoert nicht dazu.** Eine animierte Helligkeitsstufe auf einer bildschirmgrossen Flaeche zwingt den Compositor, in jedem Frame eine eigene Zeichenflaeche aufzubauen; gemessen halbierte das die Bildrate des Ansichtswechsels. Ein Testlauf prueft die Bildfolgen `vPush*`, `vPop*`, `vFade*` und `vReplace*` ausdruecklich darauf. Eigenschaften, die Layout auslösen (`width`, `height`, `top`, `max-height`), gehören nicht in laufende Animationen – die einzige Ausnahme ist die bewusst per JavaScript gesteuerte Höhe des Akkordeons.
-
----
-
-## CSS-Organisation und Konventionen
-
-### Custom Properties
-
-```css
-:root {
-    /* Farben */
-    --primary: #2563eb;
-    --surface: #ffffff;
-    --text: #0f172a;
-
-    /* Layout */
-    --sidebar-w: 280px;
-    --topbar-h: 56px;
-    --btm-h: 64px;
-
-    /* Safe Areas */
-    --sat: env(safe-area-inset-top, 0px);
-    --sab-js: 0px;   /* zur Laufzeit gemessen, siehe platform.js */
-
-    /* Animation */
-    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-}
-```
-
-### Bedienelemente sind `<button>`
-
-Karten, Listeneinträge, Filterchips, Abschnittsköpfe und Verzeichniszeilen sind echte `<button>`-Elemente, keine `div` mit `role="button"`. Damit funktionieren Tastaturbedienung, Fokus und Hilfstechnologien ohne Zusatzlogik.
-
-Direkt unter dem globalen `*`-Reset in `styles.css` steht ein Block, der die Browservorgaben dieser Schaltflächen zurücknimmt (Schrift, Farbe, Rahmen, Ausrichtung). Er steht bewusst **weit oben**: die spezifischeren Regeln weiter unten (Hintergrund, Rahmen, Layout) behalten Vorrang.
-
-**Fallstrick:** Der Inhalt eines `<button>` ist „phrasing content". Blockelemente wie `<p>`, `<h4>` oder `<div>` gehören nicht hinein – stattdessen `<span>` mit `display: block`. Deshalb tragen `.sr-title`, `.sr-snippet`, `.spotlight-result-info` und `.dir-row-main` eigene `display`-Regeln.
-
-### Viewport-Einheiten
-
-```css
-html, body, #app {
-    height: 100dvh;   /* reagiert auf Browser-UI */
-    height: 100vh;    /* Fallback */
-    height: 100svh;   /* ohne Browser-UI */
-}
-```
-
-### Responsive Breakpoints
-
-| Breakpoint | Breite | Änderungen |
-|------------|--------|------------|
-| Desktop | ≥ 1024 px | Seitenleiste sichtbar, Fussnavigation und FAB ausgeblendet |
-| Tablet | 481–1023 px | Keine Seitenleiste, angepasste Abstände |
-| Mobil | ≤ 480 px | Kompakte Darstellung, Raster mit 2 Spalten |
-
-### Touch-Optimierung
-
-```css
-.cat-card, .btm-btn, .sop-section-head {
-    min-height: 44px; /* Apple-Empfehlung */
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-}
-```
-
----
-
-## SOP-Datenstruktur
+Ein Werk, vier Oberflächen. `App.query(text, opts)` liefert:
 
 ```javascript
 {
-    id: "eindeutige-id",           // Eindeutiger String für URL-Hash
-    name: "Titel der SOP",         // Anzeigename (Fallback: title)
-    title: "Titel der SOP",
-    category: "kardio",            // Schlüssel oder Anzeigename aus CATS
-    stand: "02/26",                // Datum der letzten Aktualisierung
-    sources: "<p>Quellen...</p>",  // HTML-String
-    sections: [
-        { title: "Diagnostik", html: "<p>Inhalt</p>" }
-    ]
+    q, sops: [{ sop, score, why, hits: [{ sec, title, snippet }] }],
+    drugs: [{ name, rank, sops: [] }],
+    usedFuzzy, textSearched
 }
 ```
 
-`App.normSop(d)` ergänzt fehlende Felder aus alternativen Schreibweisen (`title`, `date`, `quellen`, `references`, `content`, `body`, `text`) und löst die Kategorie über `App.rc()` auf. **Der fachliche Inhalt bleibt dabei unverändert.**
+`why` ist `'name' | 'alias' | 'title' | 'text' | 'source' | 'fuzzy'` und steuert die Kennzeichnung im Treffer.
 
-### Kategorien-Konfiguration
+`App.filterSops(cat, q)` ist die schlanke Namensfilterung für Seitenleiste und Übersicht – dasselbe Werk, ohne Volltext und Wirkstoffe.
 
-`CATS`, `CC` (Farben) und `SIC` (Symbole je Abschnittstitel) stehen in `js/core.js`. `App.gc(k)` liefert die Farbe, `App.catName(k)` den Anzeigenamen, `App.catIcon(k)` das Symbol.
+### Normalisierung
+
+| Funktion | Wirkung |
+|---|---|
+| `App.fold(s)` | `ä→a`, `ö→o`, `ü→u`, `ß→ss`, Akzente weg, tiefgestellte Ziffern zu Ziffern, alles andere zu Wortgrenze |
+| `App.collapse(s)` | zusätzlich `ae→a`, `oe→o`, `ue→u` |
+| `App.queryForms(s)` | beide Formen – die zusammengezogene aber **erst ab fünf Zeichen** |
+| `App.foldMap(s)` | gefaltete Fassung **plus Stellenzuordnung** zum Original |
+
+> **`tools/lib/text.mjs` ist die verbindliche Referenz.** Weichen Build und Browser voneinander ab, findet die Suche Dinge nicht, die der Index verspricht – lautlos. `node tools/verify-fold.mjs` prüft beide Seiten gegen den gesamten Bestand (2.254 Proben, 480.625 Zeichen).
+
+### Trefferhervorhebung
+
+```javascript
+App.hl(rohtext, anfrage)   // -> entschaerftes HTML mit <mark>
+```
+
+**Nimmt Rohtext, nicht entschärftes HTML.** Die frühere Fassung setzte `<mark>` per Regex in bereits entschärften Text und zerriss dabei Entitäten (`&amp;` wurde zu `&<mark>a</mark>mp;`). Über `foldMap` wird jetzt auf der gefalteten Fassung gesucht und auf das Original zurückgerechnet – nebenbei hebt die Suche nach „Oesophagus" damit auch „Ösophagus" hervor.
+
+### Kurze Anfragen
+
+Unter vier Zeichen zählt nur ein Treffer an einer Wortgrenze (`SUBSTRING_MIN`). Ein exakter Synonymtreffer (`aliasExact: 90`) wiegt schwerer als ein Name, der zufällig gleich beginnt (`namePrefix: 80`) – sonst gewänne bei `HIT` der Hitzschlag.
+
+---
+
+## CSS: vier Layer
+
+```
+legacy  <  tokens  <  components  <  print
+```
+
+Die Reihenfolge steht als `@layer`-Anweisung am Kopf von `css/legacy.css` und gilt unabhängig von der Ladereihenfolge. **Was später kommt, gewinnt – unabhängig von der Spezifität.**
+
+| Wohin gehört was? | Datei |
+|---|---|
+| Ein Wert (Farbe, Größe, Abstand, Dauer, Radius) | `css/tokens.css` |
+| Eine neue oder überarbeitete Komponente | `css/components.css` |
+| Etwas, das nur im Druck gilt | `css/print.css` |
+| **Nichts.** Nur Altbestand. | `css/legacy.css` |
+
+### Token-Gruppen in `css/tokens.css`
+
+| Gruppe | Beispiele |
+|---|---|
+| Typografie | `--fs-2xs … --fs-3xl`, `--fs-display`, `--lh-*`, `--ls-*`, `--fw-*`, `--measure`, `--num-tabular` |
+| Raster | `--sp-05 … --sp-12` (8-px-Maß), `--radius-*`, `--tap-min` (48 px) |
+| Tiefe | `--elev-0 … --elev-5` (Dunkelmodus mit heller Oberkante) |
+| Kategorien | `--cat-<key>`, `-tint`, `-ink`, `-line` für elf Kategorien × zwei Themes |
+| Klinische Semantik | `--cave`, `--alert`, `--dose`, `--info`, `--ok`, `--warn` je mit `-tint`, `-ink`, `-line` |
+| Bewegung | `--dur-*`, `--stagger-*`, `--ease-*` |
+
+Alle Größen leiten sich aus `--font-base` ab; die Schriftgrößen-Wippe verschiebt damit die gesamte Skala geschlossen.
+
+### Kategoriefarben
+
+Nicht mehr im JavaScript. `App.gc(key)` liefert `var(--cat-<key>)`, `App.catStyle(key)` den vollständigen Satz als Stilangabe für das Element.
+
+```bash
+node tools/palette.mjs          # Kontrasttabelle, Exit 1 bei Unterschreitung
+node tools/palette.mjs --css    # Block für css/tokens.css
+```
+
+Der Build prüft, dass `css/tokens.css` und die Rechnung deckungsgleich sind.
+
+### Bewegung: eine Quelle
+
+`css/tokens.css` führt die Dauern; `App.readMotionTokens()` liest sie beim Start aus dem berechneten Stil. Die Zahlen in `js/motion.js` sind reine Rückfallwerte. **Dauern nicht mehr an zwei Stellen pflegen.**
+
+---
+
+## SOP-Ansicht (js/sop.js)
+
+Reihenfolge in `wireSections()` – sie ist Absicht:
+
+```
+attachFigures → enhanceTables → attachScores → relayoutSopTables
+              → linkCrossReferences → wireRelated
+```
+
+`relayoutSopTables()` muss **nach** `attachScores()` laufen: erst dann steht fest, welche Tabelle ein Rechner ist, und nur Nicht-Rechner werden auf dem Telefon zu Karten.
+
+### Fallstrick: `element.querySelectorAll('tbody tr')`
+
+Der Druckbogen hüllt die gesamte Anwendung in ein `<tbody>`. Damit ist **jede** Zeile im Dokument Nachfahrin eines `tbody`, und `table.querySelectorAll('tbody tr')` trifft auch die Kopfzeile – der Score-Rechner war dadurch um eine Zeile verschoben.
+
+> Innerhalb einer Tabelle immer über `bodyRowsOf(table)` / `headCellsOf(table)` gehen (`:scope > tbody > tr`). CSS-Selektoren sind nicht betroffen, weil sie an `.sop-section-body` verankert sind.
+
+### Score-Rechner
+
+`tools/lib/scores.mjs` erkennt beim Build vier Bauformen in den SOP-eigenen Tabellen:
+
+| Form | Beispiel | Bedienung |
+|---|---|---|
+| `sum` | Wells, PERC, CHA₂DS₂-VA, MASCC, BISAP, Gicht, ADD-RS | Mehrfachauswahl je Zeile |
+| `sum` mit `options` | Glasgow-Blatchford, MASCC-Zeile 1 | eine Ausprägung je Zeile |
+| `group-rows` | Glasgow Coma Scale (rowspan) | eine Zeile je Gruppe |
+| `group-cols` | 4T-Score (Kopfzeile „2 Punkte / 1 Punkt / 0 Punkte") | eine Spalte je Zeile |
+
+Alles andere bleibt eine normale Tabelle. **Im Zweifel kein Rechner.**
+
+Die Auswahlmarke hängt an `.score-mark` – bei `group-rows` ist das **nicht** die erste Zelle, dort steht per rowspan der Gruppenname (`.score-group`).
+
+Der Rechner ist zustandslos: nichts wird gespeichert, nichts überdauert das Schließen.
+
+### Abschnitte und Hilfstechnologien
+
+`aria-expanded` folgt dem tatsächlichen Zustand; geschlossene Rümpfe tragen `hidden` (aus Zugänglichkeitsbaum und Browsersuche entfernt). Die Druckregeln setzen `display` mit `!important` und stechen `hidden` aus – im Ausdruck steht der Abschnitt trotzdem.
+
+`App.isSectionTargetOpen()` liefert den **Zielzustand** (`.is-open` an der Section), `App.isSectionOpen()` den **Ist-Zustand** (`.open` am Rumpf). Während der Höhenanimation unterscheiden sie sich.
+
+Standardmäßig offen: Abschnitte, deren Titel mit `Diagnostik` oder `Therapie` **beginnt** (`App.isAutoOpen`). Der frühere Gleichheitsvergleich ließ „Therapie – Allgemeinmaßnahmen" und „Diagnostik & Wells-Score" zugeklappt.
+
+---
+
+## Druckausgabe
+
+`index.html` enthält eine **echte** `<table class="print-sheet" role="presentation">` mit `<thead>`, `<tbody>` und `<tfoot>`, die die gesamte Anwendung umschließt.
+
+- Auf dem Bildschirm: `display: contents` auf Tabelle, `tbody`, `tr`, `td` – der Rahmen verschwindet vollständig aus dem Layout, Kopf und Fuß sind ausgeblendet.
+- Im Druck: `<thead>` und `<tfoot>` werden vom Browser auf **jeder Seite** wiederholt.
+
+> Nachgemessen: Nur bei einer echten Tabelle wiederholt Chromium den Kopf. Mit `display: table-header-group` auf `<div>` erscheint er ausschließlich auf der ersten Seite; mit `position: fixed` liegt er über dem Text, weil er keinen Platz im Fluss beansprucht.
+
+`App.printSop()` füllt Kopf und Fuß und ruft `window.print()`. **Kein Auf- und Zuklappen von Abschnitten mehr** – `css/print.css` setzt jeden Rumpf auf `display: block`. Die frühere Fassung war ein Wettlauf gegen ein `window.print()`, das in manchen Browsern sofort zurückkehrt.
+
+---
+
+## Telefonverzeichnis
+
+`PHONE_DIR` in `js/overlays.js` (56 Einträge in sieben Gruppen). `App.parseShiftWindows(note)` leitet Zeitfenster aus den vorhandenen Notizen ab.
+
+> **Bewusst zurückhaltend:** Ein Fenster entsteht nur, wenn die Notiz ausdrücklich Tage nennt (`Mo-Fr`, `Di`, `Täglich`). In `DA bis 15:30 Uhr: 4004` gilt die Zeit für eine **Zweitnummer**, nicht für die Zeile. Neun der 56 Einträge tragen dadurch eine Kennzeichnung – genau die Sprechstunden.
 
 ---
 
 ## Entwicklungskonventionen
 
-### JavaScript-Stil
+### JavaScript
 
-- Variablen mit `var` (ES5-Kompatibilität), `'use strict'` in jedem Modul
-- Render-Funktionen beginnen mit `r` (`rHome`, `rBrowse`, `rSOP`)
-- Navigation: `sTab`, `pushNav`, `popNav`, `gotoTab`
-- Cross-Modul-Aufrufe immer über `App.<name>()`
+- `var`, `function`, keine Pfeilfunktionen, kein `const`/`let` in `js/` (ES5-Kompatibilität)
+- In `tools/` ist modernes JavaScript erlaubt (Node ≥ 20, ESM)
+- Kein globaler Namensraum außer `window.SOPApp`
 
 ### Text im HTML entschärfen
 
-| Funktion | Zweck |
-|----------|-------|
-| `App.esc(t)` | Text für den Einbau in HTML (`&`, `<`, `>`) |
-| `App.escAttr(t)` | Zusätzlich Anführungszeichen – für Attributwerte |
-| `App.hl(escapedText, query)` | Hebt Treffer mit `<mark>` hervor; erwartet **bereits entschärften** Text |
-| `App.sopName(d, query)` | Kurzform: entschärfter, hervorgehobener SOP-Name |
+| Funktion | Einsatz |
+|---|---|
+| `App.esc(t)` | Text zwischen Tags |
+| `App.escAttr(t)` | Attributwerte |
+| `App.hl(rohtext, q)` | Text **mit** Trefferhervorhebung |
 
-**Regel:** Jeder Wert, der aus Daten oder Eingaben in eine HTML-Zeichenkette wandert, läuft durch `esc()` bzw. `escAttr()`. Einzige Ausnahme ist der HTML-Inhalt der SOP-Abschnitte und -Quellen – er stammt aus den gepflegten Dateien in `sops/` und wird bewusst unverändert eingesetzt.
+SOP-HTML wird unverändert eingebaut – es ist eigener, vertrauenswürdiger Inhalt.
 
-### CSS-Konventionen
+### Ereignisdelegation
 
-- BEM-ähnliche Benennung: `.sop-section-head`, `.segmented-btn`
-- Modifier als zusätzliche Klassen: `.open`, `.active`, `.is-current`, `.show`
-- Kommentare mit `====` Trennern gliedern die Datei
+`App.delegate(container, selector, handler)` registriert je Container **und Selektor** genau einmal. Listen mit 73 Einträgen bekommen einen Listener, nicht 73.
 
----
+### Neue Symbole
 
-## Bekannte Eigenheiten und Fallstricke
-
-### Ein Ereignispfad je Bedienelement
-
-Die Schaltflächen der Kapitelleiste werden ausschließlich über `click` ausgelöst (`App.bindSegmentedButton`). Das deckt Maus, Tippen, Tastatur und Hilfstechnologien gleichermaßen ab. Die Pointer-Ereignisse dienen nur dazu, ein Wischen zum Scrollen der Leiste zu erkennen und den darauf folgenden `click` zu verwerfen.
-
-**Nicht wieder einführen:** ein zweiter Pfad über `touchend`, der zusätzlich zum nachgereichten `click` feuert. Das löste jede Auswahl doppelt aus.
-
-### Ziel- gegen Zwischenzustand eines Abschnitts
-
-Während der Höhenanimation trägt `.sop-section-body` noch die alte `.open`-Klasse – sie wird erst im `transitionend`-Rückruf umgesetzt. Wer den Zustand direkt nach einem Umschalten auswertet, braucht das Ziel, nicht den Zwischenstand:
-
-| Funktion | Liefert |
-|----------|---------|
-| `App.isSectionOpen(sec)` | Tatsächlicher Zustand des Inhalts |
-| `App.isSectionTargetOpen(sec)` | Zustand, auf den der Abschnitt zuläuft (`.is-open` am `<section>`) |
-
-`syncSegmentedWithSections()` nutzt die zweite Variante – sonst bliebe „Alle" nach dem Zuklappen eines Abschnitts fälschlich markiert.
-
-### Gepufferte Textsuche
-
-`App.secTextLower(sec)` und `App.sourcesTextLower(d)` lösen den Volltext einmalig aus dem HTML und legen ihn am SOP-Objekt ab (`_text`, `_textLower`, `_srcLower`). Ohne diesen Puffer würde bei jedem Tastendruck das HTML aller 73 SOPs neu geparst.
-
-### Dynamische Element-Referenzen
-
-Elemente aus `innerHTML` existieren nicht im DOM-Puffer `E`. Nach `rBrowse()` werden `E.browseSearchInput`, `E.browseList`, `E.browseCount` usw. neu gesetzt.
-
-### Animation-Timing
-
-Dauern stehen als CSS Custom Properties (`--dur-view`, `--dur-view-fast`, `--dur-section`, `--dur-micro`) und gespiegelt im `App.MOTION`-Objekt. Wird eine Dauer geändert, müssen **beide** Stellen angepasst werden. Auf Ereignisse wird über `App.afterMotion()` gewartet, nicht über feste `setTimeout()`-Werte.
-
-### Overlays sind immer im DOM
-
-Schnellsuche, Inhaltsverzeichnis und Telefonverzeichnis wechseln nicht zwischen `display:none` und `display:block` – ein Wechsel der `display`-Eigenschaft unterbindet CSS-Transitions. Stattdessen bleiben sie im Layout und werden über `visibility`, `opacity` und `transform` ein- und ausgeblendet.
-
-### Overlay-Stapel und Fokus
-
-`js/overlays.js` führt einen Stapel der geöffneten Overlays. Daraus ergeben sich drei Dinge:
-
-- Die Fokusfalle (`App.trapFocus`) greift am **zuletzt geöffneten** Overlay, nicht am im Dokument ersten.
-- `body.picker-open` (friert den Hintergrund ein) wird erst entfernt, wenn das **letzte** Overlay geschlossen ist.
-- `Esc` schließt über `App.closeTopOverlay()` genau ein Overlay; `App.closeAllOverlays()` räumt bei einer Verlaufsnavigation alle ab.
-
-### Abschnittspositionen sind gepuffert
-
-`sectionOffsets()` liefert die Positionen der SOP-Abschnitte aus einem Cache. Nach jeder Änderung, die Höhen beeinflusst (Aufklappen, Neuaufbau, Größenänderung, Schriftgröße), muss `App.invalidateSectionOffsets()` aufgerufen werden.
-
-### Verlauf bei Tab-Wechsel
-
-Tabwechsel **ersetzen** den Verlaufseintrag (`replaceState`), da sie keine Hierarchiebeziehung darstellen. Nur das Öffnen einer SOP legt einen neuen Eintrag an. Die Bewegungsrichtung leitet sich aus der Reihenfolge Start → SOPs → Suche ab und ist unabhängig davon, was im Verlauf passiert.
-
-### Safe Area auf iOS
-
-`env(safe-area-inset-bottom)` liefert im iOS-Standalone-Modus 0px. `js/platform.js` misst den Wert zur Laufzeit und setzt ihn als `--sab-js`; CSS rechnet ausschließlich mit dieser Variablen.
-
-**Fallstrick:** Beim Aufziehen der Bildschirmtastatur ändern sich `innerHeight` und `visualViewport.height`. Eine Neumessung in diesem Moment liefert Unsinn und lässt das Layout springen. `keyboardLikelyOpen()` bricht die Neumessung deshalb ab, solange ein Eingabefeld den Fokus hat oder der sichtbare Bereich deutlich verkürzt ist.
+In der Quelle verwenden (`tools/subset-fonts.py` scannt `js/`, `css/`, `index.html`) oder in `EXTRA_ICONS` eintragen, dann `npm run fonts`. Fehlt ein Symbol im Subset, erscheint ein leeres Kästchen.
 
 ---
 
 ## SOP hinzufügen – Checkliste
 
-1. **Datei erstellen:** `sops/neue-sop.js`
-2. **Datenstruktur:** `window.SOP_DATA.push({...})` mit `id`, `name`/`title`, `category`, `stand`, `sections`
-3. **Einbinden:** `<script defer src="sops/neue-sop.js">` in `index.html` **vor** `js/core.js`
-4. **Prüfen:** Kategorie in `CATS` vorhanden? Farbe in `CC` definiert?
+1. `sops/<kennung>.js` anlegen (Aufbau wie bestehende Dateien: `id`, `title`, `category`, `catKey`, `stand`, `sections[]`, `sources`).
+2. Eintrag in `tools/data/aliases.mjs` ergänzen – **Pflicht**, der Build erzwingt ihn.
+3. `npm run build`
+4. `npm run verify`
+5. `index.html` **nicht** anfassen.
 
-Zur Laufzeit nachgeladene SOPs meldet man über `window.registerSOP({...})` an – die Funktion normalisiert, sortiert ein und frischt die betroffenen Listen auf.
+Der Build bricht ab bei doppelter Kennung, leerem Abschnitt, unauflösbarer Kategorie, fehlendem Synonymeintrag, fehlender Bilddatei oder auseinandergelaufener Palette.
 
 ---
 
-## Nützliche Entwickler-Befehle
+## Befehle
 
-### Lokaler Server
-
-```bash
-python3 -m http.server 8080   # Python 3
-npx serve .                   # Node.js
-php -S localhost:8080         # PHP
-```
+| Befehl | Wirkung |
+|---|---|
+| `npm run build` | Artefakte erzeugen, Version überall gleichziehen |
+| `npm run check` | prüfen, ob die Artefakte aktuell sind |
+| `npm run fonts` | Schriften und Symbole reduzieren |
+| `npm run serve` | lokaler Server, Port 8080 |
+| `npm run visual` | 42 Bilder + 28 Funktionsprüfungen gegen den Stand |
+| `npm run baseline` | Stand neu festlegen |
+| `npm run verify` | `check` + `visual` |
+| `node tools/verify-fold.mjs` | Normalisierung Build gegen Browser |
+| `node tools/palette.mjs` | Kontrastnachweis |
 
 ### Debugging in der Konsole
 
 ```javascript
-SOPApp.S           // Zustand
-SOPApp.E           // DOM-Puffer
-SOPApp.S.data      // normalisierte SOP-Daten
-SOPApp.rSOP()      // aktuelle SOP neu aufbauen
+SOPApp.S                       // Zustand
+SOPApp.META                    // Metadaten, Scores, Wirkstoffe, Abbildungen
+SOPApp.query('LAE')            // Suchergebnis samt Bewertung
+SOPApp.sopLoadState(SOPApp.findSop('sepsis'))
+SOPApp.parseShiftWindows('Mo-Fr 07:30-08:30 Uhr')
+SOPApp.prefetchAll()           // alle Pakete sofort holen
 ```
 
-### Deployment
+---
 
-Die Anwendung benötigt keinen Build-Prozess. Alle Änderungen sind sofort sichtbar.
+## Version
+
+Die Fassung steht **ausschließlich** in `package.json`. `npm run build` trägt sie in `version.json`, `js/core.js` (`App.VERSION`) und die `BUILD:STATS`-Blöcke in `README.md` und `AGENTS.md` ein.
+
+`App.checkForUpdate()` vergleicht beim Start gegen `version.json`; bei Abweichung werden Caches verworfen und die Seite genau einmal neu geladen. Ein Wächter in `sessionStorage` verhindert Schleifen.
+
+Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden beim Start abgeräumt.
 
 ---
 
-## Version und Update-Check
+## Bekannte Eigenheiten und Fallstricke
 
-`App.VERSION` am Anfang von `js/core.js` definiert die aktuelle Version. Bei jedem Seitenaufruf (außer `file://`) wird `version.json` geladen und verglichen. Bei Abweichung werden die Caches verworfen und die Seite genau einmal still neu geladen; ein Marker im `sessionStorage` verhindert eine Reload-Schleife.
-
-**Wichtig:** `App.VERSION` und `version.json` müssen bei jeder Veröffentlichung gemeinsam angehoben werden.
-
----
-
-*Letzte Aktualisierung: September 2026*
-*Version 3.2 – Modulare Fassung mit Gestaltungsschicht*
+| Thema | Worauf zu achten ist |
+|---|---|
+| `querySelectorAll` in Tabellen | siehe oben – `:scope >` verwenden |
+| Reihenfolge in `wireSections()` | `attachScores` vor `relayoutSopTables` |
+| Ziel- gegen Zwischenzustand | `isSectionTargetOpen` vs. `isSectionOpen` |
+| Overlays | bleiben im DOM; `display` niemals umschalten, sonst greift keine Transition |
+| Overlay-Stapel | `App.closeTopOverlay()` arbeitet über den Stapel, nicht über die Dokumentreihenfolge |
+| Abschnittspositionen | gepuffert in `SEC_CACHE`; nach jeder Höhenänderung `App.invalidateSectionOffsets()` |
+| Scrollmaße | gepuffert; `App.invalidateScrollMetrics()` bzw. der `ResizeObserver` |
+| Dynamische Referenzen | Elemente aus `innerHTML` stehen nicht im Puffer und müssen neu geholt werden |
+| Safe Area auf iOS | `env()` liefert im Standalone-Modus 0; `js/platform.js` misst zur Laufzeit und setzt `--sab-js` |
+| Breakpoints | `breakpointState()` in `js/main.js` verfolgt 1024, 640 und 480 px; ein Wechsel baut die Ansichten neu auf |
+| Ein Ereignispfad | ausgelöst wird über `click`; Pointer-Ereignisse dienen nur der Unterscheidung Tippen/Wischen |

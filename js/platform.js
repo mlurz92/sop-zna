@@ -168,12 +168,25 @@
     // ============================================
     // OFFLINE-ANZEIGE
     // ============================================
+    // S.ts wurde bisher ausschliesslich im offline-Ereignis gesetzt.
+    // Startete die Anwendung bereits ohne Netz, stand der Hinweis
+    // damit ohne Zeitangabe da (Vorschlag 6). Der Zeitpunkt wird
+    // deshalb beim ersten Erkennen gesetzt - egal woher es kommt.
+    App.setOffline = function(off) {
+        var was = S.off;
+        S.off = !!off;
+        if (S.off && !was) S.ts = new Date();
+        if (!S.off) S.ts = null;
+        App.updateOffline();
+    };
+
     App.updateOffline = function() {
         if (!E.offlineBanner) return;
         E.offlineBanner.classList.toggle('show', S.off);
-        if (S.off && S.ts && E.offlineTimestamp) {
-            E.offlineTimestamp.textContent = '(' + S.ts.toLocaleTimeString('de-DE') + ')';
-        }
+        if (!E.offlineTimestamp) return;
+        E.offlineTimestamp.textContent = (S.off && S.ts)
+            ? '(seit ' + S.ts.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr)'
+            : '';
     };
 
     // ============================================

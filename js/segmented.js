@@ -21,8 +21,18 @@
     // ============================================
     // AUFBAU
     // ============================================
+    // Gebaut wird aus den METADATEN, nicht aus den Abschnittsinhalten.
+    // Die Kapiteltitel liegen ab dem ersten Bild vor; das Paket mit dem
+    // Text kommt erst danach (Vorschlag 17). Dadurch steht die Leiste
+    // sofort, das Layout springt beim Eintreffen des Inhalts nicht, und
+    // die Meldung im Ladezustand ("Die Kapitelübersicht steht bereits")
+    // stimmt auch.
     App.renderSegmentedControl = function(sopData) {
-        if (!sopData || !sopData.sections) return '';
+        if (!sopData) return '';
+
+        var titles = sopData.secTitles ||
+            (sopData.sections || []).map(function(sec) { return sec.title; });
+        if (!titles.length) return '';
 
         // Aussenrahmen bleibt beim Scrollen am oberen Rand stehen
         var html = '<div class="sop-seg-sticky">' +
@@ -36,9 +46,9 @@
 
         // Alle Abschnitte - die Leiste selbst ist waagerecht scrollbar.
         // Die Kuerzung des Titels uebernimmt CSS (Ellipsis).
-        for (var i = 0; i < sopData.sections.length; i++) {
-            var title = sopData.sections[i].title || ('Abschnitt ' + (i + 1));
-            var icon = App.SIC[title] || 'fa-circle';
+        for (var i = 0; i < titles.length; i++) {
+            var title = titles[i] || ('Abschnitt ' + (i + 1));
+            var icon = App.secIcon(title);
 
             html += '<button type="button" class="segmented-btn" data-seg="' + i + '" aria-pressed="false"' +
                 ' title="' + App.escAttr(title) + '">' +
@@ -46,7 +56,7 @@
                 '<span class="btn-text">' + App.esc(title) + '</span></button>';
         }
 
-        if (sopData.sources) {
+        if (sopData.hasSources || sopData.sources) {
             html += '<button type="button" class="segmented-btn" data-seg="sources" aria-pressed="false" title="Quellen">' +
                 '<i class="fa-solid fa-quote-right" aria-hidden="true"></i> ' +
                 '<span class="btn-text">Quellen</span></button>';
@@ -55,7 +65,10 @@
         html += '</div>' +
             '<button type="button" class="segmented-scroll-arrow segmented-scroll-right" aria-label="Kapitelleiste nach rechts scrollen" tabindex="-1">' +
             '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
-            '</div></div>';
+            '</div>' +
+            // Fortschritt durch das gerade sichtbare Kapitel (Vorschlag 39)
+            '<div class="seg-progress" aria-hidden="true"><span></span></div>' +
+            '</div>';
 
         return html;
     };
@@ -118,6 +131,47 @@
     };
 
     // ============================================
+    // FORTSCHRITT IM KAPITEL (Vorschlag 39)
+    // ============================================
+    // Die Leiste zeigte bisher nur, WELCHES Kapitel gerade oben steht.
+    // Jetzt zeigt sie zusaetzlich, wie weit es gelesen ist - ein
+    // Balken unter der gesamten Leiste, der beim Kapitelwechsel
+    // wieder bei null beginnt.
+    //
+    // Gerechnet wird ausschliesslich mit gepufferten Werten aus
+    // js/sop.js; der Balken kostet also kein zusaetzliches Layout.
+    var lastProgress = -1;
+
+    App.updateSegmentedProgress = function(y) {
+        if (!E.viewSOP) return;
+
+        var bar = E.viewSOP.querySelector('.seg-progress > span');
+        if (!bar) return;
+
+        var bounds = App.currentSectionBounds();
+        var ratio = 0;
+
+        if (bounds && bounds.height > 0) {
+            var offset = App.stickyOffset();
+            var seen = (y + offset) - bounds.top;
+            var span = Math.max(1, bounds.height - offset);
+            ratio = Math.max(0, Math.min(1, seen / span));
+        }
+
+        // Auf ein Prozent gerundet: darunter waere jede Aenderung
+        // unsichtbar, aber der Stilwechsel trotzdem zu bezahlen.
+        var rounded = Math.round(ratio * 100) / 100;
+        if (rounded === lastProgress) return;
+        lastProgress = rounded;
+
+        bar.parentNode.style.setProperty('--seg-progress', String(rounded));
+    };
+
+    App.resetSegmentedProgress = function() {
+        lastProgress = -1;
+    };
+
+    // ============================================
     // AUSWAHL
     // ============================================
     App.setSegmentedActive = function(segIndex) {
@@ -134,6 +188,7 @@
         }
 
         App.updateSegmentedPill(true);
+        App.resetSegmentedProgress();
         return activeBtn;
     };
 

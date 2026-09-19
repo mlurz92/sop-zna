@@ -57,7 +57,12 @@
     };
 
     // mode: 'push' | 'pop' | 'fade' | null (sofortiger Wechsel)
-    function switchView(fromView, toView, mode, done) {
+    // restoreTop: Scrollposition, auf die die Zielansicht gesetzt wird
+    //             (Vorschlag 4 - beim Zurueckgehen die gemerkte Stelle,
+    //             sonst der Anfang)
+    function switchView(fromView, toView, mode, done, restoreTop) {
+        var top = typeof restoreTop === 'number' ? Math.max(0, restoreTop) : 0;
+
         if (!toView) {
             if (done) done();
             return;
@@ -76,7 +81,7 @@
             }
             toView.classList.add('active');
             clearViewMotion(toView);
-            if (scroller) scroller.scrollTop = 0;
+            if (scroller) scroller.scrollTop = top;
             if (done) done();
             return;
         }
@@ -84,7 +89,7 @@
         // Gleiche Ansicht mit neuem Inhalt (SOP -> SOP): kurzer Austausch,
         // dessen Richtung der Navigationsrichtung folgt
         if (fromView === toView) {
-            if (scroller) scroller.scrollTop = 0;
+            if (scroller) scroller.scrollTop = top;
             clearViewMotion(toView);
             toView.classList.add('active', 'is-anim', 'is-prepped',
                 mode === 'pop' ? 'anim-in-replace-back' : 'anim-in-replace');
@@ -115,7 +120,7 @@
 
         toView.classList.add('active', 'is-anim', 'is-prepped', 'anim-in-' + mode);
 
-        if (scroller) scroller.scrollTop = 0;
+        if (scroller) scroller.scrollTop = top;
 
         startWhenPainted([fromView, toView]);
 
@@ -182,6 +187,14 @@
         var effectiveMode = mode;
         if (!effectiveMode && changed) effectiveMode = 'fade';
 
+        // Beim Zurueckgehen die gemerkte Stelle wiederherstellen
+        // (Vorschlag 4). Eine SOP beginnt immer oben: dort steht der
+        // Titel, und bei paketweise geladenem Inhalt gaebe es zum
+        // Zeitpunkt des Wechsels ohnehin noch keine passende Hoehe.
+        var restoreTop = (effectiveMode === 'pop' && t !== 'sop')
+            ? App.recallScroll()
+            : 0;
+
         switchView(fromView, toView, effectiveMode, function() {
             if (t === 'sop') {
                 App.invalidateSectionOffsets();
@@ -198,7 +211,7 @@
                 E.searchViewInput.focus();
             }
             if (done) done();
-        });
+        }, restoreTop);
 
         // 4) Nacharbeiten, die niemand sofort sieht, laufen erst nach der
         //    Bewegung. Die Navigationsliste (73 Eintraege) und das
@@ -295,7 +308,12 @@
             if (E.backBtn) E.backBtn.classList.add('show');
         } else if (t === 'sop') {
             if (E.backBtn) E.backBtn.classList.add('show');
-            if (E.desktopTocBtn) E.desktopTocBtn.style.display = '';
+            // Der fruehere "Inhalt"-Knopf in der Breadcrumb-Leiste
+            // entfaellt: die Werkzeuge stehen jetzt neben der
+            // Ueberschrift, und waehrend des Scrollens uebernimmt die
+            // angeheftete Kapitelleiste dieselbe Aufgabe. Zwei
+            // gleichnamige Knoepfe nebeneinander waren eine Wahl
+            // ohne Unterschied.
             if (E.fabAction) E.fabAction.classList.add('show');
 
             var d = App.findSop(S.sopId);
@@ -378,7 +396,11 @@
         handleFabVisibility(y);
         App.uSticky(y);
         updateReadProgress(y);
+        App.updateSegmentedProgress(y);
         setScrolled(y > 4);
+        // Position fortlaufend merken - beim Zurueckgehen wird genau
+        // diese Stelle wiederhergestellt (Vorschlag 4).
+        App.rememberScroll();
         lastScrollY = y;
     }
 
@@ -426,6 +448,52 @@
         pill.classList.add('ready');
     };
 
+    // ---------- Scrollmasse (Vorschlaege 5 und 50) ----------
+    // scrollHeight und clientHeight in jedem Frame auszulesen zwingt
+    // den Browser zu einem Layoutdurchlauf je Frame - genau die
+    // Rechnung, die js/sop.js mit seinem Puffer bewusst vermeidet.
+    // Die Werte aendern sich nur, wenn sich das Layout aendert; ein
+    // ResizeObserver meldet das zuverlaessiger als ein resize-Ereignis
+    // (er merkt auch Aufklappen, Schriftgroessenwechsel und die
+    // eingeblendete Bildschirmtastatur).
+    var scrollMetrics = { max: 0, dirty: true };
+
+    App.invalidateScrollMetrics = function() {
+        scrollMetrics.dirty = true;
+    };
+
+    function scrollMax() {
+        if (!E.contentScroll) return 0;
+        if (scrollMetrics.dirty) {
+            scrollMetrics.max = E.contentScroll.scrollHeight - E.contentScroll.clientHeight;
+            scrollMetrics.dirty = false;
+        }
+        return scrollMetrics.max;
+    }
+    App.scrollMax = scrollMax;
+
+    var scrollObserver = null;
+
+    App.initScrollObserver = function() {
+        if (!window.ResizeObserver || !E.contentScroll) return;
+
+        var invalidate = function() {
+            App.invalidateScrollMetrics();
+            App.invalidateSectionOffsets();
+        };
+
+        scrollObserver = new ResizeObserver(invalidate);
+        scrollObserver.observe(E.contentScroll);
+        if (E.viewContainer) scrollObserver.observe(E.viewContainer);
+    };
+
+    /** Zielansicht beobachten, damit Aufklappen sofort zaehlt. */
+    App.observeView = function(el) {
+        if (scrollObserver && el) {
+            try { scrollObserver.observe(el); } catch (e) {}
+        }
+    };
+
     // Lesefortschritt der geoeffneten SOP als feine Linie unter der Kopfzeile
     function updateReadProgress(y) {
         var bar = E.readProgress;
@@ -436,7 +504,7 @@
             return;
         }
 
-        var max = E.contentScroll.scrollHeight - E.contentScroll.clientHeight;
+        var max = scrollMax();
         if (max < 120) {
             bar.classList.remove('show');
             return;
@@ -457,6 +525,33 @@
         else if (S.tab === 'sop') App.rSOP();
         else App.rNav();
         App.invalidateSectionOffsets();
+        App.invalidateScrollMetrics();
+    };
+
+    /**
+     * Wechsel zwischen Telefon-/Tablet- und Desktoplayout (Vorschlag 11).
+     *
+     * Bisher wurde dabei nur S.mob umgesetzt und uChrome() aufgerufen.
+     * Die Ansichten selbst blieben in der Form stehen, in der sie
+     * aufgebaut worden waren - ein gedrehtes Tablet behielt also die
+     * Telefonentscheidungen, bis man die Ansicht wechselte. Sichtbar
+     * wurde das an der Uebersicht, der Startseite und den Tabellen,
+     * die unterhalb von 640 px als Karten laufen.
+     */
+    App.onBreakpointChange = function() {
+        App.uChrome();
+        App.rHome();
+        App.rSB();
+
+        if (S.tab === 'browse') App.rBrowse();
+        else if (S.tab === 'search') App.rSearch();
+        else if (S.tab === 'sop') App.relayoutSopTables();
+
+        App.invalidateSectionOffsets();
+        App.invalidateScrollMetrics();
+        App.updateBottomNavPill();
+        App.updateSegmentedPill(false);
+        App.checkSegmentedScrollArrows();
     };
 
 })(window.SOPApp);
