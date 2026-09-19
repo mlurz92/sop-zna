@@ -136,9 +136,13 @@
     // eines Ansichtswechsels kostete.
     App.applyStagger = function(nodes, cls) {
         if (!nodes || !nodes.length) return;
-        if (MOTION.reduced) return;
-
         var klass = cls || 'stagger-item';
+        for (var j = 0; j < nodes.length; j++) {
+            if (nodes[j]._staggerStop) nodes[j]._staggerStop();
+            nodes[j].classList.remove(klass);
+        }
+        if (MOTION.reduced) return;
+        App.reflow(nodes[0].parentNode);
         var count = Math.min(nodes.length, MOTION.staggerLimit);
         var timeout = 500 + MOTION.staggerMax * MOTION.staggerStep;
 
@@ -148,7 +152,8 @@
             node.style.setProperty('--stagger', delay + 'ms');
             node.classList.add(klass);
             (function(n, k) {
-                App.afterMotion(n, 'animationend', timeout, function() {
+                n._staggerStop = App.afterMotion(n, 'animationend', timeout, function() {
+                    n._staggerStop = null;
                     n.classList.remove(k);
                     n.style.removeProperty('--stagger');
                 });

@@ -59,6 +59,10 @@
                 try { FOCUS_RETURN.focus(); } catch (e) {}
             }
             FOCUS_RETURN = null;
+        } else {
+            var root = topOverlayRoot();
+            var items = focusablesIn(root);
+            if (items.length) items[0].focus();
         }
     }
 
@@ -84,7 +88,7 @@
         if (e.shiftKey && (active === first || !root.contains(active))) {
             e.preventDefault();
             last.focus();
-        } else if (!e.shiftKey && active === last) {
+        } else if (!e.shiftKey && (active === last || !root.contains(active))) {
             e.preventDefault();
             first.focus();
         }
@@ -93,9 +97,10 @@
     // Das oberste offene Overlay schliessen. Gibt true zurueck,
     // wenn tatsaechlich eines geschlossen wurde.
     App.closeTopOverlay = function() {
-        if (E.dirOverlay && E.dirOverlay.classList.contains('show')) { App.closeDir(); return true; }
-        if (E.spotlightOverlay && E.spotlightOverlay.classList.contains('show')) { App.closeSpotlight(); return true; }
-        if (E.sectionPickerOverlay && E.sectionPickerOverlay.classList.contains('show')) { App.closePicker(); return true; }
+        var root = topOverlayRoot();
+        if (root && E.dirOverlay.contains(root)) { App.closeDir(); return true; }
+        if (root && E.spotlightOverlay.contains(root)) { App.closeSpotlight(); return true; }
+        if (root && E.sectionPickerOverlay.contains(root)) { App.closePicker(); return true; }
         return false;
     };
 
@@ -118,7 +123,7 @@
         // Fokus erst setzen, wenn die Einblendbewegung laeuft - sonst
         // springt die Tastatur vor der Animation ins Bild.
         setTimeout(function() {
-            if (!E.spotlightInput) return;
+            if (!E.spotlightInput || topOverlayRoot() !== E.spotlightContainer) return;
             E.spotlightInput.focus();
             var v = E.spotlightInput.value;
             try { E.spotlightInput.setSelectionRange(v.length, v.length); } catch (e) {}
@@ -345,7 +350,7 @@
         App.haptic('light');
 
         setTimeout(function() {
-            if (E.pickerSheet) E.pickerSheet.focus();
+            if (E.pickerSheet && topOverlayRoot() === E.pickerSheet) E.pickerSheet.focus();
         }, App.MOTION.reduced ? 0 : 280);
     };
 
@@ -462,7 +467,7 @@
     ];
     App.PHONE_DIR = PHONE_DIR;
 
-    App.rDir = function(q) {
+    App.rDir = function(q, animate) {
         if (!E.dirBody) return;
 
         q = (q || '').toLowerCase().trim();
@@ -502,6 +507,9 @@
         }
 
         E.dirBody.innerHTML = html;
+        E.dirBody.classList.toggle('dir-enter', !!animate);
+        var count = document.getElementById('dirCount');
+        if (count) count.textContent = hits + (hits === 1 ? ' Kontakt' : ' Kontakte');
 
         var groups = E.dirBody.querySelectorAll('.dir-group');
         for (var k = 0; k < groups.length; k++) {
@@ -509,18 +517,28 @@
         }
 
         App.delegate(E.dirBody, '.dir-row', function(row) {
-            copyPhoneNumber(row.getAttribute('data-tel'));
+            copyPhoneNumber(row.getAttribute('data-tel'), row);
         });
     };
 
     // Nummer in die Zwischenablage legen. Im Klinikbetrieb wird sie
     // meist am Stationstelefon gewaehlt - tel:-Links helfen dort nicht.
-    function copyPhoneNumber(tel) {
+    function copyPhoneNumber(tel, row) {
         if (!tel) return;
 
         var done = function() {
             App.haptic('light');
             App.toast(tel + ' kopiert', 'fa-copy');
+            if (row) {
+                row.classList.add('is-copied');
+                var icon = row.querySelector('.dir-copy');
+                if (icon) icon.className = 'fa-solid fa-check dir-copy';
+                if (row._copyTimer) clearTimeout(row._copyTimer);
+                row._copyTimer = setTimeout(function() {
+                    row.classList.remove('is-copied');
+                    if (icon) icon.className = 'fa-solid fa-copy dir-copy';
+                }, 1600);
+            }
         };
         var failed = function() {
             App.toast(tel, 'fa-phone');
@@ -550,12 +568,12 @@
         if (!E.dirOverlay || E.dirOverlay.classList.contains('show')) return;
 
         pushOverlay(E.dirOverlay, E.dirOverlay.querySelector('.dir-modal'));
-        App.rDir(E.dirInput ? E.dirInput.value : '');
+        App.rDir(E.dirInput ? E.dirInput.value : '', true);
         E.dirOverlay.classList.add('show');
         App.haptic('light');
 
         setTimeout(function() {
-            if (E.dirInput && window.innerWidth >= 900) E.dirInput.focus();
+            if (E.dirInput && window.innerWidth >= 900 && E.dirOverlay.contains(topOverlayRoot())) E.dirInput.focus();
         }, 250);
     };
 

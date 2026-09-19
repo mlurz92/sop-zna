@@ -8,7 +8,7 @@
     'use strict';
 
     // ---------- Version (muss zu version.json passen) ----------
-    App.VERSION = '3.2.0';
+    App.VERSION = '3.3.0';
 
     // ---------- Kategorien ----------
     var CATS = {

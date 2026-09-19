@@ -125,7 +125,7 @@
 
                     <!-- Search View -->
                     <div class="v" id="viewSearch">
-                        <h1 class="sr-only">Volltextsuche</h1>
+                        <div class="view-heading"><p class="view-eyebrow">IN ALLEN SOPs SUCHEN</p><h1>Volltextsuche</h1><p>Begriffe in Diagnostik, Therapie und Quellen finden.</p></div>
                         <div class="search-bar">
                             <div class="search-input-wrap">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -206,6 +206,7 @@
                 <input type="search" id="dirInput" placeholder="Fachbereich oder Nummer suchen..." aria-label="Telefonverzeichnis durchsuchen" autocomplete="off">
                 <button id="dirClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            <div class="dir-summary"><span id="dirCount" role="status" aria-live="polite"></span><span>Antippen zum Kopieren</span></div>
             <div class="dir-body" id="dirBody" tabindex="0"></div>
             <div class="dir-foot">
                 <span>Interne Nummern &ndash; Vorwahl extern: 0341 909 + Nebenstelle</span>
@@ -324,19 +325,19 @@
     <script defer src="js/main.js"></script>
     <script>
         // Service Worker deaktivieren und Caches löschen
-        if ('serviceWorker' in navigator) {
+        if (location.protocol !== 'file:' && 'serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 registrations.forEach(function(registration) {
-                    registration.unregister();
+                    registration.unregister().catch(function() {});
                 });
-            });
+            }).catch(function() {});
         }
-        if ('caches' in window) {
+        if (location.protocol !== 'file:' && 'caches' in window) {
             caches.keys().then(function(names) {
                 names.forEach(function(name) {
-                    caches.delete(name);
+                    caches.delete(name).catch(function() {});
                 });
-            });
+            }).catch(function() {});
         }
     </script>
 </body>

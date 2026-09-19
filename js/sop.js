@@ -51,8 +51,8 @@
         if (toggle) toggle.classList.toggle('open', open);
         section.classList.toggle('is-open', open);
 
-        var alreadyOpen = body.classList.contains('open');
         finishSectionAnimation(body);
+        var alreadyOpen = body.classList.contains('open');
 
         if (!animate || App.MOTION.reduced) {
             body.classList.toggle('open', open);
@@ -64,6 +64,7 @@
         }
 
         if (alreadyOpen === open) {
+            body.classList.remove('is-animating');
             body.style.height = '';
             body.style.opacity = '';
             body.style.transition = '';
@@ -108,7 +109,7 @@
     };
 
     App.toggleSection = function(section) {
-        App.setSectionOpen(section, !App.isSectionOpen(section), true);
+        App.setSectionOpen(section, !App.isSectionTargetOpen(section), true);
         App.invalidateSectionOffsets();
         // Die Auswahl in der Kapitelleiste stimmt nach dem Handgriff
         // nicht mehr - sie wird zurueckgenommen statt falsch zu bleiben.
@@ -291,6 +292,10 @@
             '<div class="sop-meta">' +
             '<span class="sop-meta-item"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' +
             secCount + (secCount === 1 ? ' Abschnitt' : ' Abschnitte') + '</span>' +
+            '</div>' +
+            '<div class="sop-tools" aria-label="SOP-Werkzeuge">' +
+            '<button type="button" class="utility-btn" id="sopContents"><i class="fa-solid fa-list-ul" aria-hidden="true"></i> Inhalt</button>' +
+            '<button type="button" class="utility-btn" id="sopPrint"><i class="fa-solid fa-print" aria-hidden="true"></i> Drucken</button>' +
             '</div></article>';
 
         html += App.renderSegmentedControl(d);
@@ -311,6 +316,8 @@
         }
 
         E.viewSOP.innerHTML = html;
+        document.getElementById('sopContents').addEventListener('click', function() { App.openPicker(); });
+        document.getElementById('sopPrint').addEventListener('click', function() { App.printSop(); });
 
         // Kapitelleiste verdrahten
         var segButtons = E.viewSOP.querySelectorAll('.segmented-btn');

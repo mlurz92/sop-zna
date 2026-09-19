@@ -174,6 +174,10 @@
         // 2) Rahmen (Titel, Navigation, Breadcrumb, FAB) angleichen
         App.uChrome();
 
+        if (t === 'home' && E.catGrid) {
+            App.applyStagger(E.catGrid.querySelectorAll('.cat-card'), 'stagger-item');
+        }
+
         // 3) Ansicht wechseln
         var effectiveMode = mode;
         if (!effectiveMode && changed) effectiveMode = 'fade';
@@ -266,7 +270,7 @@
         if (E.bottomNav) {
             var bns = E.bottomNav.querySelectorAll('.btm-btn');
             for (var i = 0; i < bns.length; i++) {
-                var isAct = bns[i].getAttribute('data-tab') === t;
+                var isAct = bns[i].getAttribute('data-tab') === (t === 'sop' ? 'browse' : t);
                 bns[i].classList.toggle('active', isAct);
                 bns[i].setAttribute('aria-current', isAct ? 'page' : 'false');
             }

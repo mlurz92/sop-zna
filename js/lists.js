@@ -96,14 +96,12 @@
     // ============================================
     App.rHome = function() {
         if (E.heroArea) {
-            E.heroArea.innerHTML = '<img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg">' +
+            E.heroArea.innerHTML = '<div class="hero-brand"><img class="hero-logo" src="img/Basislogo_farbig.png" alt="Klinikum St. Georg"></div>' +
                 '<h1 class="hero-title">Patientenpfade</h1>' +
                 '<p class="hero-subtitle">Zentrale Notaufnahme</p>' +
-                '<p class="hero-org">AG Klinische Pfade</p>' +
                 '<button type="button" class="hero-search" id="heroSearchBtn">' +
                 '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
                 '<span class="hero-search-label">SOP schnell finden&hellip;</span>' +
-                '<kbd class="hero-search-kbd">Strg K</kbd>' +
                 '</button>';
 
             // Ein Knopf statt eines zweiten Eingabefeldes: frueher wurde
@@ -148,7 +146,7 @@
         }
 
         if (E.homeInfo) {
-            E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade verfügbar</p>';
+            E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length + ' Patientenpfade · AG Klinische Pfade</p>';
         }
     };
 
@@ -158,14 +156,14 @@
     App.rBrowse = function() {
         if (!E.viewBrowse) return;
 
-        E.viewBrowse.innerHTML = '<h1 class="sr-only">Alle SOPs</h1>' +
+        E.viewBrowse.innerHTML = '<div class="view-heading"><p class="view-eyebrow">PATIENTENPFADE</p><h1>SOP-Übersicht</h1><p>Nach Titel suchen oder nach Fachgebiet eingrenzen.</p></div>' +
             '<div class="browse-bar-top">' +
             '<div class="browse-search">' +
             '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
             '<input type="search" id="browseSearchInput" placeholder="SOPs filtern..." aria-label="SOPs filtern" autocomplete="off" value="' + App.escAttr(S.bQ) + '">' +
             '<button type="button" class="browse-search-clear' + (S.bQ ? ' show' : '') + '" id="browseSearchClear" aria-label="Suche leeren"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
             '</div>' +
-            '<button type="button" class="browse-cat-toggle' + (S.bCatOpen ? ' open' : '') + '" id="browseCatToggle" aria-expanded="' + (!!S.bCatOpen) + '">' +
+            '<button type="button" class="browse-cat-toggle' + (S.bCatOpen ? ' open' : '') + '" id="browseCatToggle" aria-controls="browseCategoryFilters" aria-expanded="' + (!!S.bCatOpen) + '">' +
             '<i class="fa-solid fa-filter" aria-hidden="true"></i> Kategorien' +
             (S.catB !== 'all' ? ' <span class="browse-active-cat">' + App.esc(App.catName(S.catB)) + '</span>' : '') +
             '<i class="fa-solid fa-chevron-down toggle-icon" aria-hidden="true"></i>' +
@@ -390,7 +388,8 @@
             var r = results[i];
             var d = r.sop;
 
-            html += '<button type="button" class="search-result" data-id="' + App.escAttr(d.id) + '">' +
+            html += '<button type="button" class="search-result" data-id="' + App.escAttr(d.id) + '"' +
+                (r.secMatches.length ? ' data-section="' + r.secMatches[0].idx + '"' : '') + '>' +
                 '<span class="sr-title">' + App.sopName(d, S.sQ) + '</span>';
 
             if (r.secMatches.length) {
@@ -412,7 +411,8 @@
         E.searchResultsArea.innerHTML = html;
 
         delegate(E.searchResultsArea, '.search-result', function(it) {
-            App.pushNav(it.getAttribute('data-id'));
+            var idx = it.getAttribute('data-section');
+            App.pushNav(it.getAttribute('data-id'), idx === null ? undefined : parseInt(idx, 10));
         });
 
         App.applyStagger(E.searchResultsArea.querySelectorAll('.search-result'), 'stagger-item');

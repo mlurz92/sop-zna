@@ -56,7 +56,9 @@
     function applyRoute(mode) {
         var h = window.location.hash || '';
         if (h.indexOf('#sop/') === 0) {
-            var id = decodeURIComponent(h.substring(5));
+            var id;
+            try { id = decodeURIComponent(h.substring(5)); }
+            catch (e) { id = ''; }
             if (App.hasSop(id)) {
                 S.sopId = id;
                 App.sTab('sop', mode);
@@ -98,7 +100,7 @@
     // ============================================
     // OEFFNEN UND ZURUECK
     // ============================================
-    App.pushNav = function(newSopId) {
+    App.pushNav = function(newSopId, sectionIndex) {
         if (S.isNavigating) return;
         if (!newSopId) return;
         if (newSopId === S.sopId && S.tab === 'sop') return;
@@ -106,7 +108,10 @@
         S.isNavigating = true;
         S.sopId = newSopId;
         App.haptic('light');
-        App.sTab('sop', 'push', function() { S.isNavigating = false; });
+        App.sTab('sop', 'push', function() {
+            S.isNavigating = false;
+            if (typeof sectionIndex === 'number' && sectionIndex >= 0) App.revealSection(sectionIndex);
+        });
     };
 
     App.popNav = function() {

@@ -18,6 +18,25 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 
 ## Features
 
+### Neu in Version 3.3
+
+- Kompakter Kopfbereich mit größerem Kliniklogo, an Hell- und Dunkelmodus angepasster Suchfläche und geringerem Abstand zur Breadcrumb-Navigation.
+- Kategorien mit größeren Symbolen und gestaffeltem Auftritt bei jedem Aufruf der Startseite. Die Suche zeigt keinen Tastenkürzel-Hinweis; `Strg/Cmd + K` funktioniert weiterhin.
+- Telefonverzeichnis mit hervorgehobenen Rufnummern, Kontaktanzahl, animierten Gruppen beim Öffnen und sichtbarer Kopierbestätigung. Beim Filtern bleiben die Ergebnisse ohne erneute Auftrittsanimation direkt bedienbar.
+- Volltexttreffer öffnen den ersten passenden Abschnitt. Inhalt und Druck sind außerdem direkt im SOP-Kopf erreichbar.
+- Korrekturen für schnelle Richtungswechsel im Akkordeon, Dialogreihenfolge und Fokusrückgabe, ungültig kodierte Direktlinks sowie den Start über `file://`.
+- Der Tab „SOPs“ bleibt auch beim Lesen einer SOP sichtbar ausgewählt.
+
+Die Anwendung bleibt ein Nachschlagewerk ohne Favoriten, zuletzt geöffnete Listen, Notizen oder Benutzerkonten. **Alle 73 Dateien in `sops/` sind unverändert.**
+
+### Oberflächenprüfung
+
+Der Browser-Regressionslauf in `tests/ui-regression.cjs` prüft 320, 390, 768, 1024 und 1440 Pixel Breite in Hell- und Dunkelmodus, Filter, Navigation, schnelle Kapitelwechsel, Dialoge und Fokus, Suchsprünge, Druckvorbereitung und ungültige Direktlinks. Zusätzlich werden Kartenanimation und Telefonverzeichnis geprüft.
+
+Voraussetzungen für den Entwicklungstest: Node.js, das Paket `playwright` und installiertes Microsoft Edge. Ausführen mit `node tests/ui-regression.cjs`; bei zentral installiertem Playwright muss `NODE_PATH` auf dessen Paketverzeichnis zeigen. Screenshots entstehen unter `.checks/`. Die Anwendung selbst benötigt weiterhin keine zusätzlichen Abhängigkeiten.
+
+Die Prüfung erfolgt in Desktop-Edge mit unterschiedlichen Viewports; sie ersetzt keinen Test auf physischen iOS-/Android-Geräten oder eine vollständige Barrierefreiheitsprüfung.
+
 ### Navigation & Suche
 
 | Feature | Beschreibung |
@@ -36,8 +55,8 @@ Die Anwendung wird von der **AG Klinische Pfade** des Klinikums St. Georg Leipzi
 | **Dark/Light Mode** | Automatische Systemerkennung + manueller Toggle |
 | **Schriftgröße** | Einstellbar (13–20px) für bessere Lesbarkeit |
 | **Touch-Gesten** | Wischen zum Zurückgehen – die Ansicht folgt dem Finger und wird bei Abbruch zurückgefedert |
-| **Bewegung** | Alle Wechsel laufen als Transform-/Opacity-Animation auf dem Compositor (60 fps und mehr) |
-| **Barrierefreiheit** | WCAG 2.1 AA: Tastaturbedienung, Fokusführung, geprüfte Kontraste |
+| **Bewegung** | Gestaffelte Karten und Verzeichnisgruppen, animierte Ansichtswechsel und Rückmeldungen; berücksichtigt reduzierte Bewegung |
+| **Barrierefreiheit** | Tastaturbedienung, Fokusführung, beschriftete Bedienelemente und einstellbare Schriftgröße |
 | **Telefonverzeichnis** | Modal mit allen ZNA-Rufnummern inkl. Live-Suche; ein Tipp auf die Zeile legt die Nummer in die Zwischenablage |
 | **Gleitende Tab-Markierung** | Die Markierung der Fußnavigation dehnt sich in Laufrichtung, wandert zum gewählten Tab und zieht sich dort zusammen |
 
@@ -644,7 +663,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 ---
 
 *Letzte Aktualisierung: September 2026*  
-*Version: 3.2.0*
+*Version: 3.3.0*
 
 ---
 
@@ -652,6 +671,7 @@ Bei Fragen zur Architektur oder neuen Features siehe [`AGENTS.md`](AGENTS.md) f�
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v3.3.0** | Sep 2026 | Kompakter, modusabhängiger Kopfbereich, größeres Logo und Kategorie-Symbole, Kartenanimation bei Rückkehr, überarbeitetes Telefonverzeichnis mit Kopierfeedback; Suchtreffer springen zum Abschnitt, robustere Akkordeons, Dialoge und Direktlinks. SOP-Dateien unverändert. |
 | **v3.2.0** | Sep 2026 | **Bewegungen durchgehend flüssig.** Behoben: der Ansichtswechsel setzte erst nach rund einem Fünftel seiner Strecke sichtbar ein, weil der Browser die neue Ansicht anordnen und zeichnen musste, während die Animationsuhr bereits lief – die Bildfolge wird jetzt im Zustand „angehalten" vorbereitet und startet erst, wenn der Inhalt steht (Startwert 100,0 % statt 80,8 %, null verworfene Frames statt vier); eine in v3.1 eingeführte animierte Helligkeitsstufe auf der abgehenden Ansicht halbierte die Bildrate des Wechsels (33,3 statt 16,7 ms je Frame) und ist entfallen; die Kapitelleiste wurde beim Anheften flacher, was in jedem Frame ein Layout erzwang, den Inhalt wandern ließ und die gepufferte Leistenhöhe ungültig machte, an der alle Sprungziele hängen; das Aufklappen animierte jedes Kind eines Abschnitts einzeln – bei langen Abschnitten leicht fünfzig Animationen. Neu: die gleitenden Markierungen in Kapitelleiste und Fußnavigation dehnen sich in Laufrichtung und ziehen sich am Ziel zusammen, statt zu springen; die Startseite tritt als Kaskade auf; Kurven haben feste Aufgaben (`--ease-view`, `--ease-settle`, `--ease-spring`, `--ease-snap`), Dauern sind gestrafft (Ansichtswechsel 340 ms, Akkordeon 300 ms) und werden von einem Testlauf gegen ihre Spiegelung in JavaScript geprüft; Rückmeldung auf Berührung an Kopfzeilen-Schaltflächen, Abschnittsköpfen und Listeneinträgen. Nacharbeiten liegen hinter der Bewegung: die Navigationsliste wird über `requestIdleCallback` nachgezogen, das Inhaltsverzeichnis entsteht erst beim Öffnen. Gemessen: zehn von zehn geprüften Bewegungen mit 16,7 ms Median und null verworfenen Frames |
 | **v3.1.0** | Sep 2026 | **Darstellung, Bedienung und Bewegung überarbeitet.** Layout: alle Ansichten teilen sich einen zentrierten Satzspiegel – vorher stand der Inhalt auf Tablet und breitem Desktop linksbündig in einer sehr breiten Spalte; die SOP-Übersicht ist ab 768 px zweispaltig; Kopfzeile und Breadcrumb tragen dieselbe Fläche wie der Inhalt und setzen sich erst beim Scrollen ab. SOP-Ansicht: der Text läuft unter der angehefteten Kapitelleiste weich aus, statt mitten im Buchstaben abgeschnitten zu werden; die Leiste wird beim Anheften flacher; die Scroll-Pfeile sitzen bündig am Rand und bringen ihre eigene Blende mit, statt über der letzten Schaltfläche zu schweben; das aktuelle Kapitel bekommt einen kurzen Streifen am Kopf statt eines ringsum eingefärbten Rahmens (der eine zweite blaue Linie auf der Gegenseite zog); neu ist eine Fortschrittslinie unter der Kopfzeile. Inhaltsverzeichnis: höheres Blatt (zehn statt sechs sichtbare Kapitel), einzeilige Fußleiste, Name der SOP im Kopf, auslaufende Kante als Hinweis auf mehr Inhalt, und der Fokus landet auf dem Blatt statt mit Fokusring auf der Schließen-Schaltfläche. Bewegung: durchgängige Dauer- und Kurven-Tokens, ruhigere Ein- und Austritte, gleitende Markierung in der Fußnavigation, abgestimmte Zustände für Zeigegerät und Finger. Messbar behoben: der bildschirmfüllende `backdrop-filter` hinter den Overlays drückte das Öffnen der Schnellsuche von 60 auf 20 Bilder je Sekunde und ist einem Verlauf gewichen; die 73 Einzel-Listener je Liste und die 73 Auftrittsanimationen sind Ereignisdelegation und einer Begrenzung auf 18 sichtbare Einträge gewichen; `content-visibility` nimmt dem Browser die Arbeit für alles unterhalb des Sichtfensters ab |
 | **v3.0.0** | Sep 2026 | **Anwendungslogik in zehn Module aufgeteilt.** `app.js` (3.495 Zeilen) ist zugunsten von [`js/core.js`](js/core.js) bis [`js/main.js`](js/main.js) entfallen; die Module teilen sich den Namensraum `window.SOPApp`, der Funktionsumfang bleibt vollständig erhalten. Behoben: das Suchfeld der Startseite reichte die Eingabe zeichenweise an die Schnellsuche weiter und verlor bei schnellem Tippen den Suchbegriff (jetzt eine Schaltfläche, die die Schnellsuche öffnet); der Filterbegriff der Übersicht wurde unmaskiert in ein HTML-Attribut geschrieben, ein Anführungszeichen zerlegte damit die Ansicht; SOP-Namen und Textausschnitte wurden ohne Maskierung eingebaut; die Schaltfläche „Alle" der Kapitelleiste war beim Öffnen einer SOP markiert, obwohl nur Diagnostik und Therapie offen standen, und blieb es auch nach dem Zuklappen eines Abschnitts; die Fokusfalle wählte das im Dokument erste statt das oberste Overlay, und beim Schließen eines von zwei Overlays verlor der Hintergrund seine Sperre; die Safe-Area wurde beim Aufziehen der Bildschirmtastatur neu vermessen und ließ das Layout springen; die Quellen einer SOP waren über die Kapitelleiste nicht erreichbar; `Enter` in der Schnellsuche blieb ohne Wirkung, obwohl die Fußzeile es ankündigte. Neu: Tastaturauswahl in der Schnellsuche samt direktem Einstieg in die Volltextsuche, Trefferanzahl und Abschnittsangabe in Such- und Übersichtsliste, Zurücksetzen leerer Filterergebnisse, Telefonnummern per Tipp in die Zwischenablage mit Kurzhinweis, `/` und `Rücktaste` als Tastenkürzel, Abschnittsköpfe als `<h2>` mit `aria-controls`, echte `<button>`-Elemente statt `div` mit `role="button"`, Schriftgrößen-Schaltflächen am Anschlag abgeschaltet, Seitentitel folgt der geöffneten SOP |
