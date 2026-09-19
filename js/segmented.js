@@ -65,10 +65,7 @@
         html += '</div>' +
             '<button type="button" class="segmented-scroll-arrow segmented-scroll-right" aria-label="Kapitelleiste nach rechts scrollen" tabindex="-1">' +
             '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
-            '</div>' +
-            // Fortschritt durch das gerade sichtbare Kapitel (Vorschlag 39)
-            '<div class="seg-progress" aria-hidden="true"><span></span></div>' +
-            '</div>';
+            '</div></div>';
 
         return html;
     };
@@ -131,47 +128,6 @@
     };
 
     // ============================================
-    // FORTSCHRITT IM KAPITEL (Vorschlag 39)
-    // ============================================
-    // Die Leiste zeigte bisher nur, WELCHES Kapitel gerade oben steht.
-    // Jetzt zeigt sie zusaetzlich, wie weit es gelesen ist - ein
-    // Balken unter der gesamten Leiste, der beim Kapitelwechsel
-    // wieder bei null beginnt.
-    //
-    // Gerechnet wird ausschliesslich mit gepufferten Werten aus
-    // js/sop.js; der Balken kostet also kein zusaetzliches Layout.
-    var lastProgress = -1;
-
-    App.updateSegmentedProgress = function(y) {
-        if (!E.viewSOP) return;
-
-        var bar = E.viewSOP.querySelector('.seg-progress > span');
-        if (!bar) return;
-
-        var bounds = App.currentSectionBounds();
-        var ratio = 0;
-
-        if (bounds && bounds.height > 0) {
-            var offset = App.stickyOffset();
-            var seen = (y + offset) - bounds.top;
-            var span = Math.max(1, bounds.height - offset);
-            ratio = Math.max(0, Math.min(1, seen / span));
-        }
-
-        // Auf ein Prozent gerundet: darunter waere jede Aenderung
-        // unsichtbar, aber der Stilwechsel trotzdem zu bezahlen.
-        var rounded = Math.round(ratio * 100) / 100;
-        if (rounded === lastProgress) return;
-        lastProgress = rounded;
-
-        bar.parentNode.style.setProperty('--seg-progress', String(rounded));
-    };
-
-    App.resetSegmentedProgress = function() {
-        lastProgress = -1;
-    };
-
-    // ============================================
     // AUSWAHL
     // ============================================
     App.setSegmentedActive = function(segIndex) {
@@ -188,7 +144,6 @@
         }
 
         App.updateSegmentedPill(true);
-        App.resetSegmentedProgress();
         return activeBtn;
     };
 

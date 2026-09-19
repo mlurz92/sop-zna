@@ -206,7 +206,6 @@
                 out.push({
                     el: secs[i],
                     top: secs[i].offsetTop,
-                    height: secs[i].offsetHeight,
                     idx: secs[i].getAttribute('data-sec') || ''
                 });
             }
@@ -228,15 +227,6 @@
         if (S.tab !== 'sop') return 0;
         sectionOffsets();
         return SEC_CACHE.stickyHeight;
-    };
-
-    App.currentSectionBounds = function() {
-        if (segSpyIdx === null) return null;
-        var secs = sectionOffsets();
-        for (var i = 0; i < secs.length; i++) {
-            if (secs[i].idx === segSpyIdx) return secs[i];
-        }
-        return null;
     };
 
     App.uSticky = function(y) {
