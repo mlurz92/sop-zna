@@ -50,7 +50,7 @@ sop-zna/
 │   ├── router.js           Adresse, Verlauf, Scrollgedächtnis
 │   ├── views.js            Ansichtswechsel, Tabs, Kopfzeile, Scrollmaße
 │   ├── lists.js            Seitenleiste, Startseite, Übersicht, Volltextsuche
-│   ├── segmented.js        Angeheftete Kapitelleiste samt Fortschritt
+│   ├── segmented.js        Angeheftete Kapitelleiste
 │   ├── sop.js              SOP-Ansicht, Akkordeon, Tabellen, Scores, Druck
 │   ├── overlays.js         Schnellsuche, Inhaltsverzeichnis, Telefonverzeichnis
 │   └── main.js             Gesten, Ereignisbindung, Start

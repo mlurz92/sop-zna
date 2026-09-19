@@ -396,7 +396,6 @@
         handleFabVisibility(y);
         App.uSticky(y);
         updateReadProgress(y);
-        App.updateSegmentedProgress(y);
         setScrolled(y > 4);
         // Position fortlaufend merken - beim Zurueckgehen wird genau
         // diese Stelle wiederhergestellt (Vorschlag 4).

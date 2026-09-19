@@ -13,7 +13,7 @@
      5  Abbildungen                             (Vorschlag 12)
      6  Querverweise                            (Vorschlag 27)
      7  Verwandte Pfade                         (Vorschlag 28)
-     8  Kapitelleiste mit Fortschritt           (Vorschlag 39)
+     8  Kapitelleiste                           (Vorschlag 39)
      9  Abschnittskarten, Tiefe, Raster         (Vorschlag 40)
     10  Suche: Bereiche, Treffer, Wirkstoffe    (Vorschlaege 23-25)
     11  Startseite                              (Vorschlag 24)
@@ -764,43 +764,22 @@
     }
 
     /* ========================================================
-       8  KAPITELLEISTE MIT FORTSCHRITT         (Vorschlag 39)
+       8  KAPITELLEISTE
        --------------------------------------------------------
-       Die Leiste zeigt nicht mehr nur, WELCHES Kapitel gerade
-       oben steht, sondern auch, wie weit es durchgelesen ist.
-       Der Balken laeuft unter der gesamten Leiste durch; die
-       Breite kommt aus --seg-progress (js/segmented.js).
+       Die Leiste zeigt, WELCHES Kapitel gerade oben steht - nicht
+       mehr, wie weit es gelesen ist. Der fruehere Fortschrittsbalken
+       unter der Leiste ist auf Wunsch wieder entfallen: in einem
+       Nachschlagewerk wird gesprungen, nicht der Reihe nach gelesen;
+       eine Lesequote beantwortet dort keine Frage.
+
+       Der Fortschritt durch die GESAMTE SOP bleibt als feine Linie
+       unter der Kopfzeile (.read-progress) erhalten.
        ======================================================== */
 
     .sop-seg-sticky { position: sticky; }
 
-    .seg-progress {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 2px;
-        background: color-mix(in srgb, var(--primary) 14%, transparent);
-        overflow: hidden;
-        opacity: 0;
-        transition: opacity var(--dur-micro) var(--ease-out-quart);
-        pointer-events: none;
-    }
-
-    .sop-seg-sticky.is-stuck .seg-progress { opacity: 1; }
-
-    .seg-progress > span {
-        display: block;
-        height: 100%;
-        width: 100%;
-        transform-origin: 0 50%;
-        transform: scaleX(var(--seg-progress, 0));
-        background: var(--cat-color, var(--primary));
-        transition: transform 90ms linear;
-    }
-
-    /* Das gerade sichtbare Kapitel bekommt zusaetzlich einen
-       kurzen Unterstrich an der Schaltflaeche. */
+    /* Das gerade sichtbare Kapitel bekommt einen kurzen Unterstrich
+       an seiner Schaltflaeche. */
     .segmented-btn.is-current::after {
         content: "";
         position: absolute;
