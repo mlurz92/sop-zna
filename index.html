@@ -214,6 +214,7 @@
                     <div class="v" id="viewHome">
                         <div class="hero" id="heroArea"></div>
                         <div class="cat-grid" id="catGrid"></div>
+                        <section class="home-statuten" id="homeStatuten" aria-labelledby="homeStatutenTitle"></section>
                         <div class="home-info" id="homeInfo"></div>
                     </div>
 
@@ -313,6 +314,21 @@
             <div class="dir-body" id="dirBody" tabindex="0"></div>
             <div class="dir-foot">
                 <span>Interne Nummern &ndash; Vorwahl extern: 0341 909 + Nebenstelle</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Abbildung in voller Groesse (Organigramm, Schichtplaene, Algorithmen) -->
+    <div class="fig-overlay" id="figOverlay" role="dialog" aria-modal="true" aria-labelledby="figOverlayCaption">
+        <div class="fig-bg" id="figOverlayBackdrop"></div>
+        <div class="fig-modal">
+            <div class="fig-head">
+                <p class="fig-caption" id="figOverlayCaption"></p>
+                <button type="button" class="fig-fit" id="figOverlayFit" aria-pressed="true"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> <span>Originalgröße</span></button>
+                <button type="button" class="fig-close" id="figOverlayClose" aria-label="Schließen"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div class="fig-stage is-fit" id="figOverlayStage" tabindex="0">
+                <img id="figOverlayImg" alt="" decoding="async">
             </div>
         </div>
     </div>

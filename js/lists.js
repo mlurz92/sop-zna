@@ -80,7 +80,23 @@
                 '</a></li>';
         }
 
-        if (!list.length) {
+        // Statuten stehen als eigene Gruppe unter den Pfaden - sichtbar,
+        // solange nicht nach einer Fachkategorie gefiltert wird.
+        var docs = S.catD === 'all' ? App.filterDocs(S.hQ) : [];
+        if (docs.length) {
+            html += '<li class="nav-group" role="presentation"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Statuten</li>';
+            for (var k = 0; k < docs.length; k++) {
+                var doc = docs[k];
+                var docAct = S.sopId === doc.id && S.tab === 'sop';
+                html += '<li><a href="#statut/' + App.escAttr(doc.id) + '" class="nav-doc' + (docAct ? ' active' : '') + '"' +
+                    (docAct ? ' aria-current="page"' : '') + ' data-id="' + App.escAttr(doc.id) + '">' +
+                    '<span class="nav-dot" style="background:' + App.gc(doc.category) + '"></span>' +
+                    '<span class="nav-label">' + App.hl(doc.short, S.hQ) + '</span>' +
+                    '</a></li>';
+            }
+        }
+
+        if (!list.length && !docs.length) {
             html = '<li class="nav-empty">Kein Treffer</li>';
         }
 
@@ -171,6 +187,8 @@
             App.applyStagger(E.catGrid.querySelectorAll('.cat-card'), 'stagger-item');
         }
 
+        App.rHomeStatuten();
+
         if (E.homeInfo) {
             // Der Stand der Erzeugung stand hier frueher mit. Er
             // beantwortet keine Frage am Krankenbett - der fachlich
@@ -178,8 +196,76 @@
             // dort auch angezeigt. Die Fassung der Anwendung steht
             // weiterhin in den Einstellungen.
             E.homeInfo.innerHTML = '<p class="info-count">' + S.data.length +
-                ' Patientenpfade · AG Klinische Pfade</p>';
+                ' Patientenpfade' + (S.docs.length ? ' · ' + S.docs.length + ' Statuten' : '') +
+                ' · AG Klinische Pfade</p>';
         }
+    };
+
+    // ============================================
+    // STARTSEITE: STATUTEN & ORGANISATION
+    // ============================================
+    // Zwei Wege: das ganze Statut (Karte) oder direkt das Werkzeug,
+    // das man am Tresen braucht (Checkliste, G-AEP, Crowding ...).
+    App.rHomeStatuten = function() {
+        if (!E.homeStatuten) return;
+        if (!S.docs.length) {
+            E.homeStatuten.innerHTML = '';
+            return;
+        }
+
+        var html = '<div class="home-sec-head">' +
+            '<h2 class="home-sec-title" id="homeStatutenTitle">' +
+            '<i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Statuten &amp; Organisation</h2>' +
+            '<p class="home-sec-sub">Regelwerk der Notaufnahme und der ZNA-Station</p>' +
+            '</div><div class="statut-cards">';
+
+        for (var i = 0; i < S.docs.length; i++) {
+            var d = S.docs[i];
+            var facts = [];
+            if (d.stand) facts.push('Stand ' + d.stand);
+            if (d.version) facts.push('Version ' + d.version);
+            facts.push(d.secTitles.length + ' Kapitel');
+
+            html += '<button type="button" class="statut-card" data-id="' + App.escAttr(d.id) + '"' +
+                ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+                '<span class="statut-card-icon"><i class="fa-solid ' +
+                (d.id === 'statut-abs' ? 'fa-bed' : 'fa-hospital') + '" aria-hidden="true"></i></span>' +
+                '<span class="statut-card-body">' +
+                '<span class="statut-card-name">' + App.esc(d.short) + '</span>' +
+                '<span class="statut-card-title">' + App.esc(d.name) + '</span>' +
+                (d.summary ? '<span class="statut-card-summary">' + App.esc(d.summary) + '</span>' : '') +
+                '<span class="statut-card-meta">' + App.esc(facts.join(' · ')) + '</span>' +
+                '</span>' +
+                '<i class="fa-solid fa-chevron-right statut-card-go" aria-hidden="true"></i>' +
+                '</button>';
+        }
+        html += '</div>';
+
+        var tools = App.statutTools();
+        if (tools.length) {
+            html += '<div class="statut-tools" role="group" aria-label="Direkt zu">';
+            for (var t = 0; t < tools.length; t++) {
+                var tool = tools[t];
+                html += '<button type="button" class="statut-tool" data-doc="' + App.escAttr(tool.doc) +
+                    '" data-sec="' + tool.sec + '" style="' + App.escAttr(App.catStyle(App.DOC_CAT)) + '">' +
+                    '<i class="fa-solid ' + App.escAttr(tool.icon) + '" aria-hidden="true"></i>' +
+                    '<span class="statut-tool-label">' + App.esc(tool.label) + '</span>' +
+                    '<span class="statut-tool-hint">' + App.esc(tool.hint) + '</span>' +
+                    '</button>';
+            }
+            html += '</div>';
+        }
+
+        E.homeStatuten.innerHTML = html;
+
+        delegate(E.homeStatuten, '.statut-card', function(c) {
+            App.pushNav(c.getAttribute('data-id'));
+        });
+        delegate(E.homeStatuten, '.statut-tool', function(c) {
+            App.pushNav(c.getAttribute('data-doc'), parseInt(c.getAttribute('data-sec'), 10));
+        });
+
+        App.applyStagger(E.homeStatuten.querySelectorAll('.statut-card, .statut-tool'), 'stagger-item');
     };
 
     // ============================================
@@ -294,6 +380,7 @@
         if (!E.browseList) return;
 
         var list = App.filterSops(S.catB, S.bQ);
+        var docs = S.catB === 'all' ? App.filterDocs(S.bQ) : [];
         var html = '';
 
         for (var i = 0; i < list.length; i++) {
@@ -307,7 +394,21 @@
                 '</button>';
         }
 
-        if (!list.length) {
+        if (docs.length) {
+            html += '<p class="browse-group"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Statuten</p>';
+            for (var j = 0; j < docs.length; j++) {
+                var doc = docs[j];
+                html += '<button type="button" class="browse-item browse-item-doc" data-id="' + App.escAttr(doc.id) + '"' +
+                    ' style="' + App.escAttr(App.catStyle(doc.category)) + '">' +
+                    '<span class="bi-dot"></span>' +
+                    '<span class="bi-name">' + App.hl(doc.short, S.bQ) + '</span>' +
+                    '<span class="bi-cat">Statut</span>' +
+                    '<i class="fa-solid fa-chevron-right bi-arrow" aria-hidden="true"></i>' +
+                    '</button>';
+            }
+        }
+
+        if (!list.length && !docs.length) {
             html = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>' +
                 '<p>Keine SOPs gefunden.</p>' +
                 (S.catB !== 'all' || S.bQ ? '<button type="button" class="empty-reset" id="browseReset">Filter zurücksetzen</button>' : '') +
@@ -393,8 +494,13 @@
         }
 
         if (sops.length) {
-            html += '<p class="list-count">' +
-                (sops.length === 1 ? '1 Patientenpfad' : sops.length + ' Patientenpfade') +
+            var nDocs = 0;
+            for (var n = 0; n < sops.length; n++) if (sops[n].sop.doc) nDocs++;
+            var nPaths = sops.length - nDocs;
+            var countParts = [];
+            if (nPaths) countParts.push(nPaths === 1 ? '1 Patientenpfad' : nPaths + ' Patientenpfade');
+            if (nDocs) countParts.push(nDocs === 1 ? '1 Statut' : nDocs + ' Statuten');
+            html += '<p class="list-count">' + countParts.join(' · ') +
                 (res.usedFuzzy ? ' · Schreibweise angenähert' : '') + '</p>';
 
             for (var i = 0; i < sops.length; i++) {

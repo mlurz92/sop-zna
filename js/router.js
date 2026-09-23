@@ -46,8 +46,12 @@
         else delete S.scrollMemory[key];
     };
 
+    // Statuten stehen unter einer eigenen Adresse (#statut/...), laufen
+    // aber durch dieselbe Ansicht wie die SOPs.
     function hashForState() {
-        if (S.tab === 'sop' && S.sopId) return '#sop/' + S.sopId;
+        if (S.tab === 'sop' && S.sopId) {
+            return (App.isDoc(App.findSop(S.sopId)) ? '#statut/' : '#sop/') + S.sopId;
+        }
         if (S.tab === 'browse') return '#browse';
         if (S.tab === 'search') return '#search';
         return '#home';
@@ -83,9 +87,10 @@
     // Wendet die aktuelle Adresse an, ohne einen neuen Eintrag zu erzeugen
     function applyRoute(mode) {
         var h = window.location.hash || '';
-        if (h.indexOf('#sop/') === 0) {
+        var prefix = h.indexOf('#sop/') === 0 ? 5 : (h.indexOf('#statut/') === 0 ? 8 : 0);
+        if (prefix) {
             var id;
-            try { id = decodeURIComponent(h.substring(5)); }
+            try { id = decodeURIComponent(h.substring(prefix)); }
             catch (e) { id = ''; }
             if (App.hasSop(id)) {
                 S.sopId = id;
@@ -157,11 +162,13 @@
         // Ohne Verlauf (Deep Link): sinnvolles Ziel aus der Ansicht ableiten
         if (S.tab === 'home') return;
 
+        // Ein Statut kommt von der Startseite, ein Pfad aus der Uebersicht.
+        var target = (S.tab === 'sop' && !App.isDoc(App.findSop(S.sopId))) ? 'browse' : 'home';
+
         S.isNavigating = true;
         S.sopId = null;
         App.haptic('light');
 
-        var target = (S.tab === 'sop') ? 'browse' : 'home';
         App.sTab(target, 'pop', function() { S.isNavigating = false; });
     };
 

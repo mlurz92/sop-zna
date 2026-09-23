@@ -371,6 +371,31 @@
     }
 
     /* ========================================================
+       5b STATUTEN
+       --------------------------------------------------------
+       Statuten sind keine Fachkategorie, sondern Regelwerk. Sie
+       tragen einen eigenen Farbsatz (Weinrot, nahe der Hausfarbe),
+       damit sie in Seitenleiste, Suche und Startseite nie mit
+       einem Patientenpfad verwechselt werden. Nachgerechnet:
+         hell   Akzent/Weiss 8,0:1  Schrift/Flaeche 8,7:1
+         dunkel Akzent/Grund 5,4:1  Schrift/Flaeche 8,6:1
+       ======================================================== */
+
+    :root {
+        --doc: #9f1239;
+        --doc-tint: #fff1f2;
+        --doc-ink: #881337;
+        --doc-line: #fecdd3;
+    }
+
+    [data-theme="dark"] {
+        --doc: #fb7185;
+        --doc-tint: #3b1220;
+        --doc-ink: #fda4af;
+        --doc-line: #6b1d33;
+    }
+
+    /* ========================================================
        6  BEWEGUNG                              (Vorschlag 42)
        --------------------------------------------------------
        Ab hier gibt es GENAU EINE Quelle fuer Dauern und Kurven.

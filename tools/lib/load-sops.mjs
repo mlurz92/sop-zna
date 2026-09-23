@@ -51,3 +51,40 @@ export function loadSops() {
 
     return { data: sandbox.window.SOP_DATA || [], entries: perFile, files: files };
 }
+
+export const STATUTEN_DIR = path.join(ROOT, 'statuten');
+
+/**
+ * Liest die Statuten unter statuten/ ein - auf dieselbe Weise wie
+ * die SOPs, nur mit eigenem Sammelbecken (window.STATUT_DATA).
+ * Die Dateien werden ausschliesslich gelesen.
+ */
+export function loadStatuten() {
+    if (!fs.existsSync(STATUTEN_DIR)) return { entries: [], files: [] };
+
+    const files = fs.readdirSync(STATUTEN_DIR)
+        .filter(function (f) { return f.endsWith('.js'); })
+        .sort();
+    const sandbox = { window: {} };
+    sandbox.globalThis = sandbox;
+    vm.createContext(sandbox);
+
+    const perFile = [];
+
+    for (const file of files) {
+        const src = fs.readFileSync(path.join(STATUTEN_DIR, file), 'utf8');
+        const before = sandbox.window.STATUT_DATA ? sandbox.window.STATUT_DATA.length : 0;
+        try {
+            vm.runInContext(src, sandbox, { filename: 'statuten/' + file, timeout: 5000 });
+        } catch (err) {
+            throw new Error('statuten/' + file + ' laesst sich nicht auswerten: ' + err.message);
+        }
+        const after = sandbox.window.STATUT_DATA ? sandbox.window.STATUT_DATA.length : 0;
+        if (after === before) {
+            throw new Error('statuten/' + file + ' hat kein Datenobjekt in STATUT_DATA gelegt.');
+        }
+        for (let i = before; i < after; i++) perFile.push({ file: file, doc: sandbox.window.STATUT_DATA[i] });
+    }
+
+    return { entries: perFile, files: files };
+}

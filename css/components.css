@@ -2127,4 +2127,765 @@
     @media print {
         .gate-locked body { visibility: hidden; }
     }
+
+    /* ========================================================
+       19  STATUTEN
+       --------------------------------------------------------
+       Die Statuten laufen durch dieselbe Ansicht wie die SOPs.
+       Hier steht nur, was sie zusaetzlich brauchen: Deckblatt-
+       angaben, Prozesskette, Checklisten, G-AEP-Pruefhilfe,
+       Rufnummern, der Hinweis im Dispositionsfeld und der
+       Einstieg auf der Startseite. Farbe: --doc-* (tokens.css).
+       ======================================================== */
+
+    /* ---- Kopf ---- */
+    .doc-title-block { flex: 1 1 auto; min-width: 0; }
+
+    .sop-header-doc .sop-title { font-size: var(--fs-2xl); }
+
+    @media (max-width: 640px) {
+        .sop-header-doc .sop-title { font-size: var(--fs-xl); }
+        .doc-facts { grid-template-columns: 1fr 1fr; }
+        .doc-fact:nth-child(n+3) { grid-column: 1 / -1; }
+    }
+
+    .doc-subtitle {
+        margin: var(--sp-05) 0 0;
+        font-size: var(--fs-sm);
+        color: var(--text3);
+    }
+
+    .doc-facts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--sp-1) var(--sp-2);
+        margin: var(--sp-15) 0 0;
+        padding: var(--sp-15);
+        border: 1px solid var(--cat-line, var(--border));
+        border-left: 4px solid var(--cat-color, var(--primary));
+        border-radius: var(--radius-md);
+        background: var(--cat-tint, var(--inset));
+    }
+
+    .doc-fact { min-width: 0; }
+
+    .doc-fact dt {
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--cat-ink, var(--text3));
+    }
+
+    .doc-fact dd {
+        margin: 2px 0 0;
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        color: var(--text);
+        overflow-wrap: anywhere;
+    }
+
+    /* ---- Anhangskennung wie im Original ---- */
+    .sop-section-body .doc-anhang { color: var(--text2); }
+
+    /* ---- Rollenliste (Kap. 5.1) ---- */
+    .sop-section-body .doc-roles li {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0 var(--sp-15);
+    }
+
+    .sop-section-body .doc-role-who {
+        color: var(--text3);
+        font-size: var(--fs-sm);
+    }
+
+    /* ---- Prozesskette (Kap. 7) ----
+       Im Original eine Treppen-Grafik (SmartArt). Hier als
+       nummerierte Kette: lesbar auf jeder Breite, im Dunkelmodus
+       und im Druck. */
+    .sop-section-body .doc-flow {
+        list-style: none;
+        counter-reset: flow;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: var(--sp-15) 0 var(--sp-2);
+        padding: 0;
+    }
+
+    .sop-section-body .doc-flow li {
+        counter-increment: flow;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: 0;
+        padding: var(--sp-1) var(--sp-15);
+        border-radius: var(--radius-md);
+        background: var(--info-tint);
+        border: 1px solid var(--info-line);
+        color: var(--info-ink);
+        font-weight: var(--fw-semibold);
+        font-size: var(--fs-sm);
+    }
+
+    .sop-section-body .doc-flow li::before {
+        content: counter(flow);
+        display: grid;
+        place-items: center;
+        width: 1.6em;
+        height: 1.6em;
+        border-radius: var(--radius-full);
+        background: var(--info);
+        color: #fff;
+        font-size: var(--fs-2xs);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .sop-section-body .doc-flow li:not(:last-child)::after {
+        content: "\f054";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 0.7em;
+        margin-left: var(--sp-05);
+        color: var(--info);
+    }
+
+    @media (max-width: 640px) {
+        .sop-section-body .doc-flow { flex-direction: column; align-items: stretch; }
+        .sop-section-body .doc-flow li:not(:last-child)::after { content: "\f078"; margin-left: auto; }
+    }
+
+    /* ---- Crowding-Stufen (Kap. 8.4.5) ---- */
+    .sop-section-body .doc-levels {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: var(--sp-1);
+    }
+
+    .sop-section-body .doc-levels li {
+        margin: 0;
+        padding: var(--sp-1) var(--sp-15);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--warn-line);
+        border-left: 4px solid var(--warn);
+        background: var(--warn-tint);
+    }
+
+    .sop-section-body .doc-levels li[data-level="3"],
+    .sop-section-body .doc-levels li[data-level="4"] {
+        border-color: var(--cave-line);
+        border-left-color: var(--cave);
+        background: var(--cave-tint);
+    }
+
+    .sop-section-body .doc-levels li strong { color: var(--text); }
+
+    /* ---- Endpunkte (Kap. 8.4.3) ---- */
+    .sop-section-body .doc-endpoints li::marker {
+        color: var(--cat-color, var(--primary));
+        font-weight: var(--fw-bold);
+    }
+
+    /* ---- Abhakbare Punkte (Checklisten, G-AEP, Ausschluss) ---- */
+    .sop-section-body .check-item {
+        position: relative;
+        list-style: none;
+        margin: 0 0 var(--sp-05) calc(var(--sp-2) * -1);
+        padding: var(--sp-1) var(--sp-15) var(--sp-1) calc(var(--sp-15) + 30px);
+        min-height: var(--tap-min);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    background-color var(--dur-micro) var(--ease-out-quart);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .sop-section-body .check-item:hover { border-color: var(--border2); }
+
+    .sop-section-body .check-item:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+
+    .sop-section-body .check-box {
+        position: absolute;
+        left: var(--sp-15);
+        top: calc(var(--sp-1) + 0.1em);
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--border2);
+        border-radius: 6px;
+        background: var(--surface);
+        color: transparent;
+        font-size: 12px;
+        transition: background-color var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart),
+                    color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .sop-section-body .check-item[aria-checked="true"] {
+        border-color: var(--ok-line);
+        background: var(--ok-tint);
+    }
+
+    .sop-section-body .check-item[aria-checked="true"] .check-box {
+        border-color: var(--ok);
+        background: var(--ok);
+        color: #fff;
+    }
+
+    [data-theme="dark"] .sop-section-body .check-item[aria-checked="true"] .check-box { color: #0b1220; }
+
+    /* Ausschlusskriterien: angetippt heisst "trifft zu" - also Gefahr. */
+    .sop-section-body .doc-exclusion .check-item[aria-checked="true"] {
+        border-color: var(--cave-line);
+        background: var(--cave-tint);
+    }
+
+    .sop-section-body .doc-exclusion .check-item[aria-checked="true"] .check-box {
+        border-color: var(--cave);
+        background: var(--cave);
+    }
+
+    .sop-section-body .doc-checklist ul,
+    .sop-section-body .doc-gaep ul,
+    .sop-section-body ul.doc-exclusion { padding-left: var(--sp-2); }
+
+    /* ---- Leiste unter einer Checkliste ----
+       Klebt am unteren Rand, solange die Liste im Blick ist: der
+       Stand bleibt sichtbar, auch mitten in einer langen Liste. */
+    .check-panel,
+    .gaep-panel {
+        position: sticky;
+        bottom: var(--sp-1);
+        z-index: 2;
+        margin: var(--sp-2) 0 var(--sp-1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        box-shadow: var(--elev-3);
+        overflow: hidden;
+    }
+
+    /* Unter 1024 px liegt die Fussleiste ueber dem Scrollbereich
+       (dort 80 px Innenabstand) - die Leiste haelt Abstand zu ihr. */
+    @media (max-width: 1023px) {
+        .check-panel,
+        .gaep-panel { bottom: calc(80px + var(--sab-js, 0px)); }
+    }
+
+    .check-bar,
+    .gaep-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-15);
+        flex-wrap: wrap;
+        padding: var(--sp-1) var(--sp-15);
+        background: var(--inset);
+    }
+
+    .check-count {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        font-size: var(--fs-sm);
+        color: var(--text2);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .check-count strong { color: var(--text); font-size: var(--fs-md); }
+
+    .check-reset {
+        border: 1px solid var(--border2);
+        background: var(--surface);
+        color: var(--text2);
+        border-radius: var(--radius-full);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        padding: var(--sp-05) var(--sp-15);
+        min-height: 32px;
+        cursor: pointer;
+    }
+
+    .check-reset:hover { border-color: var(--primary); color: var(--primary); }
+    .check-reset[disabled] { opacity: 0.4; cursor: default; }
+
+    .check-meter { height: 3px; background: var(--border); overflow: hidden; }
+
+    .check-meter > span {
+        display: block;
+        height: 100%;
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+        background: var(--ok);
+        transition: transform var(--dur-section) var(--ease-out-expo);
+    }
+
+    .check-panel.is-complete { border-color: var(--ok-line); }
+    .check-panel.is-complete .check-bar { background: var(--ok-tint); }
+    .check-panel.is-complete .check-count { color: var(--ok-ink); font-weight: var(--fw-semibold); }
+
+    .check-hint {
+        margin: 0;
+        padding: var(--sp-1) var(--sp-15);
+        font-size: var(--fs-2xs);
+        line-height: var(--lh-snug);
+        color: var(--text3);
+        border-top: 1px solid var(--border);
+    }
+
+    .check-hint strong { color: var(--text2); }
+
+    /* ---- G-AEP-Urteil ---- */
+    .gaep-verdict {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: var(--sp-1) var(--sp-15);
+        border-left: 4px solid var(--border2);
+    }
+
+    .gaep-codes {
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .gaep-msg { font-size: var(--fs-sm); color: var(--text2); line-height: var(--lh-snug); }
+
+    .gaep-verdict.is-ok { border-left-color: var(--ok); background: var(--ok-tint); }
+    .gaep-verdict.is-ok .gaep-msg { color: var(--ok-ink); }
+    .gaep-verdict.is-warn { border-left-color: var(--warn); background: var(--warn-tint); }
+    .gaep-verdict.is-warn .gaep-msg { color: var(--warn-ink); }
+    .gaep-verdict.is-info { border-left-color: var(--info); background: var(--info-tint); }
+    .gaep-verdict.is-info .gaep-msg { color: var(--info-ink); }
+
+    .gaep-actions { border-top: 1px solid var(--border); }
+
+    .gaep-copy {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        min-height: 36px;
+        padding: var(--sp-05) var(--sp-15);
+        border: 1px solid transparent;
+        border-radius: var(--radius-full);
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+    }
+
+    .gaep-copy:hover { border-color: var(--primary); }
+    .gaep-copy[disabled] { opacity: 0.45; cursor: default; border-color: transparent; }
+
+    /* ---- Hinweis zu den Ausschlusskriterien ---- */
+    .sop-section-body .excl-note {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--sp-1);
+        margin: var(--sp-1) 0 var(--sp-2);
+        padding: var(--sp-1) var(--sp-15);
+        border-radius: var(--radius-md);
+        font-size: var(--fs-sm);
+        color: var(--text3);
+        background: var(--inset);
+    }
+
+    .sop-section-body .excl-note.is-hit {
+        color: var(--cave-ink);
+        background: var(--cave-tint);
+        border: 1px solid var(--cave-line);
+    }
+
+    .sop-section-body .excl-note.is-hit i { color: var(--cave); }
+
+    /* ---- Rufnummern im Text ---- */
+    .doc-tel {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35em;
+        margin: 0 0.1em;
+        padding: 0.05em 0.55em;
+        border: 1px solid var(--cat-line, var(--border));
+        border-radius: var(--radius-full);
+        background: var(--cat-tint, var(--inset));
+        color: var(--cat-ink, var(--text));
+        font: inherit;
+        font-weight: var(--fw-semibold);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.5;
+        cursor: pointer;
+        vertical-align: baseline;
+    }
+
+    .doc-tel i { font-size: 0.72em; }
+    .doc-tel:hover { border-color: var(--cat-color, var(--primary)); }
+
+    /* ---- Verweis auf ein Statut ---- */
+    .sop-xref-doc { border-bottom-color: var(--doc); }
+    .sop-xref-doc::after { display: none; }
+    .sop-xref-doc i { font-size: 0.72em; margin-right: 0.3em; color: var(--doc); }
+    .sop-xref-doc:hover,
+    .sop-xref-doc:focus-visible { background: var(--doc-tint); }
+
+    /* ---- Statut ABS im Dispositionsfeld ---- */
+    .sop-section-body .dispo-statut {
+        margin-top: var(--sp-15);
+        padding: var(--sp-15);
+        border: 1px solid var(--doc-line);
+        border-left: 4px solid var(--doc);
+        border-radius: var(--radius-md);
+        background: var(--doc-tint);
+    }
+
+    .sop-section-body .dispo-statut-head {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: 0 0 var(--sp-05);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--doc-ink);
+    }
+
+    .sop-section-body .dispo-statut-text {
+        margin: 0 0 var(--sp-1);
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        color: var(--text);
+    }
+
+    .sop-section-body .dispo-statut-text strong { color: var(--doc-ink); }
+
+    .sop-section-body .dispo-statut-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-1);
+    }
+
+    .sop-section-body .dispo-statut-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-1);
+        min-height: 40px;
+        padding: var(--sp-05) var(--sp-15);
+        border: 1px solid var(--doc-line);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--doc-ink);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    transform var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .sop-section-body .dispo-statut-btn:hover { border-color: var(--doc); transform: translateY(-1px); }
+
+    /* ---- Abbildung antippbar ---- */
+    .sop-figure-zoom {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: zoom-in;
+    }
+
+    .sop-figure-hint {
+        position: absolute;
+        right: var(--sp-1);
+        bottom: var(--sp-1);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        padding: 4px var(--sp-1);
+        border-radius: var(--radius-full);
+        background: rgba(15, 23, 42, 0.72);
+        color: #fff;
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-semibold);
+        pointer-events: none;
+    }
+
+    .sop-figure-zoom:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: var(--radius-xs); }
+
+    /* ---- Abbildung in voller Groesse ---- */
+    .fig-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1060;
+        pointer-events: none;
+        visibility: hidden;
+        transition: visibility 0s linear var(--dur-view-fast);
+    }
+
+    .fig-overlay.show { pointer-events: auto; visibility: visible; transition-delay: 0s; }
+
+    .fig-bg {
+        position: absolute;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.82);
+        opacity: 0;
+        transition: opacity var(--dur-view-fast) var(--ease-out-quart);
+    }
+
+    .fig-overlay.show .fig-bg { opacity: 1; }
+
+    .fig-modal {
+        position: absolute;
+        inset: max(var(--sp-2), env(safe-area-inset-top, 0px)) var(--sp-2) max(var(--sp-2), env(safe-area-inset-bottom, 0px));
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        box-shadow: var(--elev-5);
+        overflow: hidden;
+        opacity: 0;
+        transform: scale(0.98);
+        transition: opacity var(--dur-view-fast) var(--ease-out-quart),
+                    transform var(--dur-view-fast) var(--ease-out-quart);
+    }
+
+    .fig-overlay.show .fig-modal { opacity: 1; transform: scale(1); }
+
+    @media (max-width: 640px) {
+        .fig-modal { inset: 0; border-radius: 0; padding-top: env(safe-area-inset-top, 0px); }
+    }
+
+    .fig-head {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-2);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .fig-caption {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-semibold);
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .fig-fit,
+    .fig-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--sp-05);
+        min-width: var(--tap-min);
+        min-height: var(--tap-min);
+        padding: 0 var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text2);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        cursor: pointer;
+    }
+
+    .fig-close { padding: 0; font-size: var(--fs-md); }
+    .fig-fit:hover, .fig-close:hover { border-color: var(--primary); color: var(--primary); }
+
+    @media (max-width: 480px) {
+        .fig-fit span { display: none; }
+        .fig-fit { padding: 0; }
+    }
+
+    .fig-stage {
+        flex: 1 1 auto;
+        overflow: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        background: #fff;
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .fig-stage img { display: block; max-width: none; height: auto; margin: 0 auto; }
+
+    .fig-stage.is-fit { display: grid; place-items: center; padding: var(--sp-1); }
+    .fig-stage.is-fit img { max-width: 100%; max-height: 100%; width: auto; object-fit: contain; }
+
+    /* ---- Startseite: Statuten & Organisation ---- */
+    .home-statuten { margin: var(--sp-4) 0 var(--sp-2); }
+    .home-statuten:empty { display: none; }
+
+    .home-sec-head { margin: 0 0 var(--sp-15); }
+
+    .home-sec-title {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: 0;
+        font-size: var(--fs-lg);
+        font-weight: var(--fw-bold);
+        color: var(--text);
+    }
+
+    .home-sec-title i { color: var(--doc); }
+
+    .home-sec-sub { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--text3); }
+
+    .statut-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--sp-15);
+    }
+
+    .statut-card {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--sp-15);
+        width: 100%;
+        padding: var(--sp-2);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--cat-color, var(--primary));
+        border-radius: var(--radius-lg);
+        background: var(--surface);
+        box-shadow: var(--elev-1);
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition: transform var(--dur-micro) var(--ease-out-quart),
+                    border-color var(--dur-micro) var(--ease-out-quart),
+                    box-shadow var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .statut-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--cat-color, var(--primary));
+        box-shadow: var(--elev-3);
+    }
+
+    .statut-card:active { transform: translateY(0); }
+
+    .statut-card-icon {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        background: var(--cat-tint, var(--inset));
+        color: var(--cat-color, var(--primary));
+        font-size: var(--fs-lg);
+    }
+
+    .statut-card-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+    .statut-card-name {
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
+        color: var(--text);
+    }
+
+    .statut-card-title { font-size: var(--fs-xs); color: var(--cat-ink, var(--text2)); line-height: var(--lh-snug); }
+
+    .statut-card-summary {
+        margin-top: 2px;
+        font-size: var(--fs-sm);
+        line-height: var(--lh-snug);
+        color: var(--text2);
+    }
+
+    .statut-card-meta {
+        margin-top: var(--sp-05);
+        font-size: var(--fs-2xs);
+        color: var(--text3);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .statut-card-go { align-self: center; color: var(--text4); }
+
+    .statut-tools {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        gap: var(--sp-1);
+        margin-top: var(--sp-15);
+    }
+
+    .statut-tool {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas: "icon label" "icon hint";
+        align-items: center;
+        column-gap: var(--sp-1);
+        min-height: var(--tap-min);
+        padding: var(--sp-1) var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    background-color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .statut-tool:hover { border-color: var(--cat-color, var(--primary)); background: var(--cat-tint, var(--inset)); }
+
+    .statut-tool > i { grid-area: icon; color: var(--cat-color, var(--primary)); font-size: var(--fs-md); width: 1.3em; text-align: center; }
+    .statut-tool-label { grid-area: label; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text); line-height: var(--lh-snug); }
+    .statut-tool-hint { grid-area: hint; font-size: var(--fs-2xs); color: var(--text3); }
+
+    /* ---- Seitenleiste und Uebersicht: Gruppe "Statuten" ---- */
+    .nav-group {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: var(--sp-15) 0 var(--sp-05);
+        padding: var(--sp-1) 18px 0;
+        border-top: 1px solid var(--border);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--text3);
+    }
+
+    .nav-group i { color: var(--doc); }
+
+    .browse-group {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-1);
+        margin: var(--sp-3) 0 var(--sp-1);
+        font-size: var(--fs-2xs);
+        font-weight: var(--fw-bold);
+        letter-spacing: var(--ls-caps);
+        text-transform: uppercase;
+        color: var(--text3);
+    }
+
+    .browse-group i { color: var(--doc); }
 }

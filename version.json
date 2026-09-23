@@ -1,8 +1,9 @@
 {
-    "version": "4.1.0",
-    "lastUpdated": "2026-09-23T10:16:09Z",
-    "hash": "ecb1a8197672",
+    "version": "4.2.0",
+    "lastUpdated": "2026-09-23T10:53:54Z",
+    "hash": "eefd7060e6e8",
     "sops": 73,
     "sections": 593,
-    "changelog": "Zugangssperre mit Passwortabfrage (optional 30 Tage gemerkt) vor der unscharf gezeigten Anwendung; Suchmaschinen, KI-Crawler und alle uebrigen Robots per robots.txt, Meta-Angabe, X-Robots-Tag und ai.txt ausgeschlossen. SOP-Inhalte unveraendert."
+    "statuten": 2,
+    "changelog": "Statuten integriert: Statut/Arbeitsordnung ZNA und Statut der Aufnahme- und Beobachtungsstation mit allen Abbildungen, Checklisten Aufnahme/Entlassung, G-AEP-Pruefhilfe, Verknuepfung mit den Dispositionsfeldern aller 73 SOPs, Suche und Druck. SOP-Inhalte unveraendert."
 }
