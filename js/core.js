@@ -16,7 +16,7 @@
     'use strict';
 
     // ---------- Version (wird von tools/build.mjs gesetzt) ----------
-    App.VERSION = '4.4.0';
+    App.VERSION = '4.4.1';
 
     // ---------- Kategorien ----------
     // Spiegel von tools/lib/cats.mjs. Der Build prueft beide Seiten

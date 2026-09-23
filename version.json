@@ -1,9 +1,9 @@
 {
-    "version": "4.4.0",
-    "lastUpdated": "2026-09-23T11:29:05Z",
-    "hash": "8a2ad3e61033",
+    "version": "4.4.1",
+    "lastUpdated": "2026-09-23T11:49:54Z",
+    "hash": "7d6cac9fed78",
     "sops": 73,
     "sections": 593,
     "statuten": 2,
-    "changelog": "Querverweise vervollstaendigt: kuratierte Begriffe je Pfad und Statut, Verweise auch aus und in die Statuten, je Ziel ein Verweis im Text, Sammelblock Querverweise mit Rueckverweisen, SOP-Chips an den ABS-Indikationen. SOP- und Statut-Inhalte unveraendert."
+    "changelog": "Startseite: Bereich Statuten & Organisation in die Auftrittsanimation der Kategoriekarten eingebunden - eine durchgehende Kaskade, auch bei jeder Rueckkehr zur Startseite. SOP- und Statut-Inhalte unveraendert."
 }

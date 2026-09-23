@@ -5,7 +5,7 @@
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.4.0` |
+| Fassung | `4.4.1` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -454,6 +454,7 @@ Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden 
 | Sprung in einen Abschnitt | nie direkt `App.revealSection()` nach dem Öffnen – `S.pendingSec` setzen (macht `App.pushNav(id, sec)`), `App.flushPendingSection()` löst ein, sobald der Abschnitt im Dokument steht (auch nach Paket-Nachladen in `App.rSOP()`) |
 | Abschnitts-Links | `#sop/<id>/<Nr. 1-basiert | quellen>`, `#statut/<id>/<key>`; `App.resolveSectionRef()` / `App.linkFor()` in `js/router.js`. Die Adresse wird danach auf die Dokumentebene zurückgesetzt (`syncRoute`) |
 | Querverweise | Begriffe: Name + `XREF_TERMS` (`tools/data/xrefs.mjs`), **nicht** die Such-Synonyme. Build liefert `x` je Dokument und `META.xterms`; Rückverweise (`d.back`) rechnet `App.initData()`. `linkCrossReferences()` verlinkt je Ziel genau einmal pro Dokument (gemeinsames `used`), der Sammelblock `xrefIndexMarkup()` zeigt alle |
+| Auftritt der Startseite | nie einzelne Gruppen staffeln – `App.staggerHome()` animiert Kategorien und Statuten als eine Kaskade (`App.applyStagger(nodes, cls, offset)`), aufgerufen in `App.rHome()` und bei jeder Rückkehr in `App.sTab('home')` |
 | Einzelabschnittsdruck | `App.printSection(idx)` setzt `.print-one` / `.print-target`; aufgeräumt über `afterprint`, Zeitgeber nur ohne `afterprint`. Formularfelder (`.check-print-fields`, `.check-print-sign`) drucken **nur** in `.print-one` |
 | Externe Ressourcen | bewusst keine CDNs – Schriften, Symbole und Skripte liegen im Projekt, weil die Anwendung im Klinik-Intranet ohne Internet laufen muss |
 | `popNav` bei Deep Link | Ziel (Start bzw. Übersicht) **vor** dem Zurücksetzen von `S.sopId` bestimmen |

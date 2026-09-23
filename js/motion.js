@@ -195,7 +195,10 @@
     // koennen. Bei 73 Eintraegen sparte das 57 Animationen samt
     // Ereignis-Listenern - genau die Arbeit, die den ersten Frame
     // eines Ansichtswechsels kostete.
-    App.applyStagger = function(nodes, cls) {
+    // offset: Anzahl Stufen, um die die Kaskade spaeter beginnt - damit
+    // mehrere Gruppen (Startseite: Kategorien, dann Statuten) als EINE
+    // durchgehende Bewegung auftreten statt jede fuer sich von vorn.
+    App.applyStagger = function(nodes, cls, offset) {
         if (!nodes || !nodes.length) return;
         var klass = cls || 'stagger-item';
         for (var j = 0; j < nodes.length; j++) {
@@ -204,12 +207,13 @@
         }
         if (MOTION.reduced) return;
         App.reflow(nodes[0].parentNode);
+        var start = offset || 0;
         var count = Math.min(nodes.length, MOTION.staggerLimit);
-        var timeout = 500 + MOTION.staggerMax * MOTION.staggerStep;
+        var timeout = 500 + (start + MOTION.staggerMax) * MOTION.staggerStep;
 
         for (var i = 0; i < count; i++) {
             var node = nodes[i];
-            var delay = Math.min(i, MOTION.staggerMax) * MOTION.staggerStep;
+            var delay = (start + Math.min(i, MOTION.staggerMax)) * MOTION.staggerStep;
             node.style.setProperty('--stagger', delay + 'ms');
             node.classList.add(klass);
             (function(n, k) {
