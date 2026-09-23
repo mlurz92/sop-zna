@@ -5,7 +5,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.3.0` |
+| Fassung | `4.4.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -14,7 +14,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 | Statuten | 2 (25 Abschnitte) |
 | Abbildungen | 7 (2 in SOPs, 5 in Statuten) |
 | Score-Rechner | 11 |
-| Startlast (`dist/sop-meta.js`) | 105 KB |
+| Startlast (`dist/sop-meta.js`) | 107 KB |
 | Inhaltspakete | 9 × ~105 KB |
 | Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
@@ -74,10 +74,27 @@ Das Suchfeld der Startseite trägt **kein** `Strg K` mehr. Das Kürzel funktioni
 - **Kapitelleiste** heftet sich beim Scrollen an den oberen Rand und markiert, in welchem Kapitel man gerade steht.
 - **Hinweisblöcke** in drei Stufen: CAVE (Gefahr), WICHTIG (zentrale Aussage), HINWEIS (Einordnung) – jeweils mit Signalkante, Symbol und eigener Fläche, in hellem und dunklem Modus kontrastgeprüft.
 - **Tabellen** bleiben auf dem Desktop Tabellen, mit klebender Kopfzeile. Unterhalb von 640 px werden sie zu Karten, in denen jede Zelle ihren Spaltenkopf vor sich her trägt.
-- **Querverweise**: Nennt eine SOP eine andere beim Namen, wird daraus ein Sprungziel.
+- **Querverweise**: Nennt eine SOP oder ein Statut ein anderes Dokument – beim Namen oder unter einem gepflegten Begriff („Harnwegsinfekt", „Krampfanfall", „Aortendissektion", „ZNA-Station") –, wird die erste Fundstelle zum Sprungziel. Am Ende jedes Dokuments stehen alle Verbindungen gesammelt, in beide Richtungen (siehe [Querverweise](#querverweise)).
 - **Verwandte Pfade** am Ende jeder SOP, berechnet aus gemeinsamem Wortschatz, Fachgebiet und kuratierten Leitsymptom-Gruppen.
 - **Abbildungen** aus `img/ZNA/` werden am passenden Abschnitt eingeblendet.
 - **Ziffern in Tabellenbreite**: Dosierungen, Zeiten und Grenzwerte stehen stellengenau untereinander.
+
+### Querverweise
+
+Alle 73 Pfade und beide Statuten sind untereinander verknüpft – nach denselben Regeln, in beide Richtungen:
+
+| Weg | Wie |
+|---|---|
+| **Im Text** | Die erste Fundstelle eines anderen Dokuments wird zum Link – je Ziel **genau einer** im ganzen Dokument, damit kein Linkteppich entsteht. Nicht in Überschriften, Tabellenköpfen, Dispositionsfeldern, Abbildungen oder Rechnern. Verweise auf ein Statut tragen dessen Farbe. |
+| **Querverweise** am Ende | *Im Text genannt*: alle Dokumente, die vorkommen. *Verweist hierher*: alle Pfade, die dieses Dokument nennen – die Rückrichtung, die es vorher nicht gab. |
+| **Verwandte Pfade** | wie bisher vier inhaltlich nahe Pfade (Wortschatz, Fachgebiet, Leitsymptom-Gruppen) |
+| **Dispositionsfeld → Statut** | „Statut ZNA" und „Statut Aufnahme- und Beobachtungsstation" in allen 73 Feldern, dazu der ABS-Hinweis |
+| **Statut ABS → Pfade** | Hinter jeder Indikation in Kap. 6.1 stehen die zugehörigen Pfade („Elektrolytstörungen" → sechs SOPs); am Ende die Karten „Patientenpfade zu den Indikationen" |
+| **Statut ↔ Statut** | Der ZNA-Statut verweist an allen Stellen auf den ABS-Statut, an denen er die Aufnahme- und Beobachtungsstation oder ihr „gesondertes Statut" nennt |
+
+Erkannt werden der Name (ohne Klammerzusatz, ohne führendes „Akute/Akuter/Akutes") und die Begriffe aus [`tools/data/xrefs.mjs`](tools/data/xrefs.mjs). Aufgenommen sind nur Krankheitsbilder, Syndrome und Leitsymptome – keine Laborwerte, Scores, Medikamente oder Maßnahmen: „Troponin" ist kein Verweis auf den NSTEMI, „Bilirubin" keiner auf den Ikterus, „Angina" keiner auf die Tonsillitis. Mehrdeutiges („Myokardinfarkt", „GI-Blutung") bleibt draußen. Die Synonymtabelle der Suche wird dafür bewusst **nicht** verwendet.
+
+Stand: rund 600 Verweise im Text, 665 Verbindungen zwischen 75 Dokumenten. Zwölf Pfade werden in keinem anderen Dokument erwähnt (z. B. Tonsillitis, Akuter Gichtanfall, Fremdkörperingestion); sie haben nur ausgehende Verweise. Der Build nennt sie bei jedem Lauf.
 
 ### Weitergeben
 
@@ -274,6 +291,7 @@ Für jede SOP ist ein Eintrag in [`tools/data/aliases.mjs`](tools/data/aliases.m
 | [`tools/data/aliases.mjs`](tools/data/aliases.mjs) | Synonyme, Abkürzungen, Umgangssprache je SOP + Leitsymptom-Gruppen |
 | [`tools/data/drugs.mjs`](tools/data/drugs.mjs) | Wirkstoff-Lexikon; indiziert wird nur, was im Bestand vorkommt |
 | [`tools/data/figures.mjs`](tools/data/figures.mjs) | Zuordnung Abbildung → SOP → Abschnitt |
+| [`tools/data/xrefs.mjs`](tools/data/xrefs.mjs) | Querverweis-Begriffe je Pfad und Statut (nur Krankheitsbilder und Leitsymptome); der Build prüft Kennungen, Eindeutigkeit und Mindestlänge |
 | [`tools/data/statuten.mjs`](tools/data/statuten.mjs) | Abbildungen der Statuten samt Platz im Text, Suchbegriffe, Wortstellen, die zu einem Statut führen, ABS-Indikationen → SOPs, Einstiege auf der Startseite |
 
 Das ist **Anwendungswissen, kein SOP-Inhalt**. Der Build prüft jede Zuordnung gegen den Bestand.
@@ -293,7 +311,7 @@ Der Build bricht ab, wenn ein Platzhalter keine Abbildung hat (oder umgekehrt), 
 npm run visual
 ```
 
-Fährt 3 Breiten × 2 Themes × 10 Zustände an (60 Bilder) und prüft parallel 57 Funktionsmerkmale: Zugangssperre, Abschnitts-Links, Kapiteltreffer der Schnellsuche, Anzahl der Pfade und Statuten, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Abbildungen der Statuten an ihrer Stelle, Checkliste und G-AEP-Logik, Verweise und ABS-Hinweis im Dispositionsfeld, Suche nach Statuten, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
+Fährt 3 Breiten × 2 Themes × 10 Zustände an (60 Bilder) und prüft parallel 61 Funktionsmerkmale: Zugangssperre, Querverweise samt Rückverweisen, Abschnitts-Links, Kapiteltreffer der Schnellsuche, Anzahl der Pfade und Statuten, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Abbildungen der Statuten an ihrer Stelle, Checkliste und G-AEP-Logik, Verweise und ABS-Hinweis im Dispositionsfeld, Suche nach Statuten, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
 
 Beide Teile sind nötig: ein Bild kann gleich aussehen und die Anwendung trotzdem kaputt sein. Genau das ist beim Umbau der Druckausgabe passiert – der Bildvergleich hat eine um eine Zeile verschobene Glasgow Coma Scale aufgedeckt.
 
@@ -521,6 +539,7 @@ Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v4.4.0** | Sep 2026 | **Querverweise vervollständigt.** Erkannt wird jetzt nicht nur der Name, sondern eine kuratierte, vom Build geprüfte Begriffsliste je Pfad und Statut (`tools/data/xrefs.mjs`) – Krankheitsbilder und Leitsymptome, keine Laborwerte oder Maßnahmen. Die Statuten sind in beide Richtungen eingebunden: Verweise aus ihrem Text auf die Pfade und aus den Pfaden auf sie. Je Ziel genau ein Verweis im Text; am Ende jedes Dokuments der Sammelblock „Querverweise" mit *Im Text genannt* und – neu – *Verweist hierher*. Hinter jeder Indikation in Kap. 6.1 des ABS-Statuts stehen die zugehörigen Pfade. Rund 600 Verweise im Text (vorher nur Namensnennungen, je Abschnitt wiederholt), 665 Verbindungen. Sichtprüfung: 61 Funktionsprüfungen. SOP- und Statut-Inhalte unverändert. |
 | **v4.3.0** | Sep 2026 | **Weitergeben, Finden, Drucken.** Abschnitts-Links (`#sop/<id>/<Nr.>`, `#statut/<id>/<Schlüssel>`) und ein Knopf **Link**, der die Adresse samt aktuellem Abschnitt kopiert. Schnellsuche mit Kapiteltreffern. Sprünge in einen Abschnitt funktionieren jetzt auch, wenn der Inhalt noch nicht geladen ist – vorher lief ein Sprung aus Startseite oder Dispositionsfeld ins Leere, solange das Paket fehlte. Checklisten lassen sich einzeln als Papiervorlage drucken, mit Kopf- und Unterschriftsfeldern nach KSG-Formularmaß. Deutsche Silbentrennung im Fließtext (die Glasgow Coma Scale auf dem Telefon bricht nicht mehr mitten im Wort), einheitlicher Fokusring, Statut-Titel am Telefon ohne Fünfzeilenumbruch. Behoben im Review: Kapiteltreffer im bereits geöffneten Dokument blieben wirkungslos; das Aufräumen nach dem Einzeldruck konnte auf Mobilgeräten die laufende Druckvorschau zurücksetzen; Formularfelder erschienen auch im Gesamtdruck. Keine externen CDNs: die Anwendung muss im Klinikbetrieb ohne Internet laufen. SOP- und Statut-Inhalte unverändert. |
 | **v4.2.0** | Sep 2026 | **Statuten integriert.** Statut / Arbeitsordnung der ZNA (V 1.01) und Statut der Aufnahme- und Beobachtungsstation (02/2026) im unveränderten Wortlaut, mit allen Abbildungen des Originals an ihrer Stelle (Organigramm, Schichtplan 2024, Dienstmodell ab 2025, Versorgungsprozess, Gliederung der Notfallversorgung) und Vergrößerung auf Antippen. Neu: Checklisten Aufnahme und Entlassung ZNA-Station zum Abhaken, G-AEP-Prüfhilfe mit Kopieren für den Arztbrief, Ausschlusskriterien, antippbare Rufnummern, Crowding-Stufen als Ampel. Verknüpfung in beide Richtungen: die Statut-Nennungen in allen 73 Dispositionsfeldern führen ins Statut, dazu ein ABS-Hinweis mit wörtlicher Indikation aus Kap. 6.1; das Statut ABS führt zu den Pfaden seiner Indikationen. Startseite mit Bereich „Statuten & Organisation", Seitenleiste und Übersicht mit Gruppe „Statuten", Suche über Titel, Kapitel, Volltext und eigene Suchbegriffe, Druck mit Deckblattangaben. Telefonverzeichnis um vier Nummern aus den Statuten ergänzt. Sicht- und Funktionsprüfung: 60 Bilder, 54 Prüfungen. SOP-Inhalte unverändert. |
 | **v4.1.0** | Sep 2026 | **Zugangssperre und Robots-Absage.** Beim ersten Öffnen liegt die Anwendung unscharf hinter einer Passwortabfrage; auf Wunsch merkt sich das Gerät die Freigabe 30 Tage, sonst bis zum Schließen des Tabs. Hinter dem Dialog ist alles `inert`, Tastenkürzel und Druck sind gesperrt. Suchmaschinen, KI-Crawler und alle übrigen Robots werden über `robots.txt`, `<meta name="robots">`, `X-Robots-Tag` (`.htaccess`, `_headers`) und `ai.txt` ausgeschlossen. Sicht- und Funktionsprüfung um sieben Prüfungen der Sperre erweitert. SOP-Inhalte unverändert. |

@@ -39,6 +39,7 @@ import { CAT_KEYS, CAT_NAMES, resolveCategory } from './lib/cats.mjs';
 import { ALIASES, TOPIC_ALIASES } from './data/aliases.mjs';
 import { DRUGS } from './data/drugs.mjs';
 import { FIGURES } from './data/figures.mjs';
+import { XREF_TERMS } from './data/xrefs.mjs';
 import { STATUT_FIGURES, STATUT_ALIASES, STATUT_LINKS, ABS_INDICATIONS, STATUT_TOOLS } from './data/statuten.mjs';
 import { scoresOfSop } from './lib/scores.mjs';
 
@@ -504,56 +505,77 @@ records.forEach(function (r, i) {
 
 console.log('  [5/7] Querverweise bestimmen ...');
 
-/* Begriffe, unter denen eine SOP im Fliesstext erkannt werden darf.
-   Zu kurze oder zu allgemeine Begriffe wuerden den Text zupflastern. */
-const XREF_BLOCK = new Set(['schock', 'anfall', 'angina', 'kolik', 'embolie', 'infarkt',
-    'thrombose', 'blutung', 'fieber', 'erguss', 'koma', 'delir', 'alkohol', 'krampf',
-    'abdomen', 'allergie', 'hypotonie', 'dissektion', 'transfusion', 'antikoagulation',
-    'intoxikation', 'vergiftung', 'reanimation', 'peritonitis', 'meningitis', 'punktion',
-    'obstruktion', 'amnesie', 'gicht', 'ikterus', 'synkope', 'anamie', 'sepsis',
-    'pneumonie', 'erysipel', 'dyspnoe', 'erbrechen', 'tachykardie', 'bradykardie']);
+/* Begriffe, unter denen ein Dokument im Fliesstext eines anderen
+   erkannt wird: der Name (ohne Klammerzusatz, ohne fuehrendes
+   "Akute/Akuter/Akutes") plus die kuratierten Begriffe aus
+   tools/data/xrefs.mjs. Synonyme aus aliases.mjs werden NICHT
+   verwendet - dort stehen auch Laborwerte und Massnahmen, die im
+   Fliesstext keine Verweise sind. */
+const allDocs = records.concat(docs);
+const docIndex = Object.create(null);
+allDocs.forEach(function (r) { docIndex[r.id] = r; });
 
-records.forEach(function (r) {
-    const terms = [];
-    const push = function (term, weight) {
+for (const id of Object.keys(XREF_TERMS)) {
+    if (!docIndex[id]) fail('tools/data/xrefs.mjs verweist auf unbekannte Kennung "' + id + '".');
+}
+
+const termOwner = Object.create(null);
+const xterms = Object.create(null);
+allDocs.forEach(function (r) {
+    const list = [];
+    const add = function (term, from) {
         const f = fold(term);
-        if (!f || f.length < 6) return;
-        if (XREF_BLOCK.has(f)) return;
-        terms.push({ t: term, f: f, w: weight });
+        if (!f || f.length < 4) {
+            if (from === 'kuratiert') fail('tools/data/xrefs.mjs: "' + term + '" ist kuerzer als vier Zeichen.');
+            return;
+        }
+        if (termOwner[f] && termOwner[f] !== r.id) {
+            fail('Querverweis-Begriff "' + term + '" zeigt auf "' + termOwner[f] + '" und "' + r.id + '".');
+        }
+        termOwner[f] = r.id;
+        if (list.indexOf(f) === -1) list.push(f);
     };
-    /* Der Name ohne Klammerzusatz ist der verlaesslichste Anker. */
-    push(r.name.replace(/\s*\([^)]*\)\s*$/, '').trim(), 3);
-    for (const a of (ALIASES[r.id] || [])) push(a, 1);
-    const seen = Object.create(null);
-    r.xrefTerms = terms.filter(function (x) {
-        if (seen[x.f]) return false;
-        seen[x.f] = 1;
-        return true;
-    }).sort(function (a, b) { return b.f.length - a.f.length; });
+    if (!r.short) {
+        const base = r.name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+        add(base, 'name');
+        add(base.replace(/^Akut(e|er|es)\s+/i, ''), 'name');
+    }
+    for (const t of (XREF_TERMS[r.id] || [])) add(t, 'kuratiert');
+    list.sort(function (a, b) { return b.length - a.length; });
+    xterms[r.id] = list;
 });
 
-/* Fuer jede SOP: welche anderen SOPs kommen in ihrem Text ueberhaupt vor?
-   Nur diese wenigen Begriffe muss die Laufzeit spaeter im DOM suchen. */
-records.forEach(function (r, i) {
-    const hay = foldedCorpus[i];
+/* Fuer jedes Dokument: welche anderen kommen in seinem Text als
+   ganzes Wort vor? Nur diese Begriffe sucht die Laufzeit im DOM. */
+const unusedTerms = new Set(Object.keys(termOwner));
+allDocs.forEach(function (r) {
+    const hay = ' ' + fold(r.sections.map(function (s) { return s.text; }).join(' ')) + ' ';
     const hits = [];
-    for (let j = 0; j < records.length; j++) {
-        if (i === j) continue;
-        const other = records[j];
-        const match = other.xrefTerms.some(function (x) {
-            return hay.indexOf(' ' + x.f) !== -1 || hay.indexOf(x.f + ' ') !== -1;
-        });
-        if (match) hits.push(other.id);
+    for (const other of allDocs) {
+        if (other.id === r.id) continue;
+        let found = false;
+        for (const f of xterms[other.id]) {
+            if (hay.indexOf(' ' + f + ' ') !== -1) { found = true; unusedTerms.delete(f); }
+        }
+        if (found) hits.push(other.id);
     }
     r.xref = hits;
 });
 
-console.log('        Querverweise je SOP: Median '
+/* Rueckverweise: wer nennt dieses Dokument? */
+allDocs.forEach(function (r) { r.back = []; });
+allDocs.forEach(function (r) {
+    for (const id of r.xref) docIndex[id].back.push(r.id);
+});
+
+const xrefCount = allDocs.reduce(function (n, r) { return n + r.xref.length; }, 0);
+console.log('        ' + xrefCount + ' Querverweise zwischen ' + allDocs.length + ' Dokumenten, Median '
     + (function () {
         const v = records.map(function (r) { return r.xref.length; }).sort(function (a, b) { return a - b; });
         return v[Math.floor(v.length / 2)];
-    })() + ', maximal '
-    + Math.max.apply(null, records.map(function (r) { return r.xref.length; })) + '.');
+    })() + ' je SOP.');
+const orphans = records.filter(function (r) { return !r.back.length; }).map(function (r) { return r.id; });
+if (orphans.length) console.log('        Ohne Rueckverweis: ' + orphans.join(', '));
 
 /* ============================================================
    6) Artefakte erzeugen
@@ -613,6 +635,7 @@ const meta = {
     }).concat(STATUT_FIGURES.map(function (f) {
         return { sop: f.doc, sec: f._secIdx, slot: f.slot, src: f.src, alt: f.alt, caption: f.caption };
     })),
+    xterms: xterms,
     statutLinks: statutLinks,
     absIndications: absIndications,
     statutTools: statutTools,
@@ -634,6 +657,7 @@ const meta = {
             ks: r.sections.map(function (s) { return s.key; }),
             ic: r.sections.map(function (s) { return s.icon; }),
             a: STATUT_ALIASES[r.id] || [],
+            x: r.xref,
             nf: fold(r.name),
             nc: collapse(r.name),
             af: (STATUT_ALIASES[r.id] || []).concat([r.short]).map(function (a) { return fold(a); }),

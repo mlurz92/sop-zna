@@ -505,7 +505,55 @@
         }
 
         html += App.isDoc(d) ? docRelatedMarkup(d) : relatedMarkup(d);
+        html += xrefIndexMarkup(d);
         return html;
+    }
+
+    // ---------- Querverweise gesammelt ----------
+    // Im Text wird jedes Ziel nur an seiner ersten Fundstelle
+    // verlinkt. Hier stehen alle - und in Gegenrichtung, wer auf
+    // dieses Dokument verweist. Damit ist jede Verbindung in beide
+    // Richtungen mit einem Tipp erreichbar.
+    function xrefIndexMarkup(d) {
+        var out = byName(d.xref);
+        // Bei Statuten waeren die Rueckverweise alle 73 Dispositions-
+        // felder - dafuer gibt es die eigenen Karten.
+        var back = App.isDoc(d) ? [] : byName(d.back);
+        if (!out.length && !back.length) return '';
+
+        var row = function(label, icon, items) {
+            if (!items.length) return '';
+            var chips = '';
+            for (var i = 0; i < items.length; i++) {
+                var it = items[i];
+                chips += '<button type="button" class="xref-chip" data-id="' + App.escAttr(it.id) + '"' +
+                    ' style="' + App.escAttr(App.catStyle(it.category)) + '">' +
+                    '<span class="xref-chip-dot" aria-hidden="true"></span>' +
+                    App.esc(it.short || it.name) + '</button>';
+            }
+            return '<div class="xref-row"><p class="xref-row-label"><i class="fa-solid ' + icon +
+                '" aria-hidden="true"></i> ' + label + ' <span class="xref-row-count">' + items.length + '</span></p>' +
+                '<div class="xref-chips">' + chips + '</div></div>';
+        };
+
+        return '<nav class="sop-related sop-xref-index" aria-label="Querverweise">' +
+            '<h2 class="sop-related-title"><i class="fa-solid fa-link" aria-hidden="true"></i> Querverweise</h2>' +
+            row('Im Text genannt', 'fa-arrow-right', out) +
+            row('Verweist hierher', 'fa-arrow-right-to-bracket', back) +
+            '</nav>';
+    }
+
+    function byName(ids) {
+        var list = [];
+        for (var i = 0; i < (ids || []).length; i++) {
+            var it = App.findSop(ids[i]);
+            if (it) list.push(it);
+        }
+        list.sort(function(a, b) {
+            if (!!a.doc !== !!b.doc) return a.doc ? 1 : -1;
+            return (a.short || a.name).localeCompare(b.short || b.name, 'de');
+        });
+        return list;
     }
 
     function sectionMarkup(idx, title, icon, bodyHtml, open) {
@@ -1019,17 +1067,20 @@
     function linkCrossReferences(d) {
         if (!d.xref || !d.xref.length) return;
 
+        var xterms = (App.META && App.META.xterms) || {};
         var terms = [];
         var i, j;
 
+        // Begriffe je Ziel stammen aus dem Build (Name plus kuratierte
+        // Begriffe aus tools/data/xrefs.mjs) und sind dort auf
+        // Eindeutigkeit geprueft.
         for (i = 0; i < d.xref.length; i++) {
             var other = App.findSop(d.xref[i]);
             if (!other || other.id === d.id) continue;
-            // Nur der Name ohne Klammerzusatz - Synonyme sind im
-            // Fliesstext zu mehrdeutig, um sie automatisch zu verlinken.
-            var name = other.name.replace(/\s*\([^)]*\)\s*$/, '').trim();
-            if (name.length < 6) continue;
-            terms.push({ id: other.id, name: name, folded: App.fold(name) });
+            var list = xterms[other.id] || [];
+            for (j = 0; j < list.length; j++) {
+                terms.push({ id: other.id, name: other.short || other.name, folded: list[j] });
+            }
         }
 
         if (!terms.length) return;
@@ -1039,14 +1090,18 @@
 
         var bodies = E.viewSOP.querySelectorAll('.sop-section-body');
         var linked = 0;
-        var MAX_LINKS = 60;
+        var MAX_LINKS = 80;
+        // Je Ziel genau EIN Verweis im ganzen Dokument - an der ersten
+        // Fundstelle. Alle Ziele stehen zusaetzlich gesammelt am Ende
+        // ("Querverweise"); im Text entsteht so kein Linkteppich.
+        var used = {};
 
         for (i = 0; i < bodies.length && linked < MAX_LINKS; i++) {
-            linked += linkInside(bodies[i], terms, MAX_LINKS - linked);
+            linked += linkInside(bodies[i], terms, MAX_LINKS - linked, used);
         }
     }
 
-    function linkInside(root, terms, budget) {
+    function linkInside(root, terms, budget, used) {
         if (!window.document.createTreeWalker || budget <= 0) return 0;
 
         var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -1075,7 +1130,6 @@
         var node;
         while ((node = walker.nextNode())) nodes.push(node);
 
-        var used = {};
         var count = 0;
 
         for (var n = 0; n < nodes.length && count < budget; n++) {
@@ -1124,7 +1178,9 @@
 
         var link = document.createElement('a');
         link.className = 'sop-xref';
-        link.href = '#sop/' + encodeURIComponent(found.term.id);
+        var targetDoc = App.findSop(found.term.id);
+        link.href = (App.isDoc(targetDoc) ? '#statut/' : '#sop/') + encodeURIComponent(found.term.id);
+        if (App.isDoc(targetDoc)) link.className = 'sop-xref sop-xref-doc';
         link.setAttribute('data-xref', found.term.id);
         link.setAttribute('title', found.term.name + ' öffnen');
         link.textContent = text.slice(startSrc, endSrc);
@@ -1280,6 +1336,44 @@
 
         var bodies = E.viewSOP.querySelectorAll('.sop-section-body');
         for (i = 0; i < bodies.length; i++) markPhoneNumbers(bodies[i]);
+
+        linkIndications();
+    }
+
+    /**
+     * Diagnosebezogene Indikationen (Statut ABS, Kap. 6.1): hinter
+     * jede Indikation, zu der es Patientenpfade gibt, treten diese als
+     * Sprungziele - "Elektrolytstoerungen" fuehrt so zu allen sechs
+     * Elektrolyt-SOPs. Zuordnung: tools/data/statuten.mjs.
+     */
+    function linkIndications() {
+        var list = E.viewSOP.querySelector('.doc-indications');
+        var map = App.META && App.META.absIndications;
+        if (!list || !map) return;
+
+        var items = list.querySelectorAll(':scope > li');
+        for (var i = 0; i < items.length; i++) {
+            var text = App.fold(items[i].textContent || '');
+            for (var m = 0; m < map.length; m++) {
+                if (App.fold(map[m].t) !== text) continue;
+                var html = '';
+                for (var s = 0; s < map[m].s.length; s++) {
+                    var sop = App.findSop(map[m].s[s]);
+                    if (!sop) continue;
+                    // Schon im Text verlinkt ("Synkope") - kein zweiter Weg daneben.
+                    if (items[i].querySelector('a[data-xref="' + sop.id + '"]')) continue;
+                    html += '<button type="button" class="xref-chip xref-chip-sm" data-id="' + App.escAttr(sop.id) + '"' +
+                        ' style="' + App.escAttr(App.catStyle(sop.category)) + '">' +
+                        '<span class="xref-chip-dot" aria-hidden="true"></span>' + App.esc(sop.name) + '</button>';
+                }
+                if (html) {
+                    var box = document.createElement('span');
+                    box.className = 'ind-links';
+                    box.innerHTML = html;
+                    items[i].appendChild(box);
+                }
+            }
+        }
     }
 
     /** Ein Listenpunkt wird zum Kontrollkaestchen. */
@@ -1661,6 +1755,11 @@
         App.delegate(E.viewSOP, 'a[data-xref]', function(link, e) {
             e.preventDefault();
             App.pushNav(link.getAttribute('data-xref'));
+        });
+
+        // Sammelblock "Querverweise"
+        App.delegate(E.viewSOP, '.xref-chip', function(chip) {
+            App.pushNav(chip.getAttribute('data-id'));
         });
 
         // Wege aus dem Dispositionsfeld in einen Abschnitt eines Statuts

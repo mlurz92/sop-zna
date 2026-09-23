@@ -16,7 +16,7 @@
     'use strict';
 
     // ---------- Version (wird von tools/build.mjs gesetzt) ----------
-    App.VERSION = '4.3.0';
+    App.VERSION = '4.4.0';
 
     // ---------- Kategorien ----------
     // Spiegel von tools/lib/cats.mjs. Der Build prueft beide Seiten
@@ -604,6 +604,7 @@
                 hasSources: !!m.q,
                 aliases: m.a || [],
                 xref: m.x || [],
+                back: [],
                 related: m.r || [],
                 // vorberechnete Normalformen (Vorschlag 48)
                 nf: m.nf || '',
@@ -647,7 +648,8 @@
                 secIcons: md.ic || [],
                 hasSources: false,
                 aliases: md.a || [],
-                xref: [],
+                xref: md.x || [],
+                back: [],
                 related: [],
                 nf: md.nf || '',
                 nc: md.nc || '',
@@ -664,6 +666,16 @@
         App.S.data = list;
         App.S.docs = docs;
         App.S.byId = byId;
+
+        // Rueckverweise: wer nennt dieses Dokument im Text? Aus den
+        // Vorwaertsverweisen abgeleitet statt mitgeliefert.
+        var all = list.concat(docs);
+        for (var b = 0; b < all.length; b++) {
+            for (var x = 0; x < all[b].xref.length; x++) {
+                var target = byId[all[b].xref[x]];
+                if (target) target.back.push(all[b].id);
+            }
+        }
 
         if (META.version) App.VERSION = META.version;
 
