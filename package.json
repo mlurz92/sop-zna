@@ -1,9 +1,9 @@
 {
   "name": "sop-zna",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "private": true,
   "description": "Patientenpfade der Zentralen Notaufnahme - Klinikum St. Georg Leipzig",
-  "changelog": "Statuten integriert: Statut/Arbeitsordnung ZNA und Statut der Aufnahme- und Beobachtungsstation mit allen Abbildungen, Checklisten Aufnahme/Entlassung, G-AEP-Pruefhilfe, Verknuepfung mit den Dispositionsfeldern aller 73 SOPs, Suche und Druck. SOP-Inhalte unveraendert.",
+  "changelog": "Abschnitts-Links und Link-Knopf, Kapiteltreffer in der Schnellsuche, Sprung in noch nicht geladene Abschnitte, Checkliste als Papiervorlage mit Kopf- und Unterschriftsfeldern, Silbentrennung und einheitlicher Fokusring. SOP- und Statut-Inhalte unveraendert.",
   "type": "module",
   "scripts": {
     "build": "node tools/build.mjs",

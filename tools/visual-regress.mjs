@@ -651,6 +651,27 @@ async function run() {
         check('Suche findet Statuten', sq.gaep === 'statut-abs' && sq.crowd === 'statut-zna', JSON.stringify(sq));
         check('Statuten als eigene Gruppe, nicht unter den Pfaden', sq.inData === 0 && sq.navGroup === 2, JSON.stringify(sq));
 
+        /* Abschnitts-Links, Kapiteltreffer, Link kopieren */
+        await probe.goto('http://127.0.0.1:' + PORT + '/index.html#statut/statut-abs/anhang-3', { waitUntil: 'networkidle' });
+        await probe.waitForTimeout(1200);
+        const deep = await probe.evaluate(() => ({
+            open: !!document.querySelector('.sop-section[data-sec="8"].is-open'),
+            link: window.SOPApp.linkFor('statut-abs', 7),
+            sopLink: window.SOPApp.linkFor('sepsis', 2),
+            ref: window.SOPApp.resolveSectionRef('lungenarterienembolie', '4'),
+            tool: !!document.getElementById('sopLink')
+        }));
+        check('Abschnitts-Link oeffnet den Abschnitt', deep.open, JSON.stringify(deep));
+        check('Abschnitts-Links: Schluessel bei Statuten, Nummer bei SOPs',
+            /#statut\/statut-abs\/anhang-2$/.test(deep.link) && /#sop\/sepsis\/3$/.test(deep.sopLink) && deep.ref === 3 && deep.tool,
+            deep.link + ' | ' + deep.sopLink);
+        await probe.evaluate(() => { window.SOPApp.openSpotlight(); window.SOPApp.setSpotlightQuery('Checkliste'); });
+        await probe.waitForTimeout(300);
+        const spotSec = await probe.evaluate(() => document.querySelectorAll('.spotlight-section').length);
+        check('Schnellsuche fuehrt direkt in Kapitel', spotSec >= 2, spotSec + ' Kapiteltreffer');
+        await probe.evaluate(() => { window.SOPApp.setSpotlightQuery(''); window.SOPApp.closeSpotlight(); });
+        await probe.waitForTimeout(300);
+
         /* Dienstzeiten */
         await probe.setViewportSize({ width: 1440, height: 900 });
         await probe.evaluate(() => window.SOPApp.openDir());

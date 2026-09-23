@@ -89,12 +89,22 @@
         var h = window.location.hash || '';
         var prefix = h.indexOf('#sop/') === 0 ? 5 : (h.indexOf('#statut/') === 0 ? 8 : 0);
         if (prefix) {
+            // Abschnitts-Link: #sop/<id>/<Nummer> bzw. #statut/<id>/<Schluessel>
+            var parts = h.substring(prefix).split('/');
             var id;
-            try { id = decodeURIComponent(h.substring(prefix)); }
-            catch (e) { id = ''; }
+            var secPart = '';
+            try {
+                id = decodeURIComponent(parts[0]);
+                secPart = parts.length > 1 ? decodeURIComponent(parts.slice(1).join('/')) : '';
+            } catch (e) { id = ''; }
             if (App.hasSop(id)) {
                 S.sopId = id;
-                App.sTab('sop', mode);
+                S.pendingSec = null;
+                if (secPart) {
+                    var secIdx = App.resolveSectionRef(id, secPart);
+                    if (secIdx !== null) S.pendingSec = { id: id, sec: secIdx };
+                }
+                App.sTab('sop', mode, function() { App.flushPendingSection(); });
                 return;
             }
         }
@@ -136,14 +146,24 @@
     App.pushNav = function(newSopId, sectionIndex) {
         if (S.isNavigating) return;
         if (!newSopId) return;
-        if (newSopId === S.sopId && S.tab === 'sop') return;
+        if (newSopId === S.sopId && S.tab === 'sop') {
+            // Schon geoeffnet (z. B. Kapitel-Treffer der Schnellsuche im
+            // selben Dokument): nur noch den Abschnitt anspringen.
+            if (typeof sectionIndex === 'number' && sectionIndex >= 0) App.revealSection(sectionIndex);
+            return;
+        }
 
         S.isNavigating = true;
         S.sopId = newSopId;
+        // Der Zielabschnitt wird vorgemerkt: ist das Paket noch nicht
+        // geladen, gaebe es ihn zum Ende der Bewegung noch gar nicht.
+        // App.rSOP() loest die Vormerkung ein, sobald der Inhalt steht.
+        S.pendingSec = (typeof sectionIndex === 'number' && sectionIndex >= 0)
+            ? { id: newSopId, sec: sectionIndex } : null;
         App.haptic('light');
         App.sTab('sop', 'push', function() {
             S.isNavigating = false;
-            if (typeof sectionIndex === 'number' && sectionIndex >= 0) App.revealSection(sectionIndex);
+            App.flushPendingSection();
         });
     };
 
@@ -170,6 +190,36 @@
         App.haptic('light');
 
         App.sTab(target, 'pop', function() { S.isNavigating = false; });
+    };
+
+    /**
+     * Abschnittsangabe aus einem Link in einen Index verwandeln:
+     * Zahl (1-basiert wie im Link), "quellen", oder - bei Statuten -
+     * der Abschnittsschluessel ("anhang-2").
+     */
+    App.resolveSectionRef = function(id, ref) {
+        var d = App.findSop(id);
+        if (!d || !ref) return null;
+        if (ref === 'quellen' && d.hasSources) return 'sources';
+        if (d.secKeys) {
+            var k = d.secKeys.indexOf(ref);
+            if (k !== -1) return k;
+        }
+        var n = parseInt(ref, 10);
+        if (String(n) === ref && n >= 1 && n <= d.secTitles.length) return n - 1;
+        return null;
+    };
+
+    /** Vollstaendiger Link auf die geoeffnete SOP bzw. das Statut, optional mit Abschnitt. */
+    App.linkFor = function(id, secIdx) {
+        var d = App.findSop(id);
+        if (!d) return '';
+        var hash = (App.isDoc(d) ? '#statut/' : '#sop/') + encodeURIComponent(d.id);
+        if (secIdx === 'sources') hash += '/quellen';
+        else if (typeof secIdx === 'number' && secIdx >= 0) {
+            hash += '/' + (d.secKeys && d.secKeys[secIdx] ? d.secKeys[secIdx] : String(secIdx + 1));
+        }
+        return location.href.split('#')[0] + hash;
     };
 
     App.goHome = function() {

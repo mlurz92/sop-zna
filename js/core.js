@@ -16,7 +16,7 @@
     'use strict';
 
     // ---------- Version (wird von tools/build.mjs gesetzt) ----------
-    App.VERSION = '4.2.0';
+    App.VERSION = '4.3.0';
 
     // ---------- Kategorien ----------
     // Spiegel von tools/lib/cats.mjs. Der Build prueft beide Seiten
@@ -161,6 +161,7 @@
         sCatOpen: false,
         bCatOpen: false,
         isNavigating: false,
+        pendingSec: null,
         textReady: false,
         scrollMemory: {}
     };

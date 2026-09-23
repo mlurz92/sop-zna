@@ -654,5 +654,38 @@
 
         .sop-figure-zoom { cursor: default; }
         .home-statuten { display: none; }
+
+        .check-print { display: none !important; }
+
+        /* Einzelner Abschnitt (App.printSection) */
+        .print-one .sop-section:not(.print-target),
+        .print-one .sop-header .doc-facts,
+        .print-one .sop-related { display: none !important; }
+
+        /* Papier-Checkliste: Kopf- und Unterschriftsfelder mit echtem
+           Schreibraum (8 mm Feld, 14 mm Unterschrift, KSG-Formularmass). */
+        .print-one .check-print-fields,
+        .print-one .check-print-sign {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0 6mm;
+            margin: 0 0 5mm;
+            break-inside: avoid;
+        }
+
+        .print-one .check-print-sign { grid-template-columns: 1fr 1fr; margin: 6mm 0 0; }
+
+        .check-print-fields .write-field,
+        .check-print-sign .write-field {
+            display: flex;
+            align-items: flex-start;
+            min-height: 8mm;
+            padding-top: 1mm;
+            border-bottom: 0.6pt solid #000;
+            font-size: 7.5pt;
+            color: #595959;
+        }
+
+        .check-print-sign .write-sign { min-height: 14mm; }
     }
 }

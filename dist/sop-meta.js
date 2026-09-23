@@ -4,7 +4,7 @@
    Enthaelt KEINE SOP-Inhalte, nur Titel, Kategorien und Suchhilfen.
 */
 window.SOP_META = {
-"version":"4.2.0",
+"version":"4.3.0",
 "built":"2026-09-23",
 "chunkSize":8,
 "chunks":["dist/sop-content-01.js","dist/sop-content-02.js","dist/sop-content-03.js","dist/sop-content-04.js","dist/sop-content-05.js","dist/sop-content-06.js","dist/sop-content-07.js","dist/sop-content-08.js","dist/sop-content-09.js","dist/statut-content.js"],
