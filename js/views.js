@@ -283,7 +283,8 @@
         if (E.bottomNav) {
             var bns = E.bottomNav.querySelectorAll('.btm-btn');
             for (var i = 0; i < bns.length; i++) {
-                var isAct = bns[i].getAttribute('data-tab') === (t === 'sop' ? 'browse' : t);
+                var isAct = bns[i].getAttribute('data-tab') ===
+                    (t === 'sop' ? (App.isDoc(App.findSop(S.sopId)) ? 'home' : 'browse') : t);
                 bns[i].classList.toggle('active', isAct);
                 bns[i].setAttribute('aria-current', isAct ? 'page' : 'false');
             }
@@ -317,7 +318,14 @@
             if (E.fabAction) E.fabAction.classList.add('show');
 
             var d = App.findSop(S.sopId);
-            if (d) {
+            if (d && App.isDoc(d)) {
+                // Statuten haengen an der Startseite, nicht an der SOP-Liste.
+                setTitle(d.short || d.name || '');
+                App.rBC([
+                    { label: 'Statuten', click: function() { S.sopId = null; App.sTab('home', 'pop'); } },
+                    { label: d.short || d.name || '' }
+                ]);
+            } else if (d) {
                 setTitle(d.name || '');
                 App.rBC([
                     { label: 'SOPs', click: function() { S.sopId = null; App.sTab('browse', 'pop'); } },
@@ -433,13 +441,14 @@
 
     // Die Markierung der Fussnavigation gleitet auf die aktive Schaltflaeche.
     // Eine SOP gehoert zum Tab "SOPs" - dort bleibt die Markierung stehen.
+    // Ein Statut gehoert zur Startseite, von der aus es erreicht wird.
     App.updateBottomNavPill = function() {
         if (!E.bottomNav) return;
 
         var pill = E.bottomNav.querySelector('.btm-nav-pill');
         if (!pill) return;
 
-        var key = S.tab === 'sop' ? 'browse' : S.tab;
+        var key = S.tab === 'sop' ? (App.isDoc(App.findSop(S.sopId)) ? 'home' : 'browse') : S.tab;
         var target = E.bottomNav.querySelector('.btm-btn[data-tab="' + key + '"]');
         if (!target || !target.offsetWidth) return;
 

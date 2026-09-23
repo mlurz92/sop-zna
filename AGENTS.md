@@ -5,15 +5,16 @@
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.1.0` |
+| Fassung | `4.2.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
 | Leitsymptom-Gruppen | 16 |
 | Indizierte Wirkstoffe | 137 |
-| Abbildungen | 2 |
+| Statuten | 2 (25 Abschnitte) |
+| Abbildungen | 7 (2 in SOPs, 5 in Statuten) |
 | Score-Rechner | 11 |
-| Startlast (`dist/sop-meta.js`) | 95 KB |
+| Startlast (`dist/sop-meta.js`) | 105 KB |
 | Inhaltspakete | 9 × ~105 KB |
 | Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
@@ -22,7 +23,7 @@
 
 ## Die eine Regel
 
-> **Die SOPs sind fachlicher Inhalt.** Dateien in `sops/` werden nicht verändert – weder Wortlaut noch HTML –, solange das nicht ausdrücklich verlangt wird.
+> **Die SOPs sind fachlicher Inhalt.** Dateien in `sops/` werden nicht verändert – weder Wortlaut noch HTML –, solange das nicht ausdrücklich verlangt wird. **Dasselbe gilt für `statuten/`** (Statut ZNA, Statut ABS): Wortlaut wie im Word-Original unter `docs/`, einschließlich seiner Schreibweisen.
 
 Alles, was die Anwendung darüber hinaus zeigt (Suche, Querverweise, Abbildungen, Score-Rechner, Druckbogen), wird **aus** den SOPs abgeleitet, ohne sie anzufassen. Wo Anwendungswissen nötig ist, liegt es in `tools/data/` und wird vom Build gegen den Bestand geprüft.
 
@@ -64,15 +65,18 @@ sop-zna/
 ├── dist/                   ERZEUGT – niemals von Hand bearbeiten
 │   ├── sop-meta.js         Metadaten + vorberechneter Suchindex
 │   ├── sop-text.js         Reintext aller Abschnitte
-│   └── sop-content-NN.js   Abschnitts-HTML in neun Paketen
+│   ├── sop-content-NN.js   Abschnitts-HTML in neun Paketen
+│   └── statut-content.js   Abschnitts-HTML der Statuten (eigenes Paket)
 ├── sops/                   73 SOP-Dateien (QUELLE, fachlicher Inhalt)
+├── statuten/               statut-zna.js, statut-abs.js (QUELLE, fachlicher Inhalt)
+├── docs/                   Word-Originale der Statuten, SOP-Konverter
 ├── tools/
 │   ├── build.mjs           Artefakte, Prüfungen, Version
 │   ├── palette.mjs         Kategoriefarben mit Kontrastnachweis
 │   ├── subset-fonts.py     Schrift- und Symbol-Subsetting
 │   ├── verify-fold.mjs     Normalisierung Build gegen Browser
 │   ├── visual-regress.mjs  Sicht- und Funktionsprüfung
-│   ├── data/               aliases.mjs, drugs.mjs, figures.mjs
+│   ├── data/               aliases.mjs, drugs.mjs, figures.mjs, statuten.mjs
 │   └── lib/                load-sops, text, cats, scores
 ├── tests/visual/           baseline/, current/, diff/
 ├── vendor/                 Inter, FontAwesome – Original + Subset
@@ -95,7 +99,9 @@ sop-zna/
 ## Datenfluss
 
 ```
-sops/*.js  ──tools/build.mjs──▶  dist/sop-meta.js      (sofort, ~95 KB)
+sops/*.js      ─┐
+statuten/*.js  ─┴tools/build.mjs──▶  dist/sop-meta.js  (sofort, ~105 KB, mit "docs")
+                                 dist/statut-content.js (Paket hinter den SOP-Paketen)
                                  dist/sop-text.js      (nach dem ersten Bild)
                                  dist/sop-content-NN.js (auf Abruf + Vorladen)
                                         │
@@ -244,7 +250,8 @@ Reihenfolge in `wireSections()` – sie ist Absicht:
 
 ```
 attachFigures → enhanceTables → attachScores → relayoutSopTables
-              → linkCrossReferences → wireRelated
+              → linkCrossReferences → linkStatutes
+              → enhanceDocTools (Statut) | attachAbsPanel (SOP) → wireRelated
 ```
 
 `relayoutSopTables()` muss **nach** `attachScores()` laufen: erst dann steht fest, welche Tabelle ein Rechner ist, und nur Nicht-Rechner werden auf dem Telefon zu Karten.
@@ -282,6 +289,30 @@ Standardmäßig offen: Abschnitte, deren Titel mit `Diagnostik` oder `Therapie` 
 
 ---
 
+## Statuten
+
+Zwei Statuten unter `statuten/` (`window.STATUT_DATA.push({...})`, Abschnitte mit `key`, `title`, `icon`, `html`). Sie laufen durch **dieselbe Pipeline und dieselbe Ansicht** wie die SOPs, bleiben aber ein eigener Bestand:
+
+| | SOP | Statut |
+|---|---|---|
+| Quelle | `sops/` | `statuten/` |
+| Meta | `META.sops` | `META.docs` (zusätzlich `s` Kurzname, `ks` Schlüssel, `ic` Symbole, `v`, `dt`, `au`, `rl`, `sm`) |
+| Zustand | `S.data` **und** `S.byId` | **nur** `S.docs` und `S.byId` – Listen, Kategorien, Zähler meinen weiter die 73 Pfade |
+| Kategorie | Fachkategorie | Pseudokategorie `'doc'` (`App.DOC_CAT`), Farbsatz `--doc-*` in `css/tokens.css`, **nicht** in `CATS`/`cats.mjs` |
+| Adresse | `#sop/<id>` | `#statut/<id>` (`#sop/<id>` wird ebenfalls angenommen) |
+| Paket | `sop-content-NN.js` | `statut-content.js`, Index `chunks.length` |
+
+- `App.isDoc(d)`, `App.docSectionIndex(id, key)`, `App.filterDocs(q)`, `App.secIconOf(d, i)`.
+- `App.query()` sucht Statuten mit, außer bei `opts.docs === false` oder Kategorie-Eingrenzung; `App.filterSops()` schließt sie aus.
+- **Abbildungen:** `STATUT_FIGURES` in `tools/data/statuten.mjs`; im Text markiert `<div data-figure-slot="…">` die Stelle. `attachFigures()` ersetzt den Platzhalter (ohne `slot`: anhängen wie bei SOPs). Jede `.sop-figure` öffnet über `[data-figure-zoom]` die Vollbildfläche `#figOverlay` (`App.openFigure`, im Overlay-Stapel, `Esc` schließt).
+- **Werkzeuge** (`enhanceDocTools`): `[data-checklist]` → Checkliste mit Zähler; `[data-gaep-list]` + `li[data-gaep][data-group][data-b]` → G-AEP-Prüfhilfe (bewertet **nur** „mit/ohne Zusatzkriterium B"); `[data-exclusion]` → Ausschlusshinweis; `Tel. NNNN` → `.doc-tel` (kopiert über `App.copyPhoneNumber`). Alles zustandslos.
+- **Verknüpfungen:** `STATUT_LINKS` (Wortstellen → Statut; `in: '*'` = Abschnitt „Disposition" aller SOPs), `ABS_INDICATIONS` (Kap. 6.1 → SOPs, Text muss wörtlich im Statut stehen), `STATUT_TOOLS` (Startseite). Der Build prüft alles gegen den Bestand.
+- `attachAbsPanel()` hängt `.dispo-statut` an den **ersten** `.dispo-gelb .dispo-block` – das SOP-HTML bleibt unberührt.
+- Druck: `prepareDocPrintSheet()` – Fuß „Ausgedruckte Dokumente unterliegen nicht der Aktualisierung." wie im Original; leere Zähler werden nicht gedruckt, Checklisten drucken als Kästchen.
+- `tools/subset-fonts.py` scannt `statuten/` und `tools/data/statuten.mjs` mit – Symbole der Statuten brauchen keinen `EXTRA_ICONS`-Eintrag.
+
+---
+
 ## Druckausgabe
 
 `index.html` enthält eine **echte** `<table class="print-sheet" role="presentation">` mit `<thead>`, `<tbody>` und `<tfoot>`, die die gesamte Anwendung umschließt.
@@ -311,9 +342,9 @@ Der Ergebnisbereich trägt `role="listbox"` **nur**, solange Einträge darin ste
 
 ## Telefonverzeichnis
 
-`PHONE_DIR` in `js/overlays.js` (56 Einträge in sieben Gruppen). `App.parseShiftWindows(note)` leitet Zeitfenster aus den vorhandenen Notizen ab.
+`PHONE_DIR` in `js/overlays.js` (60 Einträge in sieben Gruppen, vier davon aus den Statuten). `App.parseShiftWindows(note)` leitet Zeitfenster aus den vorhandenen Notizen ab.
 
-> **Bewusst zurückhaltend:** Ein Fenster entsteht nur, wenn die Notiz ausdrücklich Tage nennt (`Mo-Fr`, `Di`, `Täglich`). In `DA bis 15:30 Uhr: 4004` gilt die Zeit für eine **Zweitnummer**, nicht für die Zeile. Neun der 56 Einträge tragen dadurch eine Kennzeichnung – genau die Sprechstunden.
+> **Bewusst zurückhaltend:** Ein Fenster entsteht nur, wenn die Notiz ausdrücklich Tage nennt (`Mo-Fr`, `Di`, `Täglich`). In `DA bis 15:30 Uhr: 4004` gilt die Zeit für eine **Zweitnummer**, nicht für die Zeile. Neun der 60 Einträge tragen dadurch eine Kennzeichnung – genau die Sprechstunden.
 
 ---
 
@@ -345,6 +376,13 @@ In der Quelle verwenden (`tools/subset-fonts.py` scannt `js/`, `css/`, `index.ht
 
 ---
 
+## Statut ändern – Checkliste
+
+1. `statuten/<kennung>.js` bearbeiten; Abschnittsschlüssel (`key`) nicht umbenennen – `STATUT_LINKS`, `STATUT_TOOLS` und Abbildungen hängen daran.
+2. Neue Abbildung: Datei nach `img/statuten/`, Eintrag in `STATUT_FIGURES`, Platzhalter `data-figure-slot` im Text.
+3. Neues Statut: zusätzlich Eintrag in `STATUT_ALIASES` (Pflicht).
+4. `npm run build`, `npm run verify`.
+
 ## SOP hinzufügen – Checkliste
 
 1. `sops/<kennung>.js` anlegen (Aufbau wie bestehende Dateien: `id`, `title`, `category`, `catKey`, `stand`, `sections[]`, `sources`).
@@ -365,7 +403,7 @@ Der Build bricht ab bei doppelter Kennung, leerem Abschnitt, unauflösbarer Kate
 | `npm run check` | prüfen, ob die Artefakte aktuell sind |
 | `npm run fonts` | Schriften und Symbole reduzieren |
 | `npm run serve` | lokaler Server, Port 8080 |
-| `npm run visual` | 48 Bilder + 34 Funktionsprüfungen gegen den Stand |
+| `npm run visual` | 60 Bilder + 54 Funktionsprüfungen gegen den Stand |
 | `npm run baseline` | Stand neu festlegen |
 | `npm run verify` | `check` + `visual` |
 | `node tools/verify-fold.mjs` | Normalisierung Build gegen Browser |
@@ -412,3 +450,5 @@ Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden 
 | Schnellsuche beim ersten Öffnen | `App.openSpotlight()` muss `App.renderSpotlightResults()` rufen; sonst steht beim allerersten Öffnen nichts im Ergebnisbereich |
 | `SPOT_EXAMPLES` | jedes Beispiel muss im Bestand etwas finden – `npm run visual` prüft das |
 | Szenen der Sichtprüfung | laufen nacheinander auf **derselben** Seite; ein Overlay der vorigen Szene erst schliessen |
+| Statut vs. SOP | nie `S.data` nach Statuten durchsuchen – sie stehen nur in `S.docs`/`S.byId`; `App.isDoc(d)` entscheidet Adresse, Kopf, Breadcrumb, Fußleisten-Markierung, Druck |
+| `popNav` bei Deep Link | Ziel (Start bzw. Übersicht) **vor** dem Zurücksetzen von `S.sopId` bestimmen |

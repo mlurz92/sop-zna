@@ -82,7 +82,8 @@ NOT_ICONS = {"fa-solid", "fa-solid-900", "fa-solid-subset", "fa-regular", "fa-br
 def scan_sources():
     """Alle Dateien, in denen Symbolnamen stehen koennen."""
     files = [os.path.join(ROOT, "index.html")]
-    for pattern in ("js/*.js", "css/*.css", "sops/*.js"):
+    for pattern in ("js/*.js", "css/*.css", "sops/*.js", "statuten/*.js",
+                    "tools/data/statuten.mjs"):
         files.extend(sorted(glob.glob(os.path.join(ROOT, pattern))))
     return [f for f in files if os.path.isfile(f)]
 
@@ -122,7 +123,7 @@ def project_charset():
     chars.update("‐‑‒–—―‘’‚“”„†‡•…‰′″‹›€™←↑→↓↔−∕∞≈≠≤≥·×÷µ‱"
                  "⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉ΔαβγμσΩ□■●○◦✓✗")
     targets = [os.path.join(ROOT, "index.html")]
-    for pattern in ("js/*.js", "css/*.css", "sops/*.js",
+    for pattern in ("js/*.js", "css/*.css", "sops/*.js", "statuten/*.js",
                     "dist/sop-meta.js", "dist/sop-text.js"):
         targets.extend(sorted(glob.glob(os.path.join(ROOT, pattern))))
     for path in targets:

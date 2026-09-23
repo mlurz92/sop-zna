@@ -1,19 +1,20 @@
 # SOP-ZNA – Patientenpfade der Zentralen Notaufnahme
 
-Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentralen Notaufnahme am Klinikum St. Georg Leipzig. Läuft mobil am Bett, am Tablet im Schockraum und stationär am Tresenrechner.
+Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentralen Notaufnahme am Klinikum St. Georg Leipzig – dazu die beiden Statuten, die den Rahmen setzen: das **Statut / die Arbeitsordnung der ZNA** und das **Statut der Aufnahme- und Beobachtungsstation (ABS / ZNA-Station)**. Läuft mobil am Bett, am Tablet im Schockraum und stationär am Tresenrechner.
 
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.1.0` |
+| Fassung | `4.2.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
 | Leitsymptom-Gruppen | 16 |
 | Indizierte Wirkstoffe | 137 |
-| Abbildungen | 2 |
+| Statuten | 2 (25 Abschnitte) |
+| Abbildungen | 7 (2 in SOPs, 5 in Statuten) |
 | Score-Rechner | 11 |
-| Startlast (`dist/sop-meta.js`) | 95 KB |
+| Startlast (`dist/sop-meta.js`) | 105 KB |
 | Inhaltspakete | 9 × ~105 KB |
 | Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
@@ -25,6 +26,8 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 Eine Single-Page-Anwendung ohne Framework. ES5-kompatibles JavaScript in zehn Modulen, kein Build-Zwang zur Laufzeit, keine Abhängigkeit von einem CDN. Alles, was die Anwendung braucht, liegt im Projekt.
 
 **Die SOPs sind fachlicher Inhalt.** Die Dateien in [`sops/`](sops/) werden nicht verändert – weder Wortlaut noch HTML. Alles, was die Anwendung hinzufügt (Suche, Querverweise, Abbildungen, Score-Rechner, Druckbogen), entsteht aus ihnen, ohne sie anzufassen.
+
+**Für die Statuten gilt dasselbe.** Ihr Wortlaut steht unverändert – einschließlich der Schreibweisen des Originals – in [`statuten/`](statuten/); die Word-Originale liegen in [`docs/`](docs/).
 
 ### Einsatzgebiet
 
@@ -104,6 +107,39 @@ Der Ausdruck ist ein Dokument für die Übergabemappe, nicht ein Bildschirmfoto:
 - Tabellenkopfzeilen wiederholen sich, Zeilen werden nicht zerschnitten
 - die Quellen stehen auf jedem Blatt, das die Klinik verlässt
 
+### Statuten nachschlagen und anwenden
+
+Die beiden Statuten laufen durch **dieselbe Ansicht wie die SOPs** – Kapitelleiste, Inhaltsverzeichnis, Suche, Druck, Tastatur und Dunkelmodus gelten unverändert. Sie zählen aber nicht als Patientenpfad: eigene Adresse (`#statut/statut-zna`, `#statut/statut-abs`), eigener weinroter Farbsatz, eigene Gruppe „Statuten" in Seitenleiste und Übersicht, auf der Startseite ein eigener Bereich **Statuten & Organisation**.
+
+| Statut | Quelle | Umfang |
+|---|---|---|
+| Statut / Arbeitsordnung Zentrale Interdisziplinäre Notaufnahme | `docs/202510419_STATUT_ZNA_V1-01.docx` · Version 1.01 · 19.04.2025 | 16 Kapitel, 5 Abbildungen |
+| Statut der Aufnahme- und Beobachtungsstation (ABS / ZNA-Station) | `docs/20260227_Statut_ABS-2026.doc` · Stand 02/2026 | 6 Kapitel, 3 Anhänge |
+
+Der Kopf eines Statuts trägt die Angaben des Deckblatts (Datum, Version, Erstellt / Inhalt, Freigabe, Bereich); jedes gedruckte Blatt trägt den Hinweis des Originals: *„Ausgedruckte Dokumente unterliegen nicht der Aktualisierung."*
+
+#### Anwendungszwecke
+
+| Werkzeug | Wo | Was es tut |
+|---|---|---|
+| **Checkliste Aufnahme ZNA-Station** | Statut ABS, Anhang 2 | 14 Punkte in fünf Schritten zum Abhaken, Fortschritt am unteren Rand mitlaufend, Zurücksetzen. Ausgedruckt: Papier-Checkliste mit leeren Kästchen. |
+| **Checkliste Entlassung ZNA-Station** | Statut ABS, Anhang 3 | 12 Punkte in vier Schritten, wie oben. |
+| **G-AEP-Prüfhilfe** | Statut ABS, Anhang 1 | Kriterien antippen; ausgewertet wird **nur**, was das Statut sagt: „ohne Zusatzkriterium B" genügt allein, „mit Zusatzkriterium B" verlangt ein B-Kriterium. Die Auswahl lässt sich als Text für den Arztbrief kopieren. |
+| **Ausschlusskriterien** | Statut ABS, Kap. 4 | BG-Fall, pädiatrisch, rein sozial – trifft eines zu, sagt ein Hinweis: keine Aufnahme auf die ZNA-Station. |
+| **Rufnummern** | beide Statuten | `Tel. 4006`, `Tel. 4257`, `Tel. 4667`, `Tel. 909 4440`, `Tel 909 4271` sind antippbar und landen in der Zwischenablage. Die vier Nummern aus den Statuten stehen zusätzlich im Telefonverzeichnis. |
+| **Abbildungen in voller Größe** | Statut ZNA (und alle SOP-Abbildungen) | Organigramm, Schichtplan 2024, Dienstmodell ab 2025, Behandlungs- und Versorgungsprozess, Gliederung der Notfallversorgung – an genau der Stelle, an der sie im Original stehen. Antippen öffnet sie bildschirmfüllend, wahlweise eingepasst oder in Originalgröße (scroll- und zoombar). |
+| **Crowding-Stufen** | Statut ZNA, Kap. 8.4.5 | Stufen 1–4 als Ampel (Stufen 3/4 rot), CEDOCS-Eskalation ab 160 im Text. |
+| **Versorgungsprozess** | Statut ZNA, Kap. 7 | Die Treppengrafik des Originals als nummerierte Kette – lesbar auf jeder Breite und im Dunkelmodus. |
+
+Nichts davon wird gespeichert. Es ist eine Abhakhilfe, keine Dokumentation – die gehört ins KIS.
+
+#### Verknüpft mit den Patientenpfaden
+
+- Alle 73 Dispositionsfelder nennen als Indikation der ZNA-Station das *„Statut ZNA und Statut Aufnahme- und Beobachtungsstation"*. Genau diese Wörter führen jetzt in das jeweilige Statut.
+- Unter dem Block „Entlassung am Folgetag angestrebt (ZNA-Station / A&B-Station)" steht ein Hinweis aus dem Statut ABS mit direkten Wegen zu **Checkliste Aufnahme**, **G-AEP-Kriterien** und **Indikationen**. Ist die Diagnose im Statut als diagnosebezogene Indikation genannt (Kap. 6.1), steht sie dort wörtlich – z. B. bei *Vorhofflimmern* „Tachyarrhythmia absoluta", bei den sechs Elektrolyt-SOPs „Elektrolytstörungen".
+- Umgekehrt endet das Statut ABS mit den **Patientenpfaden zu den Indikationen**, das Statut ZNA mit dem Weg zum Statut ABS.
+- Die Suche findet beide Statuten – über Titel, Kapitel, Volltext und eigene Suchbegriffe (`G-AEP`, `ZNA-Station`, `Crowding`, `CEDOCS`, `Dienstmodell`, `Organigramm` …).
+
 ### Telefonieren
 
 Das Telefonverzeichnis liest die Dienstzeiten aus den vorhandenen Notizen und zeigt, **was jetzt gilt**: neun Sprechstundeneinträge tragen eine Zeitkennung (`bis 12:00` grün, wenn sie gerade gilt; sonst `Di 08:00`). Ein Filter blendet auf Wunsch alles aus, was gerade nicht erreichbar ist. Sprungmarken führen zu den Gruppen. Auf Telefonen steht neben jeder Zeile ein Wählknopf; am Stationsrechner bleibt es beim Kopieren in die Zwischenablage.
@@ -123,6 +159,7 @@ Die SOP-Dateien werden **nicht mehr einzeln in die Seite eingebunden**. Sie sind
 | `dist/sop-meta.js` | ~95 KB | sofort – Titel, Kategorien, Kapitel, Suchindex, Synonyme, Wirkstoffe, Score-Beschreibungen |
 | `dist/sop-text.js` | ~460 KB | nach dem ersten Bild – Reintext für die Volltextsuche, beim Build vorberechnet |
 | `dist/sop-content-01…09.js` | 9 × ~105 KB | auf Abruf beim Öffnen einer SOP, danach vollständig im Hintergrund |
+| `dist/statut-content.js` | ~80 KB | die beiden Statuten – derselbe Ladeweg (`App.loadChunk`), dasselbe Vorladen |
 
 Vorher lud die Startseite 73 Skripte mit rund 1 MB, bevor überhaupt etwas zu sehen war.
 
@@ -222,8 +259,18 @@ Für jede SOP ist ein Eintrag in [`tools/data/aliases.mjs`](tools/data/aliases.m
 | [`tools/data/aliases.mjs`](tools/data/aliases.mjs) | Synonyme, Abkürzungen, Umgangssprache je SOP + Leitsymptom-Gruppen |
 | [`tools/data/drugs.mjs`](tools/data/drugs.mjs) | Wirkstoff-Lexikon; indiziert wird nur, was im Bestand vorkommt |
 | [`tools/data/figures.mjs`](tools/data/figures.mjs) | Zuordnung Abbildung → SOP → Abschnitt |
+| [`tools/data/statuten.mjs`](tools/data/statuten.mjs) | Abbildungen der Statuten samt Platz im Text, Suchbegriffe, Wortstellen, die zu einem Statut führen, ABS-Indikationen → SOPs, Einstiege auf der Startseite |
 
 Das ist **Anwendungswissen, kein SOP-Inhalt**. Der Build prüft jede Zuordnung gegen den Bestand.
+
+### Ein Statut ändern
+
+1. Datei in [`statuten/`](statuten/) bearbeiten. Jeder Abschnitt hat einen festen Schlüssel (`key`), ein Symbol (`icon`) und seinen Wortlaut als HTML.
+2. Abbildungen stehen nicht im Text, sondern in `tools/data/statuten.mjs`; im Text markiert `<div data-figure-slot="…"></div>` ihre Stelle. Bilddateien liegen unter `img/statuten/`.
+3. Werkzeuge entstehen aus Auszeichnungen im Text: `data-checklist` (Checkliste), `data-gaep-list` mit `data-gaep` / `data-group` / `data-b="mit|ohne"` (G-AEP), `data-exclusion` (Ausschlusskriterien).
+4. `npm run build` und `npm run verify`.
+
+Der Build bricht ab, wenn ein Platzhalter keine Abbildung hat (oder umgekehrt), eine Bilddatei fehlt, eine verlinkte Wortstelle nicht (mehr) im Text steht, eine ABS-Indikation nicht wörtlich im Statut vorkommt oder ein Abschnittsschlüssel doppelt ist.
 
 ### Sicht- und Funktionsprüfung
 
@@ -231,7 +278,7 @@ Das ist **Anwendungswissen, kein SOP-Inhalt**. Der Build prüft jede Zuordnung g
 npm run visual
 ```
 
-Fährt 3 Breiten × 2 Themes × 8 Zustände an (48 Bilder) und prüft parallel 34 Funktionsmerkmale: Anzahl der Pfade, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
+Fährt 3 Breiten × 2 Themes × 10 Zustände an (60 Bilder) und prüft parallel 54 Funktionsmerkmale: Zugangssperre, Anzahl der Pfade und Statuten, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Abbildungen der Statuten an ihrer Stelle, Checkliste und G-AEP-Logik, Verweise und ABS-Hinweis im Dispositionsfeld, Suche nach Statuten, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
 
 Beide Teile sind nötig: ein Bild kann gleich aussehen und die Anwendung trotzdem kaputt sein. Genau das ist beim Umbau der Druckausgabe passiert – der Bildvergleich hat eine um eine Zeile verschobene Glasgow Coma Scale aufgedeckt.
 
@@ -256,6 +303,8 @@ sop-zna/
 ├── js/                     zehn Module
 ├── dist/                   erzeugt – nicht von Hand bearbeiten
 ├── sops/                   73 SOP-Dateien (fachlicher Inhalt)
+├── statuten/               Statut ZNA und Statut ABS (fachlicher Inhalt)
+├── docs/                   Word-Originale der Statuten, Konverter, Vorlagen
 ├── tools/
 │   ├── build.mjs           Artefakte, Prüfungen, Version
 │   ├── palette.mjs         Kategoriefarben mit Kontrastnachweis
@@ -267,6 +316,8 @@ sop-zna/
 ├── tests/visual/           hinterlegter Stand, aktuelle Bilder, Abweichungen
 ├── vendor/                 Inter und FontAwesome, lokal und reduziert
 └── img/
+    ├── ZNA/                Abbildungen zu SOPs
+    └── statuten/           Abbildungen aus dem Statut ZNA
 ```
 
 ---
@@ -334,7 +385,7 @@ scp -r sop-zna/ user@server:/var/www/html/
 
 Die Fassung steht **nur** in `package.json`. `npm run build` trägt sie in `version.json`, `js/core.js` und die Kennzahlenblöcke dieser Datei sowie in `AGENTS.md` ein. Von Hand wird sie nirgends gepflegt.
 
-Nicht ausgeliefert werden müssen: `tools/`, `tests/`, `sops/` und die unreduzierten Schriftdateien in `vendor/`. Ausgeliefert werden müssen `dist/`, `css/`, `js/`, `img/`, `index.html`, `version.json`, `robots.txt`, `ai.txt`, je nach Server `.htaccess` bzw. `_headers` und die `*-subset.*`-Dateien in `vendor/`.
+Nicht ausgeliefert werden müssen: `tools/`, `tests/`, `sops/`, `statuten/`, `docs/` und die unreduzierten Schriftdateien in `vendor/`. Ausgeliefert werden müssen `dist/`, `css/`, `js/`, `img/`, `index.html`, `version.json`, `robots.txt`, `ai.txt`, je nach Server `.htaccess` bzw. `_headers` und die `*-subset.*`-Dateien in `vendor/`.
 
 ### Hosting-Optionen
 
@@ -371,9 +422,11 @@ Jede SOP enthält den Abschnitt **Disposition** mit den verbindlichen hausintern
 
 Die Karten sind farbcodiert, auf Desktop dreispaltig, auf Mobilgeräten einspaltig und für den Druck optimiert. Am Ende jedes Dispositionsfeldes öffnet ein Button das vollständige Telefonverzeichnis.
 
+Im GELB-Feld führen „Statut ZNA" und „Statut Aufnahme- und Beobachtungsstation" in die Statuten; darunter steht der Hinweis aus dem Statut ABS (siehe [Statuten](#statuten-nachschlagen-und-anwenden)).
+
 ### Telefonverzeichnis
 
-56 interne und externe Nummern in sieben Gruppen: Notfall & externe Kontakte, ITS & IMC (Disposition ROT), chirurgische Fächer, konservative Fächer, Diagnostik & Funktionseinheiten, Infrastruktur & ZNA-Organisation, Sprechstunden des Ambulanzzentrums.
+60 interne und externe Nummern in sieben Gruppen (vier davon aus den Statuten: RD-Anmeldung 4440, diensthabender Arzt / OA ZNA 4006, Pflege ABS 4257, administrative Aufnahme 4667): Notfall & externe Kontakte, ITS & IMC (Disposition ROT), chirurgische Fächer, konservative Fächer, Diagnostik & Funktionseinheiten, Infrastruktur & ZNA-Organisation, Sprechstunden des Ambulanzzentrums.
 
 Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.js). Die Dienstzeiterkennung liest ausschließlich die dort vorhandenen Notizen – es müssen keine Zeiten zusätzlich gepflegt werden.
 
@@ -388,10 +441,10 @@ Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.j
 | `↵` | im Passwortdialog: entsperren |
 | `Strg`/`Cmd` + `K`, `/` | Schnellsuche öffnen (erst nach dem Entsperren) |
 | `↑` `↓` `↵` | in der Schnellsuche wählen und öffnen |
-| `Esc` | oberstes Overlay schließen |
+| `Esc` | oberstes Overlay schließen (auch die vergrößerte Abbildung) |
 | `Rücktaste` | zurück |
 | `←` `→` `Pos1` `Ende` | in der Kapitelleiste |
-| `Leertaste` `↵` | Abschnitt auf-/zuklappen, Score-Kriterium wählen |
+| `Leertaste` `↵` | Abschnitt auf-/zuklappen, Score-Kriterium wählen, Checklistenpunkt / G-AEP-Kriterium abhaken |
 
 ### Barrierefreiheit
 
@@ -450,6 +503,7 @@ Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v4.2.0** | Sep 2026 | **Statuten integriert.** Statut / Arbeitsordnung der ZNA (V 1.01) und Statut der Aufnahme- und Beobachtungsstation (02/2026) im unveränderten Wortlaut, mit allen Abbildungen des Originals an ihrer Stelle (Organigramm, Schichtplan 2024, Dienstmodell ab 2025, Versorgungsprozess, Gliederung der Notfallversorgung) und Vergrößerung auf Antippen. Neu: Checklisten Aufnahme und Entlassung ZNA-Station zum Abhaken, G-AEP-Prüfhilfe mit Kopieren für den Arztbrief, Ausschlusskriterien, antippbare Rufnummern, Crowding-Stufen als Ampel. Verknüpfung in beide Richtungen: die Statut-Nennungen in allen 73 Dispositionsfeldern führen ins Statut, dazu ein ABS-Hinweis mit wörtlicher Indikation aus Kap. 6.1; das Statut ABS führt zu den Pfaden seiner Indikationen. Startseite mit Bereich „Statuten & Organisation", Seitenleiste und Übersicht mit Gruppe „Statuten", Suche über Titel, Kapitel, Volltext und eigene Suchbegriffe, Druck mit Deckblattangaben. Telefonverzeichnis um vier Nummern aus den Statuten ergänzt. Sicht- und Funktionsprüfung: 60 Bilder, 54 Prüfungen. SOP-Inhalte unverändert. |
 | **v4.1.0** | Sep 2026 | **Zugangssperre und Robots-Absage.** Beim ersten Öffnen liegt die Anwendung unscharf hinter einer Passwortabfrage; auf Wunsch merkt sich das Gerät die Freigabe 30 Tage, sonst bis zum Schließen des Tabs. Hinter dem Dialog ist alles `inert`, Tastenkürzel und Druck sind gesperrt. Suchmaschinen, KI-Crawler und alle übrigen Robots werden über `robots.txt`, `<meta name="robots">`, `X-Robots-Tag` (`.htaccess`, `_headers`) und `ai.txt` ausgeschlossen. Sicht- und Funktionsprüfung um sieben Prüfungen der Sperre erweitert. SOP-Inhalte unverändert. |
 | **v4.0.0** | Sep 2026 | **Suchwerk, Auslieferung und Gestaltung neu.** Suche: ein Werk für alle vier Oberflächen, mit Umlauttoleranz in beide Richtungen, rund 700 kuratierten Synonymen und Abkürzungen, Tippfehlertoleranz, Wirkstoff-Direktsuche über 137 Wirkstoffe und Sprung zur Fundstelle; kurze Eingaben treffen nur an Wortgrenzen. Auslieferung: die 73 SOP-Skripte sind einem Build gewichen – Start mit 95 KB Index statt 1 MB, Inhalte in neun Paketen auf Abruf und im Hintergrund; Schriften und Symbole auf den Bestand reduziert (389 KB → 54 KB). Gestaltung: vier CSS-Layer mit erklärter Rangfolge statt 16 gewachsener Schichten, vollständiges Token-System (Typografie, 8-px-Raster, Tiefe, Bewegung), Kategoriefarben mit nachgerechnetem Kontrast in beiden Themes, Hinweisblöcke als Warnstufen, Tabellen auf dem Telefon als Karten, „Inhalt" und „Drucken" neben der Überschrift. Neu: elf Score-Rechner aus den SOP-eigenen Tabellen, Querverweise, verwandte Pfade, zwei bislang verwaiste Abbildungen, Dienstzeitkennung im Telefonverzeichnis, Druckausgabe mit laufendem Kopf und Fuß. Behoben: Trefferhervorhebung zerriss HTML-Entitäten; Druck war ein Wettlauf gegen `window.print()`; Scrollposition ging beim Zurückgehen verloren; Lesefortschritt erzwang ein Layout je Frame; `aria-expanded` widersprach dem Zustand; „Therapie – …" und „Diagnostik & …" klappten nicht auf; `Esc` konnte die Tastaturbedienung mitreißen; das Inhaltsverzeichnis schloss sich beim Scrollen; Breakpoint-Wechsel baute die Ansichten nicht neu auf; `fa-wifi-slash` gibt es im Free-Satz nicht. SOP-Dateien unverändert. |
 |---------|-------|------------|

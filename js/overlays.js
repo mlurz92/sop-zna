@@ -242,7 +242,8 @@
 
             container.innerHTML = '<div class="spotlight-intro" role="presentation">' +
                 '<p class="spotlight-intro-lead">' + S.data.length +
-                ' Patientenpfade \u2013 nach Name, Abk\u00fcrzung, Synonym, ' +
+                ' Patientenpfade' + (S.docs.length ? ' und ' + S.docs.length + ' Statuten' : '') +
+                ' \u2013 nach Name, Abk\u00fcrzung, Synonym, ' +
                 'Leitsymptom oder Wirkstoff.</p>' +
                 '<div class="spotlight-chips">' + hints + '</div>' +
                 '</div>';
@@ -401,7 +402,7 @@
             var title = titles[i] || ('Abschnitt ' + (i + 1));
             html += '<li data-idx="' + i + '" tabindex="0" role="button"' +
                 ' style="' + App.escAttr(App.catStyle(d.category)) + '">' +
-                '<i class="fa-solid ' + App.secIcon(title) + '" style="color:var(--cat-color)" aria-hidden="true"></i> ' +
+                '<i class="fa-solid ' + App.secIconOf(d, i) + '" style="color:var(--cat-color)" aria-hidden="true"></i> ' +
                 App.esc(title) + '</li>';
         }
 
@@ -543,6 +544,10 @@
                 { name: 'Bettenmanagement', tel: '4299', note: '' },
                 { name: 'Schockraum / Aufwachraum', tel: '3470 / 1630', note: '' },
                 { name: 'ZNA Triage / Tresen', tel: '4271 / 3404', note: 'ZNA Station 4B: 4812' },
+                { name: 'Rettungsdienst-Anmeldung (Triage)', tel: '4440', note: 'Statut ZNA 5.2.2: Anmeldung durch den RD, Tel. 909 4440' },
+                { name: 'Diensthabender Arzt / Oberarzt ZNA', tel: '4006', note: 'Statut ABS: Belegung der ZNA-Station nur nach Rücksprache' },
+                { name: 'Pflege Aufnahme- und Beobachtungsstation', tel: '4257', note: 'Statut ABS: bei jedem Zugang auf die ZNA-Station informieren' },
+                { name: 'Administrative Aufnahme', tel: '4667', note: 'Statut ABS: Einweisungsschein "ZNA-Station 20.0 ZNA"' },
                 { name: 'Krankenträger', tel: '2208', note: '' },
                 { name: 'IT', tel: '4863', note: '' },
                 { name: 'Reinigung', tel: '4415 / 4094', note: 'Ab 19:30 Uhr: 1006' }
@@ -943,25 +948,40 @@
             App.toast(tel, 'fa-phone');
         };
 
+        App.copyText(tel, done, failed);
+    }
+    App.copyPhoneNumber = copyPhoneNumber;
+
+    /**
+     * Text in die Zwischenablage legen - mit Rueckfall fuer Browser
+     * ohne Clipboard-API (aeltere Stationsrechner, http im Intranet).
+     */
+    App.copyText = function(text, done, failed) {
+        done = done || function() {};
+        failed = failed || function() {};
+
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(tel).then(done, failed);
+            navigator.clipboard.writeText(text).then(done, function() { legacyCopy(); });
             return;
         }
+        legacyCopy();
 
-        try {
-            var ta = document.createElement('textarea');
-            ta.value = tel;
-            ta.setAttribute('readonly', '');
-            ta.style.cssText = 'position:fixed;top:-1000px;opacity:0;';
-            document.body.appendChild(ta);
-            ta.select();
-            var ok = document.execCommand('copy');
-            document.body.removeChild(ta);
-            if (ok) done(); else failed();
-        } catch (e) {
-            failed();
+        function legacyCopy() {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.cssText = 'position:fixed;top:-1000px;opacity:0;';
+                document.body.appendChild(ta);
+                ta.select();
+                var ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (ok) done(); else failed();
+            } catch (e) {
+                failed();
+            }
         }
-    }
+    };
 
     App.openDir = function() {
         if (!E.dirOverlay || E.dirOverlay.classList.contains('show')) return;
@@ -987,6 +1007,83 @@
     };
 
     registerCloser(function() { return E.dirOverlay; }, function() { App.closeDir(); });
+
+    // ============================================
+    // ABBILDUNG IN VOLLER GROESSE
+    // ============================================
+    // Schichtplaene und Organigramm sind auf dem Telefon in
+    // Spaltenbreite nicht lesbar. Die Abbildung oeffnet deshalb in
+    // einer eigenen Flaeche in Originalgroesse - waagerecht und
+    // senkrecht scrollbar, mit der Zoomgeste des Geraets.
+    App.openFigure = function(src, alt, caption) {
+        var ov = document.getElementById('figOverlay');
+        if (!ov || !src || ov.classList.contains('show')) return;
+
+        var img = document.getElementById('figOverlayImg');
+        var cap = document.getElementById('figOverlayCaption');
+        var fit = document.getElementById('figOverlayFit');
+        var stage = document.getElementById('figOverlayStage');
+
+        img.src = src;
+        img.alt = alt || '';
+        cap.textContent = caption || '';
+        stage.classList.add('is-fit');
+        if (fit) {
+            fit.setAttribute('aria-pressed', 'true');
+            fit.querySelector('span').textContent = 'Originalgröße';
+        }
+
+        pushOverlay(ov, ov.querySelector('.fig-modal'));
+        ov.classList.add('show');
+        App.haptic('light');
+
+        setTimeout(function() {
+            var close = document.getElementById('figOverlayClose');
+            if (close && topOverlayRoot() === ov.querySelector('.fig-modal')) close.focus();
+        }, App.MOTION.reduced ? 0 : 200);
+    };
+
+    App.closeFigure = function() {
+        var ov = document.getElementById('figOverlay');
+        if (!ov || !ov.classList.contains('show')) return;
+        ov.classList.remove('show');
+        popOverlay(ov);
+    };
+
+    App.initFigureOverlay = function() {
+        var ov = document.getElementById('figOverlay');
+        if (!ov) return;
+
+        var stage = document.getElementById('figOverlayStage');
+        var fit = document.getElementById('figOverlayFit');
+
+        document.getElementById('figOverlayClose').addEventListener('click', App.closeFigure);
+        document.getElementById('figOverlayBackdrop').addEventListener('click', App.closeFigure);
+
+        // Einpassen <-> Originalgroesse
+        if (fit) {
+            fit.addEventListener('click', function() {
+                var fitted = stage.classList.toggle('is-fit');
+                fit.setAttribute('aria-pressed', fitted ? 'true' : 'false');
+                fit.querySelector('span').textContent = fitted ? 'Originalgröße' : 'Einpassen';
+                App.haptic('light');
+            });
+        }
+
+        // Jede Abbildung - in SOPs wie in Statuten - oeffnet hier.
+        document.addEventListener('click', function(e) {
+            var trigger = e.target && e.target.closest ? e.target.closest('[data-figure-zoom]') : null;
+            if (!trigger) return;
+            e.preventDefault();
+            var fig = trigger.closest('figure');
+            var img = fig ? fig.querySelector('img') : null;
+            if (!img) return;
+            var cap = fig.querySelector('figcaption span');
+            App.openFigure(img.getAttribute('src'), img.getAttribute('alt'), cap ? cap.textContent : '');
+        });
+    };
+
+    registerCloser(function() { return document.getElementById('figOverlay'); }, function() { App.closeFigure(); });
 
     // Fuer die Sichtpruefung und die Dokumentation zugaenglich machen.
     App.parseShiftWindows = parseWindows;

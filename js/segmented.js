@@ -48,7 +48,7 @@
         // Die Kuerzung des Titels uebernimmt CSS (Ellipsis).
         for (var i = 0; i < titles.length; i++) {
             var title = titles[i] || ('Abschnitt ' + (i + 1));
-            var icon = App.secIcon(title);
+            var icon = App.secIconOf(sopData, i);
 
             html += '<button type="button" class="segmented-btn" data-seg="' + i + '" aria-pressed="false"' +
                 ' title="' + App.escAttr(title) + '">' +

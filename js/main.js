@@ -690,6 +690,7 @@
         App.rSB();
         App.rHome();
         bind();
+        App.initFigureOverlay();
 
         // Adresse anwenden und Verlaufssteuerung aktivieren
         App.applyRoute();

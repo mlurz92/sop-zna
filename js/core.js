@@ -16,7 +16,7 @@
     'use strict';
 
     // ---------- Version (wird von tools/build.mjs gesetzt) ----------
-    App.VERSION = '4.1.0';
+    App.VERSION = '4.2.0';
 
     // ---------- Kategorien ----------
     // Spiegel von tools/lib/cats.mjs. Der Build prueft beide Seiten
@@ -91,6 +91,13 @@
         [/quelle|literatur|leitlinie/i, 'fa-quote-right']
     ];
 
+    // Statuten tragen ihr Symbol je Abschnitt selbst (statuten/*.js);
+    // fuer SOPs entscheidet weiterhin der Titel.
+    App.secIconOf = function(d, idx) {
+        if (d && d.secIcons && d.secIcons[idx]) return d.secIcons[idx];
+        return App.secIcon(d && d.secTitles ? d.secTitles[idx] : '');
+    };
+
     App.secIcon = function(title) {
         if (!title) return 'fa-circle-info';
         if (SIC[title]) return SIC[title];
@@ -135,6 +142,7 @@
     // ---------- Anwendungszustand ----------
     App.S = {
         data: [],
+        docs: [],
         byId: {},
         tab: 'home',
         sopId: null,
@@ -166,7 +174,7 @@
         'sidebar', 'appLogo', 'searchInput', 'searchClear', 'categoryFilters', 'navList',
         'themeToggle', 'themeToggleIcon', 'themeToggleLabel', 'mainContent', 'contentHeader',
         'breadcrumb', 'desktopTocBtn', 'contentScroll', 'viewHome', 'viewBrowse', 'viewSearch', 'viewSOP',
-        'heroArea', 'catGrid', 'homeInfo', 'browseSearchInput', 'browseSearchClear',
+        'heroArea', 'catGrid', 'homeStatuten', 'homeInfo', 'browseSearchInput', 'browseSearchClear',
         'browseCategoryFilters', 'browseList', 'searchViewInput', 'searchViewClear', 'searchResultsArea',
         'searchScope', 'fabAction', 'bottomNav', 'metaThemeColor', 'sectionPickerOverlay',
         'sectionPickerBackdrop', 'sectionPickerClose', 'sectionPickerList', 'sectionPickerPrint',
@@ -451,11 +459,22 @@
     };
 
     App.gc = function(k) {
+        if (k === 'doc') return 'var(--doc)';
         return CATS[k] ? 'var(--cat-' + k + ')' : 'var(--cat-sonst)';
     };
 
+    // Statuten sind keine Fachkategorie. Sie tragen einen eigenen
+    // Farbsatz (--doc-*, css/tokens.css), damit sie in jeder Liste
+    // sofort als Regelwerk und nicht als Patientenpfad erkennbar sind.
+    var DOC_CAT = 'doc';
+    App.DOC_CAT = DOC_CAT;
+
     /** Vollstaendiger Farbsatz einer Kategorie als Stilangabe. */
     App.catStyle = function(k) {
+        if (k === DOC_CAT) {
+            return '--cat-color:var(--doc);--cat-tint:var(--doc-tint);' +
+                '--cat-ink:var(--doc-ink);--cat-line:var(--doc-line);';
+        }
         var key = CATS[k] ? k : 'sonst';
         return '--cat-color:var(--cat-' + key + ');' +
             '--cat-tint:var(--cat-' + key + '-tint);' +
@@ -464,10 +483,12 @@
     };
 
     App.catName = function(k) {
+        if (k === DOC_CAT) return 'Statut';
         return CATS[k] ? CATS[k].name : '';
     };
 
     App.catIcon = function(k) {
+        if (k === DOC_CAT) return 'fa-scale-balanced';
         return CATS[k] ? CATS[k].icon : 'fa-circle-info';
     };
 
@@ -544,6 +565,18 @@
         return !!App.findSop(id);
     };
 
+    /** Ist die Kennung ein Statut (statt eines Patientenpfads)? */
+    App.isDoc = function(d) {
+        return !!(d && d.doc);
+    };
+
+    /** Abschnittsindex eines Statuts ueber seinen Schluessel. */
+    App.docSectionIndex = function(docId, key) {
+        var d = App.findSop(docId);
+        if (!d || !d.secKeys) return -1;
+        return d.secKeys.indexOf(key);
+    };
+
     /** Metadaten uebernehmen und den Zustand aufbauen. */
     App.initData = function() {
         META = window.SOP_META || null;
@@ -585,7 +618,50 @@
             byId[d.id] = d;
         }
 
+        // Statuten: eigener Bestand neben den Patientenpfaden. Sie
+        // stehen in byId (damit Adresse, Oeffnen, Paket und Druck
+        // denselben Weg gehen), aber NICHT in S.data - Listen,
+        // Kategorien und Zaehler meinen weiterhin die 73 Pfade.
+        var docs = [];
+        var metaDocs = META.docs || [];
+        for (var j = 0; j < metaDocs.length; j++) {
+            var md = metaDocs[j];
+            var doc = {
+                id: md.id,
+                doc: true,
+                name: md.n,
+                short: md.s || md.n,
+                subtitle: md.sub || '',
+                unit: md.u || '',
+                category: DOC_CAT,
+                stand: md.d || '',
+                date: md.dt || '',
+                version: md.v || '',
+                author: md.au || '',
+                release: md.rl || '',
+                summary: md.sm || '',
+                chunk: md.k,
+                secTitles: md.t || [],
+                secKeys: md.ks || [],
+                secIcons: md.ic || [],
+                hasSources: false,
+                aliases: md.a || [],
+                xref: [],
+                related: [],
+                nf: md.nf || '',
+                nc: md.nc || '',
+                af: md.af || [],
+                tf: md.tf || '',
+                sections: null,
+                sources: null,
+                text: null
+            };
+            docs.push(doc);
+            byId[doc.id] = doc;
+        }
+
         App.S.data = list;
+        App.S.docs = docs;
         App.S.byId = byId;
 
         if (META.version) App.VERSION = META.version;
@@ -611,6 +687,36 @@
             if (META.figures[i].sop === sopId) out.push(META.figures[i]);
         }
         return out;
+    };
+
+    // ---------- Statuten: Verweise, Indikationen, Einstiege ----------
+    // Alles vom Build gegen den Bestand geprueft (tools/data/statuten.mjs).
+
+    /** Wortstellen, die in dieser SOP bzw. diesem Statut verlinkt werden. */
+    App.statutLinksFor = function(d) {
+        if (!META || !META.statutLinks || !d) return [];
+        var out = [];
+        for (var i = 0; i < META.statutLinks.length; i++) {
+            var l = META.statutLinks[i];
+            if (l.to === d.id) continue;
+            if (d.doc ? l.in === d.id : l.in === '*') out.push(l);
+        }
+        return out;
+    };
+
+    /** Diagnosebezogene ABS-Indikationen (Statut ABS, Kap. 6.1) einer SOP. */
+    App.absIndicationsFor = function(sopId) {
+        if (!META || !META.absIndications) return [];
+        var out = [];
+        for (var i = 0; i < META.absIndications.length; i++) {
+            if (META.absIndications[i].s.indexOf(sopId) !== -1) out.push(META.absIndications[i].t);
+        }
+        return out;
+    };
+
+    /** Einstiege in die Werkzeuge der Statuten (Startseite). */
+    App.statutTools = function() {
+        return (META && META.statutTools) || [];
     };
 
     // ---------- Reintext (Volltextsuche) ----------
@@ -954,6 +1060,8 @@
      * opts.cat    - auf eine Kategorie eingrenzen
      * opts.limit  - Hoechstzahl Treffer
      * opts.drugs  - Wirkstoffe mitsuchen (Vorgabe: ja)
+     * opts.docs   - Statuten mitsuchen (Vorgabe: ja, ausser bei
+     *               einer Kategorie-Eingrenzung)
      */
     App.query = function(raw, opts) {
         opts = opts || {};
@@ -980,9 +1088,12 @@
 
         var scored = [];
         var i, d, base;
+        // Statuten werden mitdurchsucht, solange nicht nach einer
+        // Fachkategorie gefiltert wird und niemand sie ausschliesst.
+        var pool = (opts.docs === false || cat) ? App.S.data : App.S.data.concat(App.S.docs);
 
-        for (i = 0; i < App.S.data.length; i++) {
-            d = App.S.data[i];
+        for (i = 0; i < pool.length; i++) {
+            d = pool[i];
             if (cat && d.category !== cat) continue;
 
             base = scoreSop(d, forms);
@@ -1013,8 +1124,8 @@
             var seen = {};
             for (i = 0; i < scored.length; i++) seen[scored[i].sop.id] = 1;
 
-            for (i = 0; i < App.S.data.length; i++) {
-                d = App.S.data[i];
+            for (i = 0; i < pool.length; i++) {
+                d = pool[i];
                 if (seen[d.id]) continue;
                 if (cat && d.category !== cat) continue;
 
@@ -1078,10 +1189,22 @@
             return out;
         }
 
-        var res = App.query(q, { cat: catKey, text: false, fuzzy: true, drugs: false });
+        var res = App.query(q, { cat: catKey, text: false, fuzzy: true, drugs: false, docs: false });
         var list = [];
         for (var j = 0; j < res.sops.length; j++) list.push(res.sops[j].sop);
         return list;
+    };
+
+    /** Statuten zu einer Anfrage (Seitenleiste, Uebersicht). */
+    App.filterDocs = function(queryText) {
+        var q = String(queryText || '').trim();
+        if (!q) return App.S.docs.slice();
+        var res = App.query(q, { text: false, fuzzy: true, drugs: false });
+        var out = [];
+        for (var i = 0; i < res.sops.length; i++) {
+            if (res.sops[i].sop.doc) out.push(res.sops[i].sop);
+        }
+        return out;
     };
 
 })(window.SOPApp = window.SOPApp || {});

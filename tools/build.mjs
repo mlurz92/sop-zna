@@ -2,8 +2,8 @@
 /* ============================================================
    tools/build.mjs
    ------------------------------------------------------------
-   Erzeugt aus den 73 unveraenderten SOP-Dateien die
-   Auslieferungsartefakte unter dist/:
+   Erzeugt aus den unveraenderten SOP-Dateien (sops/) und den
+   Statuten (statuten/) die Auslieferungsartefakte unter dist/:
 
      sop-meta.js        Metadaten + vorberechneter Suchindex
                         (klein, wird sofort geladen)
@@ -12,13 +12,16 @@
                         wird kein HTML mehr zerlegt)
      sop-content-NN.js  Der Abschnitts-HTML-Code in Paketen
                         (auf Abruf und im Hintergrund nachgeladen)
+     statut-content.js  Die Statuten der ZNA und der ZNA-Station
+                        als eigenes Paket - gleicher Ladeweg
 
    Ausserdem wird die Version an genau einer Stelle gefuehrt
    (package.json) und in version.json, js/core.js, README.md und
    AGENTS.md eingetragen - damit Stand und Dokumentation nicht
    auseinanderlaufen koennen.
 
-   Die Dateien in sops/ werden ausschliesslich GELESEN.
+   Die Dateien in sops/ und statuten/ werden ausschliesslich
+   GELESEN.
 
    Aufruf:
      node tools/build.mjs           erzeugen
@@ -30,12 +33,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { ROOT, loadSops } from './lib/load-sops.mjs';
+import { ROOT, loadSops, loadStatuten } from './lib/load-sops.mjs';
 import { htmlToText, fold, collapse, tokenize, uniqueTokens } from './lib/text.mjs';
 import { CAT_KEYS, CAT_NAMES, resolveCategory } from './lib/cats.mjs';
 import { ALIASES, TOPIC_ALIASES } from './data/aliases.mjs';
 import { DRUGS } from './data/drugs.mjs';
 import { FIGURES } from './data/figures.mjs';
+import { STATUT_FIGURES, STATUT_ALIASES, STATUT_LINKS, ABS_INDICATIONS, STATUT_TOOLS } from './data/statuten.mjs';
 import { scoresOfSop } from './lib/scores.mjs';
 
 const CHECK_ONLY = process.argv.includes('--check');
@@ -185,6 +189,104 @@ if (missingStand.length) {
 }
 
 /* ============================================================
+   1b) Statuten einlesen und pruefen
+   ------------------------------------------------------------
+   Die Statuten laufen durch dieselbe Aufbereitung wie die SOPs
+   (Reintext, Suchindex, Pakete), bleiben aber ein eigener
+   Bestand: sie zaehlen nicht als Patientenpfad, haben keine
+   Kategorie, keine Wirkstoffe und keine "verwandten Pfade".
+   ============================================================ */
+
+console.log('  [1b ] Statuten einlesen ...');
+const { entries: docEntries } = loadStatuten();
+const docs = [];
+const docById = Object.create(null);
+
+for (const { file, doc } of docEntries) {
+    const where = 'statuten/' + file;
+    if (!doc.id) fail(where + ' hat keine id.');
+    if (seenIds[doc.id] || docById[doc.id]) fail('Kennung "' + doc.id + '" in ' + where + ' ist bereits vergeben.');
+    if (!doc.title || !doc.short) fail(where + ' braucht title und short.');
+    if (!Array.isArray(doc.sections) || !doc.sections.length) fail(where + ' hat keine Abschnitte.');
+
+    const keys = Object.create(null);
+    const secs = doc.sections.map(function (s, i) {
+        if (!s.key) fail(where + ': Abschnitt ' + (i + 1) + ' hat keinen Schluessel (key).');
+        if (keys[s.key]) fail(where + ': Abschnittsschluessel "' + s.key + '" doppelt.');
+        keys[s.key] = 1;
+        if (!s.title) fail(where + ': Abschnitt "' + s.key + '" hat keinen Titel.');
+        if (!String(s.html || '').trim()) fail(where + ': Abschnitt "' + s.title + '" ist leer.');
+        if (s.icon && !/^fa-[a-z0-9-]+$/.test(s.icon)) fail(where + ': Symbol "' + s.icon + '" ist ungueltig.');
+        return { key: s.key, title: String(s.title), icon: s.icon || '', html: String(s.html), text: htmlToText(s.html) };
+    });
+
+    const rec = {
+        file: file,
+        id: String(doc.id),
+        name: String(doc.title),
+        short: String(doc.short),
+        subtitle: String(doc.subtitle || ''),
+        unit: String(doc.unit || ''),
+        stand: String(doc.stand || ''),
+        date: String(doc.date || ''),
+        version: String(doc.version || ''),
+        author: String(doc.author || ''),
+        release: String(doc.release || ''),
+        summary: String(doc.summary || ''),
+        sections: secs
+    };
+    rec.secIdx = function (key) {
+        return rec.sections.findIndex(function (s) { return s.key === key; });
+    };
+    docs.push(rec);
+    docById[rec.id] = rec;
+}
+
+docs.sort(function (a, b) { return a.name.localeCompare(b.name, 'de'); });
+
+console.log('        ' + docs.length + ' Statuten, '
+    + docs.reduce(function (n, r) { return n + r.sections.length; }, 0) + ' Abschnitte.');
+
+/* Abbildungen der Statuten: Platzhalter und Verzeichnis muessen
+   genau zueinander passen - eine Abbildung ohne Platz ginge still
+   verloren, ein Platz ohne Abbildung liesse eine Luecke. */
+const slotRe = /data-figure-slot="([a-z0-9-]+)"/g;
+const slotsSeen = Object.create(null);
+for (const r of docs) {
+    r.sections.forEach(function (s, i) {
+        for (const m of s.html.matchAll(slotRe)) {
+            const k = r.id + '/' + m[1];
+            if (slotsSeen[k]) fail('statuten/' + r.file + ': Platzhalter "' + m[1] + '" doppelt.');
+            slotsSeen[k] = { sec: i };
+        }
+    });
+}
+for (const fig of STATUT_FIGURES) {
+    const r = docById[fig.doc];
+    if (!r) fail('tools/data/statuten.mjs: Abbildung verweist auf unbekanntes Statut "' + fig.doc + '".');
+    const secIdx = r.secIdx(fig.section);
+    if (secIdx === -1) fail('tools/data/statuten.mjs: "' + fig.doc + '" hat keinen Abschnitt "' + fig.section + '".');
+    const slot = slotsSeen[fig.doc + '/' + fig.slot];
+    if (!slot) fail('tools/data/statuten.mjs: Platzhalter "' + fig.slot + '" fehlt in ' + fig.doc + '.');
+    if (slot.sec !== secIdx) fail('tools/data/statuten.mjs: Platzhalter "' + fig.slot + '" steht nicht in Abschnitt "' + fig.section + '".');
+    if (slot.used) fail('tools/data/statuten.mjs: Platzhalter "' + fig.slot + '" ist doppelt belegt.');
+    slot.used = true;
+    if (!fs.existsSync(path.join(ROOT, fig.src))) fail('tools/data/statuten.mjs: Bilddatei fehlt -> ' + fig.src);
+    if (!fig.alt || !fig.caption) fail('tools/data/statuten.mjs: Abbildung "' + fig.slot + '" braucht alt und caption.');
+    fig._secIdx = secIdx;
+}
+for (const k of Object.keys(slotsSeen)) {
+    if (!slotsSeen[k].used) fail('Platzhalter ' + k + ' hat keine Abbildung in tools/data/statuten.mjs.');
+}
+
+for (const id of Object.keys(STATUT_ALIASES)) {
+    if (!docById[id]) fail('STATUT_ALIASES verweist auf unbekanntes Statut "' + id + '".');
+}
+for (const r of docs) {
+    if (!STATUT_ALIASES[r.id]) fail('STATUT_ALIASES hat keinen Eintrag fuer "' + r.id + '".');
+}
+
+/* ============================================================
    2) Kuratierte Zusatzdaten pruefen
    ============================================================ */
 
@@ -217,6 +319,56 @@ for (const fig of FIGURES) {
     }
     fig._secIdx = secIdx;
 }
+
+/* Verweise auf die Statuten: jede Wortstelle muss dort, wo sie
+   verlinkt werden soll, tatsaechlich stehen. */
+const statutLinks = [];
+for (const link of STATUT_LINKS) {
+    if (!docById[link.to]) fail('STATUT_LINKS: unbekanntes Ziel "' + link.to + '".');
+    const needle = fold(link.phrase);
+    if (link.in === '*') {
+        const hits = records.filter(function (r) {
+            const s = r.sections.find(function (x) { return x.title === link.section; });
+            return s && fold(s.text).indexOf(needle) !== -1;
+        });
+        if (!hits.length) fail('STATUT_LINKS: "' + link.phrase + '" steht in keinem Abschnitt "' + link.section + '".');
+        console.log('        Verweis "' + link.phrase + '" -> ' + link.to + ' in ' + hits.length + ' SOPs.');
+        statutLinks.push({ in: '*', sec: link.section, p: link.phrase, to: link.to });
+    } else {
+        const r = docById[link.in];
+        if (!r) fail('STATUT_LINKS: unbekanntes Statut "' + link.in + '".');
+        const idx = r.secIdx(link.section);
+        if (idx === -1) fail('STATUT_LINKS: "' + link.in + '" hat keinen Abschnitt "' + link.section + '".');
+        if (fold(r.sections[idx].text).indexOf(needle) === -1) {
+            fail('STATUT_LINKS: "' + link.phrase + '" steht nicht in ' + link.in + '/' + link.section + '.');
+        }
+        statutLinks.push({ in: link.in, sec: idx, p: link.phrase, to: link.to });
+    }
+}
+
+const absDoc = docById['statut-abs'];
+const absIndications = [];
+if (ABS_INDICATIONS.length) {
+    if (!absDoc) fail('ABS_INDICATIONS: Statut "statut-abs" fehlt.');
+    const secIdx = absDoc.secIdx('indikationen');
+    if (secIdx === -1) fail('ABS_INDICATIONS: Statut ABS hat keinen Abschnitt "indikationen".');
+    const hay = fold(absDoc.sections[secIdx].text);
+    for (const ind of ABS_INDICATIONS) {
+        if (hay.indexOf(fold(ind.text)) === -1) fail('ABS_INDICATIONS: "' + ind.text + '" steht nicht woertlich im Statut ABS.');
+        for (const id of ind.sops) {
+            if (!byId[id]) fail('ABS_INDICATIONS: unbekannte SOP "' + id + '".');
+        }
+        absIndications.push({ t: ind.text, s: ind.sops });
+    }
+}
+
+const statutTools = STATUT_TOOLS.map(function (t) {
+    const r = docById[t.doc];
+    if (!r) fail('STATUT_TOOLS: unbekanntes Statut "' + t.doc + '".');
+    const idx = r.secIdx(t.section);
+    if (idx === -1) fail('STATUT_TOOLS: "' + t.doc + '" hat keinen Abschnitt "' + t.section + '".');
+    return { doc: t.doc, sec: idx, label: t.label, hint: t.hint, icon: t.icon };
+});
 
 /* ============================================================
    3) Wirkstoff-Verzeichnis (Vorschlag 23)
@@ -437,12 +589,20 @@ const chunkName = function (ci) {
     return 'sop-content-' + String(ci + 1).padStart(2, '0') + '.js';
 };
 
+/* Die Statuten bekommen ein eigenes Paket hinter den SOP-Paketen.
+   Es laeuft ueber denselben Ladeweg (App.loadChunk) und wird wie
+   diese im Hintergrund vorgeladen. */
+const DOC_CHUNK = chunks.length;
+const DOC_CHUNK_FILE = 'statut-content.js';
+docs.forEach(function (r) { r.chunk = DOC_CHUNK; });
+
 /* ---------- dist/sop-meta.js ---------- */
 const meta = {
     version: VERSION,
     built: '',   // wird unten aus version.json/Pruefsumme gesetzt
     chunkSize: CHUNK_SIZE,
-    chunks: chunks.map(function (_, ci) { return 'dist/' + chunkName(ci); }),
+    chunks: chunks.map(function (_, ci) { return 'dist/' + chunkName(ci); })
+        .concat(docs.length ? ['dist/' + DOC_CHUNK_FILE] : []),
     categories: CAT_NAMES,
     autoOpen: AUTO_OPEN_PREFIXES,
     topics: TOPIC_ALIASES,
@@ -450,6 +610,35 @@ const meta = {
     scores: scoreIndex,
     figures: FIGURES.map(function (f) {
         return { sop: f.sop, sec: f._secIdx, src: f.src, alt: f.alt, caption: f.caption };
+    }).concat(STATUT_FIGURES.map(function (f) {
+        return { sop: f.doc, sec: f._secIdx, slot: f.slot, src: f.src, alt: f.alt, caption: f.caption };
+    })),
+    statutLinks: statutLinks,
+    absIndications: absIndications,
+    statutTools: statutTools,
+    docs: docs.map(function (r) {
+        return {
+            id: r.id,
+            n: r.name,
+            s: r.short,
+            sub: r.subtitle,
+            u: r.unit,
+            d: r.stand,
+            dt: r.date,
+            v: r.version,
+            au: r.author,
+            rl: r.release,
+            sm: r.summary,
+            k: r.chunk,
+            t: r.sections.map(function (s) { return s.title; }),
+            ks: r.sections.map(function (s) { return s.key; }),
+            ic: r.sections.map(function (s) { return s.icon; }),
+            a: STATUT_ALIASES[r.id] || [],
+            nf: fold(r.name),
+            nc: collapse(r.name),
+            af: (STATUT_ALIASES[r.id] || []).concat([r.short]).map(function (a) { return fold(a); }),
+            tf: fold(r.sections.map(function (s) { return s.title; }).join(' '))
+        };
     }),
     sops: records.map(function (r) {
         return {
@@ -480,6 +669,9 @@ records.forEach(function (r) {
         q: r.sourcesText
     };
 });
+docs.forEach(function (r) {
+    textPayload[r.id] = { s: r.sections.map(function (s) { return s.text; }), q: '' };
+});
 
 /* Der Build muss idempotent sein: zweimal hintereinander aufgerufen,
    darf er nichts mehr schreiben. Sonst meldet "--check" jeden Lauf als
@@ -495,7 +687,8 @@ const payloadHash = sha1([
     JSON.stringify(textPayload),
     chunks.map(function (list) {
         return list.map(function (r) { return r.id + ':' + r.sections.length; }).join(',');
-    }).join('|')
+    }).join('|'),
+    JSON.stringify(docs.map(function (r) { return r.sections.map(function (s) { return s.html; }); }))
 ].join('\u0000'));
 
 let stamp = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
@@ -518,13 +711,14 @@ meta.built = buildDate;
 /* Eine Zeile je SOP: im Diff ist dann genau ablesbar, was sich
    geaendert hat, ohne dass Einrueckung Bytes kostet. */
 const metaHead = {};
-for (const k of Object.keys(meta)) if (k !== 'sops') metaHead[k] = meta[k];
+for (const k of Object.keys(meta)) if (k !== 'sops' && k !== 'docs') metaHead[k] = meta[k];
 
 emit('dist/sop-meta.js',
     BANNER('dist/sop-meta.js - Metadaten und vorberechneter Suchindex',
         'Enthaelt KEINE SOP-Inhalte, nur Titel, Kategorien und Suchhilfen.')
     + 'window.SOP_META = '
-    + jsonLines(metaHead).replace(/\n\}$/, ',\n"sops":' + jsonLines(meta.sops) + '\n}')
+    + jsonLines(metaHead).replace(/\n\}$/, ',\n"docs":' + jsonLines(meta.docs)
+        + ',\n"sops":' + jsonLines(meta.sops) + '\n}')
     + ';\n');
 
 /* ---------- dist/sop-text.js ---------- */
@@ -558,6 +752,22 @@ chunks.forEach(function (list, ci) {
         + '})();\n');
 });
 
+/* ---------- dist/statut-content.js ---------- */
+if (docs.length) {
+    const payload = {};
+    docs.forEach(function (r) {
+        payload[r.id] = { s: r.sections.map(function (s) { return s.html; }), q: '' };
+    });
+    emit('dist/' + DOC_CHUNK_FILE,
+        BANNER('dist/' + DOC_CHUNK_FILE + ' - Statuten der ZNA und der ZNA-Station',
+            'Wortlaut und HTML stammen unveraendert aus statuten/.').replace('Quelle: sops/*.js', 'Quelle: statuten/*.js')
+        + '(function(){\n'
+        + 'var C = ' + JSON.stringify(payload) + ';\n'
+        + 'if (window.SOPApp && window.SOPApp.acceptContent) window.SOPApp.acceptContent(C, ' + DOC_CHUNK + ');\n'
+        + 'else (window.__SOP_CONTENT__ = window.__SOP_CONTENT__ || []).push([C, ' + DOC_CHUNK + ']);\n'
+        + '})();\n');
+}
+
 /* ============================================================
    7) Version an einer Stelle fuehren (Vorschlag 56)
    ============================================================ */
@@ -578,6 +788,7 @@ emit('version.json', JSON.stringify({
     hash: payloadHash,
     sops: records.length,
     sections: records.reduce(function (n, r) { return n + r.sections.length; }, 0),
+    statuten: docs.length,
     changelog: pkg.changelog || ''
 }, null, 4) + '\n');
 
@@ -600,7 +811,8 @@ const statLines = [
     '| Eigene Synonyme | ' + Object.keys(ALIASES).reduce(function (n, k) { return n + ALIASES[k].length; }, 0) + ' |',
     '| Leitsymptom-Gruppen | ' + Object.keys(TOPIC_ALIASES).length + ' |',
     '| Indizierte Wirkstoffe | ' + drugIndex.length + ' |',
-    '| Abbildungen | ' + FIGURES.length + ' |',
+    '| Statuten | ' + docs.length + ' (' + docs.reduce(function (n, r) { return n + r.sections.length; }, 0) + ' Abschnitte) |',
+    '| Abbildungen | ' + (FIGURES.length + STATUT_FIGURES.length) + ' (' + FIGURES.length + ' in SOPs, ' + STATUT_FIGURES.length + ' in Statuten) |',
     '| Score-Rechner | ' + scoreIndex.length + ' |',
     '| Startlast (`dist/sop-meta.js`) | ' + Math.round(metaBytes / 1024) + ' KB |',
     '| Inhaltspakete | ' + chunks.length + ' × ~' + Math.round(
@@ -674,5 +886,6 @@ console.log('\n  Fertig. Fassung ' + VERSION + ', Pruefsumme ' + sha1(jsonLines(
 console.log('    Startlast   ' + (metaBytes / 1024).toFixed(1) + ' KB (sop-meta.js)');
 console.log('    Volltext    ' + (bytes('dist/sop-text.js') / 1024).toFixed(1) + ' KB (sop-text.js)');
 console.log('    Inhalte     ' + (totalContent / 1024).toFixed(1) + ' KB in ' + chunks.length + ' Paketen');
+if (docs.length) console.log('    Statuten    ' + (bytes('dist/' + DOC_CHUNK_FILE) / 1024).toFixed(1) + ' KB (' + DOC_CHUNK_FILE + ')');
 console.log('    Geschrieben ' + (written.length ? written.length + ' Datei(en)' : 'nichts (alles aktuell)'));
 console.log('');

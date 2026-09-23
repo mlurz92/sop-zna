@@ -330,6 +330,31 @@ const SCENES = [
         }
     },
     {
+        name: 'statut-abs',
+        go: async function (page) {
+            await page.evaluate(() => window.SOPApp.pushNav('statut-abs'));
+            await page.evaluate(() => {
+                var secs = document.querySelectorAll('.sop-section');
+                for (var i = 0; i < secs.length; i++) {
+                    var t = secs[i].querySelector('.sec-title');
+                    window.SOPApp.setSectionOpen(secs[i], !!(t && /Anhang 2/.test(t.textContent)), false);
+                }
+                var items = document.querySelectorAll('[data-checklist="aufnahme"] .check-item');
+                if (items[0]) items[0].click();
+                if (items[1]) items[1].click();
+                var el = document.querySelector('[data-checklist="aufnahme"]');
+                var scroller = document.getElementById('contentScroll');
+                if (el && scroller) scroller.scrollTop = Math.max(0, el.offsetTop - 200);
+            });
+        }
+    },
+    {
+        name: 'statut-zna',
+        go: async function (page) {
+            await page.evaluate(() => window.SOPApp.pushNav('statut-zna'));
+        }
+    },
+    {
         name: 'suche-wirkstoff',
         go: async function (page) {
             await page.evaluate(() => {
@@ -448,13 +473,15 @@ async function run() {
             scores: window.SOPApp.META.scores.length,
             drugs: window.SOPApp.META.drugs.length,
             figures: window.SOPApp.META.figures.length,
+            docs: window.SOPApp.S.docs.length,
             version: window.SOPApp.VERSION
         }));
 
         check('73 Patientenpfade geladen', base.sops === 73, base.sops + ' gefunden');
         check('Score-Rechner vorhanden', base.scores === 11, base.scores + ' erkannt');
         check('Wirkstoffverzeichnis gefuellt', base.drugs > 100, base.drugs + ' Wirkstoffe');
-        check('Abbildungen zugeordnet', base.figures === 2, base.figures + ' Abbildungen');
+        check('Abbildungen zugeordnet', base.figures === 7, base.figures + ' Abbildungen');
+        check('2 Statuten geladen (nicht als Pfad gezaehlt)', base.docs === 2 && base.sops === 73, base.docs + ' Statuten');
 
         await probe.evaluate(() => window.SOPApp.pushNav('lungenarterienembolie'));
         await probe.waitForTimeout(700);
@@ -567,6 +594,63 @@ async function run() {
         check('Score-Tabellen bleiben Tabellen', cards.scoreTables > 0, JSON.stringify(cards));
         check('Spaltenkoepfe als data-label gesetzt', cards.labelled > 0, cards.labelled);
 
+        /* Statuten */
+        await probe.evaluate(() => window.SOPApp.pushNav('statut-zna'));
+        await probe.waitForTimeout(900);
+        const zna = await probe.evaluate(() => ({
+            hash: location.hash,
+            figs: document.querySelectorAll('.sop-figure').length,
+            slotsLeft: document.querySelectorAll('[data-figure-slot]').length,
+            facts: document.querySelectorAll('.doc-fact').length,
+            docLinks: document.querySelectorAll('.sop-xref-doc').length
+        }));
+        check('Statut ZNA unter eigener Adresse', zna.hash === '#statut/statut-zna', zna.hash);
+        check('Statut ZNA: 5 Abbildungen an ihrer Stelle', zna.figs === 5 && zna.slotsLeft === 0, JSON.stringify(zna));
+        check('Statut ZNA: Deckblattangaben', zna.facts >= 4, zna.facts);
+        check('Statut ZNA verweist auf Statut ABS', zna.docLinks > 0, zna.docLinks);
+
+        await probe.evaluate(() => window.SOPApp.pushNav('statut-abs'));
+        await probe.waitForTimeout(900);
+        const abs = await probe.evaluate(() => {
+            var list = document.querySelector('[data-checklist="aufnahme"]');
+            var items = list.querySelectorAll('.check-item');
+            items[0].click(); items[1].click();
+            var count = list.querySelector('.check-count').textContent;
+            var a = document.querySelector('li[data-gaep="A2/A3"]');
+            a.click();
+            var warn = document.querySelector('.gaep-verdict').className;
+            document.querySelector('li[data-gaep="B1"]').click();
+            var ok = document.querySelector('.gaep-verdict').className;
+            return {
+                items: items.length, count: count, warn: warn, ok: ok,
+                tel: document.querySelectorAll('.doc-tel').length,
+                cards: document.querySelectorAll('.sop-related .related-card').length
+            };
+        });
+        check('Checkliste Aufnahme: 14 Punkte, zaehlt mit', abs.items === 14 && /2 von 14/.test(abs.count), JSON.stringify(abs));
+        check('G-AEP: A2/A3 verlangt B, mit B1 erfuellt', /is-warn/.test(abs.warn) && /is-ok/.test(abs.ok), abs.warn + ' / ' + abs.ok);
+        check('Rufnummern im Statut antippbar', abs.tel >= 4, abs.tel);
+        check('Statut ABS fuehrt zu den Indikations-Pfaden', abs.cards >= 10, abs.cards);
+
+        await probe.evaluate(() => window.SOPApp.pushNav('vorhofflimmern'));
+        await probe.waitForTimeout(900);
+        const dispo = await probe.evaluate(() => ({
+            links: document.querySelectorAll('.dispo .sop-xref-doc').length,
+            panel: !!document.querySelector('.dispo-statut.has-indication'),
+            buttons: document.querySelectorAll('.dispo-statut [data-doc-sec]').length
+        }));
+        check('Dispositionsfeld verlinkt beide Statuten', dispo.links === 2, JSON.stringify(dispo));
+        check('Dispositionsfeld nennt ABS-Indikation', dispo.panel && dispo.buttons === 3, JSON.stringify(dispo));
+
+        const sq = await probe.evaluate(() => ({
+            gaep: window.SOPApp.query('G-AEP').sops[0].sop.id,
+            crowd: window.SOPApp.query('Crowding').sops[0].sop.id,
+            inData: window.SOPApp.S.data.filter(function (d) { return d.doc; }).length,
+            navGroup: document.querySelectorAll('#navList .nav-doc').length
+        }));
+        check('Suche findet Statuten', sq.gaep === 'statut-abs' && sq.crowd === 'statut-zna', JSON.stringify(sq));
+        check('Statuten als eigene Gruppe, nicht unter den Pfaden', sq.inData === 0 && sq.navGroup === 2, JSON.stringify(sq));
+
         /* Dienstzeiten */
         await probe.setViewportSize({ width: 1440, height: 900 });
         await probe.evaluate(() => window.SOPApp.openDir());
@@ -575,7 +659,7 @@ async function run() {
             rows: document.querySelectorAll('.dir-row').length,
             shifts: document.querySelectorAll('.dir-shift').length
         }));
-        check('Telefonverzeichnis vollstaendig', dir.rows === 56, dir.rows + ' Zeilen');
+        check('Telefonverzeichnis vollstaendig', dir.rows === 60, dir.rows + ' Zeilen');
         check('Dienstzeiten erkannt', dir.shifts === 9, dir.shifts + ' Kennzeichnungen');
 
         /* Schnellsuche: Leerzustand, Beispiele, Uebernahme */

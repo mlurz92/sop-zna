@@ -350,6 +350,8 @@
     // beide Wege ohne Scrollen erreichbar. Unterhalb von 560 px
     // schrumpfen sie auf ihr Symbol (siehe css/components.css).
     function headerMarkup(d) {
+        if (App.isDoc(d)) return docHeaderMarkup(d);
+
         var ck = d.category;
         var secCount = d.secTitles.length;
 
@@ -375,6 +377,53 @@
             '<span class="utility-btn-label">Drucken</span></button>' +
             '</div>' +
             '</div>' +
+            '</article>';
+    }
+
+    // ---------- Kopfbereich eines Statuts ----------
+    // Dieselbe Form wie bei einer SOP, dazu die Angaben aus dem
+    // Deckblatt des Originals (Version, Datum, Erstellt, Freigabe).
+    function docHeaderMarkup(d) {
+        var secCount = d.secTitles.length;
+        var facts = '';
+        var addFact = function(label, value) {
+            if (!value) return;
+            facts += '<div class="doc-fact"><dt>' + App.esc(label) + '</dt><dd>' + App.esc(value) + '</dd></div>';
+        };
+        addFact('Datum', d.date);
+        addFact('Version', d.version);
+        addFact('Erstellt / Inhalt', d.author);
+        addFact('Freigabe', d.release);
+        addFact('Bereich', d.unit);
+
+        return '<article class="sop-header sop-header-doc" style="' + App.escAttr(App.catStyle(d.category)) + '">' +
+            '<div class="sop-header-top">' +
+            '<span class="sop-cat-badge">' +
+            '<i class="fa-solid ' + App.catIcon(d.category) + '" aria-hidden="true"></i> Statut</span>' +
+            (d.stand
+                ? '<span class="sop-meta-item"><i class="fa-solid fa-calendar" aria-hidden="true"></i> Stand: ' + App.esc(d.stand) + '</span>'
+                : '') +
+            (d.version
+                ? '<span class="sop-meta-item"><i class="fa-solid fa-tag" aria-hidden="true"></i> Version ' + App.esc(d.version) + '</span>'
+                : '') +
+            '<span class="sop-meta-item"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' +
+            secCount + (secCount === 1 ? ' Abschnitt' : ' Abschnitte') + '</span>' +
+            '</div>' +
+            '<div class="sop-header-main">' +
+            '<div class="doc-title-block">' +
+            '<h1 class="sop-title">' + App.esc(d.name) + '</h1>' +
+            (d.subtitle ? '<p class="doc-subtitle">' + App.esc(d.subtitle) + '</p>' : '') +
+            '</div>' +
+            '<div class="sop-tools" role="group" aria-label="Werkzeuge">' +
+            '<button type="button" class="utility-btn" id="sopContents" title="Inhaltsverzeichnis">' +
+            '<i class="fa-solid fa-list-ul" aria-hidden="true"></i>' +
+            '<span class="utility-btn-label">Inhalt</span></button>' +
+            '<button type="button" class="utility-btn" id="sopPrint" title="Drucken">' +
+            '<i class="fa-solid fa-print" aria-hidden="true"></i>' +
+            '<span class="utility-btn-label">Drucken</span></button>' +
+            '</div>' +
+            '</div>' +
+            (facts ? '<dl class="doc-facts">' + facts + '</dl>' : '') +
             '</article>';
     }
 
@@ -431,8 +480,10 @@
         for (i = 0; i < d.sections.length; i++) {
             var sec = d.sections[i];
             var title = sec.title || ('Abschnitt ' + (i + 1));
-            html += sectionMarkup(i, title, App.secIcon(title), sec.html || '',
-                App.isAutoOpen(title));
+            // Ein Statut oeffnet mit seinem ersten Kapitel; alles
+            // Weitere erreicht man ueber Kapitelleiste und Inhalt.
+            var open = App.isDoc(d) ? i === 0 : App.isAutoOpen(title);
+            html += sectionMarkup(i, title, App.secIconOf(d, i), sec.html || '', open);
         }
 
         if (d.sources) {
@@ -440,7 +491,7 @@
                 '<div class="sop-sources">' + d.sources + '</div>', false);
         }
 
-        html += relatedMarkup(d);
+        html += App.isDoc(d) ? docRelatedMarkup(d) : relatedMarkup(d);
         return html;
     }
 
@@ -496,6 +547,9 @@
         // Telefon zu Karten wird. Die Reihenfolge ist Absicht.
         App.relayoutSopTables();
         linkCrossReferences(d);
+        linkStatutes(d);
+        if (App.isDoc(d)) enhanceDocTools(d);
+        else attachAbsPanel(d);
         wireRelated(d);
 
         App.applyStagger(sections, 'stagger-in');
@@ -521,12 +575,23 @@
 
             var fig = document.createElement('figure');
             fig.className = 'sop-figure';
-            fig.innerHTML = '<img src="' + App.escAttr(f.src) + '" alt="' + App.escAttr(f.alt) +
+            // Ein Antippen der Abbildung oeffnet sie in voller Groesse
+            // (App.openFigure) - auf dem Telefon sind Schichtplaene und
+            // Algorithmen in Spaltenbreite sonst nicht lesbar.
+            fig.innerHTML = '<button type="button" class="sop-figure-zoom" data-figure-zoom' +
+                ' aria-label="' + App.escAttr(f.caption + ' in voller Größe öffnen') + '">' +
+                '<img src="' + App.escAttr(f.src) + '" alt="' + App.escAttr(f.alt) +
                 '" loading="lazy" decoding="async">' +
+                '<span class="sop-figure-hint" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i> Vergrößern</span>' +
+                '</button>' +
                 '<figcaption><i class="fa-solid fa-image" aria-hidden="true"></i>' +
                 '<span>' + App.esc(f.caption) + '</span></figcaption>';
 
-            body.appendChild(fig);
+            // Statuten markieren die Stelle der Abbildung im Text
+            // (data-figure-slot) - dort steht sie auch im Original.
+            var slot = f.slot ? body.querySelector('[data-figure-slot="' + f.slot + '"]') : null;
+            if (slot) slot.parentNode.replaceChild(fig, slot);
+            else body.appendChild(fig);
         }
     }
 
@@ -1061,6 +1126,462 @@
     }
 
     // ============================================
+    // VERWEISE AUF DIE STATUTEN
+    // ============================================
+    // Alle 73 Dispositionsfelder nennen als Indikation fuer die
+    // ZNA-Station das "Statut ZNA" und das "Statut Aufnahme- und
+    // Beobachtungsstation". Genau diese Wortstellen werden zum
+    // Sprungziel - ebenso Verweise zwischen den Statuten. Welche
+    // Stellen das sind, legt tools/data/statuten.mjs fest; der Build
+    // hat geprueft, dass sie im Text stehen.
+    function linkStatutes(d) {
+        var links = App.statutLinksFor(d);
+        if (!links.length) return;
+
+        for (var i = 0; i < links.length; i++) {
+            var l = links[i];
+            var target = App.findSop(l.to);
+            if (!target) continue;
+
+            var bodies = [];
+            if (l.in === '*') {
+                var idx = d.secTitles.indexOf(l.sec);
+                if (idx === -1) continue;
+                bodies = E.viewSOP.querySelectorAll('.sop-section[data-sec="' + idx + '"] .sop-section-body');
+            } else {
+                bodies = E.viewSOP.querySelectorAll('.sop-section[data-sec="' + l.sec + '"] .sop-section-body');
+            }
+
+            for (var b = 0; b < bodies.length; b++) {
+                wrapPhrase(bodies[b], l.p, target);
+            }
+        }
+    }
+
+    /** Erste Fundstelle einer Wortfolge in einen Verweis verwandeln. */
+    function wrapPhrase(root, phrase, target) {
+        if (!document.createTreeWalker) return false;
+        var needle = App.fold(phrase);
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function(node) {
+                var p = node.parentNode;
+                while (p && p !== root) {
+                    if (p.nodeName === 'A' || p.nodeName === 'BUTTON') return NodeFilter.FILTER_REJECT;
+                    p = p.parentNode;
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+
+        var node;
+        while ((node = walker.nextNode())) {
+            var fm = App.foldMap(node.nodeValue);
+            var at = fm.f.indexOf(needle);
+            if (at === -1) continue;
+
+            var start = fm.map[at];
+            var end = fm.map[at + needle.length - 1] + 1;
+            var text = node.nodeValue;
+
+            var link = document.createElement('a');
+            link.className = 'sop-xref sop-xref-doc';
+            link.href = '#statut/' + encodeURIComponent(target.id);
+            link.setAttribute('data-xref', target.id);
+            link.setAttribute('title', target.short + ' öffnen');
+            link.innerHTML = '<i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>';
+            link.appendChild(document.createTextNode(text.slice(start, end)));
+
+            var parent = node.parentNode;
+            parent.insertBefore(document.createTextNode(text.slice(0, start)), node);
+            parent.insertBefore(link, node);
+            parent.insertBefore(document.createTextNode(text.slice(end)), node);
+            parent.removeChild(node);
+            return true;
+        }
+        return false;
+    }
+
+    // ============================================
+    // ZNA-STATION IM DISPOSITIONSFELD
+    // ============================================
+    // Das GELB-Feld jeder SOP enthaelt einen Block "Entlassung am
+    // Folgetag angestrebt (ZNA-Station / A&B-Station)". Darunter
+    // steht jetzt, was das Statut dazu sagt: ob die Diagnose dort
+    // als Indikation genannt ist, und die beiden Checklisten und
+    // die G-AEP-Pruefhilfe als direkte Wege. Der SOP-Text bleibt,
+    // wie er ist - der Hinweis tritt als eigener Block hinzu.
+    function attachAbsPanel(d) {
+        var abs = App.findSop('statut-abs');
+        if (!abs) return;
+
+        var blocks = E.viewSOP.querySelectorAll('.dispo-gelb .dispo-block');
+        if (!blocks.length) return;
+        var block = blocks[0];
+        if (block.querySelector('.dispo-statut')) return;
+
+        var indications = App.absIndicationsFor(d.id);
+        var go = function(key, icon, label) {
+            var idx = App.docSectionIndex('statut-abs', key);
+            if (idx === -1) return '';
+            return '<button type="button" class="dispo-statut-btn" data-doc="statut-abs" data-doc-sec="' + idx + '">' +
+                '<i class="fa-solid ' + icon + '" aria-hidden="true"></i> ' + App.esc(label) + '</button>';
+        };
+
+        var panel = document.createElement('div');
+        panel.className = 'dispo-statut' + (indications.length ? ' has-indication' : '');
+        panel.innerHTML =
+            '<p class="dispo-statut-head"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> ' +
+            'Statut ABS / ZNA-Station</p>' +
+            (indications.length
+                ? '<p class="dispo-statut-text">Als diagnosebezogene Indikation genannt (Kap. 6.1): <strong>' +
+                  App.esc(indications.join(' · ')) + '</strong></p>'
+                : '<p class="dispo-statut-text">Aufnahme nach G-AEP-Kriterien oder den diagnosebezogenen Indikationen (Kap. 6), ' +
+                  'nur nach Rücksprache mit dem diensthabenden Arzt / Oberarzt ZNA.</p>') +
+            '<div class="dispo-statut-actions">' +
+            go('anhang-2', 'fa-clipboard-list', 'Checkliste Aufnahme') +
+            go('anhang-1', 'fa-scale-balanced', 'G-AEP-Kriterien') +
+            go('indikationen', 'fa-square-check', 'Indikationen') +
+            '</div>';
+
+        block.appendChild(panel);
+    }
+
+    // ============================================
+    // WERKZEUGE IN DEN STATUTEN
+    // ============================================
+    // Checklisten (Anhang 2 und 3), G-AEP-Pruefhilfe (Anhang 1),
+    // Ausschlusskriterien (Kap. 4) und antippbare Rufnummern. Wie
+    // beim Score-Rechner gilt: Wortlaut und Reihenfolge stammen aus
+    // dem Statut, hinzu kommt nur die Anfassbarkeit. Nichts wird
+    // gespeichert - es ist eine Abhakhilfe, keine Dokumentation.
+    function enhanceDocTools(d) {
+        var i;
+        var lists = E.viewSOP.querySelectorAll('[data-checklist]');
+        for (i = 0; i < lists.length; i++) buildChecklist(lists[i]);
+
+        var gaep = E.viewSOP.querySelectorAll('[data-gaep-list]');
+        for (i = 0; i < gaep.length; i++) buildGaep(gaep[i]);
+
+        var excl = E.viewSOP.querySelectorAll('[data-exclusion]');
+        for (i = 0; i < excl.length; i++) buildExclusion(excl[i]);
+
+        var bodies = E.viewSOP.querySelectorAll('.sop-section-body');
+        for (i = 0; i < bodies.length; i++) markPhoneNumbers(bodies[i]);
+    }
+
+    /** Ein Listenpunkt wird zum Kontrollkaestchen. */
+    function makeCheckable(li, onToggle) {
+        li.classList.add('check-item');
+        li.setAttribute('role', 'checkbox');
+        li.setAttribute('aria-checked', 'false');
+        li.setAttribute('tabindex', '0');
+
+        var box = document.createElement('span');
+        box.className = 'check-box';
+        box.setAttribute('aria-hidden', 'true');
+        box.innerHTML = '<i class="fa-solid fa-check"></i>';
+        li.insertBefore(box, li.firstChild);
+
+        var toggle = function(e) {
+            // Rufnummern und Verweise im Punkt behalten ihre eigene Aufgabe.
+            if (e && e.target && e.target.closest && e.target.closest('a, button')) return;
+            var on = li.getAttribute('aria-checked') !== 'true';
+            li.setAttribute('aria-checked', on ? 'true' : 'false');
+            App.haptic('light');
+            onToggle(li, on);
+        };
+
+        li.addEventListener('click', toggle);
+        li.addEventListener('keydown', function(e) {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                toggle(e);
+            }
+        });
+    }
+
+    function buildChecklist(box) {
+        var items = box.querySelectorAll('li');
+        if (!items.length) return;
+        var total = items.length;
+        var label = box.getAttribute('data-label') || 'Checkliste';
+
+        var panel = document.createElement('div');
+        panel.className = 'check-panel';
+        panel.innerHTML =
+            '<div class="check-bar">' +
+            '<span class="check-count" role="status" aria-live="polite"><strong>0</strong> von ' + total + ' erledigt</span>' +
+            '<button type="button" class="check-reset" disabled>Zurücksetzen</button>' +
+            '</div>' +
+            '<div class="check-meter" aria-hidden="true"><span></span></div>' +
+            '<p class="check-hint"><strong>Abhakhilfe.</strong> ' + App.esc(label) +
+            ' aus dem Statut. Die Auswahl wird nicht gespeichert und ersetzt nicht die Dokumentation im KIS.</p>';
+        box.appendChild(panel);
+
+        var countEl = panel.querySelector('.check-count');
+        var meterEl = panel.querySelector('.check-meter > span');
+        var resetEl = panel.querySelector('.check-reset');
+
+        function render() {
+            var done = box.querySelectorAll('.check-item[aria-checked="true"]').length;
+            countEl.innerHTML = done === total
+                ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Alle ' + total + ' Punkte erledigt'
+                : '<strong>' + done + '</strong> von ' + total + ' erledigt';
+            meterEl.style.transform = 'scaleX(' + (done / total) + ')';
+            panel.classList.toggle('is-complete', done === total);
+            resetEl.disabled = done === 0;
+        }
+
+        for (var i = 0; i < items.length; i++) makeCheckable(items[i], render);
+
+        resetEl.addEventListener('click', function() {
+            var marked = box.querySelectorAll('.check-item[aria-checked="true"]');
+            for (var m = 0; m < marked.length; m++) marked[m].setAttribute('aria-checked', 'false');
+            App.haptic('light');
+            render();
+        });
+
+        render();
+    }
+
+    /**
+     * G-AEP-Pruefhilfe. Ausgewertet wird nur, was das Statut selbst
+     * sagt: A-Kriterien "ohne Zusatzkriterium B" genuegen allein,
+     * A-Kriterien "mit Zusatzkriterium B" verlangen ein B-Kriterium.
+     * Fuer alle uebrigen Gruppen trifft der Auszug keine Aussage -
+     * sie werden gesammelt, aber nicht bewertet.
+     */
+    function buildGaep(box) {
+        var items = box.querySelectorAll('li[data-gaep]');
+        if (!items.length) return;
+
+        var panel = document.createElement('div');
+        panel.className = 'gaep-panel';
+        panel.innerHTML =
+            '<div class="gaep-verdict" role="status" aria-live="polite"></div>' +
+            '<div class="gaep-actions">' +
+            '<button type="button" class="gaep-copy" disabled><i class="fa-solid fa-copy" aria-hidden="true"></i> Auswahl für den Arztbrief kopieren</button>' +
+            '<button type="button" class="check-reset gaep-reset" disabled>Zurücksetzen</button>' +
+            '</div>' +
+            '<p class="check-hint"><strong>Prüfhilfe.</strong> Bewertet wird nur die im Statut genannte Verknüpfung ' +
+            'von A- und B-Kriterien. Die Auswahl wird nicht gespeichert.</p>';
+        box.appendChild(panel);
+
+        var verdict = panel.querySelector('.gaep-verdict');
+        var copyBtn = panel.querySelector('.gaep-copy');
+        var resetBtn = panel.querySelector('.gaep-reset');
+
+        function chosen() {
+            var out = [];
+            var sel = box.querySelectorAll('li[data-gaep][aria-checked="true"]');
+            for (var i = 0; i < sel.length; i++) {
+                out.push({
+                    code: sel[i].getAttribute('data-gaep'),
+                    group: sel[i].getAttribute('data-group'),
+                    b: sel[i].getAttribute('data-b') || '',
+                    text: (sel[i].textContent || '').replace(/\s+/g, ' ').trim()
+                });
+            }
+            return out;
+        }
+
+        function render() {
+            var list = chosen();
+            var codes = list.map(function(c) { return c.code; });
+            var aAlone = list.filter(function(c) { return c.group === 'A' && c.b === 'ohne'; });
+            var aNeedsB = list.filter(function(c) { return c.group === 'A' && c.b === 'mit'; });
+            var aOther = list.filter(function(c) { return c.group === 'A' && !c.b; });
+            var bSel = list.filter(function(c) { return c.group === 'B'; });
+
+            var state = 'idle';
+            var msg = 'Zutreffende Kriterien antippen.';
+
+            if (list.length) {
+                if (aAlone.length) {
+                    state = 'ok';
+                    msg = aAlone.map(function(c) { return c.code; }).join(', ') +
+                        ': laut Statut ohne Zusatzkriterium B ausreichend.';
+                } else if (aNeedsB.length && bSel.length) {
+                    state = 'ok';
+                    msg = aNeedsB.map(function(c) { return c.code; }).join(', ') + ' mit Zusatzkriterium ' +
+                        bSel.map(function(c) { return c.code; }).join(', ') + ' erfüllt.';
+                } else if (aNeedsB.length) {
+                    state = 'warn';
+                    msg = aNeedsB.map(function(c) { return c.code; }).join(', ') +
+                        ': laut Statut nur mit einem Zusatzkriterium aus B.';
+                } else if (aOther.length) {
+                    state = 'info';
+                    msg = aOther.map(function(c) { return c.code; }).join(', ') +
+                        ' gewählt. Das Statut nennt hierzu keine Verknüpfung mit B.';
+                } else {
+                    state = 'info';
+                    msg = 'Kein Kriterium der Schwere (A) gewählt.';
+                }
+            }
+
+            verdict.className = 'gaep-verdict is-' + state;
+            verdict.innerHTML =
+                '<span class="gaep-codes">' + (codes.length ? App.esc(codes.join(' · ')) : 'Keine Auswahl') + '</span>' +
+                '<span class="gaep-msg">' + App.esc(msg) + '</span>';
+            copyBtn.disabled = !list.length;
+            resetBtn.disabled = !list.length;
+        }
+
+        for (var i = 0; i < items.length; i++) makeCheckable(items[i], render);
+
+        copyBtn.addEventListener('click', function() {
+            var list = chosen();
+            if (!list.length) return;
+            var text = 'G-AEP-Kriterien zur Aufnahme:\n' + list.map(function(c) {
+                // "A1: Ploetzliche ..." - Kennung steht im Text bereits vorn.
+                return '- ' + (c.text.indexOf(c.code) === 0 ? c.text : c.code + ': ' + c.text);
+            }).join('\n');
+            App.copyText(text, function() {
+                App.haptic('light');
+                App.toast('G-AEP-Auswahl kopiert', 'fa-copy');
+            }, function() {
+                App.toast('Kopieren nicht möglich', 'fa-triangle-exclamation');
+            });
+        });
+
+        resetBtn.addEventListener('click', function() {
+            var marked = box.querySelectorAll('li[data-gaep][aria-checked="true"]');
+            for (var m = 0; m < marked.length; m++) marked[m].setAttribute('aria-checked', 'false');
+            App.haptic('light');
+            render();
+        });
+
+        render();
+    }
+
+    /** Ausschlusskriterien (Statut ABS, Kap. 4): trifft eines zu, sagt es der Hinweis. */
+    function buildExclusion(list) {
+        var items = list.querySelectorAll('[data-exclusion-item]');
+        if (!items.length) return;
+
+        var note = document.createElement('div');
+        note.className = 'excl-note';
+        note.setAttribute('role', 'status');
+        note.setAttribute('aria-live', 'polite');
+        list.parentNode.insertBefore(note, list.nextSibling);
+
+        function render() {
+            var hit = list.querySelectorAll('[data-exclusion-item][aria-checked="true"]').length;
+            note.classList.toggle('is-hit', hit > 0);
+            note.innerHTML = hit
+                ? '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ' +
+                  '<span><strong>Ausschlusskriterium zutreffend.</strong> Keine Aufnahme auf die ZNA-Station.</span>'
+                : '<i class="fa-solid fa-circle-info" aria-hidden="true"></i> ' +
+                  '<span>Zutreffendes Ausschlusskriterium antippen.</span>';
+        }
+
+        for (var i = 0; i < items.length; i++) makeCheckable(items[i], render);
+        render();
+    }
+
+    /**
+     * "Tel. 4006", "Tel 909 4271": die Nummer wird antippbar und
+     * landet - wie im Telefonverzeichnis - in der Zwischenablage.
+     */
+    function markPhoneNumbers(root) {
+        if (!document.createTreeWalker) return;
+        var re = /(Tel\.?\s*)((?:909\s*)?\d{4})(?!\d)/;
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+            acceptNode: function(node) {
+                if (!re.test(node.nodeValue || '')) return NodeFilter.FILTER_REJECT;
+                var p = node.parentNode;
+                while (p && p !== root) {
+                    if (p.nodeName === 'A' || p.nodeName === 'BUTTON') return NodeFilter.FILTER_REJECT;
+                    p = p.parentNode;
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        });
+
+        var nodes = [];
+        var node;
+        while ((node = walker.nextNode())) nodes.push(node);
+
+        for (var n = 0; n < nodes.length; n++) {
+            var text = nodes[n].nodeValue;
+            var frag = document.createDocumentFragment();
+            var m;
+            var rest = text;
+            while ((m = re.exec(rest))) {
+                var numStart = m.index + m[1].length;
+                frag.appendChild(document.createTextNode(rest.slice(0, numStart)));
+                var num = m[2].replace(/\s+/g, ' ');
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'doc-tel';
+                btn.setAttribute('data-tel', num);
+                btn.setAttribute('title', 'Nummer kopieren');
+                btn.innerHTML = '<i class="fa-solid fa-phone" aria-hidden="true"></i>';
+                btn.appendChild(document.createTextNode(m[2]));
+                frag.appendChild(btn);
+                rest = rest.slice(numStart + m[2].length);
+            }
+            frag.appendChild(document.createTextNode(rest));
+            nodes[n].parentNode.replaceChild(frag, nodes[n]);
+        }
+    }
+
+    // ---------- Am Ende eines Statuts ----------
+    // Statt "verwandter Pfade": das jeweils andere Statut und - beim
+    // Statut ABS - die Patientenpfade zu den diagnosebezogenen
+    // Indikationen. Damit fuehrt der Weg in beide Richtungen.
+    function docRelatedMarkup(d) {
+        var i;
+        var cards = '';
+
+        for (i = 0; i < S.docs.length; i++) {
+            var other = S.docs[i];
+            if (other.id === d.id) continue;
+            cards += relatedCard(other, other.short, 'Statut');
+        }
+
+        var html = '';
+        if (cards) {
+            html += '<nav class="sop-related" aria-label="Weitere Statuten">' +
+                '<h2 class="sop-related-title"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Weitere Statuten</h2>' +
+                '<div class="sop-related-grid">' + cards + '</div></nav>';
+        }
+
+        if (d.id === 'statut-abs' && App.META && App.META.absIndications) {
+            var seen = {};
+            var sops = '';
+            for (i = 0; i < App.META.absIndications.length; i++) {
+                var ind = App.META.absIndications[i];
+                for (var j = 0; j < ind.s.length; j++) {
+                    var sop = App.findSop(ind.s[j]);
+                    if (!sop || seen[sop.id]) continue;
+                    seen[sop.id] = 1;
+                    sops += relatedCard(sop, sop.name, ind.t);
+                }
+            }
+            if (sops) {
+                html += '<nav class="sop-related" aria-label="Patientenpfade zu den Indikationen">' +
+                    '<h2 class="sop-related-title"><i class="fa-solid fa-circle-nodes" aria-hidden="true"></i> ' +
+                    'Patientenpfade zu den Indikationen (Kap. 6.1)</h2>' +
+                    '<div class="sop-related-grid">' + sops + '</div></nav>';
+            }
+        }
+
+        return html;
+    }
+
+    function relatedCard(item, name, sub) {
+        return '<button type="button" class="related-card" data-id="' + App.escAttr(item.id) + '"' +
+            ' style="' + App.escAttr(App.catStyle(item.category)) + '">' +
+            '<span class="related-card-icon">' +
+            '<i class="fa-solid ' + App.catIcon(item.category) + '" aria-hidden="true"></i></span>' +
+            '<span class="related-card-text">' +
+            '<span class="related-card-name">' + App.esc(name) + '</span>' +
+            '<span class="related-card-cat">' + App.esc(sub) + '</span>' +
+            '</span></button>';
+    }
+
+    // ============================================
     // VERWANDTE PFADE (Vorschlag 28)
     // ============================================
     // Vom Build berechnet: gemeinsamer Wortschatz, gleiche Kategorie
@@ -1102,6 +1623,19 @@
             e.preventDefault();
             App.pushNav(link.getAttribute('data-xref'));
         });
+
+        // Wege aus dem Dispositionsfeld in einen Abschnitt eines Statuts
+        App.delegate(E.viewSOP, '[data-doc-sec]', function(btn, e) {
+            e.preventDefault();
+            App.pushNav(btn.getAttribute('data-doc'), parseInt(btn.getAttribute('data-doc-sec'), 10));
+        });
+
+        // Rufnummern in den Statuten
+        App.delegate(E.viewSOP, '.doc-tel', function(btn, e) {
+            e.preventDefault();
+            e.stopPropagation();
+            App.copyPhoneNumber(btn.getAttribute('data-tel'), null);
+        });
     }
 
     // ============================================
@@ -1137,6 +1671,7 @@
     };
 
     function preparePrintSheet(d) {
+        if (App.isDoc(d)) return prepareDocPrintSheet(d);
         if (E.printHeadTitle) E.printHeadTitle.textContent = d.name || '';
         if (E.printHeadSub) {
             E.printHeadSub.textContent = 'Patientenpfade der Zentralen Notaufnahme · '
@@ -1156,6 +1691,23 @@
             parts.push('Abruf ' + now.toLocaleDateString('de-DE') + ', '
                 + now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr');
             parts.push('Fassung ' + App.VERSION);
+            E.printFootMeta.textContent = parts.join(' · ');
+        }
+    }
+
+    // Ein Statut traegt auf jedem Blatt den Hinweis seines Originals.
+    function prepareDocPrintSheet(d) {
+        if (E.printHeadTitle) E.printHeadTitle.textContent = d.name || '';
+        if (E.printHeadSub) E.printHeadSub.textContent = d.unit || 'Zentrale Notaufnahme · Klinikum St. Georg Leipzig';
+        if (E.printHeadCat) E.printHeadCat.textContent = 'Statut';
+        if (E.printFootNote) E.printFootNote.textContent = 'Ausgedruckte Dokumente unterliegen nicht der Aktualisierung.';
+        if (E.printFootMeta) {
+            var now = new Date();
+            var parts = [];
+            if (d.version) parts.push('Version ' + d.version);
+            if (d.stand) parts.push('Stand ' + d.stand);
+            if (d.release) parts.push('Freigabe: ' + d.release);
+            parts.push('Abruf ' + now.toLocaleDateString('de-DE'));
             E.printFootMeta.textContent = parts.join(' · ');
         }
     }

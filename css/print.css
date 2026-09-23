@@ -90,7 +90,17 @@
         .sop-skeleton,
         .sop-load-error,
         .sop-section-head .sec-toggle,
-        .sop-section-body .dispo-actions {
+        .sop-section-body .dispo-actions,
+        .fig-overlay,
+        .sop-figure-hint,
+        .check-reset,
+        .check-meter,
+        .check-hint,
+        .gaep-actions,
+        .sop-section-body .excl-note,
+        .sop-section-body .dispo-statut-actions,
+        .doc-tel i,
+        .sop-xref-doc i {
             display: none !important;
         }
 
@@ -581,4 +591,68 @@
 
     .print-head,
     .print-foot { display: none; }
+
+    /* ---- Statuten ----
+       Checklisten drucken als leere Kaestchen - so taugt der Ausdruck
+       als Papier-Checkliste. Angehakte Punkte bleiben angehakt. */
+    @media print {
+        .sop-section-body .check-item {
+            margin-left: 0;
+            border: 0;
+            border-bottom: 1px solid #ddd;
+            border-radius: 0;
+            background: none !important;
+            min-height: 0;
+            padding: 3pt 0 3pt 20pt;
+            break-inside: avoid;
+        }
+
+        .sop-section-body .check-box {
+            left: 0;
+            top: 4pt;
+            width: 11pt;
+            height: 11pt;
+            border: 1pt solid #333;
+            border-radius: 2pt;
+            background: #fff !important;
+        }
+
+        .sop-section-body .check-item[aria-checked="true"] .check-box { color: #000 !important; }
+
+        .check-panel,
+        .gaep-panel {
+            position: static;
+            box-shadow: none;
+            border: 1px solid #999;
+            break-inside: avoid;
+        }
+
+        .check-bar { background: none; }
+
+        /* Leere Zaehler sind auf Papier nur Rauschen. */
+        .check-panel:not(.is-complete),
+        .gaep-panel:has(.gaep-verdict.is-idle) { display: none !important; }
+
+        .doc-tel {
+            border: 0;
+            background: none;
+            padding: 0;
+            margin: 0;
+            color: inherit;
+        }
+
+        .doc-facts {
+            border: 1px solid #999;
+            background: none;
+            break-inside: avoid;
+        }
+
+        .sop-section-body .doc-flow li { border: 1px solid #999; background: none; color: #000; }
+        .sop-section-body .doc-flow li::before { background: #333; }
+
+        .sop-section-body .dispo-statut { border: 1px solid #999; background: none; break-inside: avoid; }
+
+        .sop-figure-zoom { cursor: default; }
+        .home-statuten { display: none; }
+    }
 }
