@@ -5,7 +5,7 @@
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.0.0` |
+| Fassung | `4.1.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -15,7 +15,7 @@
 | Score-Rechner | 11 |
 | Startlast (`dist/sop-meta.js`) | 95 KB |
 | Inhaltspakete | 9 × ~105 KB |
-| Stand der Erzeugung | 2026-09-19 |
+| Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
 
 ---
@@ -40,13 +40,15 @@ Single-Page-Anwendung ohne Framework, ES5-kompatibles JavaScript in **zehn Modul
 
 ```
 sop-zna/
-├── index.html              Einstiegspunkt, DOM-Struktur, Druckbogen
+├── index.html              Einstiegspunkt, DOM-Struktur, Druckbogen, Zugangssperre
+├── robots.txt, ai.txt      Absage an Robots und KI-Crawler
+├── .htaccess, _headers     X-Robots-Tag (Apache bzw. Netlify/Cloudflare)
 ├── package.json            Version (einzige Quelle) und Befehle
 ├── version.json            ERZEUGT von tools/build.mjs
 ├── js/
 │   ├── core.js             Zustand, DOM-Puffer, Normalisierung, Suchwerk, Daten
 │   ├── motion.js           Bewegungssteuerung (liest Dauern aus den Tokens)
-│   ├── platform.js         Theme, Schrift, Safe-Area, Offline, Versionswechsel
+│   ├── platform.js         Zugangssperre, Theme, Schrift, Safe-Area, Offline, Versionswechsel
 │   ├── router.js           Adresse, Verlauf, Scrollgedächtnis
 │   ├── views.js            Ansichtswechsel, Tabs, Kopfzeile, Scrollmaße
 │   ├── lists.js            Seitenleiste, Startseite, Übersicht, Volltextsuche
@@ -76,6 +78,17 @@ sop-zna/
 ├── vendor/                 Inter, FontAwesome – Original + Subset
 └── img/
 ```
+
+---
+
+## Zugangssperre und Robots
+
+- **Frühprüfung** als Inline-Skript im `<head>` von `index.html`: setzt `gate-locked` auf `<html>`, wenn weder `sessionStorage['sop-gate'] === '1'` noch `localStorage['sop-gate-until']` (Ablaufzeitpunkt in ms) in der Zukunft liegt. Abgelaufene Werte werden gelöscht.
+- **Dialog** `#gate` steht als erstes Kind von `<body>`; Gestaltung in `css/components.css`, Abschnitt 18. Unschärfe über `backdrop-filter` auf der Sperrfläche – **nicht** über `filter` auf `#app` (nähme fest positionierten Kindern den Bezugsrahmen; `#printSheet` ist `display: contents`).
+- **Prüfung** in `App.initGate()` (`js/platform.js`), aufgerufen als Erstes in `init()` (`js/main.js`). Verglichen wird die FNV-1a-Prüfsumme `GATE_HASH`, nie das Passwort im Klartext. Solange gesperrt: alle übrigen Kinder von `<body>` tragen `inert`, `onGlobalKey` kehrt über `App.gateLocked()` sofort zurück, im Druck ist die Seite leer.
+- Mit Haken: `sop-gate-until = jetzt + 30 Tage`; immer zusätzlich `sop-gate` in `sessionStorage` (übersteht den stillen Versionswechsel).
+- `tools/visual-regress.mjs` prüft die Sperre eigens (sieben Prüfungen) und entsperrt alle übrigen Seiten per `addInitScript(UNLOCK)`. **Neue Prüfseiten brauchen dieses `UNLOCK`**, sonst fotografiert der Durchgang den Dialog.
+- Robots: `robots.txt` (alle + KI-Crawler namentlich), `<meta name="robots">`, `.htaccess`/`_headers` (`X-Robots-Tag`), `ai.txt`. Wer ausliefert, muss diese Dateien mitnehmen.
 
 ---
 

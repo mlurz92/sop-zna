@@ -1,8 +1,8 @@
 {
-    "version": "4.0.0",
-    "lastUpdated": "2026-09-19T06:40:09Z",
-    "hash": "1d57bedd459d",
+    "version": "4.1.0",
+    "lastUpdated": "2026-09-23T10:16:09Z",
+    "hash": "ecb1a8197672",
     "sops": 73,
     "sections": 593,
-    "changelog": "Neues Suchwerk mit Umlaut-, Synonym- und Tippfehlertoleranz sowie Wirkstoff-Direktsuche; Inhalte werden in Paketen geladen statt komplett beim Start; Gestaltung auf ein Token- und Layer-System umgestellt (Typografie, Kategoriefarben, Hinweisblöcke, Tabellen auf dem Telefon, Kapitelfortschritt); Abbildungen, Querverweise und verwandte Pfade ergänzt; Telefonverzeichnis mit Dienstzeitkennung; Druckausgabe in Hausqualität. SOP-Inhalte unverändert."
+    "changelog": "Zugangssperre mit Passwortabfrage (optional 30 Tage gemerkt) vor der unscharf gezeigten Anwendung; Suchmaschinen, KI-Crawler und alle uebrigen Robots per robots.txt, Meta-Angabe, X-Robots-Tag und ai.txt ausgeschlossen. SOP-Inhalte unveraendert."
 }

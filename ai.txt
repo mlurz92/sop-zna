@@ -1,0 +1,4 @@
+# SOP-ZNA - interne Anwendung. Keine Nutzung fuer KI-Training.
+User-Agent: *
+Disallow: /
+Disallow: *

@@ -41,6 +41,10 @@ try {
 }
 
 const UPDATE = process.argv.includes('--update');
+
+/* Bilder und Funktionspruefung laufen hinter der Zugangssperre -
+   die Sperre selbst wird eigens geprueft. */
+const UNLOCK = () => { try { sessionStorage.setItem('sop-gate', '1'); } catch (e) {} };
 const PORT = 8123;
 
 const OUT = path.join(ROOT, 'tests', 'visual');
@@ -388,7 +392,48 @@ async function run() {
 
     try {
         /* ---------- Funktionspruefung (einmal, Desktop) ---------- */
+        /* ---------- Zugangssperre ---------- */
+        const gp = await browser.newPage({ viewport: { width: 390, height: 844 } });
+        await gp.goto('http://127.0.0.1:' + PORT + '/index.html', { waitUntil: 'networkidle' });
+        const gLocked = await gp.evaluate(() => ({
+            locked: document.documentElement.classList.contains('gate-locked'),
+            visible: getComputedStyle(document.getElementById('gate')).display !== 'none',
+            inert: document.getElementById('printSheet').hasAttribute('inert')
+        }));
+        check('Sperre beim ersten Oeffnen', gLocked.locked && gLocked.visible && gLocked.inert, JSON.stringify(gLocked));
+        await gp.keyboard.press('/');
+        check('Keine Tastenkuerzel hinter der Sperre',
+            !(await gp.evaluate(() => document.getElementById('spotlightOverlay').classList.contains('show'))));
+        await gp.fill('#gateInput', 'falsch');
+        await gp.press('#gateInput', 'Enter');
+        const gWrong = await gp.evaluate(() => ({
+            locked: document.documentElement.classList.contains('gate-locked'),
+            msg: document.getElementById('gateError').textContent
+        }));
+        check('Falsches Passwort abgewiesen', gWrong.locked && gWrong.msg.length > 0, JSON.stringify(gWrong));
+        await gp.fill('#gateInput', 'stgeorg');
+        await gp.check('#gateRemember');
+        await gp.press('#gateInput', 'Enter');
+        const gOpen = await gp.evaluate(() => ({
+            locked: document.documentElement.classList.contains('gate-locked'),
+            gone: !document.getElementById('gate'),
+            inert: document.getElementById('printSheet').hasAttribute('inert'),
+            days: (parseInt(localStorage.getItem('sop-gate-until'), 10) - Date.now()) / 864e5
+        }));
+        check('Richtiges Passwort entsperrt', !gOpen.locked && gOpen.gone && !gOpen.inert, JSON.stringify(gOpen));
+        check('Haken merkt 30 Tage', gOpen.days > 29.9 && gOpen.days <= 30, gOpen.days.toFixed(2) + ' Tage');
+        await gp.evaluate(() => sessionStorage.clear());
+        await gp.reload({ waitUntil: 'networkidle' });
+        check('Gemerkt: keine erneute Abfrage',
+            !(await gp.evaluate(() => document.documentElement.classList.contains('gate-locked'))));
+        await gp.evaluate(() => { localStorage.setItem('sop-gate-until', String(Date.now() - 1000)); sessionStorage.clear(); });
+        await gp.reload({ waitUntil: 'networkidle' });
+        check('Abgelaufen: Sperre wieder aktiv',
+            await gp.evaluate(() => document.documentElement.classList.contains('gate-locked')));
+        await gp.close();
+
         const probe = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+        await probe.addInitScript(UNLOCK);
         const consoleErrors = [];
         const failedRequests = [];
         probe.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
@@ -608,6 +653,7 @@ async function run() {
                     colorScheme: theme
                 });
 
+                await page.addInitScript(UNLOCK);
                 await page.goto('http://127.0.0.1:' + PORT + '/index.html', { waitUntil: 'networkidle' });
                 await page.waitForFunction(() => window.SOPApp && window.SOPApp.S.data.length > 0,
                     null, { timeout: 15000 });
