@@ -1,0 +1,4 @@
+# SOP-ZNA - Netlify / Cloudflare Pages: Robots und KI-Crawler fernhalten.
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai
+  Referrer-Policy: no-referrer

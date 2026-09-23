@@ -1,0 +1,6 @@
+# SOP-ZNA - Apache: Robots und KI-Crawler fernhalten.
+# Wirkt auch fuer Dateien ohne <meta>-Angabe (JS, Bilder, JSON).
+<IfModule mod_headers.c>
+    Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai"
+    Header set Referrer-Policy "no-referrer"
+</IfModule>

@@ -5,7 +5,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.0.0` |
+| Fassung | `4.1.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -15,7 +15,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 | Score-Rechner | 11 |
 | Startlast (`dist/sop-meta.js`) | 95 KB |
 | Inhaltspakete | 9 × ~105 KB |
-| Stand der Erzeugung | 2026-09-19 |
+| Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
 
 ---
@@ -241,7 +241,11 @@ Abweichungen liegen als rot markierte Bilder unter `tests/visual/diff/`.
 
 ```
 sop-zna/
-├── index.html              Einstiegspunkt
+├── index.html              Einstiegspunkt, Zugangssperre (Frühprüfung + Dialog)
+├── robots.txt              Absage an alle Robots und KI-Crawler
+├── ai.txt                  Absage an KI-Nutzung
+├── .htaccess               X-Robots-Tag für Apache
+├── _headers                X-Robots-Tag für Netlify / Cloudflare Pages
 ├── package.json            Version (die einzige Quelle) und Befehle
 ├── version.json            erzeugt
 ├── css/
@@ -267,6 +271,52 @@ sop-zna/
 
 ---
 
+## Zugang & Sichtbarkeit
+
+### Zugangssperre
+
+Beim ersten Öffnen liegt die Anwendung unscharf hinter einem Dialog, der ein Passwort abfragt. Erst nach richtiger Eingabe wird sie bedienbar.
+
+| Wahl im Dialog | Gilt bis | Gespeichert in |
+|---|---|---|
+| ohne Haken | der Tab oder das Fenster geschlossen wird | `sessionStorage` `sop-gate` |
+| mit Haken **„Passwort 30 Tage auf diesem Gerät speichern"** | 30 Tage nach der Eingabe | `localStorage` `sop-gate-until` (Ablaufzeitpunkt) |
+
+- Die Frühprüfung steht als kleines Inline-Skript im `<head>` von `index.html` und setzt vor dem ersten Bild die Klasse `gate-locked` – ungesperrt blitzt nichts auf.
+- Die eigentliche Prüfung steht in `App.initGate()` in [`js/platform.js`](js/platform.js). Solange gesperrt ist, ist alles hinter dem Dialog `inert`, Tastenkürzel wie `/` und `Strg K` greifen nicht, und gedruckt wird nichts.
+- Im Quelltext steht nur eine Prüfsumme (FNV-1a, 32 Bit) des Passworts, nicht das Passwort selbst.
+- Abgelaufene 30-Tage-Freigaben werden beim nächsten Öffnen gelöscht; die Abfrage erscheint dann wieder.
+
+> **Eine Zugangshürde, kein Schutz.** Die Anwendung ist statisch. Wer den Quelltext oder die Dateien unter `dist/` direkt abruft, kommt an die Inhalte. Für echte Zugriffskontrolle braucht es eine Anmeldung am Webserver (z. B. Basic Auth, Intranet-Freigabe).
+
+**Passwort ändern:** Prüfsumme des neuen Passworts erzeugen und in `GATE_HASH` in `js/platform.js` eintragen. Bestehende 30-Tage-Freigaben bleiben davon unberührt; wer sofort alle neu abfragen will, benennt zusätzlich den Schlüssel `sop-gate-until` (an beiden Stellen) um.
+
+```bash
+node -e 'var s=process.argv[1],h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}console.log(h.toString(16))' 'neues-passwort'
+```
+
+### Suchmaschinen, KI-Crawler und andere Robots
+
+Die Anwendung soll weder in einem Suchindex landen noch zum Training von Sprachmodellen verwendet werden. Dafür gibt es vier Ebenen – jede für sich, weil nicht jeder Crawler jede auswertet:
+
+| Datei | Wirkung |
+|---|---|
+| [`robots.txt`](robots.txt) | `Disallow: /` für alle Robots, zusätzlich namentlich für die bekannten KI- und Trainings-Crawler (GPTBot, ClaudeBot, Google-Extended, CCBot, PerplexityBot, Applebot-Extended, Meta-ExternalAgent, Bytespider u. a.) |
+| `<meta name="robots">` in `index.html` | `noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, noai, noimageai` |
+| [`.htaccess`](.htaccess) | Apache: `X-Robots-Tag` für **alle** Dateien, auch JS, Bilder und JSON |
+| [`_headers`](_headers) | Netlify / Cloudflare Pages: derselbe `X-Robots-Tag` |
+| [`ai.txt`](ai.txt) | Absage an KI-Nutzung nach dem ai.txt-Vorschlag |
+
+`robots.txt` wirkt nur im Wurzelverzeichnis der Domain. Liegt die Anwendung in einem Unterverzeichnis, muss ihr Inhalt in die `robots.txt` der Domain übernommen werden. Unter **Nginx** gehört die Kopfzeile in die Serverkonfiguration:
+
+```nginx
+add_header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai" always;
+```
+
+Seriöse Crawler halten sich daran; eine technische Sperre ist es nicht. Die trägt – soweit überhaupt – die Zugangssperre.
+
+---
+
 ## Installation & Deployment
 
 ### Voraussetzungen
@@ -284,7 +334,7 @@ scp -r sop-zna/ user@server:/var/www/html/
 
 Die Fassung steht **nur** in `package.json`. `npm run build` trägt sie in `version.json`, `js/core.js` und die Kennzahlenblöcke dieser Datei sowie in `AGENTS.md` ein. Von Hand wird sie nirgends gepflegt.
 
-Nicht ausgeliefert werden müssen: `tools/`, `tests/`, `sops/` und die unreduzierten Schriftdateien in `vendor/`. Ausgeliefert werden müssen `dist/`, `css/`, `js/`, `img/`, `index.html`, `version.json` und die `*-subset.*`-Dateien in `vendor/`.
+Nicht ausgeliefert werden müssen: `tools/`, `tests/`, `sops/` und die unreduzierten Schriftdateien in `vendor/`. Ausgeliefert werden müssen `dist/`, `css/`, `js/`, `img/`, `index.html`, `version.json`, `robots.txt`, `ai.txt`, je nach Server `.htaccess` bzw. `_headers` und die `*-subset.*`-Dateien in `vendor/`.
 
 ### Hosting-Optionen
 
@@ -335,7 +385,8 @@ Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.j
 
 | Taste | Wirkung |
 |---|---|
-| `Strg`/`Cmd` + `K`, `/` | Schnellsuche öffnen |
+| `↵` | im Passwortdialog: entsperren |
+| `Strg`/`Cmd` + `K`, `/` | Schnellsuche öffnen (erst nach dem Entsperren) |
 | `↑` `↓` `↵` | in der Schnellsuche wählen und öffnen |
 | `Esc` | oberstes Overlay schließen |
 | `Rücktaste` | zurück |
@@ -399,6 +450,7 @@ Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v4.1.0** | Sep 2026 | **Zugangssperre und Robots-Absage.** Beim ersten Öffnen liegt die Anwendung unscharf hinter einer Passwortabfrage; auf Wunsch merkt sich das Gerät die Freigabe 30 Tage, sonst bis zum Schließen des Tabs. Hinter dem Dialog ist alles `inert`, Tastenkürzel und Druck sind gesperrt. Suchmaschinen, KI-Crawler und alle übrigen Robots werden über `robots.txt`, `<meta name="robots">`, `X-Robots-Tag` (`.htaccess`, `_headers`) und `ai.txt` ausgeschlossen. Sicht- und Funktionsprüfung um sieben Prüfungen der Sperre erweitert. SOP-Inhalte unverändert. |
 | **v4.0.0** | Sep 2026 | **Suchwerk, Auslieferung und Gestaltung neu.** Suche: ein Werk für alle vier Oberflächen, mit Umlauttoleranz in beide Richtungen, rund 700 kuratierten Synonymen und Abkürzungen, Tippfehlertoleranz, Wirkstoff-Direktsuche über 137 Wirkstoffe und Sprung zur Fundstelle; kurze Eingaben treffen nur an Wortgrenzen. Auslieferung: die 73 SOP-Skripte sind einem Build gewichen – Start mit 95 KB Index statt 1 MB, Inhalte in neun Paketen auf Abruf und im Hintergrund; Schriften und Symbole auf den Bestand reduziert (389 KB → 54 KB). Gestaltung: vier CSS-Layer mit erklärter Rangfolge statt 16 gewachsener Schichten, vollständiges Token-System (Typografie, 8-px-Raster, Tiefe, Bewegung), Kategoriefarben mit nachgerechnetem Kontrast in beiden Themes, Hinweisblöcke als Warnstufen, Tabellen auf dem Telefon als Karten, „Inhalt" und „Drucken" neben der Überschrift. Neu: elf Score-Rechner aus den SOP-eigenen Tabellen, Querverweise, verwandte Pfade, zwei bislang verwaiste Abbildungen, Dienstzeitkennung im Telefonverzeichnis, Druckausgabe mit laufendem Kopf und Fuß. Behoben: Trefferhervorhebung zerriss HTML-Entitäten; Druck war ein Wettlauf gegen `window.print()`; Scrollposition ging beim Zurückgehen verloren; Lesefortschritt erzwang ein Layout je Frame; `aria-expanded` widersprach dem Zustand; „Therapie – …" und „Diagnostik & …" klappten nicht auf; `Esc` konnte die Tastaturbedienung mitreißen; das Inhaltsverzeichnis schloss sich beim Scrollen; Breakpoint-Wechsel baute die Ansichten nicht neu auf; `fa-wifi-slash` gibt es im Free-Satz nicht. SOP-Dateien unverändert. |
 |---------|-------|------------|
 | **v3.3.0** | Sep 2026 | Kompakter, modusabhängiger Kopfbereich, größeres Logo und Kategorie-Symbole, Kartenanimation bei Rückkehr, überarbeitetes Telefonverzeichnis mit Kopierfeedback; Suchtreffer springen zum Abschnitt, robustere Akkordeons, Dialoge und Direktlinks. SOP-Dateien unverändert. |

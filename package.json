@@ -1,9 +1,9 @@
 {
   "name": "sop-zna",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "description": "Patientenpfade der Zentralen Notaufnahme - Klinikum St. Georg Leipzig",
-  "changelog": "Neues Suchwerk mit Umlaut-, Synonym- und Tippfehlertoleranz sowie Wirkstoff-Direktsuche; Inhalte werden in Paketen geladen statt komplett beim Start; Gestaltung auf ein Token- und Layer-System umgestellt (Typografie, Kategoriefarben, Hinweisblöcke, Tabellen auf dem Telefon, Kapitelfortschritt); Abbildungen, Querverweise und verwandte Pfade ergänzt; Telefonverzeichnis mit Dienstzeitkennung; Druckausgabe in Hausqualität. SOP-Inhalte unverändert.",
+  "changelog": "Zugangssperre mit Passwortabfrage (optional 30 Tage gemerkt) vor der unscharf gezeigten Anwendung; Suchmaschinen, KI-Crawler und alle uebrigen Robots per robots.txt, Meta-Angabe, X-Robots-Tag und ai.txt ausgeschlossen. SOP-Inhalte unveraendert.",
   "type": "module",
   "scripts": {
     "build": "node tools/build.mjs",

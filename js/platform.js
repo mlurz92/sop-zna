@@ -1,8 +1,8 @@
 /* ============================================================
    platform.js - Erscheinungsbild und Laufzeitumgebung
    ------------------------------------------------------------
-   Theme, Schriftgroesse, Safe-Area, Offline-Anzeige und der
-   stille Versionswechsel.
+   Zugangssperre, Theme, Schriftgroesse, Safe-Area, Offline-
+   Anzeige und der stille Versionswechsel.
    ============================================================ */
 (function(App) {
     'use strict';
@@ -10,6 +10,98 @@
     var S = App.S;
     var E = App.E;
     var FS = App.FS;
+
+    // ============================================
+    // ZUGANGSSPERRE
+    // ============================================
+    // Beim ersten Oeffnen liegt die Anwendung unscharf hinter einer
+    // Passwortabfrage. Die Klasse gate-locked setzt bereits das
+    // Inline-Skript im <head> - vor dem ersten Bild.
+    //
+    // Das ist eine Zugangshuerde, kein Schutz: die Seite ist statisch,
+    // wer den Quelltext liest, kommt an die Inhalte. Im Quelltext steht
+    // deshalb nur eine Pruefsumme des Passworts, nicht das Passwort.
+    //
+    // Mit Haken:  localStorage 'sop-gate-until' = Ablaufzeitpunkt (30 Tage)
+    // Ohne Haken: sessionStorage 'sop-gate'      = bis der Tab schliesst
+    var GATE_HASH = 'df78bc7c';     // FNV-1a (32 Bit) des Passworts
+    var GATE_DAYS = 30;
+
+    function gateHash(s) {
+        var h = 0x811c9dc5;
+        for (var i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = (h + (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24)) >>> 0;
+        }
+        return h.toString(16);
+    }
+
+    App.gateLocked = function() {
+        return document.documentElement.classList.contains('gate-locked');
+    };
+
+    // Alles ausser der Sperre ist fuer Tastatur und Hilfstechnologien
+    // unerreichbar, solange gesperrt ist.
+    function setGateInert(on) {
+        var kids = document.body.children;
+        for (var i = 0; i < kids.length; i++) {
+            if (kids[i].id === 'gate' || kids[i].tagName === 'SCRIPT') continue;
+            if (on) kids[i].setAttribute('inert', '');
+            else kids[i].removeAttribute('inert');
+        }
+    }
+
+    App.initGate = function() {
+        var gate = document.getElementById('gate');
+        if (!gate) return;
+
+        if (!App.gateLocked()) {
+            gate.parentNode.removeChild(gate);
+            return;
+        }
+
+        var form = document.getElementById('gateForm');
+        var input = document.getElementById('gateInput');
+        var remember = document.getElementById('gateRemember');
+        var error = document.getElementById('gateError');
+
+        setGateInert(true);
+        setTimeout(function() { input.focus(); }, 60);
+
+        input.addEventListener('input', function() {
+            error.textContent = '';
+            input.removeAttribute('aria-invalid');
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (gateHash(input.value.trim()) !== GATE_HASH) {
+                error.textContent = 'Das Passwort ist nicht korrekt.';
+                input.setAttribute('aria-invalid', 'true');
+                input.select();
+                gate.classList.remove('gate-shake');
+                void gate.offsetWidth;
+                gate.classList.add('gate-shake');
+                if (App.haptic) App.haptic('heavy');
+                return;
+            }
+
+            try {
+                sessionStorage.setItem('sop-gate', '1');
+                if (remember.checked) {
+                    localStorage.setItem('sop-gate-until',
+                        String(Date.now() + GATE_DAYS * 24 * 60 * 60 * 1000));
+                }
+            } catch (err) {}
+
+            input.value = '';
+            input.blur();
+            setGateInert(false);
+            document.documentElement.classList.remove('gate-locked');
+            gate.parentNode.removeChild(gate);
+        });
+    };
 
     // ============================================
     // THEME

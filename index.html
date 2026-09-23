@@ -15,6 +15,14 @@
     <meta name="format-detection" content="email=no">
     <meta name="format-detection" content="address=no">
     <meta name="description" content="Patientenpfade der Zentralen Notaufnahme - Klinikum St. Georg Leipzig">
+    <!-- Interne Anwendung: nicht indexieren, nicht archivieren, nicht
+         fuer KI-Training verwenden. Dieselbe Absage steht in robots.txt
+         und - wo der Server sie auswertet - als X-Robots-Tag in
+         .htaccess und _headers. -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, noai, noimageai">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="referrer" content="no-referrer">
     <meta name="HandheldFriendly" content="true">
     <meta name="MobileOptimized" content="width">
     <!-- Die frueheren http-equiv-Angaben zu Cache-Control, Pragma und
@@ -23,6 +31,24 @@
          version.json (js/platform.js) zusammen mit dem
          Fassungsparameter an den nachgeladenen Dateien. -->
     <title>Patientenpfade: ZNA</title>
+
+    <!-- Zugangssperre, Fruehpruefung.
+         Laeuft vor dem ersten Bild, damit ungesperrt niemand die
+         Anwendung aufblitzen sieht. Die eigentliche Pruefung steht in
+         js/platform.js (App.initGate); beide Stellen verwenden
+         dieselben Schluessel. -->
+    <script>
+        (function() {
+            var ok = false;
+            try {
+                var until = parseInt(localStorage.getItem('sop-gate-until'), 10);
+                if (until > Date.now()) ok = true;
+                else if (until) localStorage.removeItem('sop-gate-until');
+                if (sessionStorage.getItem('sop-gate') === '1') ok = true;
+            } catch (e) {}
+            if (!ok) document.documentElement.classList.add('gate-locked');
+        })();
+    </script>
     <link rel="icon" type="image/png" href="img/Basislogo_farbig.png">
     <link rel="apple-touch-icon" href="img/Patientenpfade.png">
 
@@ -49,6 +75,23 @@
     <script src="dist/sop-meta.js"></script>
 </head>
 <body>
+    <!-- Zugangssperre. Sichtbar nur, solange <html> die Klasse
+         gate-locked traegt; die Anwendung liegt dahinter unscharf. -->
+    <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateText">
+        <form class="gate-card" id="gateForm" novalidate>
+            <img class="gate-logo" src="img/Patientenpfade.png" alt="" width="56" height="56">
+            <h2 class="gate-title" id="gateTitle">Patientenpfade</h2>
+            <p class="gate-text" id="gateText">Interner Bereich der Zentralen Notaufnahme. Bitte das Passwort eingeben.</p>
+            <input class="gate-input" type="password" id="gateInput" name="password" aria-label="Passwort" placeholder="Passwort" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+            <p class="gate-error" id="gateError" role="alert" aria-live="assertive"></p>
+            <label class="gate-remember">
+                <input type="checkbox" id="gateRemember">
+                <span>Passwort 30 Tage auf diesem Gerät speichern</span>
+            </label>
+            <button class="gate-submit" type="submit">Entsperren</button>
+        </form>
+    </div>
+
     <a class="skip-link" href="#contentScroll">Zum Inhalt springen</a>
     <!-- Druckbogen.
          Auf dem Bildschirm ist er durchsichtig (display: contents) und

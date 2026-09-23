@@ -1,0 +1,44 @@
+# SOP-ZNA - interne Anwendung der Zentralen Notaufnahme.
+# Nicht crawlen, nicht indexieren, nicht fuer KI-Training verwenden.
+
+# KI- und Trainings-Crawler (ausdruecklich benannt, falls ein Crawler
+# nur seinen eigenen Namen auswertet)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: Claude-Web
+User-agent: Google-Extended
+User-agent: GoogleOther
+User-agent: Google-CloudVertexBot
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Meta-ExternalAgent
+User-agent: Meta-ExternalFetcher
+User-agent: FacebookBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+User-agent: YouBot
+User-agent: AI2Bot
+User-agent: Ai2Bot-Dolma
+User-agent: omgili
+User-agent: omgilibot
+User-agent: Timpibot
+User-agent: ImagesiftBot
+User-agent: PetalBot
+User-agent: img2dataset
+Disallow: /
+
+# Alle uebrigen Robots
+User-agent: *
+Disallow: /

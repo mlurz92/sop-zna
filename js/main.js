@@ -606,6 +606,9 @@
     }
 
     function onGlobalKey(e) {
+        // Solange die Zugangssperre steht, gibt es keine Tastenkuerzel.
+        if (App.gateLocked()) return;
+
         // Enter/Leertaste aktiviert Listeneintraege, die keine
         // Schaltflaechen sind (Inhaltsverzeichnis).
         if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.getAttribute) {
@@ -645,6 +648,7 @@
     // START
     // ============================================
     function init() {
+        App.initGate();
         App.cache();
         App.initMotionPreference();
 
