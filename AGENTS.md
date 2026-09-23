@@ -5,7 +5,7 @@
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.2.0` |
+| Fassung | `4.3.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -403,7 +403,7 @@ Der Build bricht ab bei doppelter Kennung, leerem Abschnitt, unauflösbarer Kate
 | `npm run check` | prüfen, ob die Artefakte aktuell sind |
 | `npm run fonts` | Schriften und Symbole reduzieren |
 | `npm run serve` | lokaler Server, Port 8080 |
-| `npm run visual` | 60 Bilder + 54 Funktionsprüfungen gegen den Stand |
+| `npm run visual` | 60 Bilder + 57 Funktionsprüfungen gegen den Stand |
 | `npm run baseline` | Stand neu festlegen |
 | `npm run verify` | `check` + `visual` |
 | `node tools/verify-fold.mjs` | Normalisierung Build gegen Browser |
@@ -451,4 +451,8 @@ Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden 
 | `SPOT_EXAMPLES` | jedes Beispiel muss im Bestand etwas finden – `npm run visual` prüft das |
 | Szenen der Sichtprüfung | laufen nacheinander auf **derselben** Seite; ein Overlay der vorigen Szene erst schliessen |
 | Statut vs. SOP | nie `S.data` nach Statuten durchsuchen – sie stehen nur in `S.docs`/`S.byId`; `App.isDoc(d)` entscheidet Adresse, Kopf, Breadcrumb, Fußleisten-Markierung, Druck |
+| Sprung in einen Abschnitt | nie direkt `App.revealSection()` nach dem Öffnen – `S.pendingSec` setzen (macht `App.pushNav(id, sec)`), `App.flushPendingSection()` löst ein, sobald der Abschnitt im Dokument steht (auch nach Paket-Nachladen in `App.rSOP()`) |
+| Abschnitts-Links | `#sop/<id>/<Nr. 1-basiert | quellen>`, `#statut/<id>/<key>`; `App.resolveSectionRef()` / `App.linkFor()` in `js/router.js`. Die Adresse wird danach auf die Dokumentebene zurückgesetzt (`syncRoute`) |
+| Einzelabschnittsdruck | `App.printSection(idx)` setzt `.print-one` / `.print-target`; aufgeräumt über `afterprint`, Zeitgeber nur ohne `afterprint`. Formularfelder (`.check-print-fields`, `.check-print-sign`) drucken **nur** in `.print-one` |
+| Externe Ressourcen | bewusst keine CDNs – Schriften, Symbole und Skripte liegen im Projekt, weil die Anwendung im Klinik-Intranet ohne Internet laufen muss |
 | `popNav` bei Deep Link | Ziel (Start bzw. Übersicht) **vor** dem Zurücksetzen von `S.sopId` bestimmen |

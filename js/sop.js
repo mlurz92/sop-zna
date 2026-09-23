@@ -319,6 +319,11 @@
 
         if (state === 'ready') {
             wireSections(d);
+            // Vorgemerkter Abschnitt (Link, Suchtreffer, Werkzeug) -
+            // steht erst jetzt sicher im Dokument.
+            if (S.pendingSec && S.pendingSec.id === d.id && !S.isNavigating) {
+                setTimeout(function() { App.flushPendingSection(); }, 0);
+            }
         } else {
             // Die Kapitelleiste steht schon, ihre Ziele noch nicht.
             // Sie wird deshalb als "in Arbeit" gekennzeichnet, statt
@@ -375,6 +380,9 @@
             '<button type="button" class="utility-btn" id="sopPrint" title="Drucken">' +
             '<i class="fa-solid fa-print" aria-hidden="true"></i>' +
             '<span class="utility-btn-label">Drucken</span></button>' +
+            '<button type="button" class="utility-btn" id="sopLink" title="Link auf diese Stelle kopieren">' +
+            '<i class="fa-solid fa-link" aria-hidden="true"></i>' +
+            '<span class="utility-btn-label">Link</span></button>' +
             '</div>' +
             '</div>' +
             '</article>';
@@ -421,6 +429,9 @@
             '<button type="button" class="utility-btn" id="sopPrint" title="Drucken">' +
             '<i class="fa-solid fa-print" aria-hidden="true"></i>' +
             '<span class="utility-btn-label">Drucken</span></button>' +
+            '<button type="button" class="utility-btn" id="sopLink" title="Link auf diese Stelle kopieren">' +
+            '<i class="fa-solid fa-link" aria-hidden="true"></i>' +
+            '<span class="utility-btn-label">Link</span></button>' +
             '</div>' +
             '</div>' +
             (facts ? '<dl class="doc-facts">' + facts + '</dl>' : '') +
@@ -430,8 +441,10 @@
     function wireHeader(d) {
         var contents = document.getElementById('sopContents');
         var print = document.getElementById('sopPrint');
+        var link = document.getElementById('sopLink');
         if (contents) contents.addEventListener('click', function() { App.openPicker(); });
         if (print) print.addEventListener('click', function() { App.printSop(); });
+        if (link) link.addEventListener('click', function() { App.copySopLink(); });
     }
 
     // ---------- Platzhalter waehrend des Ladens ----------
@@ -1311,12 +1324,33 @@
         panel.innerHTML =
             '<div class="check-bar">' +
             '<span class="check-count" role="status" aria-live="polite"><strong>0</strong> von ' + total + ' erledigt</span>' +
+            '<span class="check-bar-actions">' +
+            '<button type="button" class="check-print"><i class="fa-solid fa-print" aria-hidden="true"></i> Als Vorlage drucken</button>' +
             '<button type="button" class="check-reset" disabled>Zurücksetzen</button>' +
+            '</span>' +
             '</div>' +
             '<div class="check-meter" aria-hidden="true"><span></span></div>' +
             '<p class="check-hint"><strong>Abhakhilfe.</strong> ' + App.esc(label) +
             ' aus dem Statut. Die Auswahl wird nicht gespeichert und ersetzt nicht die Dokumentation im KIS.</p>';
         box.appendChild(panel);
+
+        // Nur im Ausdruck: Kopf- und Unterschriftsfelder, damit die
+        // Papierfassung als ausgefuellte Checkliste taugt (Schreibhoehe
+        // 8 mm, Unterschrift 14 mm). Auf dem Bildschirm unsichtbar.
+        var head = document.createElement('div');
+        head.className = 'check-print-fields';
+        head.setAttribute('aria-hidden', 'true');
+        head.innerHTML = '<span class="write-field">Patient / Etikett</span>' +
+            '<span class="write-field">Datum, Uhrzeit</span>' +
+            '<span class="write-field">Durchgeführt von</span>';
+        box.insertBefore(head, box.firstChild);
+
+        var sign = document.createElement('div');
+        sign.className = 'check-print-sign';
+        sign.setAttribute('aria-hidden', 'true');
+        sign.innerHTML = '<span class="write-field write-sign">Unterschrift Arzt / Ärztin</span>' +
+            '<span class="write-field write-sign">Unterschrift Pflege</span>';
+        box.insertBefore(sign, panel);
 
         var countEl = panel.querySelector('.check-count');
         var meterEl = panel.querySelector('.check-meter > span');
@@ -1333,6 +1367,11 @@
         }
 
         for (var i = 0; i < items.length; i++) makeCheckable(items[i], render);
+
+        panel.querySelector('.check-print').addEventListener('click', function() {
+            var sec = box.closest('.sop-section');
+            if (sec) App.printSection(sec.getAttribute('data-sec'));
+        });
 
         resetEl.addEventListener('click', function() {
             var marked = box.querySelectorAll('.check-item[aria-checked="true"]');
@@ -1713,6 +1752,66 @@
     }
 
     App.preparePrintSheet = preparePrintSheet;
+
+    /** Vorgemerkten Abschnitt oeffnen, sobald er im Dokument steht. */
+    App.flushPendingSection = function() {
+        var p = S.pendingSec;
+        if (!p || p.id !== S.sopId || S.tab !== 'sop' || !E.viewSOP) return;
+        if (!E.viewSOP.querySelector('.sop-section[data-sec="' + p.sec + '"]')) return;
+        S.pendingSec = null;
+        App.revealSection(p.sec);
+    };
+
+    /**
+     * Link auf die geoeffnete SOP kopieren - mit dem Abschnitt, der
+     * gerade im Blick ist. Zum Weitergeben in Teams oder per Mail:
+     * der Empfaenger landet genau dort.
+     */
+    App.copySopLink = function() {
+        var d = App.findSop(S.sopId);
+        if (!d) return;
+        var cur = E.viewSOP ? E.viewSOP.querySelector('.sop-section.is-current') : null;
+        var raw = cur ? cur.getAttribute('data-sec') : null;
+        var sec = raw === 'sources' ? 'sources' : (raw !== null ? parseInt(raw, 10) : null);
+        var url = App.linkFor(d.id, sec);
+        var label = (sec !== null && sec !== 'sources' && d.secTitles[sec]) ? d.secTitles[sec] : (d.short || d.name);
+        App.copyText(url, function() {
+            App.haptic('light');
+            App.toast('Link kopiert: ' + label, 'fa-link');
+        }, function() {
+            App.toast(url, 'fa-link');
+        });
+    };
+
+    /**
+     * Nur einen Abschnitt drucken (z. B. eine Checkliste als
+     * Papiervorlage). Kopf und Fuss des Bogens bleiben, alle anderen
+     * Abschnitte treten fuer den Druck zurueck.
+     */
+    App.printSection = function(idx) {
+        var d = App.findSop(S.sopId);
+        if (!d || !E.viewSOP) return;
+        var sec = E.viewSOP.querySelector('.sop-section[data-sec="' + idx + '"]');
+        if (!sec) return;
+
+        preparePrintSheet(d);
+        E.viewSOP.classList.add('print-one');
+        sec.classList.add('print-target');
+
+        var cleanup = function() {
+            E.viewSOP.classList.remove('print-one');
+            sec.classList.remove('print-target');
+            window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+        App.haptic('light');
+        window.print();
+        // Browser ohne afterprint (aeltere Safari): nach der Rueckkehr aufraeumen.
+        // Nur dort - wo afterprint existiert, kehrt window.print() mitunter
+        // sofort zurueck, und ein fester Zeitgeber raeumte dann auf, waehrend
+        // die Druckvorschau noch offen ist (gedruckt wuerde das ganze Dokument).
+        if (!('onafterprint' in window)) setTimeout(cleanup, 1500);
+    };
 
     // Abschnitt oeffnen und anspringen (Inhaltsverzeichnis, Suchtreffer)
     App.revealSection = function(idx) {

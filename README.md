@@ -5,7 +5,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.2.0` |
+| Fassung | `4.3.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -57,6 +57,8 @@ Ein einziges Suchwerk bedient Seitenleiste, Übersicht, Schnellsuche und Volltex
 
 Die Trefferliste lässt sich auf **Pfadnamen**, **Im Text** oder **Wirkstoffe** eingrenzen. Jeder Treffer führt nicht nur zur SOP, sondern direkt zum Abschnitt mit der Fundstelle.
 
+Die Schnellsuche zeigt zusätzlich **Kapiteltreffer**: `Checkliste`, `G-AEP`, `Crowding`, `Wells` führen direkt in den Abschnitt – auch in SOPs und Statuten, deren Inhalt noch gar nicht geladen ist. Allgemeine Kapitel wie „Therapie" oder „Disposition" stehen in jeder SOP und bleiben deshalb außen vor.
+
 Kurze Eingaben (unter vier Zeichen) treffen nur an Wortgrenzen. Sonst läge bei `LAE` halb Leipzig in der Liste.
 
 #### Die Schnellsuche
@@ -76,6 +78,19 @@ Das Suchfeld der Startseite trägt **kein** `Strg K` mehr. Das Kürzel funktioni
 - **Verwandte Pfade** am Ende jeder SOP, berechnet aus gemeinsamem Wortschatz, Fachgebiet und kuratierten Leitsymptom-Gruppen.
 - **Abbildungen** aus `img/ZNA/` werden am passenden Abschnitt eingeblendet.
 - **Ziffern in Tabellenbreite**: Dosierungen, Zeiten und Grenzwerte stehen stellengenau untereinander.
+
+### Weitergeben
+
+Neben **Inhalt** und **Drucken** steht **Link**: Er kopiert eine Adresse auf die geöffnete SOP bzw. das Statut **samt dem Abschnitt, der gerade im Blick ist** – zum Weitergeben in Teams oder per Mail.
+
+| Link | Öffnet |
+|---|---|
+| `#sop/sepsis` | die SOP |
+| `#sop/lungenarterienembolie/4` | den 4. Abschnitt, aufgeklappt und angesprungen |
+| `#sop/sepsis/quellen` | die Quellen |
+| `#statut/statut-abs/anhang-2` | die Checkliste Aufnahme ZNA-Station |
+
+Bei Statuten steht der Abschnittsschlüssel im Link, nicht die Nummer – er bleibt stabil, auch wenn ein Kapitel hinzukommt.
 
 ### Rechnen
 
@@ -122,7 +137,7 @@ Der Kopf eines Statuts trägt die Angaben des Deckblatts (Datum, Version, Erstel
 
 | Werkzeug | Wo | Was es tut |
 |---|---|---|
-| **Checkliste Aufnahme ZNA-Station** | Statut ABS, Anhang 2 | 14 Punkte in fünf Schritten zum Abhaken, Fortschritt am unteren Rand mitlaufend, Zurücksetzen. Ausgedruckt: Papier-Checkliste mit leeren Kästchen. |
+| **Checkliste Aufnahme ZNA-Station** | Statut ABS, Anhang 2 | 14 Punkte in fünf Schritten zum Abhaken, Fortschritt am unteren Rand mitlaufend, Zurücksetzen. **Als Vorlage drucken** gibt nur diese Checkliste aus – mit Feldern für Patient/Etikett, Datum/Uhrzeit und Durchführende (8 mm Schreibhöhe) und zwei Unterschriftszeilen (14 mm), nach den KSG-Formularmaßen. |
 | **Checkliste Entlassung ZNA-Station** | Statut ABS, Anhang 3 | 12 Punkte in vier Schritten, wie oben. |
 | **G-AEP-Prüfhilfe** | Statut ABS, Anhang 1 | Kriterien antippen; ausgewertet wird **nur**, was das Statut sagt: „ohne Zusatzkriterium B" genügt allein, „mit Zusatzkriterium B" verlangt ein B-Kriterium. Die Auswahl lässt sich als Text für den Arztbrief kopieren. |
 | **Ausschlusskriterien** | Statut ABS, Kap. 4 | BG-Fall, pädiatrisch, rein sozial – trifft eines zu, sagt ein Hinweis: keine Aufnahme auf die ZNA-Station. |
@@ -278,7 +293,7 @@ Der Build bricht ab, wenn ein Platzhalter keine Abbildung hat (oder umgekehrt), 
 npm run visual
 ```
 
-Fährt 3 Breiten × 2 Themes × 10 Zustände an (60 Bilder) und prüft parallel 54 Funktionsmerkmale: Zugangssperre, Anzahl der Pfade und Statuten, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Abbildungen der Statuten an ihrer Stelle, Checkliste und G-AEP-Logik, Verweise und ABS-Hinweis im Dispositionsfeld, Suche nach Statuten, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
+Fährt 3 Breiten × 2 Themes × 10 Zustände an (60 Bilder) und prüft parallel 57 Funktionsmerkmale: Zugangssperre, Abschnitts-Links, Kapiteltreffer der Schnellsuche, Anzahl der Pfade und Statuten, Score-Rechner samt Zeilenzuordnung, Querverweise, Umbau der Tabellen, Abbildungen der Statuten an ihrer Stelle, Checkliste und G-AEP-Logik, Verweise und ABS-Hinweis im Dispositionsfeld, Suche nach Statuten, Dienstzeiten, Umlaut- und Tippfehlertoleranz, Leerzustand und Beispiele der Schnellsuche, Konsolenfehler.
 
 Beide Teile sind nötig: ein Bild kann gleich aussehen und die Anwendung trotzdem kaputt sein. Genau das ist beim Umbau der Druckausgabe passiert – der Bildvergleich hat eine um eine Zeile verschobene Glasgow Coma Scale aufgedeckt.
 
@@ -445,10 +460,13 @@ Gepflegt wird die Liste im Array `PHONE_DIR` in [`js/overlays.js`](js/overlays.j
 | `Rücktaste` | zurück |
 | `←` `→` `Pos1` `Ende` | in der Kapitelleiste |
 | `Leertaste` `↵` | Abschnitt auf-/zuklappen, Score-Kriterium wählen, Checklistenpunkt / G-AEP-Kriterium abhaken |
+| `Tab` | jedes Bedienelement zeigt einen einheitlichen Fokusring (2 px, 2 px Abstand) |
 
 ### Barrierefreiheit
 
 - Kategoriefarben in beiden Themes nachweislich über den WCAG-Schwellen (`node tools/palette.mjs`)
+- Einheitlicher Fokusring (2 px, 2 px Abstand) an allen Bedienelementen, nach den KSG-Regeln für App-Oberflächen
+- Deutsche Silbentrennung im Fließtext der SOPs und Statuten – schmale Telefonspalten und Tabellenkarten reißen keine Löcher mehr; Überschriften, Namen und Rufnummern werden nie getrennt
 - `aria-expanded` folgt dem **tatsächlichen** Zustand, nicht dem angestrebten; geschlossene Abschnitte tragen `hidden` und sind damit weder im Zugänglichkeitsbaum noch in der Browsersuche
 - Fokusfalle und Fokusrückgabe in allen Overlays, Sprunglink, Überschriftenstruktur
 - Bedienelemente auf Zeigegeräten ohne Feinsteuerung mindestens **48 px** – in der ZNA wird mit Handschuhen bedient, die 44 px der Plattformvorgaben sind dafür zu knapp
@@ -503,6 +521,7 @@ Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v4.3.0** | Sep 2026 | **Weitergeben, Finden, Drucken.** Abschnitts-Links (`#sop/<id>/<Nr.>`, `#statut/<id>/<Schlüssel>`) und ein Knopf **Link**, der die Adresse samt aktuellem Abschnitt kopiert. Schnellsuche mit Kapiteltreffern. Sprünge in einen Abschnitt funktionieren jetzt auch, wenn der Inhalt noch nicht geladen ist – vorher lief ein Sprung aus Startseite oder Dispositionsfeld ins Leere, solange das Paket fehlte. Checklisten lassen sich einzeln als Papiervorlage drucken, mit Kopf- und Unterschriftsfeldern nach KSG-Formularmaß. Deutsche Silbentrennung im Fließtext (die Glasgow Coma Scale auf dem Telefon bricht nicht mehr mitten im Wort), einheitlicher Fokusring, Statut-Titel am Telefon ohne Fünfzeilenumbruch. Behoben im Review: Kapiteltreffer im bereits geöffneten Dokument blieben wirkungslos; das Aufräumen nach dem Einzeldruck konnte auf Mobilgeräten die laufende Druckvorschau zurücksetzen; Formularfelder erschienen auch im Gesamtdruck. Keine externen CDNs: die Anwendung muss im Klinikbetrieb ohne Internet laufen. SOP- und Statut-Inhalte unverändert. |
 | **v4.2.0** | Sep 2026 | **Statuten integriert.** Statut / Arbeitsordnung der ZNA (V 1.01) und Statut der Aufnahme- und Beobachtungsstation (02/2026) im unveränderten Wortlaut, mit allen Abbildungen des Originals an ihrer Stelle (Organigramm, Schichtplan 2024, Dienstmodell ab 2025, Versorgungsprozess, Gliederung der Notfallversorgung) und Vergrößerung auf Antippen. Neu: Checklisten Aufnahme und Entlassung ZNA-Station zum Abhaken, G-AEP-Prüfhilfe mit Kopieren für den Arztbrief, Ausschlusskriterien, antippbare Rufnummern, Crowding-Stufen als Ampel. Verknüpfung in beide Richtungen: die Statut-Nennungen in allen 73 Dispositionsfeldern führen ins Statut, dazu ein ABS-Hinweis mit wörtlicher Indikation aus Kap. 6.1; das Statut ABS führt zu den Pfaden seiner Indikationen. Startseite mit Bereich „Statuten & Organisation", Seitenleiste und Übersicht mit Gruppe „Statuten", Suche über Titel, Kapitel, Volltext und eigene Suchbegriffe, Druck mit Deckblattangaben. Telefonverzeichnis um vier Nummern aus den Statuten ergänzt. Sicht- und Funktionsprüfung: 60 Bilder, 54 Prüfungen. SOP-Inhalte unverändert. |
 | **v4.1.0** | Sep 2026 | **Zugangssperre und Robots-Absage.** Beim ersten Öffnen liegt die Anwendung unscharf hinter einer Passwortabfrage; auf Wunsch merkt sich das Gerät die Freigabe 30 Tage, sonst bis zum Schließen des Tabs. Hinter dem Dialog ist alles `inert`, Tastenkürzel und Druck sind gesperrt. Suchmaschinen, KI-Crawler und alle übrigen Robots werden über `robots.txt`, `<meta name="robots">`, `X-Robots-Tag` (`.htaccess`, `_headers`) und `ai.txt` ausgeschlossen. Sicht- und Funktionsprüfung um sieben Prüfungen der Sperre erweitert. SOP-Inhalte unverändert. |
 | **v4.0.0** | Sep 2026 | **Suchwerk, Auslieferung und Gestaltung neu.** Suche: ein Werk für alle vier Oberflächen, mit Umlauttoleranz in beide Richtungen, rund 700 kuratierten Synonymen und Abkürzungen, Tippfehlertoleranz, Wirkstoff-Direktsuche über 137 Wirkstoffe und Sprung zur Fundstelle; kurze Eingaben treffen nur an Wortgrenzen. Auslieferung: die 73 SOP-Skripte sind einem Build gewichen – Start mit 95 KB Index statt 1 MB, Inhalte in neun Paketen auf Abruf und im Hintergrund; Schriften und Symbole auf den Bestand reduziert (389 KB → 54 KB). Gestaltung: vier CSS-Layer mit erklärter Rangfolge statt 16 gewachsener Schichten, vollständiges Token-System (Typografie, 8-px-Raster, Tiefe, Bewegung), Kategoriefarben mit nachgerechnetem Kontrast in beiden Themes, Hinweisblöcke als Warnstufen, Tabellen auf dem Telefon als Karten, „Inhalt" und „Drucken" neben der Überschrift. Neu: elf Score-Rechner aus den SOP-eigenen Tabellen, Querverweise, verwandte Pfade, zwei bislang verwaiste Abbildungen, Dienstzeitkennung im Telefonverzeichnis, Druckausgabe mit laufendem Kopf und Fuß. Behoben: Trefferhervorhebung zerriss HTML-Entitäten; Druck war ein Wettlauf gegen `window.print()`; Scrollposition ging beim Zurückgehen verloren; Lesefortschritt erzwang ein Layout je Frame; `aria-expanded` widersprach dem Zustand; „Therapie – …" und „Diagnostik & …" klappten nicht auf; `Esc` konnte die Tastaturbedienung mitreißen; das Inhaltsverzeichnis schloss sich beim Scrollen; Breakpoint-Wechsel baute die Ansichten nicht neu auf; `fa-wifi-slash` gibt es im Free-Satz nicht. SOP-Dateien unverändert. |

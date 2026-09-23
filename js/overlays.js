@@ -284,6 +284,23 @@
             idx++;
         }
 
+        // Kapitel: "Checkliste", "G-AEP", "Crowding", "Wells" fuehren
+        // direkt in den Abschnitt, nicht nur in das Dokument.
+        var secHits = sectionMatches(query, 3);
+        for (i = 0; i < secHits.length; i++) {
+            var h = secHits[i];
+            html += '<button type="button" class="spotlight-result spotlight-section" id="spot-opt-' + idx +
+                '" data-id="' + App.escAttr(h.d.id) + '" data-sec="' + h.sec + '" role="option" aria-selected="false"' +
+                ' style="' + App.escAttr(App.catStyle(h.d.category)) + '">' +
+                '<span class="spotlight-result-icon">' +
+                '<i class="fa-solid ' + App.secIconOf(h.d, h.sec) + '" aria-hidden="true"></i></span>' +
+                '<span class="spotlight-result-info">' +
+                '<span class="spotlight-result-name">' + App.hl(h.d.secTitles[h.sec], query) + '</span>' +
+                '<span class="spotlight-result-cat">Kapitel · ' + App.esc(h.d.short || h.d.name) + '</span></span>' +
+                '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
+            idx++;
+        }
+
         // Wirkstoffe: direkt zum Pfad mit der Dosierung.
         for (i = 0; i < res.drugs.length && i < 2; i++) {
             var drug = res.drugs[i];
@@ -310,7 +327,7 @@
             '</span>' +
             '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
 
-        if (!res.sops.length && !res.drugs.length) {
+        if (!res.sops.length && !res.drugs.length && !secHits.length) {
             html = '<div class="spotlight-empty" role="presentation"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>' +
                 '<p>Kein Pfad und kein Wirkstoff mit diesem Namen</p></div>' + html;
         }
@@ -337,8 +354,30 @@
         }
 
         var id = item.getAttribute('data-id');
+        var sec = item.getAttribute('data-sec');
         App.closeSpotlight();
-        App.pushNav(id);
+        App.pushNav(id, sec === null ? undefined : parseInt(sec, 10));
+    }
+
+    // Kapitel, deren Ueberschrift die Anfrage traegt. Allgemeine
+    // Kapitel ("Therapie", "Disposition") stehen in jeder SOP und
+    // waeren als Treffer nur Laerm - sie bleiben aussen vor.
+    var GENERIC_SECTIONS = /^(definition|ursachen|symptome|diagnostik|therapie|merke|disposition|komplikationen|quellen)$/;
+
+    function sectionMatches(query, limit) {
+        var forms = App.queryForms(query);
+        if (!forms[0] || forms[0].length < 4) return [];
+        var pool = S.docs.concat(S.data);
+        var out = [];
+        for (var i = 0; i < pool.length && out.length < limit; i++) {
+            var d = pool[i];
+            for (var j = 0; j < d.secTitles.length && out.length < limit; j++) {
+                var f = App.fold(d.secTitles[j]);
+                if (GENERIC_SECTIONS.test(f)) continue;
+                if (App.containsAny(f, forms)) out.push({ d: d, sec: j });
+            }
+        }
+        return out;
     }
 
     function highlightSpotlight(index) {

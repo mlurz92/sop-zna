@@ -1,9 +1,9 @@
 {
-    "version": "4.2.0",
-    "lastUpdated": "2026-09-23T10:53:54Z",
-    "hash": "eefd7060e6e8",
+    "version": "4.3.0",
+    "lastUpdated": "2026-09-23T11:20:10Z",
+    "hash": "a3944e34ef21",
     "sops": 73,
     "sections": 593,
     "statuten": 2,
-    "changelog": "Statuten integriert: Statut/Arbeitsordnung ZNA und Statut der Aufnahme- und Beobachtungsstation mit allen Abbildungen, Checklisten Aufnahme/Entlassung, G-AEP-Pruefhilfe, Verknuepfung mit den Dispositionsfeldern aller 73 SOPs, Suche und Druck. SOP-Inhalte unveraendert."
+    "changelog": "Abschnitts-Links und Link-Knopf, Kapiteltreffer in der Schnellsuche, Sprung in noch nicht geladene Abschnitte, Checkliste als Papiervorlage mit Kopf- und Unterschriftsfeldern, Silbentrennung und einheitlicher Fokusring. SOP- und Statut-Inhalte unveraendert."
 }

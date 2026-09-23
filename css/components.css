@@ -2145,6 +2145,10 @@
 
     @media (max-width: 640px) {
         .sop-header-doc .sop-title { font-size: var(--fs-xl); }
+        /* Lange Statut-Titel bekommen die volle Breite; die Werkzeuge
+           stehen darunter statt den Titel auf fuenf Zeilen zu druecken. */
+        .sop-header-doc .sop-header-main { flex-wrap: wrap; }
+        .sop-header-doc .doc-title-block { flex-basis: 100%; }
         .doc-facts { grid-template-columns: 1fr 1fr; }
         .doc-fact:nth-child(n+3) { grid-column: 1 / -1; }
     }
@@ -2888,4 +2892,62 @@
     }
 
     .browse-group i { color: var(--doc); }
+
+    /* ========================================================
+       20  FEINSATZ UND BEDIENUNG               (KSG App-Regeln)
+       --------------------------------------------------------
+       Aus den KSG-Regeln fuer App-Oberflaechen: sichtbarer Fokus
+       2 px mit 2 px Abstand ueberall, deutsche Silbentrennung im
+       Fliesstext (sonst reissen schmale Telefonspalten Loecher),
+       tabellarische Ziffern in Tabellen.
+       ======================================================== */
+
+    :where(button, a, [role="button"], [role="checkbox"], [tabindex]):focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+
+    .sop-section-body p,
+    .sop-section-body li,
+    .sop-section-body td,
+    .sop-section-body dd {
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphenate-limit-chars: 8 4 3;
+        overflow-wrap: break-word;
+    }
+
+    /* Ueberschriften, Namen und Nummern werden nie getrennt. */
+    .sop-section-body h3,
+    .sop-section-body h4,
+    .sop-section-body strong,
+    .dispo-tel,
+    .doc-tel { hyphens: manual; -webkit-hyphens: manual; }
+
+    .sop-section-body td { font-variant-numeric: tabular-nums; }
+
+    /* ---- Checkliste: Aktionen ---- */
+    .check-bar-actions { display: inline-flex; flex-wrap: wrap; gap: var(--sp-1); }
+
+    .check-print {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        border: 1px solid var(--border2);
+        background: var(--surface);
+        color: var(--text2);
+        border-radius: var(--radius-full);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        padding: var(--sp-05) var(--sp-15);
+        min-height: 32px;
+        cursor: pointer;
+    }
+
+    .check-print:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Nur fuer den Ausdruck (siehe print.css). */
+    .check-print-fields,
+    .check-print-sign { display: none; }
 }
