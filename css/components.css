@@ -2739,6 +2739,14 @@
 
     /* ---- Startseite: Statuten & Organisation ---- */
     .home-statuten { margin: var(--sp-4) 0 var(--sp-2); }
+
+    /* Gleicher Einsatz wie die Kategoriekarten (#catGrid, +150 ms nach
+       dem Kopf) - die Stufen setzen deren Kaskade fort (App.staggerHome). */
+    #homeStatuten .stagger-item { animation-delay: calc(var(--stagger, 0ms) + 150ms); }
+
+    @media (prefers-reduced-motion: reduce) {
+        #homeStatuten .stagger-item { animation: none !important; }
+    }
     .home-statuten:empty { display: none; }
 
     .home-sec-head { margin: 0 0 var(--sp-15); }

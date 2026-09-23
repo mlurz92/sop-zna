@@ -1,9 +1,9 @@
 {
   "name": "sop-zna",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "private": true,
   "description": "Patientenpfade der Zentralen Notaufnahme - Klinikum St. Georg Leipzig",
-  "changelog": "Querverweise vervollstaendigt: kuratierte Begriffe je Pfad und Statut, Verweise auch aus und in die Statuten, je Ziel ein Verweis im Text, Sammelblock Querverweise mit Rueckverweisen, SOP-Chips an den ABS-Indikationen. SOP- und Statut-Inhalte unveraendert.",
+  "changelog": "Startseite: Bereich Statuten & Organisation in die Auftrittsanimation der Kategoriekarten eingebunden - eine durchgehende Kaskade, auch bei jeder Rueckkehr zur Startseite. SOP- und Statut-Inhalte unveraendert.",
   "type": "module",
   "scripts": {
     "build": "node tools/build.mjs",

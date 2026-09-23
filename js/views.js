@@ -179,9 +179,7 @@
         // 2) Rahmen (Titel, Navigation, Breadcrumb, FAB) angleichen
         App.uChrome();
 
-        if (t === 'home' && E.catGrid) {
-            App.applyStagger(E.catGrid.querySelectorAll('.cat-card'), 'stagger-item');
-        }
+        if (t === 'home') App.staggerHome();
 
         // 3) Ansicht wechseln
         var effectiveMode = mode;

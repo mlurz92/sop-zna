@@ -184,10 +184,10 @@
                 App.sTab('browse', 'push');
             });
 
-            App.applyStagger(E.catGrid.querySelectorAll('.cat-card'), 'stagger-item');
         }
 
         App.rHomeStatuten();
+        App.staggerHome();
 
         if (E.homeInfo) {
             // Der Stand der Erzeugung stand hier frueher mit. Er
@@ -265,7 +265,23 @@
             App.pushNav(c.getAttribute('data-doc'), parseInt(c.getAttribute('data-sec'), 10));
         });
 
-        App.applyStagger(E.homeStatuten.querySelectorAll('.statut-card, .statut-tool'), 'stagger-item');
+    };
+
+    /**
+     * Auftritt der Startseite als EINE Kaskade: erst die Kategorien,
+     * dann - nahtlos anschliessend - Ueberschrift, Karten und
+     * Werkzeuge des Bereichs "Statuten & Organisation". Beim Start
+     * und bei jeder Rueckkehr zur Startseite (App.sTab).
+     */
+    App.staggerHome = function() {
+        var cats = E.catGrid ? E.catGrid.querySelectorAll('.cat-card') : [];
+        if (cats.length) App.applyStagger(cats, 'stagger-item');
+        if (E.homeStatuten) {
+            var docs = E.homeStatuten.querySelectorAll('.home-sec-head, .statut-card, .statut-tool');
+            // Die Statuten setzen die Kaskade dort fort, wo die letzte
+            // Kategoriekarte aufgehoert hat.
+            if (docs.length) App.applyStagger(docs, 'stagger-item', Math.min(cats.length, App.MOTION.staggerMax));
+        }
     };
 
     // ============================================

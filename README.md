@@ -5,7 +5,7 @@ Nachschlagewerk für 73 evidenzbasierte Standard Operating Procedures der Zentra
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.4.0` |
+| Fassung | `4.4.1` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -147,6 +147,8 @@ Die beiden Statuten laufen durch **dieselbe Ansicht wie die SOPs** – Kapitelle
 |---|---|---|
 | Statut / Arbeitsordnung Zentrale Interdisziplinäre Notaufnahme | `docs/202510419_STATUT_ZNA_V1-01.docx` · Version 1.01 · 19.04.2025 | 16 Kapitel, 5 Abbildungen |
 | Statut der Aufnahme- und Beobachtungsstation (ABS / ZNA-Station) | `docs/20260227_Statut_ABS-2026.doc` · Stand 02/2026 | 6 Kapitel, 3 Anhänge |
+
+Auf der Startseite gehört der Bereich zur selben Auftrittsbewegung wie die Kategoriekarten: Überschrift, Statut-Karten und Werkzeuge setzen deren Kaskade nahtlos fort – beim Start und bei jeder Rückkehr zur Startseite; bei „Bewegung reduzieren" entfällt sie wie überall.
 
 Der Kopf eines Statuts trägt die Angaben des Deckblatts (Datum, Version, Erstellt / Inhalt, Freigabe, Bereich); jedes gedruckte Blatt trägt den Hinweis des Originals: *„Ausgedruckte Dokumente unterliegen nicht der Aktualisierung."*
 
@@ -539,6 +541,7 @@ Technische Einzelheiten und Konventionen: [`AGENTS.md`](AGENTS.md).
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| **v4.4.1** | Sep 2026 | **Startseite aus einem Guss.** Der Bereich „Statuten & Organisation" tritt jetzt in derselben Kaskade auf wie die Kategoriekarten und setzt sie nahtlos fort – vorher lief er nur beim allerersten Aufbau ein, eigenständig von vorn, und stand bei jeder Rückkehr zur Startseite starr da. `App.applyStagger()` kennt dafür einen Versatz; `App.staggerHome()` steuert die gesamte Startseite. SOP- und Statut-Inhalte unverändert. |
 | **v4.4.0** | Sep 2026 | **Querverweise vervollständigt.** Erkannt wird jetzt nicht nur der Name, sondern eine kuratierte, vom Build geprüfte Begriffsliste je Pfad und Statut (`tools/data/xrefs.mjs`) – Krankheitsbilder und Leitsymptome, keine Laborwerte oder Maßnahmen. Die Statuten sind in beide Richtungen eingebunden: Verweise aus ihrem Text auf die Pfade und aus den Pfaden auf sie. Je Ziel genau ein Verweis im Text; am Ende jedes Dokuments der Sammelblock „Querverweise" mit *Im Text genannt* und – neu – *Verweist hierher*. Hinter jeder Indikation in Kap. 6.1 des ABS-Statuts stehen die zugehörigen Pfade. Rund 600 Verweise im Text (vorher nur Namensnennungen, je Abschnitt wiederholt), 665 Verbindungen. Sichtprüfung: 61 Funktionsprüfungen. SOP- und Statut-Inhalte unverändert. |
 | **v4.3.0** | Sep 2026 | **Weitergeben, Finden, Drucken.** Abschnitts-Links (`#sop/<id>/<Nr.>`, `#statut/<id>/<Schlüssel>`) und ein Knopf **Link**, der die Adresse samt aktuellem Abschnitt kopiert. Schnellsuche mit Kapiteltreffern. Sprünge in einen Abschnitt funktionieren jetzt auch, wenn der Inhalt noch nicht geladen ist – vorher lief ein Sprung aus Startseite oder Dispositionsfeld ins Leere, solange das Paket fehlte. Checklisten lassen sich einzeln als Papiervorlage drucken, mit Kopf- und Unterschriftsfeldern nach KSG-Formularmaß. Deutsche Silbentrennung im Fließtext (die Glasgow Coma Scale auf dem Telefon bricht nicht mehr mitten im Wort), einheitlicher Fokusring, Statut-Titel am Telefon ohne Fünfzeilenumbruch. Behoben im Review: Kapiteltreffer im bereits geöffneten Dokument blieben wirkungslos; das Aufräumen nach dem Einzeldruck konnte auf Mobilgeräten die laufende Druckvorschau zurücksetzen; Formularfelder erschienen auch im Gesamtdruck. Keine externen CDNs: die Anwendung muss im Klinikbetrieb ohne Internet laufen. SOP- und Statut-Inhalte unverändert. |
 | **v4.2.0** | Sep 2026 | **Statuten integriert.** Statut / Arbeitsordnung der ZNA (V 1.01) und Statut der Aufnahme- und Beobachtungsstation (02/2026) im unveränderten Wortlaut, mit allen Abbildungen des Originals an ihrer Stelle (Organigramm, Schichtplan 2024, Dienstmodell ab 2025, Versorgungsprozess, Gliederung der Notfallversorgung) und Vergrößerung auf Antippen. Neu: Checklisten Aufnahme und Entlassung ZNA-Station zum Abhaken, G-AEP-Prüfhilfe mit Kopieren für den Arztbrief, Ausschlusskriterien, antippbare Rufnummern, Crowding-Stufen als Ampel. Verknüpfung in beide Richtungen: die Statut-Nennungen in allen 73 Dispositionsfeldern führen ins Statut, dazu ein ABS-Hinweis mit wörtlicher Indikation aus Kap. 6.1; das Statut ABS führt zu den Pfaden seiner Indikationen. Startseite mit Bereich „Statuten & Organisation", Seitenleiste und Übersicht mit Gruppe „Statuten", Suche über Titel, Kapitel, Volltext und eigene Suchbegriffe, Druck mit Deckblattangaben. Telefonverzeichnis um vier Nummern aus den Statuten ergänzt. Sicht- und Funktionsprüfung: 60 Bilder, 54 Prüfungen. SOP-Inhalte unverändert. |
