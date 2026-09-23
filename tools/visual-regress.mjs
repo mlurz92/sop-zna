@@ -672,6 +672,34 @@ async function run() {
         await probe.evaluate(() => { window.SOPApp.setSpotlightQuery(''); window.SOPApp.closeSpotlight(); });
         await probe.waitForTimeout(300);
 
+        /* Querverweise vollstaendig */
+        await probe.evaluate(() => { window.SOPApp.S.isNavigating = false; window.SOPApp.pushNav('sepsis'); });
+        await probe.waitForTimeout(900);
+        const xr = await probe.evaluate(() => {
+            var ids = {};
+            var links = document.querySelectorAll('#viewSOP .sop-section-body a.sop-xref');
+            for (var i = 0; i < links.length; i++) ids[links[i].getAttribute('data-xref')] = (ids[links[i].getAttribute('data-xref')] || 0) + 1;
+            return {
+                links: links.length,
+                once: Object.keys(ids).every(function (k) { return ids[k] === 1; }),
+                harn: !!ids['harnwegsinfektion'],
+                out: document.querySelectorAll('.sop-xref-index .xref-row:first-of-type .xref-chip').length,
+                back: document.querySelectorAll('.sop-xref-index .xref-chip').length
+            };
+        });
+        check('Querverweise ueber kuratierte Begriffe (Harnwegsinfekt -> HWI)', xr.harn && xr.links >= 6, JSON.stringify(xr));
+        check('Je Ziel genau ein Verweis im Text', xr.once, JSON.stringify(xr));
+        check('Sammelblock mit Rueckverweisen', xr.back > xr.out && xr.out > 0, JSON.stringify(xr));
+        await probe.evaluate(() => { window.SOPApp.S.isNavigating = false; window.SOPApp.pushNav('statut-abs'); });
+        await probe.waitForTimeout(900);
+        const ind = await probe.evaluate(() => {
+            var ids = {};
+            var els = document.querySelectorAll('.doc-indications .xref-chip, .doc-indications a.sop-xref');
+            for (var i = 0; i < els.length; i++) ids[els[i].getAttribute('data-id') || els[i].getAttribute('data-xref')] = 1;
+            return Object.keys(ids).length;
+        });
+        check('Statut ABS: Indikationen fuehren zu allen 14 zugeordneten Pfaden', ind >= 14, ind);
+
         /* Dienstzeiten */
         await probe.setViewportSize({ width: 1440, height: 900 });
         await probe.evaluate(() => window.SOPApp.openDir());

@@ -2950,4 +2950,82 @@
     /* Nur fuer den Ausdruck (siehe print.css). */
     .check-print-fields,
     .check-print-sign { display: none; }
+
+    /* ========================================================
+       21  QUERVERWEISE GESAMMELT
+       --------------------------------------------------------
+       Am Ende jeder SOP und jedes Statuts: alle im Text genannten
+       Dokumente und alle, die hierher verweisen. Kompakte Chips in
+       der Farbe des Ziels.
+       ======================================================== */
+
+    .sop-xref-index { display: grid; gap: var(--sp-15); }
+
+    .xref-row-label {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-05);
+        margin: 0 0 var(--sp-1);
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        color: var(--text2);
+    }
+
+    .xref-row-label i { color: var(--text3); font-size: 0.85em; }
+
+    .xref-row-count {
+        min-width: 1.6em;
+        padding: 0 0.45em;
+        border-radius: var(--radius-full);
+        background: var(--inset);
+        color: var(--text3);
+        font-size: var(--fs-2xs);
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .xref-chips { display: flex; flex-wrap: wrap; gap: var(--sp-05) var(--sp-1); }
+
+    .xref-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-05);
+        min-height: 36px;
+        padding: var(--sp-05) var(--sp-15);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text);
+        font: inherit;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-medium, 500);
+        line-height: 1.2;
+        cursor: pointer;
+        transition: border-color var(--dur-micro) var(--ease-out-quart),
+                    background-color var(--dur-micro) var(--ease-out-quart);
+    }
+
+    .xref-chip:hover { border-color: var(--cat-color, var(--primary)); background: var(--cat-tint, var(--inset)); }
+
+    .xref-chip-dot {
+        flex: 0 0 auto;
+        width: 8px;
+        height: 8px;
+        border-radius: var(--radius-full);
+        background: var(--cat-color, var(--text4));
+    }
+
+    /* An den ABS-Indikationen: kleiner, auf eigener Zeile */
+    .sop-section-body .ind-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-05);
+        margin: var(--sp-05) 0 var(--sp-05);
+    }
+
+    .xref-chip-sm { min-height: 30px; padding: 2px var(--sp-1); font-size: var(--fs-2xs); }
+
+    @media print {
+        .sop-section-body .ind-links { display: none !important; }
+    }
 }

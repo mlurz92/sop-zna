@@ -1,9 +1,9 @@
 {
-    "version": "4.3.0",
-    "lastUpdated": "2026-09-23T11:20:10Z",
-    "hash": "a3944e34ef21",
+    "version": "4.4.0",
+    "lastUpdated": "2026-09-23T11:29:05Z",
+    "hash": "8a2ad3e61033",
     "sops": 73,
     "sections": 593,
     "statuten": 2,
-    "changelog": "Abschnitts-Links und Link-Knopf, Kapiteltreffer in der Schnellsuche, Sprung in noch nicht geladene Abschnitte, Checkliste als Papiervorlage mit Kopf- und Unterschriftsfeldern, Silbentrennung und einheitlicher Fokusring. SOP- und Statut-Inhalte unveraendert."
+    "changelog": "Querverweise vervollstaendigt: kuratierte Begriffe je Pfad und Statut, Verweise auch aus und in die Statuten, je Ziel ein Verweis im Text, Sammelblock Querverweise mit Rueckverweisen, SOP-Chips an den ABS-Indikationen. SOP- und Statut-Inhalte unveraendert."
 }

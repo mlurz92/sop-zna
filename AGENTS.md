@@ -5,7 +5,7 @@
 <!-- BUILD:STATS -->
 | Kennzahl | Wert |
 | --- | --- |
-| Fassung | `4.3.0` |
+| Fassung | `4.4.0` |
 | Patientenpfade | 73 |
 | Abschnitte | 593 |
 | Eigene Synonyme | 581 |
@@ -14,7 +14,7 @@
 | Statuten | 2 (25 Abschnitte) |
 | Abbildungen | 7 (2 in SOPs, 5 in Statuten) |
 | Score-Rechner | 11 |
-| Startlast (`dist/sop-meta.js`) | 105 KB |
+| Startlast (`dist/sop-meta.js`) | 107 KB |
 | Inhaltspakete | 9 × ~105 KB |
 | Stand der Erzeugung | 2026-09-23 |
 <!-- /BUILD:STATS -->
@@ -76,7 +76,7 @@ sop-zna/
 │   ├── subset-fonts.py     Schrift- und Symbol-Subsetting
 │   ├── verify-fold.mjs     Normalisierung Build gegen Browser
 │   ├── visual-regress.mjs  Sicht- und Funktionsprüfung
-│   ├── data/               aliases.mjs, drugs.mjs, figures.mjs, statuten.mjs
+│   ├── data/               aliases.mjs, drugs.mjs, figures.mjs, statuten.mjs, xrefs.mjs
 │   └── lib/                load-sops, text, cats, scores
 ├── tests/visual/           baseline/, current/, diff/
 ├── vendor/                 Inter, FontAwesome – Original + Subset
@@ -403,7 +403,7 @@ Der Build bricht ab bei doppelter Kennung, leerem Abschnitt, unauflösbarer Kate
 | `npm run check` | prüfen, ob die Artefakte aktuell sind |
 | `npm run fonts` | Schriften und Symbole reduzieren |
 | `npm run serve` | lokaler Server, Port 8080 |
-| `npm run visual` | 60 Bilder + 57 Funktionsprüfungen gegen den Stand |
+| `npm run visual` | 60 Bilder + 61 Funktionsprüfungen gegen den Stand |
 | `npm run baseline` | Stand neu festlegen |
 | `npm run verify` | `check` + `visual` |
 | `node tools/verify-fold.mjs` | Normalisierung Build gegen Browser |
@@ -453,6 +453,7 @@ Die Anwendung bringt **keinen** Service Worker mit; alte Registrierungen werden 
 | Statut vs. SOP | nie `S.data` nach Statuten durchsuchen – sie stehen nur in `S.docs`/`S.byId`; `App.isDoc(d)` entscheidet Adresse, Kopf, Breadcrumb, Fußleisten-Markierung, Druck |
 | Sprung in einen Abschnitt | nie direkt `App.revealSection()` nach dem Öffnen – `S.pendingSec` setzen (macht `App.pushNav(id, sec)`), `App.flushPendingSection()` löst ein, sobald der Abschnitt im Dokument steht (auch nach Paket-Nachladen in `App.rSOP()`) |
 | Abschnitts-Links | `#sop/<id>/<Nr. 1-basiert | quellen>`, `#statut/<id>/<key>`; `App.resolveSectionRef()` / `App.linkFor()` in `js/router.js`. Die Adresse wird danach auf die Dokumentebene zurückgesetzt (`syncRoute`) |
+| Querverweise | Begriffe: Name + `XREF_TERMS` (`tools/data/xrefs.mjs`), **nicht** die Such-Synonyme. Build liefert `x` je Dokument und `META.xterms`; Rückverweise (`d.back`) rechnet `App.initData()`. `linkCrossReferences()` verlinkt je Ziel genau einmal pro Dokument (gemeinsames `used`), der Sammelblock `xrefIndexMarkup()` zeigt alle |
 | Einzelabschnittsdruck | `App.printSection(idx)` setzt `.print-one` / `.print-target`; aufgeräumt über `afterprint`, Zeitgeber nur ohne `afterprint`. Formularfelder (`.check-print-fields`, `.check-print-sign`) drucken **nur** in `.print-one` |
 | Externe Ressourcen | bewusst keine CDNs – Schriften, Symbole und Skripte liegen im Projekt, weil die Anwendung im Klinik-Intranet ohne Internet laufen muss |
 | `popNav` bei Deep Link | Ziel (Start bzw. Übersicht) **vor** dem Zurücksetzen von `S.sopId` bestimmen |
